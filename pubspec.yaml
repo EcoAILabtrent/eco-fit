@@ -12,7 +12,8 @@ dependencies:
   provider: ^6.1.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  supabase_flutter: ^2.8.0
+  sqflite: ^2.4.3
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
@@ -25,6 +26,8 @@ flutter:
     # Offline product database — 1122 Uzbek-cuisine products with full
     # macros + micronutrients (replaces the Supabase product table).
     - assets/foods.json
+    - assets/db/eco_fit.db
+    - assets/foods/images/
   fonts:
     # Onest variable font (wght 100–900) — bundled so the app is offline-first.
     - family: Onest

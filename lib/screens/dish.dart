@@ -103,6 +103,8 @@ class _DishScreenState extends State<DishScreen> {
                 t: t,
                 margin: const EdgeInsets.only(bottom: 14),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Center(child: _DishVisual(product: p)),
+                  const SizedBox(height: 14),
                   Text(p.name, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
                   if (p.category.isNotEmpty)
                     Padding(
@@ -117,7 +119,7 @@ class _DishScreenState extends State<DishScreen> {
                       decoration: BoxDecoration(color: t.band, borderRadius: BorderRadius.circular(999)),
                       child: Row(children: [
                         Expanded(child: Text('$kcal ккал', textAlign: TextAlign.center, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: t.dark))),
-                        Expanded(child: Text('$grams г', textAlign: TextAlign.center, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: t.dark))),
+                        Expanded(child: Text('$grams ${p.displayUnit}', textAlign: TextAlign.center, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: t.dark))),
                       ]),
                     ),
                   ),
@@ -222,11 +224,51 @@ class _DishScreenState extends State<DishScreen> {
               scrollController: gramsCtrl,
               itemExtent: 44,
               onSelectedItemChanged: (i) => sync(kcalCtrl, i),
-              children: [for (final g in gramsValues) Center(child: Text('$g г', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)))],
+              children: [for (final g in gramsValues) Center(child: Text('$g ${p.displayUnit}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)))],
             ),
           ),
         ]),
       ),
+    );
+  }
+}
+
+class _DishVisual extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final Product product;
+
+  const _DishVisual({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final imagePath = product.imageAssetPath;
+    return Container(
+      width: 112,
+      height: 112,
+      decoration: BoxDecoration(color: t.bandSoft, borderRadius: BorderRadius.circular(18)),
+      clipBehavior: Clip.antiAlias,
+      alignment: Alignment.center,
+      child: imagePath != null
+          ? Image.asset(
+              imagePath,
+              width: 112,
+              height: 112,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => _fallback(),
+            )
+          : _fallback(),
+    );
+  }
+
+  Widget _fallback() {
+    final emoji = product.emoji;
+    if (emoji != null && emoji.isNotEmpty) {
+      return Text(emoji, style: const TextStyle(fontSize: 44));
+    }
+    return Icon(
+      product.isDrink ? Icons.local_drink_outlined : Icons.restaurant_menu,
+      size: 44,
+      color: t.dark,
     );
   }
 }

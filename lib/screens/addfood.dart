@@ -293,7 +293,7 @@ class _ProductRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        Container(width: 2, height: 34, color: t.olive.withValues(alpha: 0.5)),
+        _ProductVisual(product: p),
         const SizedBox(width: 12),
         Expanded(
           child: GestureDetector(
@@ -309,9 +309,49 @@ class _ProductRow extends StatelessWidget {
         const SizedBox(width: 8),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('${p.kcal}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-          const Text('ккал/100 г', style: TextStyle(fontSize: 10, color: EcoColors.sub)),
+          Text(p.calorieBaseLabel, style: const TextStyle(fontSize: 10, color: EcoColors.sub)),
         ]),
       ]),
+    );
+  }
+}
+
+class _ProductVisual extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final Product product;
+
+  const _ProductVisual({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final imagePath = product.imageAssetPath;
+    return Container(
+      width: 38,
+      height: 38,
+      decoration: BoxDecoration(color: t.bandSoft, borderRadius: BorderRadius.circular(8)),
+      clipBehavior: Clip.antiAlias,
+      alignment: Alignment.center,
+      child: imagePath != null
+          ? Image.asset(
+              imagePath,
+              width: 38,
+              height: 38,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => _fallback(),
+            )
+          : _fallback(),
+    );
+  }
+
+  Widget _fallback() {
+    final emoji = product.emoji;
+    if (emoji != null && emoji.isNotEmpty) {
+      return Text(emoji, style: const TextStyle(fontSize: 20));
+    }
+    return Icon(
+      product.isDrink ? Icons.local_drink_outlined : Icons.restaurant_menu,
+      size: 19,
+      color: t.dark,
     );
   }
 }

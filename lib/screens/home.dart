@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -249,64 +251,201 @@ void showMealPicker(BuildContext context) {
   showModalBottomSheet<void>(
     context: context,
     backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withValues(alpha: 0.24),
     isScrollControlled: true,
-    builder: (sheetCtx) => Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 90),
-      padding: const EdgeInsets.fromLTRB(18, 20, 18, 16),
-      decoration: BoxDecoration(color: t.band, borderRadius: BorderRadius.circular(t.r + 6)),
-      child: SingleChildScrollView(
-        child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Приём пищи', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: t.dark)),
-          const SizedBox(height: 14),
-          for (final (i, meal) in kMealsByTime.indexed) ...[
-            if (i > 0) Divider(height: 1.5, color: t.bandSoft),
-            Builder(builder: (rowCtx) {
-              final kcal = rowCtx.read<AppStore>().mealKcal(meal.key);
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(children: [
-                  Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        Navigator.of(sheetCtx).pop();
-                        Navigator.of(context).pushNamed('/meallog', arguments: meal.key);
-                      },
-                      child: Row(children: [
-                        CalBadge(t: t, value: kcal, size: 44),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Text(meal.label, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: t.dark)),
-                        ),
-                      ]),
+    builder: (sheetCtx) {
+      final media = MediaQuery.of(sheetCtx);
+      final bottomInset = media.padding.bottom;
+      final navClearance = 76.0 + bottomInset;
+      final maxSheetHeight = media.size.height - media.padding.top - navClearance - 6;
+      final desiredSheetHeight = (media.size.height * 0.90).clamp(540.0, 760.0);
+      final sheetHeight = math.max(430.0, math.min(desiredSheetHeight, maxSheetHeight));
+      return SizedBox(
+        height: sheetHeight + navClearance + 30,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: navClearance,
+              height: sheetHeight,
+              child: _MealPickerSheet(
+                onOpenMeal: (mealKey) {
+                  Navigator.of(sheetCtx).pop();
+                  Navigator.of(context).pushNamed('/meallog', arguments: mealKey);
+                },
+                onAddFood: (mealKey) {
+                  Navigator.of(sheetCtx).pop();
+                  Navigator.of(context).pushNamed('/addfood', arguments: mealKey);
+                },
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: bottomInset + 31,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () => Navigator.of(sheetCtx).pop(),
+                  child: Container(
+                    width: 86,
+                    height: 86,
+                    decoration: BoxDecoration(
+                      color: t.dark,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: t.bg, width: 5),
+                      boxShadow: const [BoxShadow(color: Color(0x59364025), blurRadius: 26, offset: Offset(0, 10))],
                     ),
+                    child: Icon(Icons.close, size: 42, color: t.pill),
                   ),
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      Navigator.of(sheetCtx).pop();
-                      Navigator.of(context).pushNamed('/addfood', arguments: meal.key);
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-                      child: Row(children: [
-                        Container(width: 2, height: 20, decoration: BoxDecoration(color: t.olive, borderRadius: BorderRadius.circular(2))),
-                        const SizedBox(width: 4),
-                        Icon(Icons.add, size: 22, color: t.dark),
-                      ]),
-                    ),
-                  ),
-                ]),
-              );
-            }),
+                ),
+              ),
+            ),
           ],
-        ],
         ),
-      ),
-    ),
+      );
+    },
   );
+}
+
+class _MealPickerSheet extends StatelessWidget {
+  final ValueChanged<String> onOpenMeal;
+  final ValueChanged<String> onAddFood;
+
+  const _MealPickerSheet({required this.onOpenMeal, required this.onAddFood});
+
+  static const t = HomeScreen.t;
+  static const _order = ['snackE', 'snackD', 'snackM', 'dinner', 'lunch', 'breakfast'];
+
+  @override
+  Widget build(BuildContext context) {
+    final meals = [
+      for (final key in _order)
+        kMeals.firstWhere((meal) => meal.key == key, orElse: () => kMeals.first),
+    ];
+    final store = context.watch<AppStore>();
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 34, 24, 96),
+      decoration: BoxDecoration(
+        color: t.band,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: const [BoxShadow(color: Color(0x29161A0B), blurRadius: 32, offset: Offset(0, 14))],
+      ),
+      child: Column(
+        children: [
+          Text('Приём пищи', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: t.dark)),
+          const SizedBox(height: 24),
+          Expanded(
+            child: Column(
+              children: [
+                for (final (i, meal) in meals.indexed) ...[
+                  Expanded(
+                    child: _MealPickerRow(
+                      meal: meal,
+                      kcal: store.mealKcal(meal.key),
+                      onOpenMeal: onOpenMeal,
+                      onAddFood: onAddFood,
+                    ),
+                  ),
+                  if (i < meals.length - 1) Divider(height: 1, thickness: 1.3, color: t.pill.withValues(alpha: 0.34)),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MealPickerRow extends StatelessWidget {
+  final Meal meal;
+  final int kcal;
+  final ValueChanged<String> onOpenMeal;
+  final ValueChanged<String> onAddFood;
+
+  const _MealPickerRow({
+    required this.meal,
+    required this.kcal,
+    required this.onOpenMeal,
+    required this.onAddFood,
+  });
+
+  static const t = HomeScreen.t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => onOpenMeal(meal.key),
+            child: Row(
+              children: [
+                _MealPickerCalBadge(value: kcal),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      meal.label,
+                      maxLines: 1,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: t.dark),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => onAddFood(meal.key),
+          child: SizedBox(
+            width: 52,
+            height: 64,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(width: 3, height: 31, decoration: BoxDecoration(color: t.olive, borderRadius: BorderRadius.circular(3))),
+                const SizedBox(width: 15),
+                Icon(Icons.add, size: 34, color: t.dark),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MealPickerCalBadge extends StatelessWidget {
+  final int value;
+
+  const _MealPickerCalBadge({required this.value});
+
+  static const t = HomeScreen.t;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(color: t.pill, borderRadius: BorderRadius.circular(16)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('$value', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: t.dark, height: 1)),
+          const SizedBox(height: 3),
+          Text('кал', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: t.dark.withValues(alpha: 0.72), height: 1)),
+        ],
+      ),
+    );
+  }
 }
 
 class _MetricCard extends StatelessWidget {
