@@ -57,8 +57,16 @@ class AppStore extends ChangeNotifier {
   double weight = 0;
   String? recFeedback; // 'up' | 'down'
 
-  // Food log: meal.key -> items
-  Map<String, List<LogItem>> log = {};
+  // Food diary keyed by date: ymd -> (meal.key -> items).
+  Map<String, Map<String, List<LogItem>>> diary = {};
+
+  /// "YYYY-MM-DD" key for a date (local), default today.
+  static String ymd([DateTime? d]) {
+    final x = d ?? DateTime.now();
+    return '${x.year.toString().padLeft(4, '0')}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
+  }
+
+  Map<String, List<LogItem>> _day(String date) => diary.putIfAbsent(date, () => {});
 
   // Custom meal times (meal.key -> "HH:mm"); defaults come from kMeals.
   Map<String, String> mealTimes = {};
@@ -106,12 +114,24 @@ class AppStore extends ChangeNotifier {
     if (rawTimes is Map) {
       mealTimes = rawTimes.map((k, v) => MapEntry(k as String, v as String));
     }
-    final rawLog = _box.get('log');
-    if (rawLog is Map) {
-      log = rawLog.map((k, v) => MapEntry(
-            k as String,
-            (v as List).map((e) => LogItem.fromMap(e as Map)).toList(),
+    final rawDiary = _box.get('diary');
+    if (rawDiary is Map) {
+      diary = rawDiary.map((date, meals) => MapEntry(
+            date as String,
+            (meals as Map).map((mk, items) => MapEntry(
+                  mk as String,
+                  (items as List).map((e) => LogItem.fromMap(e as Map)).toList(),
+                )),
           ));
+    } else {
+      // Migrate the old flat log (meal -> items) into today's diary entry.
+      final rawLog = _box.get('log');
+      if (rawLog is Map) {
+        _day(ymd()).addAll(rawLog.map((k, v) => MapEntry(
+              k as String,
+              (v as List).map((e) => LogItem.fromMap(e as Map)).toList(),
+            )));
+      }
     }
     notifyListeners();
   }
@@ -131,7 +151,13 @@ class AppStore extends ChangeNotifier {
     _box.put('fatGoal', fatGoal);
     _box.put('protGoal', protGoal);
     _box.put('onboarded', onboarded);
-    _box.put('log', log.map((k, v) => MapEntry(k, v.map((e) => e.toMap()).toList())));
+    _box.put(
+      'diary',
+      diary.map((date, meals) => MapEntry(
+            date,
+            meals.map((mk, items) => MapEntry(mk, items.map((e) => e.toMap()).toList())),
+          )),
+    );
     _box.put('mealTimes', mealTimes);
   }
 
@@ -144,16 +170,24 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  int get consumed =>
-      log.values.expand((items) => items).fold(0, (sum, e) => sum + e.kcal);
+  /// Items logged for a meal on a date (default today).
+  List<LogItem> itemsFor(String mealKey, {String? date}) =>
+      diary[date ?? ymd()]?[mealKey] ?? const [];
 
-  int mealKcal(String mealKey) =>
-      (log[mealKey] ?? const []).fold(0, (sum, e) => sum + e.kcal);
+  int consumedOn([String? date]) => (diary[date ?? ymd()] ?? const {})
+      .values
+      .expand((items) => items)
+      .fold(0, (sum, e) => sum + e.kcal);
 
-  /// Today's consumed macros in grams (summed across all logged items).
-  ({double protein, double carbs, double fat}) get macros {
+  int get consumed => consumedOn();
+
+  int mealKcal(String mealKey, {String? date}) =>
+      itemsFor(mealKey, date: date).fold(0, (sum, e) => sum + e.kcal);
+
+  /// Consumed macros in grams for a date (default today).
+  ({double protein, double carbs, double fat}) macrosOn([String? date]) {
     double p = 0, c = 0, f = 0;
-    for (final items in log.values) {
+    for (final items in (diary[date ?? ymd()] ?? const {}).values) {
       for (final e in items) {
         p += e.protein;
         c += e.carbs;
@@ -162,6 +196,8 @@ class AppStore extends ChangeNotifier {
     }
     return (protein: p, carbs: c, fat: f);
   }
+
+  ({double protein, double carbs, double fat}) get macros => macrosOn();
 
   // ── Independent pedometer ──
 
@@ -256,14 +292,14 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addFood(String mealKey, LogItem item) {
-    log.putIfAbsent(mealKey, () => []).add(item);
+  void addFood(String mealKey, LogItem item, {String? date}) {
+    _day(date ?? ymd()).putIfAbsent(mealKey, () => []).add(item);
     _persist();
     notifyListeners();
   }
 
-  void removeFood(String mealKey, int index) {
-    final items = log[mealKey];
+  void removeFood(String mealKey, int index, {String? date}) {
+    final items = diary[date ?? ymd()]?[mealKey];
     if (items == null || index < 0 || index >= items.length) return;
     items.removeAt(index);
     _persist();

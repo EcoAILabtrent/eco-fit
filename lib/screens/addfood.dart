@@ -7,12 +7,14 @@ import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 import 'dish.dart';
+import 'meallog.dart';
 
 /// Добавление еды — port of foodscreens.jsx::AddFood, wired to the offline
 /// product database (FoodDb / assets/foods.json, 1122 products).
 class AddFoodScreen extends StatefulWidget {
   final String mealKey;
-  const AddFoodScreen({super.key, required this.mealKey});
+  final String? date; // null = today
+  const AddFoodScreen({super.key, required this.mealKey, this.date});
 
   @override
   State<AddFoodScreen> createState() => _AddFoodScreenState();
@@ -27,7 +29,8 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
 
   Meal get meal => kMeals.firstWhere((m) => m.key == widget.mealKey, orElse: () => kMeals.first);
 
-  List<Product> get list => FoodDb.instance.search(query, recipesOnly: tab == 2, limit: 80);
+  // No cap — the full database is shown and scrolled lazily.
+  List<Product> get list => FoodDb.instance.search(query, recipesOnly: tab == 2, limit: 100000);
 
   @override
   void dispose() {
@@ -35,141 +38,202 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
     super.dispose();
   }
 
+  /// Bulk quick-add the checkbox-selected products at 100 г, then stay on the
+  /// list (top-app pattern) so the user can keep adding.
   void _addSelected() {
     final store = context.read<AppStore>();
+    var added = 0;
     for (final slug in sel) {
       final p = FoodDb.instance.bySlug(slug);
       if (p == null) continue;
-      // Default portion = 100 г (matches "ккал/100 г" shown in the row).
-      store.addFood(widget.mealKey, LogItem(p.name, p.kcal, protein: p.protein, carbs: p.carbs, fat: p.fat));
+      store.addFood(widget.mealKey, LogItem(p.name, p.kcal, protein: p.protein, carbs: p.carbs, fat: p.fat), date: widget.date);
+      added++;
     }
-    Navigator.of(context).pushReplacementNamed('/meallog', arguments: widget.mealKey);
+    setState(() => sel.clear());
+    _toast('Добавлено: $added');
+  }
+
+  void _toast(String msg) {
+    ScaffoldMessenger.of(context)
+      ..clearSnackBars()
+      ..showSnackBar(SnackBar(
+        content: Text(msg, style: TextStyle(color: t.pill, fontWeight: FontWeight.w600)),
+        duration: const Duration(milliseconds: 1100),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: t.dark,
+      ));
   }
 
   @override
   Widget build(BuildContext context) {
     final items = list;
-    return EcoScreen(
-      t: t,
-      footer: Positioned(
-        left: 16,
-        right: 16,
-        bottom: 18 + MediaQuery.of(context).padding.bottom,
-        child: Row(children: [
-          Expanded(
-            child: EcoBtn(
-              t: t,
-              disabled: sel.isEmpty,
-              onTap: _addSelected,
-              child: Text(sel.isNotEmpty ? 'Добавить · ${sel.length}' : 'Добавить'),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: EcoBtn(
-              t: t,
-              bg: t.band,
-              fg: t.dark,
-              onTap: () => Navigator.of(context).pushReplacementNamed('/meallog', arguments: widget.mealKey),
-              child: const Text('Следующая'),
-            ),
-          ),
-        ]),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          EcoTopBar(t: t, title: meal.label, onBack: () => Navigator.of(context).pop()),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 110),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Search field
-              Container(
-                height: 52,
-                margin: const EdgeInsets.only(bottom: 14),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                decoration: BoxDecoration(color: t.card, borderRadius: BorderRadius.circular(16)),
-                child: Row(children: [
-                  Icon(ecoIcon('search'), size: 20, color: t.dark),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchCtrl,
-                      onChanged: (v) => setState(() => query = v),
-                      decoration: const InputDecoration(
-                        hintText: 'Найти продукт',
-                        border: InputBorder.none,
-                        isDense: true,
-                      ),
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  if (query.isNotEmpty)
-                    GestureDetector(
-                      onTap: () {
-                        _searchCtrl.clear();
-                        setState(() => query = '');
-                      },
-                      child: Icon(Icons.close, size: 18, color: t.dark),
-                    ),
-                ]),
-              ),
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    final store = context.watch<AppStore>();
+    final mealCount = store.itemsFor(widget.mealKey, date: widget.date).length;
+    final mealKcal = store.mealKcal(widget.mealKey, date: widget.date);
+    return Scaffold(
+      backgroundColor: t.bg,
+      body: Stack(children: [
+        SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                EcoTopBar(t: t, title: meal.label, onBack: () => Navigator.of(context).pop()),
 
-              // Quick "Добавить калории"
-              GestureDetector(
-                onTap: _quickKcal,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                // Search field
+                Container(
+                  height: 52,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(color: t.card, borderRadius: BorderRadius.circular(16)),
                   child: Row(children: [
-                    Icon(ecoIcon('cutlery'), size: 18, color: t.dark),
-                    const SizedBox(width: 8),
-                    Text('Добавить калории вручную', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: t.dark)),
+                    Icon(ecoIcon('search'), size: 20, color: t.dark),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchCtrl,
+                        onChanged: (v) => setState(() => query = v),
+                        decoration: const InputDecoration(hintText: 'Найти продукт', border: InputBorder.none, isDense: true),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    if (query.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          _searchCtrl.clear();
+                          setState(() => query = '');
+                        },
+                        child: Icon(Icons.close, size: 18, color: t.dark),
+                      ),
                   ]),
                 ),
-              ),
 
-              FolderTabs(
-                t: t,
-                tabs: const ['Избранное', 'Все продукты', 'Блюда'],
-                active: tab,
-                onChanged: (i) => setState(() => tab = i),
-              ),
-              EcoCard(
-                t: t,
-                pad: 18,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 320),
-                  child: Column(children: [
-                    if (tab == 0)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 40),
-                        child: Text('Избранное появится после добавления продуктов',
-                            textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: EcoColors.sub)),
-                      )
-                    else if (items.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 40),
-                        child: Text('Ничего не найдено', style: TextStyle(fontSize: 14, color: EcoColors.sub)),
-                      )
-                    else
-                      for (final (i, p) in items.indexed) ...[
-                        if (i > 0) Divider(height: 1.5, thickness: 1.5, color: t.bandSoft),
-                        _ProductRow(
-                          p: p,
-                          selected: sel.contains(p.slug),
-                          onToggle: () => setState(() => sel.contains(p.slug) ? sel.remove(p.slug) : sel.add(p.slug)),
-                          onOpen: () => Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => DishScreen(product: p, mealKey: widget.mealKey),
-                          )),
-                        ),
-                      ],
-                  ]),
+                // Quick "Добавить калории"
+                GestureDetector(
+                  onTap: _quickKcal,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(children: [
+                      Icon(ecoIcon('cutlery'), size: 18, color: t.dark),
+                      const SizedBox(width: 8),
+                      Text('Добавить калории вручную', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: t.dark)),
+                    ]),
+                  ),
+                ),
+
+                FolderTabs(
+                  t: t,
+                  tabs: const ['Избранное', 'Все продукты', 'Блюда'],
+                  active: tab,
+                  onChanged: (i) => setState(() => tab = i),
+                ),
+
+                // Running total already in this meal — feedback as you add.
+                if (mealCount > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10, left: 4),
+                    child: Row(children: [
+                      Icon(Icons.check_circle, size: 16, color: t.dark),
+                      const SizedBox(width: 6),
+                      Text('В приёме: $mealCount · $mealKcal ккал',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: t.dark)),
+                    ]),
+                  ),
+
+                // Lazy, fully-scrollable product list filling the rest.
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(color: t.card, borderRadius: BorderRadius.circular(t.r)),
+                    clipBehavior: Clip.antiAlias,
+                    child: (tab == 0)
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40),
+                              child: Text('Избранное появится после добавления продуктов',
+                                  textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: EcoColors.sub)),
+                            ),
+                          )
+                        : items.isEmpty
+                            ? const Center(child: Text('Ничего не найдено', style: TextStyle(fontSize: 14, color: EcoColors.sub)))
+                            : ListView.separated(
+                                padding: EdgeInsets.fromLTRB(18, 6, 18, 100 + bottomInset),
+                                itemCount: items.length,
+                                separatorBuilder: (_, __) => Divider(height: 1.5, thickness: 1.5, color: t.bandSoft),
+                                itemBuilder: (ctx, i) {
+                                  final p = items[i];
+                                  return _ProductRow(
+                                    p: p,
+                                    selected: sel.contains(p.slug),
+                                    onToggle: () => setState(() => sel.contains(p.slug) ? sel.remove(p.slug) : sel.add(p.slug)),
+                                    onOpen: () async {
+                                      // Open portion detail; on add, return here
+                                      // and keep adding (Yazio/Lifesum pattern).
+                                      final added = await Navigator.of(context).push<String>(MaterialPageRoute(
+                                        builder: (_) => DishScreen(product: p, mealKey: widget.mealKey, date: widget.date),
+                                      ));
+                                      if (added != null && mounted) _toast('«$added» добавлено');
+                                    },
+                                  );
+                                },
+                              ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // Pinned action buttons + fade so the list slides under them.
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: IgnorePointer(
+            child: Container(
+              height: 86 + bottomInset,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [t.bg.withValues(alpha: 0), t.bg],
+                  stops: const [0, 0.6],
                 ),
               ),
-            ]),
+            ),
           ),
-        ],
-      ),
+        ),
+        Positioned(
+          left: 16,
+          right: 16,
+          bottom: 18 + bottomInset,
+          child: Row(children: [
+            Expanded(
+              child: EcoBtn(
+                t: t,
+                disabled: sel.isEmpty,
+                onTap: _addSelected,
+                child: Text(sel.isNotEmpty ? 'Добавить · ${sel.length}' : 'Добавить'),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: EcoBtn(
+                t: t,
+                bg: mealCount > 0 ? t.dark : t.band,
+                fg: mealCount > 0 ? t.pill : t.dark,
+                onTap: () => Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (_) => MealLogScreen(mealKey: widget.mealKey, date: widget.date),
+                )),
+                child: Text(mealCount > 0 ? 'Готово · $mealCount' : 'Готово'),
+              ),
+            ),
+          ]),
+        ),
+      ]),
     );
   }
 
@@ -181,8 +245,8 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       t: t,
       title: 'Добавить калории',
       onDone: () {
-        context.read<AppStore>().addFood(widget.mealKey, LogItem('Быстрое добавление', v));
-        Navigator.of(context).pushReplacementNamed('/meallog', arguments: widget.mealKey);
+        context.read<AppStore>().addFood(widget.mealKey, LogItem('Быстрое добавление', v), date: widget.date);
+        _toast('Добавлено: $v ккал');
       },
       body: SizedBox(
         height: 130,

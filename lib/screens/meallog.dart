@@ -5,11 +5,13 @@ import 'package:provider/provider.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
+import 'addfood.dart';
 
 /// Журнал питания — port of logscreens.jsx::MealLog.
 class MealLogScreen extends StatefulWidget {
   final String mealKey;
-  const MealLogScreen({super.key, required this.mealKey});
+  final String? date; // null = today
+  const MealLogScreen({super.key, required this.mealKey, this.date});
 
   @override
   State<MealLogScreen> createState() => _MealLogScreenState();
@@ -18,13 +20,14 @@ class MealLogScreen extends StatefulWidget {
 class _MealLogScreenState extends State<MealLogScreen> {
   static const t = EcoTheme.meadow;
   late String mealKey = widget.mealKey;
+  String? get date => widget.date;
 
   Meal get meal => kMeals.firstWhere((m) => m.key == mealKey, orElse: () => kMeals[1]);
 
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppStore>();
-    final items = s.log[mealKey] ?? const <LogItem>[];
+    final items = s.itemsFor(mealKey, date: date);
     final time = s.mealTime(mealKey);
 
     return EcoScreen(
@@ -39,7 +42,9 @@ class _MealLogScreenState extends State<MealLogScreen> {
               t: t,
               bg: t.band,
               fg: t.dark,
-              onTap: () => Navigator.of(context).pushNamed('/addfood', arguments: mealKey),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => AddFoodScreen(mealKey: mealKey, date: date),
+              )),
               child: const Text('Добавить'),
             ),
           ),
@@ -122,7 +127,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
                           const SizedBox(width: 14),
                           Expanded(child: Text(it.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
                           GestureDetector(
-                            onTap: () => context.read<AppStore>().removeFood(mealKey, i),
+                            onTap: () => context.read<AppStore>().removeFood(mealKey, i, date: date),
                             child: Container(
                               width: 36,
                               height: 36,

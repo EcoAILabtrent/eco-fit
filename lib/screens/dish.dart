@@ -12,7 +12,8 @@ import '../ui/ui.dart';
 class DishScreen extends StatefulWidget {
   final Product product;
   final String mealKey;
-  const DishScreen({super.key, required this.product, required this.mealKey});
+  final String? date; // null = today
+  const DishScreen({super.key, required this.product, required this.mealKey, this.date});
 
   @override
   State<DishScreen> createState() => _DishScreenState();
@@ -83,8 +84,10 @@ class _DishScreenState extends State<DishScreen> {
             context.read<AppStore>().addFood(
                   widget.mealKey,
                   LogItem(p.name, kcal, protein: _scaled(p.protein), carbs: _scaled(p.carbs), fat: _scaled(p.fat)),
+                  date: widget.date,
                 );
-            Navigator.of(context).pushReplacementNamed('/meallog', arguments: widget.mealKey);
+            // Return to the food list (keep adding); list shows confirmation.
+            Navigator.of(context).pop(p.name);
           },
           child: Text('Добавить в «${meal.label}»'),
         ),
