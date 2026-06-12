@@ -8,7 +8,8 @@ import '../theme/tokens.dart';
 import '../ui/ui.dart';
 import 'dish.dart';
 
-/// Добавление еды в приём — port of foodscreens.jsx::AddFood.
+/// Добавление еды — port of foodscreens.jsx::AddFood, wired to the offline
+/// product database (FoodDb / assets/foods.json, 1122 products).
 class AddFoodScreen extends StatefulWidget {
   final String mealKey;
   const AddFoodScreen({super.key, required this.mealKey});
@@ -19,28 +20,28 @@ class AddFoodScreen extends StatefulWidget {
 
 class _AddFoodScreenState extends State<AddFoodScreen> {
   static const t = EcoTheme.meadow;
-  int tab = 1;
-  final sel = <String>{};
+  int tab = 1; // 0 favourites · 1 all products · 2 dishes (recipes)
+  final sel = <String>{}; // selected slugs
   String query = '';
+  final _searchCtrl = TextEditingController();
 
   Meal get meal => kMeals.firstWhere((m) => m.key == widget.mealKey, orElse: () => kMeals.first);
 
-  List<Product> get list {
-    var base = switch (tab) {
-      0 => kProducts.where((p) => p.fav),
-      2 => kProducts.where((p) => p.name.contains('Салат') || p.kcal > 150),
-      _ => kProducts,
-    };
-    if (query.isNotEmpty) {
-      base = base.where((p) => p.name.toLowerCase().contains(query.toLowerCase()));
-    }
-    return base.toList();
+  List<Product> get list => FoodDb.instance.search(query, recipesOnly: tab == 2, limit: 80);
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
   }
 
   void _addSelected() {
     final store = context.read<AppStore>();
-    for (final p in kProducts.where((p) => sel.contains(p.name))) {
-      store.addFood(widget.mealKey, LogItem(p.name, p.kcal));
+    for (final slug in sel) {
+      final p = FoodDb.instance.bySlug(slug);
+      if (p == null) continue;
+      // Default portion = 100 г (matches "ккал/100 г" shown in the row).
+      store.addFood(widget.mealKey, LogItem(p.name, p.kcal, protein: p.protein, carbs: p.carbs, fat: p.fat));
     }
     Navigator.of(context).pushReplacementNamed('/meallog', arguments: widget.mealKey);
   }
@@ -82,24 +83,54 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 110),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Способ записи
-              EcoCard(
-                t: t,
-                margin: const EdgeInsets.only(bottom: 16),
-                child: Column(children: [
-                  const Text('Выберите способ записи еды',
-                      style: TextStyle(fontSize: 14, color: EcoColors.sub, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 16),
-                  Row(children: [
-                    _MethodBtn(icon: 'search', label: 'Найти продукт', active: query.isNotEmpty, onTap: _search),
-                    _MethodBtn(icon: 'food', label: 'Добавить калории', onTap: _quickKcal),
-                  ]),
+              // Search field
+              Container(
+                height: 52,
+                margin: const EdgeInsets.only(bottom: 14),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(color: t.card, borderRadius: BorderRadius.circular(16)),
+                child: Row(children: [
+                  Icon(ecoIcon('search'), size: 20, color: t.dark),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchCtrl,
+                      onChanged: (v) => setState(() => query = v),
+                      decoration: const InputDecoration(
+                        hintText: 'Найти продукт',
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  if (query.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        _searchCtrl.clear();
+                        setState(() => query = '');
+                      },
+                      child: Icon(Icons.close, size: 18, color: t.dark),
+                    ),
                 ]),
+              ),
+
+              // Quick "Добавить калории"
+              GestureDetector(
+                onTap: _quickKcal,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(children: [
+                    Icon(ecoIcon('cutlery'), size: 18, color: t.dark),
+                    const SizedBox(width: 8),
+                    Text('Добавить калории вручную', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: t.dark)),
+                  ]),
+                ),
               ),
 
               FolderTabs(
                 t: t,
-                tabs: const ['Избранное', 'Мои продукты', 'Мои блюда'],
+                tabs: const ['Избранное', 'Все продукты', 'Блюда'],
                 active: tab,
                 onChanged: (i) => setState(() => tab = i),
               ),
@@ -109,36 +140,29 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 320),
                   child: Column(children: [
-                    if (query.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Row(children: [
-                          Expanded(
-                            child: Text('Поиск: «$query»',
-                                style: const TextStyle(fontSize: 13, color: EcoColors.sub, fontWeight: FontWeight.w600)),
-                          ),
-                          GestureDetector(
-                            onTap: () => setState(() => query = ''),
-                            child: Icon(Icons.close, size: 18, color: t.dark),
-                          ),
-                        ]),
-                      ),
-                    if (items.isEmpty)
+                    if (tab == 0)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: Text('Избранное появится после добавления продуктов',
+                            textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: EcoColors.sub)),
+                      )
+                    else if (items.isEmpty)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 40),
                         child: Text('Ничего не найдено', style: TextStyle(fontSize: 14, color: EcoColors.sub)),
-                      ),
-                    for (final (i, p) in items.indexed) ...[
-                      if (i > 0) Divider(height: 1.5, thickness: 1.5, color: t.bandSoft),
-                      _ProductRow(
-                        p: p,
-                        selected: sel.contains(p.name),
-                        onToggle: () => setState(() => sel.contains(p.name) ? sel.remove(p.name) : sel.add(p.name)),
-                        onOpen: () => Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => DishScreen(product: p, mealKey: widget.mealKey),
-                        )),
-                      ),
-                    ],
+                      )
+                    else
+                      for (final (i, p) in items.indexed) ...[
+                        if (i > 0) Divider(height: 1.5, thickness: 1.5, color: t.bandSoft),
+                        _ProductRow(
+                          p: p,
+                          selected: sel.contains(p.slug),
+                          onToggle: () => setState(() => sel.contains(p.slug) ? sel.remove(p.slug) : sel.add(p.slug)),
+                          onOpen: () => Navigator.of(context).push(MaterialPageRoute(
+                            builder: (_) => DishScreen(product: p, mealKey: widget.mealKey),
+                          )),
+                        ),
+                      ],
                   ]),
                 ),
               ),
@@ -147,29 +171,6 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
         ],
       ),
     );
-  }
-
-  Future<void> _search() async {
-    final c = TextEditingController(text: query);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (dCtx) => AlertDialog(
-        backgroundColor: t.bg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.r)),
-        title: const Text('Найти продукт', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
-        content: TextField(
-          controller: c,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Название продукта'),
-          onSubmitted: (v) => Navigator.of(dCtx).pop(v),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(dCtx).pop(''), child: const Text('Сброс')),
-          TextButton(onPressed: () => Navigator.of(dCtx).pop(c.text), child: const Text('Искать')),
-        ],
-      ),
-    );
-    if (result != null) setState(() => query = result);
   }
 
   void _quickKcal() {
@@ -199,35 +200,6 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
               ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _MethodBtn extends StatelessWidget {
-  static const t = EcoTheme.meadow;
-  final String icon;
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-
-  const _MethodBtn({required this.icon, required this.label, this.active = false, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Column(children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(color: active ? t.olive : t.dark, shape: BoxShape.circle),
-            child: Icon(ecoIcon(icon), size: 24, color: t.pill),
-          ),
-          const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-        ]),
       ),
     );
   }
@@ -264,12 +236,13 @@ class _ProductRow extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: onOpen,
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(p.name, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700)),
+              Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w700)),
               const SizedBox(height: 1),
-              Text(p.desc, style: const TextStyle(fontSize: 12.5, color: EcoColors.sub)),
+              Text(p.category, style: const TextStyle(fontSize: 12.5, color: EcoColors.sub)),
             ]),
           ),
         ),
+        const SizedBox(width: 8),
         Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
           Text('${p.kcal}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
           const Text('ккал/100 г', style: TextStyle(fontSize: 10, color: EcoColors.sub)),

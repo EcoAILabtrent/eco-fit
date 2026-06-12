@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'data/products.dart';
 import 'screens/addfood.dart';
 import 'screens/dayview.dart';
+import 'screens/health.dart';
 import 'screens/home.dart';
 import 'screens/meallog.dart';
 import 'screens/onboarding.dart';
@@ -18,6 +20,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final store = AppStore();
   await store.init();
+  await FoodDb.instance.load(); // offline product database (assets/foods.json)
   // Pull today's steps on launch and on every return to the foreground.
   unawaited(store.syncSteps());
   AppLifecycleListener(onResume: () => store.syncSteps());
@@ -61,8 +64,11 @@ class EcoApp extends StatelessWidget {
           '/stats': (_) => const StatsScreen(),
           '/nutrition': (_) => const StubScreen(title: 'Питательность'),
           '/profile': (_) => const ProfileScreen(),
-          '/body': (_) => const StubScreen(title: 'Параметры тела'),
-          '/water': (_) => const StubScreen(title: 'Вода'),
+          '/body': (_) => const BodyScreen(),
+          '/bodyEntry': (_) => const BodyEntryScreen(),
+          '/water': (_) => const WaterScreen(),
+          '/pressure': (_) => const PressureScreen(),
+          '/sugar': (_) => const SugarScreen(),
           '/onboarding': (_) => const OnboardingScreen(),
         },
       ),

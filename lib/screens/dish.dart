@@ -7,7 +7,8 @@ import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 
-/// Карточка блюда — port of foodscreens.jsx::Dish.
+/// Карточка блюда — port of foodscreens.jsx::Dish, showing the product's real
+/// macros + micronutrients from the offline DB, scaled to the chosen portion.
 class DishScreen extends StatefulWidget {
   final Product product;
   final String mealKey;
@@ -17,28 +18,57 @@ class DishScreen extends StatefulWidget {
   State<DishScreen> createState() => _DishScreenState();
 }
 
+/// Micronutrient key → (label, unit). Matches foods.json micro keys.
+const _microMeta = {
+  'protein': ('Белки', 'г'),
+  'fat': ('Жиры', 'г'),
+  'carbs': ('Углеводы', 'г'),
+  'fe': ('Железо', 'мг'),
+  'mg': ('Магний', 'мг'),
+  'ca': ('Кальций', 'мг'),
+  'p': ('Фосфор', 'мг'),
+  'k': ('Калий', 'мг'),
+  'na': ('Натрий', 'мг'),
+  'zn': ('Цинк', 'мг'),
+  'vit_c': ('Витамин C', 'мг'),
+  'vit_a': ('Витамин A', 'мкг'),
+  'vit_d': ('Витамин D', 'мкг'),
+};
+
 class _DishScreenState extends State<DishScreen> {
   static const t = EcoTheme.meadow;
-  late int grams = 120;
+  late int grams = 100;
 
-  int get kcal => (grams * widget.product.kcal / 100).round();
+  Product get p => widget.product;
+  double _scaled(num per100) => per100 * grams / 100;
+  int get kcal => _scaled(p.kcal).round();
 
   Meal get meal => kMeals.firstWhere((m) => m.key == widget.mealKey, orElse: () => kMeals[1]);
 
   @override
   Widget build(BuildContext context) {
-    const segs = [
-      (pct: 50, color: EcoColors.carb, label: 'Углеводы'),
-      (pct: 37, color: EcoColors.prot, label: 'Белки'),
-      (pct: 13, color: EcoColors.fat, label: 'Жиры'),
+    // Macro split for the bar (by calories of the scaled portion).
+    final pKcal = _scaled(p.protein) * 4;
+    final cKcal = _scaled(p.carbs) * 4;
+    final fKcal = _scaled(p.fat) * 9;
+    final totalKcal = (pKcal + cKcal + fKcal).clamp(1, double.infinity);
+    final segs = [
+      (pct: (cKcal / totalKcal * 100).round(), color: EcoColors.carb, label: 'Углеводы'),
+      (pct: (pKcal / totalKcal * 100).round(), color: EcoColors.prot, label: 'Белки'),
+      (pct: (fKcal / totalKcal * 100).round(), color: EcoColors.fat, label: 'Жиры'),
     ];
-    const nutrients = [
-      (pct: '8%', label: 'Жиры', val: '5,6 г'),
-      (pct: '6%', label: 'Углеводы', val: '4 г'),
-      (pct: '5,5%', label: 'Витамин C', val: '3,2 г'),
-      (pct: '23%', label: 'Белки', val: '43 г'),
-      (pct: '1,2%', label: 'Кальций', val: '1 г'),
-      (pct: '3%', label: 'Железо', val: '2,3 г'),
+
+    // Nutrient rows: macros first, then micros from the DB.
+    final rows = <({String label, String unit, double value})>[
+      (label: 'Белки', unit: 'г', value: _scaled(p.protein)),
+      (label: 'Жиры', unit: 'г', value: _scaled(p.fat)),
+      (label: 'Углеводы', unit: 'г', value: _scaled(p.carbs)),
+      for (final e in p.micros.entries)
+        (
+          label: _microMeta[e.key]?.$1 ?? e.key,
+          unit: _microMeta[e.key]?.$2 ?? 'мг',
+          value: _scaled(e.value),
+        ),
     ];
 
     return EcoScreen(
@@ -50,7 +80,10 @@ class _DishScreenState extends State<DishScreen> {
         child: EcoBtn(
           t: t,
           onTap: () {
-            context.read<AppStore>().addFood(widget.mealKey, LogItem(widget.product.name, kcal));
+            context.read<AppStore>().addFood(
+                  widget.mealKey,
+                  LogItem(p.name, kcal, protein: _scaled(p.protein), carbs: _scaled(p.carbs), fat: _scaled(p.fat)),
+                );
             Navigator.of(context).pushReplacementNamed('/meallog', arguments: widget.mealKey);
           },
           child: Text('Добавить в «${meal.label}»'),
@@ -63,12 +96,16 @@ class _DishScreenState extends State<DishScreen> {
           Padding(
             padding: const EdgeInsets.only(bottom: 100),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              // Порция
               EcoCard(
                 t: t,
                 margin: const EdgeInsets.only(bottom: 14),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(widget.product.name, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
+                  Text(p.name, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
+                  if (p.category.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(p.category, style: const TextStyle(fontSize: 13, color: EcoColors.sub)),
+                    ),
                   const SizedBox(height: 16),
                   GestureDetector(
                     onTap: _pickPortion,
@@ -76,27 +113,15 @@ class _DishScreenState extends State<DishScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                       decoration: BoxDecoration(color: t.band, borderRadius: BorderRadius.circular(999)),
                       child: Row(children: [
-                        Expanded(
-                          child: Text('$kcal ккал',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: t.dark)),
-                        ),
-                        Expanded(
-                          child: Text('$grams г',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: t.dark)),
-                        ),
+                        Expanded(child: Text('$kcal ккал', textAlign: TextAlign.center, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: t.dark))),
+                        Expanded(child: Text('$grams г', textAlign: TextAlign.center, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: t.dark))),
                       ]),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Center(
-                    child: Text('Размер порции', style: TextStyle(fontSize: 13, color: EcoColors.sub)),
-                  ),
+                  const Center(child: Text('Размер порции', style: TextStyle(fontSize: 13, color: EcoColors.sub))),
                 ]),
               ),
-
-              // Макронутриенты
               EcoCard(
                 t: t,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -120,37 +145,26 @@ class _DishScreenState extends State<DishScreen> {
                     borderRadius: BorderRadius.circular(999),
                     child: SizedBox(
                       height: 16,
-                      child: Row(children: [
-                        for (final g in segs) Expanded(flex: g.pct, child: Container(color: g.color)),
-                      ]),
+                      child: Row(children: [for (final g in segs) if (g.pct > 0) Expanded(flex: g.pct, child: Container(color: g.color))]),
                     ),
                   ),
                   const SizedBox(height: 6),
                   Row(children: [
                     for (final g in segs)
-                      Expanded(
-                        flex: g.pct,
-                        child: Text('${g.pct}%',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: EcoColors.sub)),
-                      ),
+                      if (g.pct > 0)
+                        Expanded(
+                          flex: g.pct,
+                          child: Text('${g.pct}%', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: EcoColors.sub)),
+                        ),
                   ]),
                   const SizedBox(height: 16),
-                  for (final (i, n) in nutrients.indexed) ...[
+                  for (final (i, n) in rows.indexed) ...[
                     if (i > 0) Divider(height: 1.5, thickness: 1.5, color: t.bandSoft),
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(children: [
-                        Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(color: t.pill, borderRadius: BorderRadius.circular(14)),
-                          alignment: Alignment.center,
-                          child: Text(n.pct, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: t.dark)),
-                        ),
-                        const SizedBox(width: 14),
                         Expanded(child: Text(n.label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700))),
-                        Text(n.val, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                        Text('${_fmt(n.value)} ${n.unit}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
                       ]),
                     ),
                   ],
@@ -163,11 +177,15 @@ class _DishScreenState extends State<DishScreen> {
     );
   }
 
-  /// Two synced wheels: kcal (derived) and grams — as in the design's
-  /// PortionPicker, both driven by the grams value.
+  static String _fmt(double v) {
+    if (v >= 100) return v.round().toString();
+    return v.toStringAsFixed(1).replaceAll('.', ',');
+  }
+
   void _pickPortion() {
-    final gramsValues = [for (var g = 10; g <= 500; g += 5) g];
-    var idx = gramsValues.indexOf(grams).clamp(0, gramsValues.length - 1);
+    final gramsValues = [for (var g = 10; g <= 1000; g += 5) g];
+    var idx = gramsValues.indexOf(grams);
+    if (idx < 0) idx = gramsValues.indexOf(100);
     final kcalCtrl = FixedExtentScrollController(initialItem: idx);
     final gramsCtrl = FixedExtentScrollController(initialItem: idx);
     var syncing = false;
@@ -176,7 +194,7 @@ class _DishScreenState extends State<DishScreen> {
       if (syncing) return;
       syncing = true;
       idx = i;
-      other.jumpToItem(i);
+      if (other.hasClients) other.jumpToItem(i);
       syncing = false;
     }
 
@@ -193,13 +211,7 @@ class _DishScreenState extends State<DishScreen> {
               scrollController: kcalCtrl,
               itemExtent: 44,
               onSelectedItemChanged: (i) => sync(gramsCtrl, i),
-              children: [
-                for (final g in gramsValues)
-                  Center(
-                    child: Text('${(g * widget.product.kcal / 100).round()} ккал',
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)),
-                  ),
-              ],
+              children: [for (final g in gramsValues) Center(child: Text('${(g * p.kcal / 100).round()} ккал', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)))],
             ),
           ),
           Expanded(
@@ -207,10 +219,7 @@ class _DishScreenState extends State<DishScreen> {
               scrollController: gramsCtrl,
               itemExtent: 44,
               onSelectedItemChanged: (i) => sync(kcalCtrl, i),
-              children: [
-                for (final g in gramsValues)
-                  Center(child: Text('$g г', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700))),
-              ],
+              children: [for (final g in gramsValues) Center(child: Text('$g г', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700)))],
             ),
           ),
         ]),

@@ -91,17 +91,17 @@ class HomeScreen extends StatelessWidget {
                   const EcoCardHead(t: t, icon: 'food', title: 'Еда', mb: 8),
                   Row(
                     children: [
-                      MacroRings(size: 128, data: const [
-                        MacroRingData(value: 652, goal: 900, color: EcoColors.carb, soft: EcoColors.carbSoft),
-                        MacroRingData(value: 326, goal: 659, color: EcoColors.fat, soft: EcoColors.fatSoft),
-                        MacroRingData(value: 365, goal: 589, color: EcoColors.prot, soft: EcoColors.protSoft),
+                      MacroRings(size: 128, data: [
+                        MacroRingData(value: s.macros.carbs, goal: s.carbGoal.toDouble(), color: EcoColors.carb, soft: EcoColors.carbSoft),
+                        MacroRingData(value: s.macros.fat, goal: s.fatGoal.toDouble(), color: EcoColors.fat, soft: EcoColors.fatSoft),
+                        MacroRingData(value: s.macros.protein, goal: s.protGoal.toDouble(), color: EcoColors.prot, soft: EcoColors.protSoft),
                       ]),
                       const SizedBox(width: 14),
-                      const Expanded(
+                      Expanded(
                         child: MacroLegend(t: t, items: [
-                          (label: 'Углеводы', value: 652, goal: 900, color: EcoColors.carb),
-                          (label: 'Жиры', value: 326, goal: 659, color: EcoColors.fat),
-                          (label: 'Белки', value: 365, goal: 589, color: EcoColors.prot),
+                          (label: 'Углеводы', value: s.macros.carbs.round(), goal: s.carbGoal, color: EcoColors.carb),
+                          (label: 'Жиры', value: s.macros.fat.round(), goal: s.fatGoal, color: EcoColors.fat),
+                          (label: 'Белки', value: s.macros.protein.round(), goal: s.protGoal, color: EcoColors.prot),
                         ]),
                       ),
                     ],
@@ -210,12 +210,12 @@ class HomeScreen extends StatelessWidget {
             _MetricCard(
               icon: 'pulse',
               title: 'Кровяное давление',
-              onTap: () => _quickEntry(context, kind: 'pressure'),
+              onTap: () => Navigator.of(context).pushNamed('/pressure'),
               left: EcoBtn(
                 t: t,
                 height: 44,
                 fontSize: 15,
-                onTap: () => _quickEntry(context, kind: 'pressure'),
+                onTap: () => Navigator.of(context).pushNamed('/pressure'),
                 child: Text(s.pressure ?? 'Ввод'),
               ),
               right: _MiniProgress(pct: s.pressure != null ? 70 : 50, label: s.pressure != null ? 'норма' : '?'),
@@ -225,13 +225,13 @@ class HomeScreen extends StatelessWidget {
             _MetricCard(
               icon: 'sugar',
               title: 'Сахар крови',
-              onTap: () => _quickEntry(context, kind: 'sugar'),
+              onTap: () => Navigator.of(context).pushNamed('/sugar'),
               left: EcoBtn(
                 t: t,
                 height: 44,
                 fontSize: 15,
-                onTap: () => _quickEntry(context, kind: 'sugar'),
-                child: Text(s.sugar != null ? '${s.sugar} ммоль/л' : 'Ввод'),
+                onTap: () => Navigator.of(context).pushNamed('/sugar'),
+                child: Text(s.sugar != null ? '${s.sugar!.round()} мг/дл' : 'Ввод'),
               ),
               right: _MiniProgress(pct: s.sugar != null ? 64 : 50, label: s.sugar != null ? 'норма' : '?'),
             ),
@@ -241,58 +241,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  /// Bottom sheet with quick presets (давление / сахар) — from home.jsx QuickEntry.
-  static void _quickEntry(BuildContext context, {required String kind}) {
-    final presets = kind == 'pressure' ? ['110/70', '120/80', '130/85', '140/90'] : ['4.5', '5.2', '5.8', '6.4'];
-    final title = kind == 'pressure' ? 'Давление, мм рт. ст.' : 'Сахар крови, ммоль/л';
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: t.bg,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(t.r + 8))),
-      builder: (sheetCtx) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(width: 40, height: 4, decoration: BoxDecoration(color: t.band, borderRadius: BorderRadius.circular(4))),
-            ),
-            const SizedBox(height: 18),
-            Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-            const SizedBox(height: 16),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 3,
-              children: [
-                for (final p in presets)
-                  GestureDetector(
-                    onTap: () {
-                      final store = context.read<AppStore>();
-                      if (kind == 'pressure') {
-                        store.setPressure(p);
-                      } else {
-                        store.setSugar(double.parse(p));
-                      }
-                      Navigator.of(sheetCtx).pop();
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(color: t.card, borderRadius: BorderRadius.circular(16)),
-                      alignment: Alignment.center,
-                      child: Text(p, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 /// "Приём пищи" meal-picker — the FAB modal from home.jsx.

@@ -21,6 +21,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    # Offline product database — 1122 Uzbek-cuisine products with full
+    # macros + micronutrients (replaces the Supabase product table).
+    - assets/foods.json
   fonts:
     # Onest variable font (wght 100–900) — bundled so the app is offline-first.
     - family: Onest

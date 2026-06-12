@@ -50,6 +50,20 @@ IconData ecoIcon(String name) {
       return Icons.qr_code_scanner;
     case 'stats':
       return Icons.bar_chart;
+    case 'scale':
+      return Icons.monitor_weight_outlined;
+    case 'flame':
+      return Icons.local_fire_department_outlined;
+    case 'chart':
+      return Icons.show_chart;
+    case 'edit':
+      return Icons.edit_outlined;
+    case 'minus':
+      return Icons.remove;
+    case 'drop':
+      return Icons.water_drop_outlined;
+    case 'cutlery':
+      return Icons.restaurant_menu;
     default:
       return Icons.circle_outlined;
   }
@@ -421,7 +435,7 @@ class MacroLegend extends StatelessWidget {
                           text: '${m.value}',
                           style: const TextStyle(color: EcoColors.ink, fontWeight: FontWeight.w700),
                         ),
-                        TextSpan(text: ' /${m.goal} кал'),
+                        TextSpan(text: ' /${m.goal} г'),
                       ]),
                       style: const TextStyle(fontSize: 13, color: EcoColors.sub),
                     ),

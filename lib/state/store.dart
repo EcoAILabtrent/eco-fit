@@ -28,10 +28,19 @@ final kMealsByTime = [...kMeals]..sort((a, b) => a.time.compareTo(b.time));
 class LogItem {
   final String name;
   final int kcal;
-  const LogItem(this.name, this.kcal);
+  final double protein;
+  final double carbs;
+  final double fat;
+  const LogItem(this.name, this.kcal, {this.protein = 0, this.carbs = 0, this.fat = 0});
 
-  Map<String, dynamic> toMap() => {'name': name, 'kcal': kcal};
-  static LogItem fromMap(Map m) => LogItem(m['name'] as String, (m['kcal'] as num).toInt());
+  Map<String, dynamic> toMap() => {'name': name, 'kcal': kcal, 'p': protein, 'c': carbs, 'f': fat};
+  static LogItem fromMap(Map m) => LogItem(
+        m['name'] as String,
+        (m['kcal'] as num).toInt(),
+        protein: (m['p'] as num?)?.toDouble() ?? 0,
+        carbs: (m['c'] as num?)?.toDouble() ?? 0,
+        fat: (m['f'] as num?)?.toDouble() ?? 0,
+      );
 }
 
 /// App state — mirrors the Eco design INITIAL store, persisted to Hive so the
@@ -58,12 +67,14 @@ class AppStore extends ChangeNotifier {
 
   // Health detail metrics
   String? pressure; // "120/80"
-  double? sugar; // ммоль/л
+  double? sugar; // мг/дл
+  double bodyFat = 17.5; // %
+  double skeletalMuscle = 30.2; // кг
 
-  // Macro goals (grams → displayed as кал in the design legend)
-  int carbGoal = 900;
-  int fatGoal = 659;
-  int protGoal = 589;
+  // Macro goals in grams (set from target kcal at onboarding).
+  int carbGoal = 230;
+  int fatGoal = 60;
+  int protGoal = 150;
 
   // Onboarding profile
   bool onboarded = false;
@@ -84,7 +95,12 @@ class AppStore extends ChangeNotifier {
     weight = (_box.get('weight', defaultValue: 0.0) as num).toDouble();
     pressure = _box.get('pressure') as String?;
     sugar = (_box.get('sugar') as num?)?.toDouble();
+    bodyFat = (_box.get('bodyFat', defaultValue: 17.5) as num).toDouble();
+    skeletalMuscle = (_box.get('skeletalMuscle', defaultValue: 30.2) as num).toDouble();
     goalKcal = _box.get('goalKcal', defaultValue: 2045) as int;
+    carbGoal = _box.get('carbGoal', defaultValue: 230) as int;
+    fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
+    protGoal = _box.get('protGoal', defaultValue: 150) as int;
     onboarded = _box.get('onboarded', defaultValue: false) as bool;
     final rawTimes = _box.get('mealTimes');
     if (rawTimes is Map) {
@@ -108,7 +124,12 @@ class AppStore extends ChangeNotifier {
     _box.put('weight', weight);
     _box.put('pressure', pressure);
     _box.put('sugar', sugar);
+    _box.put('bodyFat', bodyFat);
+    _box.put('skeletalMuscle', skeletalMuscle);
     _box.put('goalKcal', goalKcal);
+    _box.put('carbGoal', carbGoal);
+    _box.put('fatGoal', fatGoal);
+    _box.put('protGoal', protGoal);
     _box.put('onboarded', onboarded);
     _box.put('log', log.map((k, v) => MapEntry(k, v.map((e) => e.toMap()).toList())));
     _box.put('mealTimes', mealTimes);
@@ -128,6 +149,19 @@ class AppStore extends ChangeNotifier {
 
   int mealKcal(String mealKey) =>
       (log[mealKey] ?? const []).fold(0, (sum, e) => sum + e.kcal);
+
+  /// Today's consumed macros in grams (summed across all logged items).
+  ({double protein, double carbs, double fat}) get macros {
+    double p = 0, c = 0, f = 0;
+    for (final items in log.values) {
+      for (final e in items) {
+        p += e.protein;
+        c += e.carbs;
+        f += e.fat;
+      }
+    }
+    return (protein: p, carbs: c, fat: f);
+  }
 
   // ── Independent pedometer ──
 
@@ -174,6 +208,33 @@ class AppStore extends ChangeNotifier {
 
   void addWater(int ml) {
     water = (water + ml).clamp(0, 100000);
+    _persist();
+    notifyListeners();
+  }
+
+  /// ± buttons on the water screen clamp to the [0, goal] range (per design).
+  void stepWater(int delta) {
+    water = (water + delta).clamp(0, waterGoal);
+    _persist();
+    notifyListeners();
+  }
+
+  void setWeight(double kg) {
+    weight = kg;
+    weightKg = kg;
+    _persist();
+    notifyListeners();
+  }
+
+  void setBodyComposition({double? bodyFat, double? skeletalMuscle}) {
+    if (bodyFat != null) this.bodyFat = bodyFat;
+    if (skeletalMuscle != null) this.skeletalMuscle = skeletalMuscle;
+    _persist();
+    notifyListeners();
+  }
+
+  void setPressureFull(int sys, int dia) {
+    pressure = '$sys/$dia';
     _persist();
     notifyListeners();
   }
@@ -226,6 +287,10 @@ class AppStore extends ChangeNotifier {
     this.activity = activity;
     this.goal = goal;
     goalKcal = targetKcal;
+    // Standard 45/30/25 split → grams (carbs & protein 4 kcal/г, fat 9 kcal/г).
+    carbGoal = (targetKcal * 0.45 / 4).round();
+    protGoal = (targetKcal * 0.30 / 4).round();
+    fatGoal = (targetKcal * 0.25 / 9).round();
     onboarded = true;
     _persist();
     notifyListeners();

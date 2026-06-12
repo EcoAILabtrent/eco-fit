@@ -41,19 +41,16 @@ class _DayViewScreenState extends State<DayViewScreen> {
     final today = sel >= _history.length;
     final h = today ? null : _history[sel];
 
-    // Demo macro "consumed" values for today (same as the design store) until
-    // products carry real macros.
-    const todayMacros = (carb: 652, fat: 326, prot: 365);
+    // Macro grams: real for today (from the diary), derived from the day's
+    // kcal via the 45/30/25 split for the demo history days.
     final consumed = today ? s.consumed : h!.consumed;
-    final carbV = today ? todayMacros.carb : h!.carb;
-    final fatV = today ? todayMacros.fat : h!.fat;
-    final protV = today ? todayMacros.prot : h!.prot;
+    final m = dayMacros(s, sel);
 
     final bars = [
-      (label: '', value: consumed, goal: s.goalKcal, max: 2800, color: EcoColors.cal, soft: EcoColors.calSoft, head: true, zoneLo: 1970.0, zoneHi: 2200.0),
-      (label: 'Углеводы', value: carbV, goal: s.carbGoal, max: 900, color: EcoColors.carb, soft: EcoColors.carbSoft, head: false, zoneLo: 600.0, zoneHi: 720.0),
-      (label: 'Жиры', value: fatV, goal: s.fatGoal, max: 659, color: EcoColors.fat, soft: EcoColors.fatSoft, head: false, zoneLo: 430.0, zoneHi: 520.0),
-      (label: 'Белки', value: protV, goal: s.protGoal, max: 589, color: EcoColors.prot, soft: EcoColors.protSoft, head: false, zoneLo: 380.0, zoneHi: 470.0),
+      (label: '', value: consumed.toDouble(), goal: s.goalKcal, max: (s.goalKcal * 1.4).round(), color: EcoColors.cal, soft: EcoColors.calSoft, head: true, zoneLo: s.goalKcal * 0.92, zoneHi: s.goalKcal * 1.05),
+      (label: 'Углеводы', value: m.carbs, goal: s.carbGoal, max: (s.carbGoal * 1.6).round(), color: EcoColors.carb, soft: EcoColors.carbSoft, head: false, zoneLo: s.carbGoal * 0.85, zoneHi: s.carbGoal * 1.05),
+      (label: 'Жиры', value: m.fat, goal: s.fatGoal, max: (s.fatGoal * 1.6).round(), color: EcoColors.fat, soft: EcoColors.fatSoft, head: false, zoneLo: s.fatGoal * 0.85, zoneHi: s.fatGoal * 1.05),
+      (label: 'Белки', value: m.protein, goal: s.protGoal, max: (s.protGoal * 1.6).round(), color: EcoColors.prot, soft: EcoColors.protSoft, head: false, zoneLo: s.protGoal * 0.85, zoneHi: s.protGoal * 1.05),
     ];
 
     final now = DateTime.now();
@@ -90,7 +87,6 @@ class _DayViewScreenState extends State<DayViewScreen> {
                         i,
                         wd[(now.subtract(Duration(days: 6 - i)).weekday - 1) % 7],
                         '${now.subtract(Duration(days: 6 - i)).day}',
-                        todayMacros,
                       ),
                   ],
                 ),
@@ -126,7 +122,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                             ]), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700))
                           else ...[
                             Text(b.label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                            Text('${b.value} / ${b.goal}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: EcoColors.sub)),
+                            Text('${b.value.round()} / ${b.goal} г', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: EcoColors.sub)),
                           ],
                         ]),
                         const SizedBox(height: 6),
@@ -192,12 +188,17 @@ class _DayViewScreenState extends State<DayViewScreen> {
     );
   }
 
-  Widget _dayRing(AppStore s, int i, String wd, String day, ({int carb, int fat, int prot}) todayMacros) {
+  /// Macro grams for the given day index: real (diary) for today, derived from
+  /// the demo history day's kcal otherwise.
+  static ({double protein, double carbs, double fat}) dayMacros(AppStore s, int i) {
+    if (i >= _history.length) return s.macros;
+    final kcal = _history[i].consumed;
+    return (protein: kcal * 0.30 / 4, carbs: kcal * 0.45 / 4, fat: kcal * 0.25 / 9);
+  }
+
+  Widget _dayRing(AppStore s, int i, String wd, String day) {
     final active = i == sel;
-    final isToday = i == 6;
-    final d = isToday
-        ? (carb: todayMacros.carb, fat: todayMacros.fat, prot: todayMacros.prot)
-        : (carb: _history[i].carb, fat: _history[i].fat, prot: _history[i].prot);
+    final d = dayMacros(s, i);
     return GestureDetector(
       onTap: () => setState(() => sel = i),
       child: AnimatedContainer(
@@ -212,9 +213,9 @@ class _DayViewScreenState extends State<DayViewScreen> {
           Text(wd, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: active ? t.dark : EcoColors.sub)),
           const SizedBox(height: 7),
           MacroRings(size: 36, data: [
-            MacroRingData(value: d.carb.toDouble(), goal: s.carbGoal.toDouble(), color: EcoColors.carb, soft: EcoColors.carbSoft),
-            MacroRingData(value: d.fat.toDouble(), goal: s.fatGoal.toDouble(), color: EcoColors.fat, soft: EcoColors.fatSoft),
-            MacroRingData(value: d.prot.toDouble(), goal: s.protGoal.toDouble(), color: EcoColors.prot, soft: EcoColors.protSoft),
+            MacroRingData(value: d.carbs, goal: s.carbGoal.toDouble(), color: EcoColors.carb, soft: EcoColors.carbSoft),
+            MacroRingData(value: d.fat, goal: s.fatGoal.toDouble(), color: EcoColors.fat, soft: EcoColors.fatSoft),
+            MacroRingData(value: d.protein, goal: s.protGoal.toDouble(), color: EcoColors.prot, soft: EcoColors.protSoft),
           ]),
           const SizedBox(height: 7),
           Text(day, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: active ? t.dark : EcoColors.ink)),
