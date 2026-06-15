@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../l10n/app_language.dart';
 import '../steps/steps_service.dart';
 
 /// Meal definitions (Журнал питания) — from the Eco design store.
@@ -31,16 +32,28 @@ class LogItem {
   final double protein;
   final double carbs;
   final double fat;
-  const LogItem(this.name, this.kcal, {this.protein = 0, this.carbs = 0, this.fat = 0});
+  const LogItem(
+    this.name,
+    this.kcal, {
+    this.protein = 0,
+    this.carbs = 0,
+    this.fat = 0,
+  });
 
-  Map<String, dynamic> toMap() => {'name': name, 'kcal': kcal, 'p': protein, 'c': carbs, 'f': fat};
+  Map<String, dynamic> toMap() => {
+    'name': name,
+    'kcal': kcal,
+    'p': protein,
+    'c': carbs,
+    'f': fat,
+  };
   static LogItem fromMap(Map m) => LogItem(
-        m['name'] as String,
-        (m['kcal'] as num).toInt(),
-        protein: (m['p'] as num?)?.toDouble() ?? 0,
-        carbs: (m['c'] as num?)?.toDouble() ?? 0,
-        fat: (m['f'] as num?)?.toDouble() ?? 0,
-      );
+    m['name'] as String,
+    (m['kcal'] as num).toInt(),
+    protein: (m['p'] as num?)?.toDouble() ?? 0,
+    carbs: (m['c'] as num?)?.toDouble() ?? 0,
+    fat: (m['f'] as num?)?.toDouble() ?? 0,
+  );
 }
 
 /// App state — mirrors the Eco design INITIAL store, persisted to Hive so the
@@ -56,6 +69,7 @@ class AppStore extends ChangeNotifier {
   int stepsGoal = 10000;
   double weight = 0;
   String? recFeedback; // 'up' | 'down'
+  AppLanguage language = AppLanguage.ru;
 
   // Food diary keyed by date: ymd -> (meal.key -> items).
   Map<String, Map<String, List<LogItem>>> diary = {};
@@ -66,7 +80,8 @@ class AppStore extends ChangeNotifier {
     return '${x.year.toString().padLeft(4, '0')}-${x.month.toString().padLeft(2, '0')}-${x.day.toString().padLeft(2, '0')}';
   }
 
-  Map<String, List<LogItem>> _day(String date) => diary.putIfAbsent(date, () => {});
+  Map<String, List<LogItem>> _day(String date) =>
+      diary.putIfAbsent(date, () => {});
 
   // Custom meal times (meal.key -> "HH:mm"); defaults come from kMeals.
   Map<String, String> mealTimes = {};
@@ -104,7 +119,11 @@ class AppStore extends ChangeNotifier {
     pressure = _box.get('pressure') as String?;
     sugar = (_box.get('sugar') as num?)?.toDouble();
     bodyFat = (_box.get('bodyFat', defaultValue: 17.5) as num).toDouble();
-    skeletalMuscle = (_box.get('skeletalMuscle', defaultValue: 30.2) as num).toDouble();
+    skeletalMuscle = (_box.get('skeletalMuscle', defaultValue: 30.2) as num)
+        .toDouble();
+    language = AppLanguage.fromCode(
+      _box.get('language', defaultValue: AppLanguage.ru.code) as String?,
+    );
     goalKcal = _box.get('goalKcal', defaultValue: 2045) as int;
     carbGoal = _box.get('carbGoal', defaultValue: 230) as int;
     fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
@@ -116,21 +135,29 @@ class AppStore extends ChangeNotifier {
     }
     final rawDiary = _box.get('diary');
     if (rawDiary is Map) {
-      diary = rawDiary.map((date, meals) => MapEntry(
-            date as String,
-            (meals as Map).map((mk, items) => MapEntry(
-                  mk as String,
-                  (items as List).map((e) => LogItem.fromMap(e as Map)).toList(),
-                )),
-          ));
+      diary = rawDiary.map(
+        (date, meals) => MapEntry(
+          date as String,
+          (meals as Map).map(
+            (mk, items) => MapEntry(
+              mk as String,
+              (items as List).map((e) => LogItem.fromMap(e as Map)).toList(),
+            ),
+          ),
+        ),
+      );
     } else {
       // Migrate the old flat log (meal -> items) into today's diary entry.
       final rawLog = _box.get('log');
       if (rawLog is Map) {
-        _day(ymd()).addAll(rawLog.map((k, v) => MapEntry(
+        _day(ymd()).addAll(
+          rawLog.map(
+            (k, v) => MapEntry(
               k as String,
               (v as List).map((e) => LogItem.fromMap(e as Map)).toList(),
-            )));
+            ),
+          ),
+        );
       }
     }
     notifyListeners();
@@ -146,6 +173,7 @@ class AppStore extends ChangeNotifier {
     _box.put('sugar', sugar);
     _box.put('bodyFat', bodyFat);
     _box.put('skeletalMuscle', skeletalMuscle);
+    _box.put('language', language.code);
     _box.put('goalKcal', goalKcal);
     _box.put('carbGoal', carbGoal);
     _box.put('fatGoal', fatGoal);
@@ -153,16 +181,30 @@ class AppStore extends ChangeNotifier {
     _box.put('onboarded', onboarded);
     _box.put(
       'diary',
-      diary.map((date, meals) => MapEntry(
-            date,
-            meals.map((mk, items) => MapEntry(mk, items.map((e) => e.toMap()).toList())),
-          )),
+      diary.map(
+        (date, meals) => MapEntry(
+          date,
+          meals.map(
+            (mk, items) => MapEntry(mk, items.map((e) => e.toMap()).toList()),
+          ),
+        ),
+      ),
     );
     _box.put('mealTimes', mealTimes);
   }
 
+  Future<void> setLanguage(AppLanguage next) async {
+    if (language == next) return;
+    language = next;
+    await _box.put('language', next.code);
+    notifyListeners();
+  }
+
   String mealTime(String mealKey) =>
-      mealTimes[mealKey] ?? kMeals.firstWhere((m) => m.key == mealKey, orElse: () => kMeals.first).time;
+      mealTimes[mealKey] ??
+      kMeals
+          .firstWhere((m) => m.key == mealKey, orElse: () => kMeals.first)
+          .time;
 
   void setMealTime(String mealKey, String time) {
     mealTimes[mealKey] = time;
@@ -174,8 +216,7 @@ class AppStore extends ChangeNotifier {
   List<LogItem> itemsFor(String mealKey, {String? date}) =>
       diary[date ?? ymd()]?[mealKey] ?? const [];
 
-  int consumedOn([String? date]) => (diary[date ?? ymd()] ?? const {})
-      .values
+  int consumedOn([String? date]) => (diary[date ?? ymd()] ?? const {}).values
       .expand((items) => items)
       .fold(0, (sum, e) => sum + e.kcal);
 

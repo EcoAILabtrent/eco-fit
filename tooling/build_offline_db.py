@@ -179,6 +179,69 @@ MEAL_TYPES = [
     ("snack_evening", "21:30", 60, {"ru": "Вечерний перекус", "en": "Evening snack", "uz_latn": "Kechki tamaddi", "uz_cyrl": "Кечки тамадди"}),
 ]
 
+CATEGORY_TRANSLATIONS = {
+    "asosiy_taomlar": {"en": "Main dishes", "ru": "Основные блюда", "uz_latn": "Asosiy taomlar", "uz_cyrl": "Асосий таомлар"},
+    "bakery": {"en": "Bakery", "ru": "Выпечка", "uz_latn": "Non va pishiriqlar", "uz_cyrl": "Нон ва пишириқлар"},
+    "baliq_va_dengiz_mahsulotlari": {"en": "Fish and seafood", "ru": "Рыба и морепродукты", "uz_latn": "Baliq va dengiz mahsulotlari", "uz_cyrl": "Балиқ ва денгиз маҳсулотлари"},
+    "bolalar_ozuqalari": {"en": "Baby food", "ru": "Детское питание", "uz_latn": "Bolalar ozuqalari", "uz_cyrl": "Болалар озуқалари"},
+    "boshqalar": {"en": "Other", "ru": "Другое", "uz_latn": "Boshqalar", "uz_cyrl": "Бошқалар"},
+    "breakfast": {"en": "Breakfast", "ru": "Завтраки", "uz_latn": "Nonushta", "uz_cyrl": "Нонушта"},
+    "dairy": {"en": "Dairy", "ru": "Молочные продукты", "uz_latn": "Sut mahsulotlari", "uz_cyrl": "Сут маҳсулотлари"},
+    "don_va_dukkakli_mahsulotlar": {"en": "Grains and legumes", "ru": "Крупы и бобовые", "uz_latn": "Don va dukkakli mahsulotlar", "uz_cyrl": "Дон ва дуккакли маҳсулотлар"},
+    "drinks": {"en": "Drinks", "ru": "Напитки", "uz_latn": "Ichimliklar", "uz_cyrl": "Ичимликлар"},
+    "dukkaklilar": {"en": "Legumes", "ru": "Бобовые", "uz_latn": "Dukkaklilar", "uz_cyrl": "Дуккаклилар"},
+    "fastfood": {"en": "Fast food", "ru": "Фастфуд", "uz_latn": "Fastfud", "uz_cyrl": "Фастфуд"},
+    "fats": {"en": "Fats", "ru": "Жиры", "uz_latn": "Yog'lar", "uz_cyrl": "Ёғлар"},
+    "fish": {"en": "Fish", "ru": "Рыба", "uz_latn": "Baliq", "uz_cyrl": "Балиқ"},
+    "fruits": {"en": "Fruits", "ru": "Фрукты", "uz_latn": "Mevalar", "uz_cyrl": "Мевалар"},
+    "gosht_mahsulotlari": {"en": "Meat products", "ru": "Мясные продукты", "uz_latn": "Go'sht mahsulotlari", "uz_cyrl": "Гўшт маҳсулотлари"},
+    "grains": {"en": "Grains", "ru": "Крупы", "uz_latn": "Don mahsulotlari", "uz_cyrl": "Дон маҳсулотлари"},
+    "ichimliklar": {"en": "Drinks", "ru": "Напитки", "uz_latn": "Ichimliklar", "uz_cyrl": "Ичимликлар"},
+    "kaboblar_va_shashliklar": {"en": "Kebabs and shashlik", "ru": "Кебабы и шашлыки", "uz_latn": "Kaboblar va shashliklar", "uz_cyrl": "Кабоблар ва шашликлар"},
+    "kokatlar": {"en": "Greens", "ru": "Зелень", "uz_latn": "Ko'katlar", "uz_cyrl": "Кўкатлар"},
+    "kokatlar_va_sabzavotlar": {"en": "Greens and vegetables", "ru": "Зелень и овощи", "uz_latn": "Ko'katlar va sabzavotlar", "uz_cyrl": "Кўкатлар ва сабзавотлар"},
+    "konservalar": {"en": "Canned foods", "ru": "Консервы", "uz_latn": "Konservalar", "uz_cyrl": "Консервалар"},
+    "legumes": {"en": "Legumes", "ru": "Бобовые", "uz_latn": "Dukkaklilar", "uz_cyrl": "Дуккаклилар"},
+    "main": {"en": "Main dishes", "ru": "Основные блюда", "uz_latn": "Asosiy taomlar", "uz_cyrl": "Асосий таомлар"},
+    "manti_va_barak": {"en": "Manti and barak", "ru": "Манты и барак", "uz_latn": "Manti va barak", "uz_cyrl": "Манти ва барак"},
+    "meat": {"en": "Meat", "ru": "Мясо", "uz_latn": "Go'sht", "uz_cyrl": "Гўшт"},
+    "mevalar": {"en": "Fruits", "ru": "Фрукты", "uz_latn": "Mevalar", "uz_cyrl": "Мевалар"},
+    "mevalar_va_rezavorlar": {"en": "Fruits and berries", "ru": "Фрукты и ягоды", "uz_latn": "Mevalar va rezavorlar", "uz_cyrl": "Мевалар ва резаворлар"},
+    "milliy_taomlar": {"en": "National dishes", "ru": "Национальные блюда", "uz_latn": "Milliy taomlar", "uz_cyrl": "Миллий таомлар"},
+    "non_mahsulotlari": {"en": "Bread products", "ru": "Хлебные изделия", "uz_latn": "Non mahsulotlari", "uz_cyrl": "Нон маҳсулотлари"},
+    "non_va_pishiriqlar": {"en": "Bread and pastries", "ru": "Хлеб и выпечка", "uz_latn": "Non va pishiriqlar", "uz_cyrl": "Нон ва пишириқлар"},
+    "nuts": {"en": "Nuts", "ru": "Орехи", "uz_latn": "Yong'oqlar", "uz_cyrl": "Ёнғоқлар"},
+    "palov_va_uning_turlari": {"en": "Pilaf and varieties", "ru": "Плов и его виды", "uz_latn": "Palov va uning turlari", "uz_cyrl": "Палов ва унинг турлари"},
+    "parranda_goshti": {"en": "Poultry", "ru": "Мясо птицы", "uz_latn": "Parranda go'shti", "uz_cyrl": "Парранда гўшти"},
+    "quruq_mevalar": {"en": "Dried fruits", "ru": "Сухофрукты", "uz_latn": "Quruq mevalar", "uz_cyrl": "Қуруқ мевалар"},
+    "sabzavotlar": {"en": "Vegetables", "ru": "Овощи", "uz_latn": "Sabzavotlar", "uz_cyrl": "Сабзавотлар"},
+    "salatlar": {"en": "Salads", "ru": "Салаты", "uz_latn": "Salatlar", "uz_cyrl": "Салатлар"},
+    "salatlar_va_gazaklar": {"en": "Salads and appetizers", "ru": "Салаты и закуски", "uz_latn": "Salatlar va gazaklar", "uz_cyrl": "Салатлар ва газаклар"},
+    "shirinliklar": {"en": "Sweets", "ru": "Сладости", "uz_latn": "Shirinliklar", "uz_cyrl": "Ширинликлар"},
+    "shirinliklar_va_desertlar": {"en": "Sweets and desserts", "ru": "Сладости и десерты", "uz_latn": "Shirinliklar va desertlar", "uz_cyrl": "Ширинликлар ва десертлар"},
+    "snack": {"en": "Snacks", "ru": "Перекусы", "uz_latn": "Tamaddilar", "uz_cyrl": "Тамаддилар"},
+    "somsa": {"en": "Somsa", "ru": "Самса", "uz_latn": "Somsa", "uz_cyrl": "Сомса"},
+    "soup": {"en": "Soups", "ru": "Супы", "uz_latn": "Suyuq taomlar", "uz_cyrl": "Суюқ таомлар"},
+    "spices": {"en": "Spices", "ru": "Специи", "uz_latn": "Ziravorlar", "uz_cyrl": "Зираворлар"},
+    "sport_ozuqalari": {"en": "Sports nutrition", "ru": "Спортивное питание", "uz_latn": "Sport ozuqalari", "uz_cyrl": "Спорт озуқалари"},
+    "subproduktlar": {"en": "Offal", "ru": "Субпродукты", "uz_latn": "Subproduktlar", "uz_cyrl": "Субпродуктлар"},
+    "supplements": {"en": "Supplements", "ru": "Добавки", "uz_latn": "Qo'shimchalar", "uz_cyrl": "Қўшимчалар"},
+    "sut_mahsulotlari": {"en": "Dairy products", "ru": "Молочные продукты", "uz_latn": "Sut mahsulotlari", "uz_cyrl": "Сут маҳсулотлари"},
+    "suyuq_taomlar": {"en": "Soups", "ru": "Супы", "uz_latn": "Suyuq taomlar", "uz_cyrl": "Суюқ таомлар"},
+    "sweets": {"en": "Sweets", "ru": "Сладости", "uz_latn": "Shirinliklar", "uz_cyrl": "Ширинликлар"},
+    "taomlar": {"en": "Dishes", "ru": "Блюда", "uz_latn": "Taomlar", "uz_cyrl": "Таомлар"},
+    "tuxum": {"en": "Eggs", "ru": "Яйца", "uz_latn": "Tuxum", "uz_cyrl": "Тухум"},
+    "un_va_non_mahsulotlari": {"en": "Flour and bread products", "ru": "Мука и хлебные изделия", "uz_latn": "Un va non mahsulotlari", "uz_cyrl": "Ун ва нон маҳсулотлари"},
+    "uruglar": {"en": "Seeds", "ru": "Семена", "uz_latn": "Urug'lar", "uz_cyrl": "Уруғлар"},
+    "vegetables": {"en": "Vegetables", "ru": "Овощи", "uz_latn": "Sabzavotlar", "uz_cyrl": "Сабзавотлар"},
+    "xamirli_taomlar": {"en": "Dough dishes", "ru": "Блюда из теста", "uz_latn": "Xamirli taomlar", "uz_cyrl": "Хамирли таомлар"},
+    "yoglar": {"en": "Oils and fats", "ru": "Масла и жиры", "uz_latn": "Yog'lar", "uz_cyrl": "Ёғлар"},
+    "yongoqlar": {"en": "Nuts", "ru": "Орехи", "uz_latn": "Yong'oqlar", "uz_cyrl": "Ёнғоқлар"},
+    "yongoqlar_va_quruq_mevalar": {"en": "Nuts and dried fruits", "ru": "Орехи и сухофрукты", "uz_latn": "Yong'oqlar va quruq mevalar", "uz_cyrl": "Ёнғоқлар ва қуруқ мевалар"},
+    "ziravor_va_qoshimchalar": {"en": "Spices and additives", "ru": "Специи и добавки", "uz_latn": "Ziravor va qo'shimchalar", "uz_cyrl": "Зиравор ва қўшимчалар"},
+    "ziravorlar": {"en": "Spices", "ru": "Специи", "uz_latn": "Ziravorlar", "uz_cyrl": "Зираворлар"},
+}
+
 
 def slugify(value: str) -> str:
     value = value.strip().lower()
@@ -368,24 +431,27 @@ def insert_category(
     )
     category_id = cur.lastrowid
     category_ids[slug] = category_id
-    cur.execute(
-        """
-        INSERT INTO category_translations(
-          category_id, locale_code, name, search_text, translation_status
+
+    translations = CATEGORY_TRANSLATIONS.get(slug)
+    if translations is None:
+        translations = {
+            "uz_latn": source_name,
+            "uz_cyrl": uz_latn_to_cyrl(source_name),
+        }
+        statuses = {"uz_latn": "source", "uz_cyrl": "machine"}
+    else:
+        statuses = {locale: "human" for locale in translations}
+
+    for locale, name in translations.items():
+        cur.execute(
+            """
+            INSERT INTO category_translations(
+              category_id, locale_code, name, search_text, translation_status
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (category_id, locale, name, normalized(name), statuses[locale]),
         )
-        VALUES (?, 'uz_latn', ?, ?, 'source')
-        """,
-        (category_id, source_name, normalized(source_name)),
-    )
-    cur.execute(
-        """
-        INSERT INTO category_translations(
-          category_id, locale_code, name, search_text, translation_status
-        )
-        VALUES (?, 'uz_cyrl', ?, ?, 'machine')
-        """,
-        (category_id, uz_latn_to_cyrl(source_name), normalized(uz_latn_to_cyrl(source_name))),
-    )
     return category_id
 
 

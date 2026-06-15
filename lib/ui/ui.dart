@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_strings.dart';
 import '../theme/tokens.dart';
 
 /// Icon name → Material icon mapping (Phase 1; the bespoke Eco icon set from
@@ -118,7 +119,13 @@ class EcoTopBar extends StatelessWidget {
   final VoidCallback? onBack;
   final Widget? right;
 
-  const EcoTopBar({super.key, required this.t, required this.title, this.onBack, this.right});
+  const EcoTopBar({
+    super.key,
+    required this.t,
+    required this.title,
+    this.onBack,
+    this.right,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +142,11 @@ class EcoTopBar extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: const TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+              style: const TextStyle(
+                fontSize: 27,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.5,
+              ),
             ),
           ),
           if (right != null) right!,
@@ -176,7 +187,11 @@ class EcoCard extends StatelessWidget {
       child: child,
     );
     if (onTap == null) return card;
-    return GestureDetector(onTap: onTap, behavior: HitTestBehavior.opaque, child: card);
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: card,
+    );
   }
 }
 
@@ -187,7 +202,13 @@ class EcoIconBadge extends StatelessWidget {
   final double size;
   final double icon;
 
-  const EcoIconBadge({super.key, required this.t, required this.name, this.size = 36, this.icon = 18});
+  const EcoIconBadge({
+    super.key,
+    required this.t,
+    required this.name,
+    this.size = 36,
+    this.icon = 18,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +229,14 @@ class EcoCardHead extends StatelessWidget {
   final Widget? right;
   final double mb;
 
-  const EcoCardHead({super.key, required this.t, required this.icon, required this.title, this.right, this.mb = 16});
+  const EcoCardHead({
+    super.key,
+    required this.t,
+    required this.icon,
+    required this.title,
+    this.right,
+    this.mb = 16,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +247,14 @@ class EcoCardHead extends StatelessWidget {
           EcoIconBadge(t: t, name: icon),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: -0.4)),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.4,
+              ),
+            ),
           ),
           if (right != null) right!,
         ],
@@ -307,10 +342,18 @@ class EcoPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: padding,
-      decoration: BoxDecoration(color: bg ?? t.pill, borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(
+        color: bg ?? t.pill,
+        borderRadius: BorderRadius.circular(999),
+      ),
       child: Text(
         text,
-        style: TextStyle(color: color ?? t.dark, fontSize: fontSize, fontWeight: FontWeight.w600, height: 1),
+        style: TextStyle(
+          color: color ?? t.dark,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w600,
+          height: 1,
+        ),
       ),
     );
   }
@@ -320,23 +363,49 @@ class EcoPill extends StatelessWidget {
 class CalBadge extends StatelessWidget {
   final EcoTheme t;
   final int value;
-  final String unit;
+  final String? unit;
   final double size;
 
-  const CalBadge({super.key, required this.t, required this.value, this.unit = 'кал', this.size = 50});
+  const CalBadge({
+    super.key,
+    required this.t,
+    required this.value,
+    this.unit,
+    this.size = 50,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final displayUnit = unit ?? context.l10n.unit('cal');
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(color: t.pill, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(
+        color: t.pill,
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('$value', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: t.dark, height: 1)),
+          Text(
+            '$value',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: t.dark,
+              height: 1,
+            ),
+          ),
           const SizedBox(height: 2),
-          Text(unit, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: t.dark.withValues(alpha: 0.75), height: 1)),
+          Text(
+            displayUnit,
+            style: TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              color: t.dark.withValues(alpha: 0.75),
+              height: 1,
+            ),
+          ),
         ],
       ),
     );
@@ -348,7 +417,12 @@ class MacroRingData {
   final double goal;
   final Color color;
   final Color soft;
-  const MacroRingData({required this.value, required this.goal, required this.color, required this.soft});
+  const MacroRingData({
+    required this.value,
+    required this.goal,
+    required this.color,
+    required this.soft,
+  });
 }
 
 /// Concentric macro progress rings (carbs outer, fats middle, protein inner).
@@ -408,6 +482,7 @@ class MacroLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -421,23 +496,40 @@ class MacroLegend extends StatelessWidget {
                   width: 16,
                   height: 16,
                   margin: const EdgeInsets.only(top: 2),
-                  decoration: BoxDecoration(color: m.color, shape: BoxShape.circle),
+                  decoration: BoxDecoration(
+                    color: m.color,
+                    shape: BoxShape.circle,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(m.label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                    Text(
+                      m.label,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                     const SizedBox(height: 2),
                     Text.rich(
-                      TextSpan(children: [
-                        TextSpan(
-                          text: '${m.value}',
-                          style: const TextStyle(color: EcoColors.ink, fontWeight: FontWeight.w700),
-                        ),
-                        TextSpan(text: ' /${m.goal} г'),
-                      ]),
-                      style: const TextStyle(fontSize: 13, color: EcoColors.sub),
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '${m.value}',
+                            style: const TextStyle(
+                              color: EcoColors.ink,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          TextSpan(text: ' /${m.goal} ${l.unit('g')}'),
+                        ],
+                      ),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: EcoColors.sub,
+                      ),
                     ),
                   ],
                 ),
@@ -479,23 +571,30 @@ class ValueBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(999),
       child: SizedBox(
         height: height,
-        child: LayoutBuilder(builder: (context, box) {
-          return Stack(children: [
-            Container(color: soft ?? Colors.black.withValues(alpha: 0.06)),
-            Container(
-              width: box.maxWidth * pct,
-              decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(999)),
-            ),
-            if (zoneLo != null && zoneHi != null)
-              Positioned(
-                left: box.maxWidth * (zoneLo! / max),
-                width: box.maxWidth * ((zoneHi! - zoneLo!) / max),
-                top: 0,
-                bottom: 0,
-                child: Container(color: t.dark.withValues(alpha: 0.85)),
-              ),
-          ]);
-        }),
+        child: LayoutBuilder(
+          builder: (context, box) {
+            return Stack(
+              children: [
+                Container(color: soft ?? Colors.black.withValues(alpha: 0.06)),
+                Container(
+                  width: box.maxWidth * pct,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                if (zoneLo != null && zoneHi != null)
+                  Positioned(
+                    left: box.maxWidth * (zoneLo! / max),
+                    width: box.maxWidth * ((zoneHi! - zoneLo!) / max),
+                    top: 0,
+                    bottom: 0,
+                    child: Container(color: t.dark.withValues(alpha: 0.85)),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -522,15 +621,25 @@ class CalorieTrack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text.rich(
-          TextSpan(children: [
-            TextSpan(text: '$value', style: const TextStyle(color: EcoColors.ink)),
-            TextSpan(text: ' /$goal ккал'),
-          ]),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: EcoColors.sub),
+          TextSpan(
+            children: [
+              TextSpan(
+                text: '$value',
+                style: const TextStyle(color: EcoColors.ink),
+              ),
+              TextSpan(text: ' /$goal ${l.unit('kcal')}'),
+            ],
+          ),
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: EcoColors.sub,
+          ),
         ),
         const SizedBox(height: 8),
         ValueBar(
@@ -546,19 +655,46 @@ class CalorieTrack extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('0', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF2E2E30))),
-            Text('$max', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: const Color(0xFF2E2E30))),
+            Text(
+              '0',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF2E2E30),
+              ),
+            ),
+            Text(
+              '$max',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF2E2E30),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 6),
-        Row(children: [
-          Container(width: 14, height: 13, decoration: BoxDecoration(color: t.dark, borderRadius: BorderRadius.circular(3))),
-          const SizedBox(width: 8),
-          Text(
-            'Целевой промежуток · $zoneLo–$zoneHi кал',
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: EcoColors.sub),
-          ),
-        ]),
+        Row(
+          children: [
+            Container(
+              width: 14,
+              height: 13,
+              decoration: BoxDecoration(
+                color: t.dark,
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${l.t('common.targetRange')} · $zoneLo–$zoneHi ${l.unit('cal')}',
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: EcoColors.sub,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -571,7 +707,13 @@ class FolderTabs extends StatelessWidget {
   final int active;
   final ValueChanged<int> onChanged;
 
-  const FolderTabs({super.key, required this.t, required this.tabs, required this.active, required this.onChanged});
+  const FolderTabs({
+    super.key,
+    required this.t,
+    required this.tabs,
+    required this.active,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -584,11 +726,19 @@ class FolderTabs extends StatelessWidget {
               onTap: () => onChanged(i),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 150),
-                padding: EdgeInsets.fromLTRB(8, i == active ? 14 : 10, 8, i == active ? 18 : 14),
+                padding: EdgeInsets.fromLTRB(
+                  8,
+                  i == active ? 14 : 10,
+                  8,
+                  i == active ? 18 : 14,
+                ),
                 decoration: BoxDecoration(
                   color: i == active ? t.card : Colors.transparent,
                   borderRadius: i == active
-                      ? BorderRadius.only(topLeft: Radius.circular(t.r), topRight: Radius.circular(t.r))
+                      ? BorderRadius.only(
+                          topLeft: Radius.circular(t.r),
+                          topRight: Radius.circular(t.r),
+                        )
                       : BorderRadius.zero,
                 ),
                 child: Text(
@@ -617,6 +767,7 @@ Future<void> showEcoSheet({
   required Widget body,
   required VoidCallback onDone,
 }) {
+  final l = context.l10nRead;
   return showModalBottomSheet<void>(
     context: context,
     backgroundColor: Colors.transparent,
@@ -626,40 +777,55 @@ Future<void> showEcoSheet({
       decoration: BoxDecoration(
         color: t.band,
         borderRadius: BorderRadius.circular(26),
-        boxShadow: const [BoxShadow(color: Color(0x61121A08), blurRadius: 60, offset: Offset(0, 24))],
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x61121A08),
+            blurRadius: 60,
+            offset: Offset(0, 24),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: t.dark)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 19,
+              fontWeight: FontWeight.w700,
+              color: t.dark,
+            ),
+          ),
           const SizedBox(height: 8),
           body,
           const SizedBox(height: 10),
-          Row(children: [
-            Expanded(
-              child: EcoBtn(
-                t: t,
-                height: 46,
-                fontSize: 15,
-                onTap: () => Navigator.of(sheetCtx).pop(),
-                child: const Text('Отменить'),
+          Row(
+            children: [
+              Expanded(
+                child: EcoBtn(
+                  t: t,
+                  height: 46,
+                  fontSize: 15,
+                  onTap: () => Navigator.of(sheetCtx).pop(),
+                  child: Text(l.t('common.cancel')),
+                ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: EcoBtn(
-                t: t,
-                height: 46,
-                fontSize: 15,
-                onTap: () {
-                  Navigator.of(sheetCtx).pop();
-                  onDone();
-                },
-                child: const Text('Готово'),
+              const SizedBox(width: 10),
+              Expanded(
+                child: EcoBtn(
+                  t: t,
+                  height: 46,
+                  fontSize: 15,
+                  onTap: () {
+                    Navigator.of(sheetCtx).pop();
+                    onDone();
+                  },
+                  child: Text(l.t('common.done')),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ],
       ),
     ),
@@ -673,13 +839,22 @@ class EcoSegmented extends StatelessWidget {
   final int value;
   final ValueChanged<int> onChanged;
 
-  const EcoSegmented({super.key, required this.t, required this.options, required this.value, required this.onChanged});
+  const EcoSegmented({
+    super.key,
+    required this.t,
+    required this.options,
+    required this.value,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: t.cardAlt, borderRadius: BorderRadius.circular(999)),
+      decoration: BoxDecoration(
+        color: t.cardAlt,
+        borderRadius: BorderRadius.circular(999),
+      ),
       child: Row(
         children: [
           for (var i = 0; i < options.length; i++)
@@ -778,23 +953,33 @@ class EcoBottomNav extends StatelessWidget {
             right: 0,
             bottom: bottomInset,
             height: 61,
-            child: Row(children: [
-              Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: onHome,
-                  child: Icon(ecoIcon(active == 'home' ? 'homeFill' : 'home'), size: 28, color: t.dark),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onHome,
+                    child: Icon(
+                      ecoIcon(active == 'home' ? 'homeFill' : 'home'),
+                      size: 28,
+                      color: t.dark,
+                    ),
+                  ),
                 ),
-              ),
-              const Expanded(child: SizedBox()),
-              Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: onProfile,
-                  child: Icon(ecoIcon(active == 'profile' ? 'userFill' : 'user'), size: 26, color: t.dark),
+                const Expanded(child: SizedBox()),
+                Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onProfile,
+                    child: Icon(
+                      ecoIcon(active == 'profile' ? 'userFill' : 'user'),
+                      size: 26,
+                      color: t.dark,
+                    ),
+                  ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           ),
           // FAB dips 34px into the band's notch.
           Positioned(
@@ -811,7 +996,13 @@ class EcoBottomNav extends StatelessWidget {
                     color: t.dark,
                     shape: BoxShape.circle,
                     border: Border.all(color: t.bg, width: 4),
-                    boxShadow: const [BoxShadow(color: Color(0x4D28321E), blurRadius: 18, offset: Offset(0, 6))],
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x4D28321E),
+                        blurRadius: 18,
+                        offset: Offset(0, 6),
+                      ),
+                    ],
                   ),
                   child: Icon(ecoIcon(fabIcon), size: 30, color: t.pill),
                 ),
@@ -846,7 +1037,14 @@ class _BandPainter extends CustomPainter {
       ..lineTo(125 * sx, 0)
       ..cubicTo(136 * sx, 0, 144.6 * sx, 9.5 * sy, 149.9 * sx, 19.2 * sy)
       ..cubicTo(156.7 * sx, 31.6 * sy, 169.9 * sx, 40 * sy, 185 * sx, 40 * sy)
-      ..cubicTo(200.1 * sx, 40 * sy, 213.3 * sx, 31.6 * sy, 220.1 * sx, 19.2 * sy)
+      ..cubicTo(
+        200.1 * sx,
+        40 * sy,
+        213.3 * sx,
+        31.6 * sy,
+        220.1 * sx,
+        19.2 * sy,
+      )
       ..cubicTo(225.4 * sx, 9.5 * sy, 234 * sx, 0, 245 * sx, 0)
       ..lineTo(350 * sx, 0)
       ..cubicTo(361 * sx, 0, 370 * sx, 9 * sy, 370 * sx, 20 * sy)
@@ -856,7 +1054,10 @@ class _BandPainter extends CustomPainter {
     // Flood below the notch to the screen edge (covers the path's rounded
     // bottom corners and the system navigation inset).
     if (size.height > 41 * sy) {
-      canvas.drawRect(Rect.fromLTRB(0, 41 * sy, size.width, size.height), paint);
+      canvas.drawRect(
+        Rect.fromLTRB(0, 41 * sy, size.width, size.height),
+        paint,
+      );
     }
   }
 

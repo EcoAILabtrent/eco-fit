@@ -5,6 +5,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
+import '../l10n/app_language.dart';
+
 /// Product from the offline SQLite catalog (assets/db/eco_fit.db).
 class Product {
   final int id;
@@ -56,19 +58,60 @@ class Product {
   ].join(' ').toLowerCase();
 
   bool get hasImage =>
-      imageAssetPath != null || imageStoragePath != null || imageRemoteUrl != null;
+      imageAssetPath != null ||
+      imageStoragePath != null ||
+      imageRemoteUrl != null;
 
-  String get displayUnit {
-    return switch (unit) {
-      'ml' => 'мл',
-      'l' => 'л',
-      'piece' => 'шт',
-      'portion' => 'порция',
-      _ => 'г',
-    };
+  String displayUnit(AppLanguage language) => switch (unit) {
+    'ml' => _unit(language, 'ml'),
+    'l' => _unit(language, 'l'),
+    'piece' => _unit(language, 'piece'),
+    'portion' => _unit(language, 'portion'),
+    _ => _unit(language, 'g'),
+  };
+
+  String calorieBaseLabel(AppLanguage language) =>
+      '${_unit(language, 'kcal')}/100 ${displayUnit(language)}';
+
+  static String _unit(AppLanguage language, String code) {
+    final labels = _unitLabels[language] ?? _unitLabels[AppLanguage.ru]!;
+    return labels[code] ?? code;
   }
 
-  String get calorieBaseLabel => 'ккал/100 $displayUnit';
+  static const _unitLabels = {
+    AppLanguage.en: {
+      'kcal': 'kcal',
+      'g': 'g',
+      'ml': 'ml',
+      'l': 'l',
+      'piece': 'pcs',
+      'portion': 'portion',
+    },
+    AppLanguage.ru: {
+      'kcal': 'ккал',
+      'g': 'г',
+      'ml': 'мл',
+      'l': 'л',
+      'piece': 'шт',
+      'portion': 'порция',
+    },
+    AppLanguage.uzLatn: {
+      'kcal': 'kkal',
+      'g': 'g',
+      'ml': 'ml',
+      'l': 'l',
+      'piece': 'dona',
+      'portion': 'porsiya',
+    },
+    AppLanguage.uzCyrl: {
+      'kcal': 'ккал',
+      'g': 'г',
+      'ml': 'мл',
+      'l': 'л',
+      'piece': 'дона',
+      'portion': 'порция',
+    },
+  };
 
   static Product fromDbRow(Map<String, Object?> row, Map<String, num> micros) {
     return Product(
@@ -110,17 +153,19 @@ class FoodDb {
 
   static const _assetPath = 'assets/db/eco_fit.db';
   static const _dbFileName = 'eco_fit.db';
-  static const _locale = 'uz_latn';
+  String _locale = AppLanguage.ru.productLocale;
 
   final List<Product> all = [];
   Database? _db;
   bool _loaded = false;
 
-  Future<void> load() async {
-    if (_loaded) return;
+  Future<void> load({String? localeCode, bool force = false}) async {
+    final nextLocale = localeCode ?? _locale;
+    if (_loaded && _locale == nextLocale && !force) return;
     final path = await _ensureDatabaseFile();
-    final db = await openDatabase(path, readOnly: false);
+    final db = _db ?? await openDatabase(path, readOnly: false);
     _db = db;
+    _locale = nextLocale;
 
     final microsByFoodId = await _loadMicros(db);
     final rows = await db.rawQuery(
@@ -166,22 +211,22 @@ class FoodDb {
 
     all
       ..clear()
-      ..addAll(rows.map((row) {
-        final id = (row['id'] as num).toInt();
-        return Product.fromDbRow(row, microsByFoodId[id] ?? const {});
-      }));
+      ..addAll(
+        rows.map((row) {
+          final id = (row['id'] as num).toInt();
+          return Product.fromDbRow(row, microsByFoodId[id] ?? const {});
+        }),
+      );
     _loaded = true;
   }
 
   Future<Map<int, Map<String, num>>> _loadMicros(Database db) async {
-    final rows = await db.rawQuery(
-      '''
+    final rows = await db.rawQuery('''
       SELECT fn.food_id, n.code, fn.amount_per_100g
       FROM food_nutrients fn
       JOIN nutrients n ON n.id = fn.nutrient_id
       WHERE n.code NOT IN ('energy_kcal', 'protein', 'carbs', 'fat')
-      ''',
-    );
+      ''');
     final out = <int, Map<String, num>>{};
     for (final row in rows) {
       final foodId = (row['food_id'] as num).toInt();
@@ -216,7 +261,11 @@ class FoodDb {
     await target.writeAsBytes(data, flush: true);
   }
 
-  List<Product> search(String query, {bool recipesOnly = false, int limit = 60}) {
+  List<Product> search(
+    String query, {
+    bool recipesOnly = false,
+    int limit = 60,
+  }) {
     final q = query.trim().toLowerCase();
     final out = <Product>[];
     for (final product in all) {

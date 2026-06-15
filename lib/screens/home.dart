@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_strings.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
@@ -16,8 +17,11 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppStore>();
-    final waterPct = (s.waterGoal > 0 ? s.water / s.waterGoal * 100 : 0).round();
-    final stepsPct = (s.stepsGoal > 0 ? s.steps / s.stepsGoal * 100 : 0).round();
+    final l = context.l10n;
+    final waterPct = (s.waterGoal > 0 ? s.water / s.waterGoal * 100 : 0)
+        .round();
+    final stepsPct = (s.stepsGoal > 0 ? s.steps / s.stepsGoal * 100 : 0)
+        .round();
 
     return EcoScreen(
       t: t,
@@ -31,13 +35,23 @@ class HomeScreen extends StatelessWidget {
       child: Padding(
         // SafeArea handles the status bar. Bottom clears the fixed nav band
         // (91 + 16 float + system inset) so the last card scrolls fully out.
-        padding: EdgeInsets.only(top: 24, bottom: 150 + MediaQuery.of(context).padding.bottom),
+        padding: EdgeInsets.only(
+          top: 24,
+          bottom: 150 + MediaQuery.of(context).padding.bottom,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 2, bottom: 18, top: 4),
-              child: Text('Сегодня', style: TextStyle(fontSize: 27, fontWeight: FontWeight.w700, letterSpacing: -0.5)),
+            Padding(
+              padding: const EdgeInsets.only(left: 2, bottom: 18, top: 4),
+              child: Text(
+                l.t('common.today'),
+                style: const TextStyle(
+                  fontSize: 27,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.5,
+                ),
+              ),
             ),
 
             // Рекомендации
@@ -47,10 +61,19 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const EcoCardHead(t: t, icon: 'bulb', title: 'Рекомендации', mb: 12),
-                  const Text(
-                    'Регулярная активность полезна для здоровья. Чем больше вы двигаетесь — тем лучше себя чувствуете.',
-                    style: TextStyle(fontSize: 13.5, height: 1.45, color: EcoColors.sub),
+                  EcoCardHead(
+                    t: t,
+                    icon: 'bulb',
+                    title: l.t('home.recommendations'),
+                    mb: 12,
+                  ),
+                  Text(
+                    l.t('home.recommendationBody'),
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      height: 1.45,
+                      color: EcoColors.sub,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -60,7 +83,8 @@ class HomeScreen extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(left: 6),
                           child: GestureDetector(
-                            onTap: () => context.read<AppStore>().setRecFeedback(k),
+                            onTap: () =>
+                                context.read<AppStore>().setRecFeedback(k),
                             child: Container(
                               width: 40,
                               height: 32,
@@ -90,21 +114,62 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const EcoCardHead(t: t, icon: 'food', title: 'Еда', mb: 8),
+                  EcoCardHead(
+                    t: t,
+                    icon: 'food',
+                    title: l.t('home.food'),
+                    mb: 8,
+                  ),
                   Row(
                     children: [
-                      MacroRings(size: 128, data: [
-                        MacroRingData(value: s.macros.carbs, goal: s.carbGoal.toDouble(), color: EcoColors.carb, soft: EcoColors.carbSoft),
-                        MacroRingData(value: s.macros.fat, goal: s.fatGoal.toDouble(), color: EcoColors.fat, soft: EcoColors.fatSoft),
-                        MacroRingData(value: s.macros.protein, goal: s.protGoal.toDouble(), color: EcoColors.prot, soft: EcoColors.protSoft),
-                      ]),
+                      MacroRings(
+                        size: 128,
+                        data: [
+                          MacroRingData(
+                            value: s.macros.carbs,
+                            goal: s.carbGoal.toDouble(),
+                            color: EcoColors.carb,
+                            soft: EcoColors.carbSoft,
+                          ),
+                          MacroRingData(
+                            value: s.macros.fat,
+                            goal: s.fatGoal.toDouble(),
+                            color: EcoColors.fat,
+                            soft: EcoColors.fatSoft,
+                          ),
+                          MacroRingData(
+                            value: s.macros.protein,
+                            goal: s.protGoal.toDouble(),
+                            color: EcoColors.prot,
+                            soft: EcoColors.protSoft,
+                          ),
+                        ],
+                      ),
                       const SizedBox(width: 14),
                       Expanded(
-                        child: MacroLegend(t: t, items: [
-                          (label: 'Углеводы', value: s.macros.carbs.round(), goal: s.carbGoal, color: EcoColors.carb),
-                          (label: 'Жиры', value: s.macros.fat.round(), goal: s.fatGoal, color: EcoColors.fat),
-                          (label: 'Белки', value: s.macros.protein.round(), goal: s.protGoal, color: EcoColors.prot),
-                        ]),
+                        child: MacroLegend(
+                          t: t,
+                          items: [
+                            (
+                              label: l.nutrient('carbs'),
+                              value: s.macros.carbs.round(),
+                              goal: s.carbGoal,
+                              color: EcoColors.carb,
+                            ),
+                            (
+                              label: l.nutrient('fat'),
+                              value: s.macros.fat.round(),
+                              goal: s.fatGoal,
+                              color: EcoColors.fat,
+                            ),
+                            (
+                              label: l.nutrient('protein'),
+                              value: s.macros.protein.round(),
+                              goal: s.protGoal,
+                              color: EcoColors.prot,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -117,41 +182,51 @@ class HomeScreen extends StatelessWidget {
             // Параметры тела
             _MetricCard(
               icon: 'gauge',
-              title: 'Параметры тела',
+              title: l.t('home.bodyParams'),
               onTap: () => Navigator.of(context).pushNamed('/body'),
               left: EcoPill(
                 t: t,
                 bg: t.bandSoft,
                 fontSize: 16,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                text: '${s.weight > 0 ? s.weight : '—'} кг',
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
+                text: '${s.weight > 0 ? s.weight : '—'} ${l.unit('kg')}',
               ),
               right: SizedBox(
                 width: 150,
-                child: Column(children: [
-                  EcoPill(t: t, text: 'Средняя', fontSize: 11),
-                  const SizedBox(height: 6),
-                  Container(
-                    height: 12,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                      gradient: LinearGradient(colors: [t.bandSoft, t.dark, EcoColors.fatSoft]),
+                child: Column(
+                  children: [
+                    EcoPill(t: t, text: l.t('common.average'), fontSize: 11),
+                    const SizedBox(height: 6),
+                    Container(
+                      height: 12,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        gradient: LinearGradient(
+                          colors: [t.bandSoft, t.dark, EcoColors.fatSoft],
+                        ),
+                      ),
                     ),
-                  ),
-                ]),
+                  ],
+                ),
               ),
             ),
 
             // Шаги — тап включает шагомер (разрешение) либо обновляет счёт
             _MetricCard(
               icon: 'steps',
-              title: 'Шаги',
+              title: l.t('home.steps'),
               onTap: () => context.read<AppStore>().enableSteps(),
               left: EcoPill(
                 t: t,
                 bg: t.bandSoft,
                 fontSize: 16,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 12,
+                ),
                 text: '${s.steps} / ${s.stepsGoal}',
               ),
               right: _MiniProgress(pct: stepsPct, label: '$stepsPct%'),
@@ -160,14 +235,14 @@ class HomeScreen extends StatelessWidget {
             // Сон
             _MetricCard(
               icon: 'bed',
-              title: 'Сон',
+              title: l.t('home.sleep'),
               onTap: () => Navigator.of(context).pushNamed('/stats'),
               left: EcoBtn(
                 t: t,
                 height: 44,
                 fontSize: 15,
                 onTap: () => Navigator.of(context).pushNamed('/stats'),
-                child: const Text('Ввод'),
+                child: Text(l.t('common.input')),
               ),
               right: const _MiniProgress(pct: 62, label: '?'),
             ),
@@ -180,7 +255,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const EcoCardHead(t: t, icon: 'water', title: 'Вода'),
+                  EcoCardHead(t: t, icon: 'water', title: l.t('home.water')),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -189,19 +264,35 @@ class HomeScreen extends StatelessWidget {
                         height: 44,
                         fontSize: 15,
                         onTap: () => context.read<AppStore>().addWater(250),
-                        child: const Text('+ 250 мл'),
+                        child: Text('+ 250 ${l.unit('ml')}'),
                       ),
-                      Row(children: [
-                        Text.rich(
-                          TextSpan(children: [
-                            TextSpan(text: '${s.water}', style: const TextStyle(color: EcoColors.ink)),
-                            TextSpan(text: ' / ${s.waterGoal} мл', style: const TextStyle(color: EcoColors.sub, fontWeight: FontWeight.w600)),
-                          ]),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(width: 14),
-                        _WaterGlass(pct: waterPct.toDouble()),
-                      ]),
+                      Row(
+                        children: [
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: '${s.water}',
+                                  style: const TextStyle(color: EcoColors.ink),
+                                ),
+                                TextSpan(
+                                  text: ' / ${s.waterGoal} ${l.unit('ml')}',
+                                  style: const TextStyle(
+                                    color: EcoColors.sub,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          _WaterGlass(pct: waterPct.toDouble()),
+                        ],
+                      ),
                     ],
                   ),
                 ],
@@ -211,38 +302,47 @@ class HomeScreen extends StatelessWidget {
             // Кровяное давление
             _MetricCard(
               icon: 'pulse',
-              title: 'Кровяное давление',
+              title: l.t('home.pressure'),
               onTap: () => Navigator.of(context).pushNamed('/pressure'),
               left: EcoBtn(
                 t: t,
                 height: 44,
                 fontSize: 15,
                 onTap: () => Navigator.of(context).pushNamed('/pressure'),
-                child: Text(s.pressure ?? 'Ввод'),
+                child: Text(s.pressure ?? l.t('common.input')),
               ),
-              right: _MiniProgress(pct: s.pressure != null ? 70 : 50, label: s.pressure != null ? 'норма' : '?'),
+              right: _MiniProgress(
+                pct: s.pressure != null ? 70 : 50,
+                label: s.pressure != null ? l.t('common.normal') : '?',
+              ),
             ),
 
             // Сахар крови
             _MetricCard(
               icon: 'sugar',
-              title: 'Сахар крови',
+              title: l.t('home.sugar'),
               onTap: () => Navigator.of(context).pushNamed('/sugar'),
               left: EcoBtn(
                 t: t,
                 height: 44,
                 fontSize: 15,
                 onTap: () => Navigator.of(context).pushNamed('/sugar'),
-                child: Text(s.sugar != null ? '${s.sugar!.round()} мг/дл' : 'Ввод'),
+                child: Text(
+                  s.sugar != null
+                      ? '${s.sugar!.round()} ${l.unit('mgdl')}'
+                      : l.t('common.input'),
+                ),
               ),
-              right: _MiniProgress(pct: s.sugar != null ? 64 : 50, label: s.sugar != null ? 'норма' : '?'),
+              right: _MiniProgress(
+                pct: s.sugar != null ? 64 : 50,
+                label: s.sugar != null ? l.t('common.normal') : '?',
+              ),
             ),
           ],
         ),
       ),
     );
   }
-
 }
 
 /// "Приём пищи" meal-picker — the FAB modal from home.jsx.
@@ -257,9 +357,13 @@ void showMealPicker(BuildContext context) {
       final media = MediaQuery.of(sheetCtx);
       final bottomInset = media.padding.bottom;
       final navClearance = 76.0 + bottomInset;
-      final maxSheetHeight = media.size.height - media.padding.top - navClearance - 6;
+      final maxSheetHeight =
+          media.size.height - media.padding.top - navClearance - 6;
       final desiredSheetHeight = (media.size.height * 0.90).clamp(540.0, 760.0);
-      final sheetHeight = math.max(430.0, math.min(desiredSheetHeight, maxSheetHeight));
+      final sheetHeight = math.max(
+        430.0,
+        math.min(desiredSheetHeight, maxSheetHeight),
+      );
       return SizedBox(
         height: sheetHeight + navClearance + 30,
         child: Stack(
@@ -273,11 +377,15 @@ void showMealPicker(BuildContext context) {
               child: _MealPickerSheet(
                 onOpenMeal: (mealKey) {
                   Navigator.of(sheetCtx).pop();
-                  Navigator.of(context).pushNamed('/meallog', arguments: mealKey);
+                  Navigator.of(
+                    context,
+                  ).pushNamed('/meallog', arguments: mealKey);
                 },
                 onAddFood: (mealKey) {
                   Navigator.of(sheetCtx).pop();
-                  Navigator.of(context).pushNamed('/addfood', arguments: mealKey);
+                  Navigator.of(
+                    context,
+                  ).pushNamed('/addfood', arguments: mealKey);
                 },
               ),
             ),
@@ -295,7 +403,13 @@ void showMealPicker(BuildContext context) {
                       color: t.dark,
                       shape: BoxShape.circle,
                       border: Border.all(color: t.bg, width: 5),
-                      boxShadow: const [BoxShadow(color: Color(0x59364025), blurRadius: 26, offset: Offset(0, 10))],
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x59364025),
+                          blurRadius: 26,
+                          offset: Offset(0, 10),
+                        ),
+                      ],
                     ),
                     child: Icon(Icons.close, size: 42, color: t.pill),
                   ),
@@ -316,13 +430,24 @@ class _MealPickerSheet extends StatelessWidget {
   const _MealPickerSheet({required this.onOpenMeal, required this.onAddFood});
 
   static const t = HomeScreen.t;
-  static const _order = ['snackE', 'snackD', 'snackM', 'dinner', 'lunch', 'breakfast'];
+  static const _order = [
+    'snackE',
+    'snackD',
+    'snackM',
+    'dinner',
+    'lunch',
+    'breakfast',
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     final meals = [
       for (final key in _order)
-        kMeals.firstWhere((meal) => meal.key == key, orElse: () => kMeals.first),
+        kMeals.firstWhere(
+          (meal) => meal.key == key,
+          orElse: () => kMeals.first,
+        ),
     ];
     final store = context.watch<AppStore>();
     return Container(
@@ -330,11 +455,24 @@ class _MealPickerSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.band,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: const [BoxShadow(color: Color(0x29161A0B), blurRadius: 32, offset: Offset(0, 14))],
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x29161A0B),
+            blurRadius: 32,
+            offset: Offset(0, 14),
+          ),
+        ],
       ),
       child: Column(
         children: [
-          Text('Приём пищи', style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: t.dark)),
+          Text(
+            l.t('home.mealPicker'),
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: t.dark,
+            ),
+          ),
           const SizedBox(height: 24),
           Expanded(
             child: Column(
@@ -348,7 +486,12 @@ class _MealPickerSheet extends StatelessWidget {
                       onAddFood: onAddFood,
                     ),
                   ),
-                  if (i < meals.length - 1) Divider(height: 1, thickness: 1.3, color: t.pill.withValues(alpha: 0.34)),
+                  if (i < meals.length - 1)
+                    Divider(
+                      height: 1,
+                      thickness: 1.3,
+                      color: t.pill.withValues(alpha: 0.34),
+                    ),
                 ],
               ],
             ),
@@ -376,6 +519,7 @@ class _MealPickerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Row(
       children: [
         Expanded(
@@ -391,9 +535,13 @@ class _MealPickerRow extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      meal.label,
+                      l.meal(meal.key),
                       maxLines: 1,
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: t.dark),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: t.dark,
+                      ),
                     ),
                   ),
                 ),
@@ -411,7 +559,14 @@ class _MealPickerRow extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(width: 3, height: 31, decoration: BoxDecoration(color: t.olive, borderRadius: BorderRadius.circular(3))),
+                Container(
+                  width: 3,
+                  height: 31,
+                  decoration: BoxDecoration(
+                    color: t.olive,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
                 const SizedBox(width: 15),
                 Icon(Icons.add, size: 34, color: t.dark),
               ],
@@ -432,16 +587,36 @@ class _MealPickerCalBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return Container(
       width: 64,
       height: 64,
-      decoration: BoxDecoration(color: t.pill, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(
+        color: t.pill,
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('$value', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: t.dark, height: 1)),
+          Text(
+            '$value',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: t.dark,
+              height: 1,
+            ),
+          ),
           const SizedBox(height: 3),
-          Text('кал', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: t.dark.withValues(alpha: 0.72), height: 1)),
+          Text(
+            l.unit('cal'),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: t.dark.withValues(alpha: 0.72),
+              height: 1,
+            ),
+          ),
         ],
       ),
     );
@@ -455,7 +630,13 @@ class _MetricCard extends StatelessWidget {
   final Widget right;
   final VoidCallback? onTap;
 
-  const _MetricCard({required this.icon, required this.title, required this.left, required this.right, this.onTap});
+  const _MetricCard({
+    required this.icon,
+    required this.title,
+    required this.left,
+    required this.right,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -468,7 +649,10 @@ class _MetricCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           EcoCardHead(t: t, icon: icon, title: title),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [left, right]),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [left, right],
+          ),
         ],
       ),
     );
@@ -489,20 +673,32 @@ class _MiniProgress extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          EcoPill(t: t, text: label, fontSize: 11, padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3)),
+          EcoPill(
+            t: t,
+            text: label,
+            fontSize: 11,
+            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+          ),
           const SizedBox(height: 6),
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: SizedBox(
               height: 12,
               width: double.infinity,
-              child: Stack(children: [
-                Container(color: t.bandSoft),
-                FractionallySizedBox(
-                  widthFactor: (pct / 100).clamp(0.0, 1.0),
-                  child: Container(decoration: BoxDecoration(color: t.olive, borderRadius: BorderRadius.circular(999))),
-                ),
-              ]),
+              child: Stack(
+                children: [
+                  Container(color: t.bandSoft),
+                  FractionallySizedBox(
+                    widthFactor: (pct / 100).clamp(0.0, 1.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: t.olive,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -517,7 +713,11 @@ class _WaterGlass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(width: 64, height: 76, child: CustomPaint(painter: _GlassPainter(pct)));
+    return SizedBox(
+      width: 64,
+      height: 76,
+      child: CustomPaint(painter: _GlassPainter(pct)),
+    );
   }
 }
 
@@ -537,7 +737,10 @@ class _GlassPainter extends CustomPainter {
       ..close();
     canvas.save();
     canvas.clipPath(cup);
-    canvas.drawRect(Rect.fromLTWH(0, 0, w, h), Paint()..color = const Color(0xFFDCEAF6));
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, w, h),
+      Paint()..color = const Color(0xFFDCEAF6),
+    );
     final fillH = h * (pct / 100).clamp(0.0, 1.0);
     final grad = Paint()
       ..shader = const LinearGradient(
