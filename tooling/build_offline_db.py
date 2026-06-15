@@ -435,13 +435,19 @@ def add_serving(
 
 
 def image_fields(item: dict[str, Any]) -> tuple[str | None, str | None, str | None, str | None]:
+    photo_url = item.get("photo_url")
+    photo_file_name = Path(str(photo_url)).name if photo_url else None
+    photo_asset_path = f"assets/foods/images/{photo_file_name}" if photo_file_name else None
+    photo_asset_exists = bool(photo_asset_path and (ROOT / photo_asset_path).exists())
+
     asset_path = (
         item.get("image_asset_path")
         or item.get("image_asset")
         or item.get("asset_path")
         or item.get("image_path")
+        or (photo_asset_path if photo_asset_exists else None)
     )
-    storage_path = item.get("image_storage_path") or item.get("storage_path")
+    storage_path = item.get("image_storage_path") or item.get("storage_path") or photo_url
     remote_url = item.get("image_url") or item.get("remote_url")
     file_name = item.get("image_file_name") or item.get("file_name")
     if not file_name:
@@ -472,7 +478,13 @@ def insert_foods(
 
     for item in foods:
         slug = item["slug"]
-        name_uz = (item.get("name_uz") or slug).strip()
+        name_uz = (item.get("name_uz") or item.get("name_uz_lat") or slug).strip()
+        name_uz_cyrl = (
+            item.get("name_uz_cyrl")
+            or item.get("name_uz_kril")
+            or item.get("name_uz_kiril")
+            or ""
+        ).strip()
         name_ru = (item.get("name_ru") or "").strip()
         name_en = (item.get("name_en") or "").strip()
         emoji = (item.get("emoji") or "").strip()
@@ -531,10 +543,11 @@ def insert_foods(
             (food_id, category_id),
         )
 
-        translations = [
-            ("uz_latn", name_uz, "source"),
-            ("uz_cyrl", uz_latn_to_cyrl(name_uz), "machine"),
-        ]
+        translations = [("uz_latn", name_uz, "source")]
+        if name_uz_cyrl:
+            translations.append(("uz_cyrl", name_uz_cyrl, "source"))
+        else:
+            translations.append(("uz_cyrl", uz_latn_to_cyrl(name_uz), "machine"))
         if name_ru:
             translations.append(("ru", name_ru, "source"))
         if name_en:

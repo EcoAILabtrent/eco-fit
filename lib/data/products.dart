@@ -102,9 +102,8 @@ class Product {
 
 /// Loads and searches the offline product database.
 ///
-/// The bundled SQLite asset is copied into the app database directory on first
-/// launch. Product data is then read from SQLite and cached in memory for fast
-/// UI search.
+/// The bundled SQLite asset is copied into the app database directory. Product
+/// data is then read from SQLite and cached in memory for fast UI search.
 class FoodDb {
   FoodDb._();
   static final FoodDb instance = FoodDb._();
@@ -199,16 +198,22 @@ class FoodDb {
     await Directory(dir).create(recursive: true);
     final dbPath = p.join(dir, _dbFileName);
     final file = File(dbPath);
-    if (!await file.exists() || await file.length() == 0) {
-      await _copyAssetDatabase(file);
+    final assetData = await _loadAssetDatabase();
+    if (!await file.exists() || await file.length() != assetData.length) {
+      await _copyAssetDatabase(file, assetData);
     }
     return dbPath;
   }
 
-  Future<void> _copyAssetDatabase(File target) async {
+  Future<Uint8List> _loadAssetDatabase() async {
     final bytes = await rootBundle.load(_assetPath);
-    final data = bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes);
-    await target.writeAsBytes(Uint8List.fromList(data), flush: true);
+    return Uint8List.fromList(
+      bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
+    );
+  }
+
+  Future<void> _copyAssetDatabase(File target, Uint8List data) async {
+    await target.writeAsBytes(data, flush: true);
   }
 
   List<Product> search(String query, {bool recipesOnly = false, int limit = 60}) {

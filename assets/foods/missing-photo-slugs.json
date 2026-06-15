@@ -1,0 +1,3292 @@
+﻿[
+    {
+        "slug":  "seld",
+        "name_uz_lat":  "Seld",
+        "name_ru":  "РЎРµР»СЊРґСЊ",
+        "name_en":  "Herring",
+        "photo_url":  "/data/photos/foods-v2/seld.webp"
+    },
+    {
+        "slug":  "selderey_sharbati",
+        "name_uz_lat":  "Selderey sharbati",
+        "name_ru":  "РЎРѕРє СЃРµР»СЊРґРµСЂРµСЏ",
+        "name_en":  "Celery juice",
+        "photo_url":  "/data/photos/foods-v2/selderey_sharbati.webp"
+    },
+    {
+        "slug":  "seldereya_ildizi",
+        "name_uz_lat":  "Seldereya ildizi",
+        "name_ru":  "РљРѕСЂРµРЅСЊ СЃРµР»СЊРґРµСЂРµСЏ",
+        "name_en":  "Celery root",
+        "photo_url":  "/data/photos/foods-v2/seldereya_ildizi.webp"
+    },
+    {
+        "slug":  "seldereya_xom",
+        "name_uz_lat":  "Seldereya, xom",
+        "name_ru":  "РЎРµР»СЊРґРµСЂРµР№, СЃС‹СЂРѕР№",
+        "name_en":  "Celery, raw",
+        "photo_url":  "/data/photos/foods-v2/seldereya_xom.webp"
+    },
+    {
+        "slug":  "servelat",
+        "name_uz_lat":  "Servelat",
+        "name_ru":  "РЎРµСЂРІРµС‚С‚",
+        "name_en":  "Servette",
+        "photo_url":  "/data/photos/foods-v2/servelat.webp"
+    },
+    {
+        "slug":  "uz_shaftoli",
+        "name_uz_lat":  "Shaftoli",
+        "name_ru":  "РџРµСЂСЃРёРє",
+        "name_en":  "Peach",
+        "photo_url":  "/data/photos/foods-v2/uz_shaftoli.webp"
+    },
+    {
+        "slug":  "shaftoli_kompoti",
+        "name_uz_lat":  "Shaftoli kompoti",
+        "name_ru":  "РџРµСЂСЃРёРєРѕРІС‹Р№ РєРѕРјРїРѕС‚",
+        "name_en":  "Peach compote",
+        "photo_url":  "/data/photos/foods-v2/shaftoli_kompoti.webp"
+    },
+    {
+        "slug":  "shaftoli_sharbati",
+        "name_uz_lat":  "Shaftoli sharbati",
+        "name_ru":  "РџРµСЂСЃРёРєРѕРІС‹Р№ СЃРѕРє",
+        "name_en":  "Peach juice",
+        "photo_url":  "/data/photos/foods-v2/shaftoli_sharbati.webp"
+    },
+    {
+        "slug":  "shakar_qum",
+        "name_uz_lat":  "Shakar (qum)",
+        "name_ru":  "СЃР°С…Р°СЂ (РїРµСЃРѕРє)",
+        "name_en":  "sugar (sand)",
+        "photo_url":  "/data/photos/foods-v2/shakar_qum.webp"
+    },
+    {
+        "slug":  "shakarli_buloshka",
+        "name_uz_lat":  "Shakarli buloshka",
+        "name_ru":  "РЎР°С…Р°СЂРЅР°СЏ Р±СѓР»РѕС‡РєР°",
+        "name_en":  "Sugar bun",
+        "photo_url":  "/data/photos/foods-v2/shakarli_buloshka.webp"
+    },
+    {
+        "slug":  "shakarsiz_qora_qahva",
+        "name_uz_lat":  "Shakarsiz qora qahva",
+        "name_ru":  "Р§РµСЂРЅС‹Р№ РєРѕС„Рµ Р±РµР· СЃР°С…Р°СЂР°",
+        "name_en":  "Black coffee without sugar",
+        "photo_url":  "/data/photos/foods-v2/shakarsiz_qora_qahva.webp"
+    },
+    {
+        "slug":  "shakarsiz_quyuqlashtirilgan_sut",
+        "name_uz_lat":  "Shakarsiz quyuqlashtirilgan sut",
+        "name_ru":  "РЎРіСѓС‰РµРЅРЅРѕРµ РјРѕР»РѕРєРѕ Р±РµР· СЃР°С…Р°СЂР°",
+        "name_en":  "Condensed milk without sugar",
+        "photo_url":  "/data/photos/foods-v2/shakarsiz_quyuqlashtirilgan_sut.webp"
+    },
+    {
+        "slug":  "shakshuka",
+        "name_uz_lat":  "Shakshuka",
+        "name_ru":  "РЁР°РєС€СѓРєР°",
+        "name_en":  "Shakshuka",
+        "photo_url":  "/data/photos/foods-v2/shakshuka.webp"
+    },
+    {
+        "slug":  "shalfey",
+        "name_uz_lat":  "Shalfey",
+        "name_ru":  "РњСѓРґСЂРµС†",
+        "name_en":  "Sage",
+        "photo_url":  "/data/photos/foods-v2/shalfey.webp"
+    },
+    {
+        "slug":  "shalgom",
+        "name_uz_lat":  "Shalg\u0027om",
+        "name_ru":  "Р РµРїР°",
+        "name_en":  "Turnip",
+        "photo_url":  "/data/photos/foods-v2/shalgom.webp"
+    },
+    {
+        "slug":  "shampan_vinosi",
+        "name_uz_lat":  "Shampan vinosi",
+        "name_ru":  "РЁР°РјРїР°РЅСЃРєРѕРµ РІРёРЅРѕ",
+        "name_en":  "Champagne wine",
+        "photo_url":  "/data/photos/foods-v2/shampan_vinosi.webp"
+    },
+    {
+        "slug":  "shavla_goshtli_guruch_botqasi",
+        "name_uz_lat":  "Shavla (go\u0027shtli guruch bo\u0027tqasi)",
+        "name_ru":  "РЁР°РІР»Р° (СЂРёСЃРѕРІР°СЏ РєР°С€Р° СЃ РјСЏСЃРѕРј)",
+        "name_en":  "Shavla (rice porridge with meat)",
+        "photo_url":  "/data/photos/foods-v2/shavla_goshtli_guruch_botqasi.webp"
+    },
+    {
+        "slug":  "shchi",
+        "name_uz_lat":  "Shchi",
+        "name_ru":  "Р©Рё",
+        "name_en":  "Shchi",
+        "photo_url":  "/data/photos/foods-v2/shchi.webp"
+    },
+    {
+        "slug":  "shirin_kartoshka_toq_sariq_etli_terisiz_xom",
+        "name_uz_lat":  "Shirin kartoshka, to\u0027q sariq etli, terisiz, xom",
+        "name_ru":  "РЎР»Р°РґРєРёР№ РєР°СЂС‚РѕС„РµР»СЊ, РјСЏРєРѕС‚СЊ Р°РїРµР»СЊСЃРёРЅР°, Р±РµР· РєРѕР¶РёС†С‹, СЃС‹СЂРѕР№",
+        "name_en":  "Sweet potato, orange flesh, skinless, raw",
+        "photo_url":  "/data/photos/foods-v2/shirin_kartoshka_toq_sariq_etli_terisiz_xom.webp"
+    },
+    {
+        "slug":  "shokoladli_biskvit",
+        "name_uz_lat":  "Shokoladli biskvit",
+        "name_ru":  "РЁРѕРєРѕР»Р°РґРЅС‹Р№ Р±РёСЃРєРІРёС‚",
+        "name_en":  "Chocolate biscuit",
+        "photo_url":  "/data/photos/foods-v2/shokoladli_biskvit.webp"
+    },
+    {
+        "slug":  "shokoladli_buloshka",
+        "name_uz_lat":  "Shokoladli buloshka",
+        "name_ru":  "РЁРѕРєРѕР»Р°РґРЅР°СЏ Р±СѓР»РѕС‡РєР°",
+        "name_en":  "Chocolate bun",
+        "photo_url":  "/data/photos/foods-v2/shokoladli_buloshka.webp"
+    },
+    {
+        "slug":  "shokoladli_muzqaymoq",
+        "name_uz_lat":  "Shokoladli muzqaymoq",
+        "name_ru":  "РЁРѕРєРѕР»Р°РґРЅРѕРµ РјРѕСЂРѕР¶РµРЅРѕРµ",
+        "name_en":  "Chocolate ice cream",
+        "photo_url":  "/data/photos/foods-v2/shokoladli_muzqaymoq.webp"
+    },
+    {
+        "slug":  "shokoladli_puding",
+        "name_uz_lat":  "Shokoladli puding",
+        "name_ru":  "РЁРѕРєРѕР»Р°РґРЅС‹Р№ РїСѓРґРёРЅРі",
+        "name_en":  "Chocolate pudding",
+        "photo_url":  "/data/photos/foods-v2/shokoladli_puding.webp"
+    },
+    {
+        "slug":  "shokoladli_smuzi",
+        "name_uz_lat":  "Shokoladli smuzi",
+        "name_ru":  "РЁРѕРєРѕР»Р°РґРЅС‹Р№ СЃРјСѓР·Рё",
+        "name_en":  "Chocolate smoothie",
+        "photo_url":  "/data/photos/foods-v2/shokoladli_smuzi.webp"
+    },
+    {
+        "slug":  "shokoladli_vafli",
+        "name_uz_lat":  "Shokoladli vafli",
+        "name_ru":  "РЁРѕРєРѕР»Р°РґРЅС‹Рµ РІР°С„Р»Рё",
+        "name_en":  "Chocolate waffles",
+        "photo_url":  "/data/photos/foods-v2/shokoladli_vafli.webp"
+    },
+    {
+        "slug":  "sholgom_xom",
+        "name_uz_lat":  "Sholg\u0027om, xom",
+        "name_ru":  "Р РµРїР°, СЃС‹СЂР°СЏ",
+        "name_en":  "Turnip, raw",
+        "photo_url":  "/data/photos/foods-v2/sholgom_xom.webp"
+    },
+    {
+        "slug":  "shomboleho_kolbasasi",
+        "name_uz_lat":  "Shomboleho kolbasasi",
+        "name_ru":  "РљРѕР»Р±Р°СЃР° РЁРѕРјР±РѕР»РµС…Рѕ",
+        "name_en":  "Shomboleho sausage",
+        "photo_url":  "/data/photos/foods-v2/shomboleho_kolbasasi.webp"
+    },
+    {
+        "slug":  "shtrudel",
+        "name_uz_lat":  "Shtrudel",
+        "name_ru":  "РЁС‚СЂСѓРґРµР»СЊ",
+        "name_en":  "Strudel",
+        "photo_url":  "/data/photos/foods-v2/shtrudel.webp"
+    },
+    {
+        "slug":  "shubat_tuya_kefiri",
+        "name_uz_lat":  "Shubat (tuya kefiri)",
+        "name_ru":  "РЁСѓР±Р°С‚ (РІРµСЂР±Р»СЋР¶РёР№ РєРµС„РёСЂ)",
+        "name_en":  "Shubat (camel kefir)",
+        "photo_url":  "/data/photos/foods-v2/shubat_tuya_kefiri.webp"
+    },
+    {
+        "slug":  "sidr",
+        "name_uz_lat":  "Sidr",
+        "name_ru":  "РЎРёРґСЂ",
+        "name_en":  "Cider",
+        "photo_url":  "/data/photos/foods-v2/sidr.webp"
+    },
+    {
+        "slug":  "sirniki_tvorogli_kulchalar",
+        "name_uz_lat":  "Sirniki (tvorogli kulchalar)",
+        "name_ru":  "РЎРёСЂРЅРёРєРё (С‚РІРѕСЂРѕР¶РЅС‹Рµ Р»РµРїРµС€РєРё)",
+        "name_en":  "Sirniki (cottage cheese cakes)",
+        "photo_url":  "/data/photos/foods-v2/sirniki_tvorogli_kulchalar.webp"
+    },
+    {
+        "slug":  "skrembl_tuxum",
+        "name_uz_lat":  "Skrembl tuxum",
+        "name_ru":  "РЇРёС‡РЅРёС†Р°",
+        "name_en":  "Scrambled eggs",
+        "photo_url":  "/data/photos/foods-v2/skrembl_tuxum.webp"
+    },
+    {
+        "slug":  "skumbriya",
+        "name_uz_lat":  "Skumbriya",
+        "name_ru":  "РЎРєСѓРјР±СЂРёСЏ",
+        "name_en":  "Mackerel",
+        "photo_url":  "/data/photos/foods-v2/skumbriya.webp"
+    },
+    {
+        "slug":  "smalets_chochqa_yogi",
+        "name_uz_lat":  "Smalets (cho\u0027chqa yog\u0027i)",
+        "name_ru":  "РЎРјР°Р»РµС† (СЃРІРёРЅРѕР№ Р¶РёСЂ)",
+        "name_en":  "Smalets (pork fat)",
+        "photo_url":  "/data/photos/foods-v2/smalets_chochqa_yogi.webp"
+    },
+    {
+        "slug":  "smetana_10",
+        "name_uz_lat":  "Smetana 10%",
+        "name_ru":  "СЃРјРµС‚Р°РЅР° 10%",
+        "name_en":  "sour cream 10%",
+        "photo_url":  "/data/photos/foods-v2/smetana_10.webp"
+    },
+    {
+        "slug":  "smetana_15",
+        "name_uz_lat":  "Smetana 15%",
+        "name_ru":  "СЃРјРµС‚Р°РЅР° 15%",
+        "name_en":  "sour cream 15%",
+        "photo_url":  "/data/photos/foods-v2/smetana_15.webp"
+    },
+    {
+        "slug":  "smetana_20",
+        "name_uz_lat":  "Smetana 20%",
+        "name_ru":  "СЃРјРµС‚Р°РЅР° 20%",
+        "name_en":  "sour cream 20%",
+        "photo_url":  "/data/photos/foods-v2/smetana_20.webp"
+    },
+    {
+        "slug":  "smetana_25",
+        "name_uz_lat":  "Smetana 25%",
+        "name_ru":  "СЃРјРµС‚Р°РЅР° 25%",
+        "name_en":  "sour cream 25%",
+        "photo_url":  "/data/photos/foods-v2/smetana_25.webp"
+    },
+    {
+        "slug":  "smetana_30",
+        "name_uz_lat":  "Smetana 30%",
+        "name_ru":  "СЃРјРµС‚Р°РЅР° 30%",
+        "name_en":  "sour cream 30%",
+        "photo_url":  "/data/photos/foods-v2/smetana_30.webp"
+    },
+    {
+        "slug":  "smetana_toliq_yogli",
+        "name_uz_lat":  "Smetana, to\u0027liq yog\u0027li",
+        "name_ru":  "РЎРјРµС‚Р°РЅР°, Р¶РёСЂРЅР°СЏ",
+        "name_en":  "Sour cream, full fat",
+        "photo_url":  "/data/photos/foods-v2/smetana_toliq_yogli.webp"
+    },
+    {
+        "slug":  "smetanali_kartoshka",
+        "name_uz_lat":  "Smetanali kartoshka",
+        "name_ru":  "РљР°СЂС‚РѕС€РєР° СЃРѕ СЃРјРµС‚Р°РЅРѕР№",
+        "name_en":  "Potatoes with sour cream",
+        "photo_url":  "/data/photos/foods-v2/smetanali_kartoshka.webp"
+    },
+    {
+        "slug":  "smorodina_kompoti",
+        "name_uz_lat":  "Smorodina kompoti",
+        "name_ru":  "РЎРјРѕСЂРѕРґРёРЅРѕРІС‹Р№ РєРѕРјРїРѕС‚",
+        "name_en":  "Currant compote",
+        "photo_url":  "/data/photos/foods-v2/smorodina_kompoti.webp"
+    },
+    {
+        "slug":  "snapper_baliq_muzlatilgan_tabiiy_tutilgan",
+        "name_uz_lat":  "Snapper baliq, muzlatilgan, tabiiy tutilgan",
+        "name_ru":  "Р С‹Р±Р° РѕРєСѓРЅСЊ РјРѕСЂРѕР¶РµРЅР°СЏ, РІС‹Р»РѕРІР»РµРЅРЅР°СЏ РІ РґРёРєРѕР№ РїСЂРёСЂРѕРґРµ",
+        "name_en":  "Snapper fish, frozen, wild caught",
+        "photo_url":  "/data/photos/foods-v2/snapper_baliq_muzlatilgan_tabiiy_tutilgan.webp"
+    },
+    {
+        "slug":  "snejok_ichimlik_yogurt",
+        "name_uz_lat":  "Snejok (ichimlik yogurt)",
+        "name_ru":  "РЎРЅРµР¶РѕРє (РїРёС‚СЊРµРІРѕР№ Р№РѕРіСѓСЂС‚)",
+        "name_en":  "Snejok (drinking yogurt)",
+        "photo_url":  "/data/photos/foods-v2/snejok_ichimlik_yogurt.webp"
+    },
+    {
+        "slug":  "sotali_makkajoxori",
+        "name_uz_lat":  "So\u0027tali makkajo\u0027xori",
+        "name_ru":  "РљСѓРєСѓСЂСѓР·Р° РІ РїРѕС‡Р°С‚РєР°С…",
+        "name_en":  "Corn on the cob",
+        "photo_url":  "/data/photos/foods-v2/sotali_makkajoxori.webp"
+    },
+    {
+        "slug":  "som_baliq",
+        "name_uz_lat":  "Som baliq",
+        "name_ru":  "РЎРѕРј СЂС‹Р±Р°",
+        "name_en":  "Som fish",
+        "photo_url":  "/data/photos/foods-v2/som_baliq.webp"
+    },
+    {
+        "slug":  "sos_salsa_istemolga_tayyor",
+        "name_uz_lat":  "Sos, salsa, iste\u0027molga tayyor",
+        "name_ru":  "РЎРѕСѓСЃ, СЃР°Р»СЊСЃР°, РіРѕС‚РѕРІС‹Р№ Рє СѓРїРѕС‚СЂРµР±Р»РµРЅРёСЋ",
+        "name_en":  "Sauce, salsa, ready to eat",
+        "photo_url":  "/data/photos/foods-v2/sos_salsa_istemolga_tayyor.webp"
+    },
+    {
+        "slug":  "uz_sosiska",
+        "name_uz_lat":  "Sosiska",
+        "name_ru":  "РљРѕР»Р±Р°СЃР°",
+        "name_en":  "Sausage",
+        "photo_url":  "/data/photos/foods-v2/uz_sosiska.webp"
+    },
+    {
+        "slug":  "soya_oqsili",
+        "name_uz_lat":  "Soya oqsili",
+        "name_ru":  "РЎРѕРµРІС‹Р№ Р±РµР»РѕРє",
+        "name_en":  "Soy protein",
+        "photo_url":  "/data/photos/foods-v2/soya_oqsili.webp"
+    },
+    {
+        "slug":  "soya_sosi",
+        "name_uz_lat":  "Soya sosi",
+        "name_ru":  "РЎРѕРµРІС‹Р№ СЃРѕСѓСЃ",
+        "name_en":  "Soy sauce",
+        "photo_url":  "/data/photos/foods-v2/soya_sosi.webp"
+    },
+    {
+        "slug":  "soya_yogi",
+        "name_uz_lat":  "Soya yog\u0027i",
+        "name_ru":  "РЎРѕРµРІРѕРµ РјР°СЃР»Рѕ",
+        "name_en":  "Soybean oil",
+        "photo_url":  "/data/photos/foods-v2/soya_yogi.webp"
+    },
+    {
+        "slug":  "spagetti_bolonez",
+        "name_uz_lat":  "Spagetti bolonez",
+        "name_ru":  "РЎРїР°РіРµС‚С‚Рё Р‘РѕР»РѕРЅСЊРµР·Рµ",
+        "name_en":  "Spaghetti Bolognese",
+        "photo_url":  "/data/photos/foods-v2/spagetti_bolonez.webp"
+    },
+    {
+        "slug":  "spagetti_karbonara",
+        "name_uz_lat":  "Spagetti karbonara",
+        "name_ru":  "РЎРїР°РіРµС‚С‚Рё РєР°СЂР±РѕРЅР°СЂР°",
+        "name_en":  "Spaghetti carbonara",
+        "photo_url":  "/data/photos/foods-v2/spagetti_karbonara.webp"
+    },
+    {
+        "slug":  "sparja_yashil_xom",
+        "name_uz_lat":  "Sparja, yashil, xom",
+        "name_ru":  "РЎРїР°СЂР¶Р°, Р·РµР»РµРЅР°СЏ, СЃС‹СЂР°СЏ",
+        "name_en":  "Asparagus, green, raw",
+        "photo_url":  "/data/photos/foods-v2/sparja_yashil_xom.webp"
+    },
+    {
+        "slug":  "spirulina",
+        "name_uz_lat":  "Spirulina",
+        "name_ru":  "РЎРїРёСЂСѓР»РёРЅР°",
+        "name_en":  "Spirulina",
+        "photo_url":  "/data/photos/foods-v2/spirulina.webp"
+    },
+    {
+        "slug":  "steyk_200_g_porsiya",
+        "name_uz_lat":  "Steyk (200 g porsiya)",
+        "name_ru":  "РЎС‚РµР№Рє (РїРѕСЂС†РёСЏ 200 Рі)",
+        "name_en":  "Steak (200g portion)",
+        "photo_url":  "/data/photos/foods-v2/steyk_200_g_porsiya.webp"
+    },
+    {
+        "slug":  "stol_xreni",
+        "name_uz_lat":  "Stol xreni",
+        "name_ru":  "РЎС‚РѕР»РѕРІС‹Р№ С…СЂРµРЅ",
+        "name_en":  "Table horseradish",
+        "photo_url":  "/data/photos/foods-v2/stol_xreni.webp"
+    },
+    {
+        "slug":  "sublimatsiyalangan_eriydigan_qahva",
+        "name_uz_lat":  "Sublimatsiyalangan eriydigan qahva",
+        "name_ru":  "РЎСѓР±Р»РёРјРёСЂРѕРІР°РЅРЅС‹Р№ СЂР°СЃС‚РІРѕСЂРёРјС‹Р№ РєРѕС„Рµ",
+        "name_en":  "Sublimated instant coffee",
+        "photo_url":  "/data/photos/foods-v2/sublimatsiyalangan_eriydigan_qahva.webp"
+    },
+    {
+        "slug":  "sudak",
+        "name_uz_lat":  "Sudak",
+        "name_ru":  "РЎСѓРґР°Рє",
+        "name_en":  "Sudak",
+        "photo_url":  "/data/photos/foods-v2/sudak.webp"
+    },
+    {
+        "slug":  "suli_suti_shakarsiz_oddiy_sovutilgan",
+        "name_uz_lat":  "Suli suti, shakarsiz, oddiy, sovutilgan",
+        "name_ru":  "РњРѕР»РѕРєРѕ РѕРІСЃСЏРЅРѕРµ РЅРµСЃР»Р°РґРєРѕРµ РїСЂРѕСЃС‚РѕРµ РѕС…Р»Р°Р¶РґРµРЅРЅРѕРµ",
+        "name_en":  "Oat milk, unsweetened, plain, chilled",
+        "photo_url":  "/data/photos/foods-v2/suli_suti_shakarsiz_oddiy_sovutilgan.webp"
+    },
+    {
+        "slug":  "suluguni",
+        "name_uz_lat":  "Suluguni",
+        "name_ru":  "РїРёСЏРІРєР°",
+        "name_en":  "Leech",
+        "photo_url":  "/data/photos/foods-v2/suluguni.webp"
+    },
+    {
+        "slug":  "sumax",
+        "name_uz_lat":  "Sumax",
+        "name_ru":  "РЎСѓРјР°С…",
+        "name_en":  "Sumach",
+        "photo_url":  "/data/photos/foods-v2/sumax.webp"
+    },
+    {
+        "slug":  "sut_15",
+        "name_uz_lat":  "Sut 1,5%",
+        "name_ru":  "РњРѕР»РѕРєРѕ 1,5%",
+        "name_en":  "Milk 1.5%",
+        "photo_url":  "/data/photos/foods-v2/sut_15.webp"
+    },
+    {
+        "slug":  "uz_sut_obezj",
+        "name_uz_lat":  "Sut 1%",
+        "name_ru":  "РњРѕР»РѕРєРѕ 1%",
+        "name_en":  "Milk 1%",
+        "photo_url":  "/data/photos/foods-v2/uz_sut_obezj.webp"
+    },
+    {
+        "slug":  "sut_32",
+        "name_uz_lat":  "Sut 3,2%",
+        "name_ru":  "РњРѕР»РѕРєРѕ 3,2%",
+        "name_en":  "Milk 3.2%",
+        "photo_url":  "/data/photos/foods-v2/sut_32.webp"
+    },
+    {
+        "slug":  "sut_zardobi",
+        "name_uz_lat":  "Sut zardobi",
+        "name_ru":  "СЃС‹РІРѕСЂРѕС‚РєР°",
+        "name_en":  "Whey",
+        "photo_url":  "/data/photos/foods-v2/sut_zardobi.webp"
+    },
+    {
+        "slug":  "sut_kamaytirilgan_yogli_suyuq_2_yogli_a_va_d_vitamini_qoshilgan",
+        "name_uz_lat":  "Sut, kamaytirilgan yog\u0027li, suyuq, 2% yog\u0027li, A va D vitamini qo\u0027shilgan",
+        "name_ru":  "РњРѕР»РѕРєРѕ РїРѕРЅРёР¶РµРЅРЅРѕР№ Р¶РёСЂРЅРѕСЃС‚Рё, Р¶РёРґРєРѕРµ, 2% Р¶РёСЂРЅРѕСЃС‚Рё, СЃ РґРѕР±Р°РІР»РµРЅРёРµРј РІРёС‚Р°РјРёРЅРѕРІ Рђ Рё D.",
+        "name_en":  "Milk, reduced fat, liquid, 2% fat, with added vitamins A and D",
+        "photo_url":  "/data/photos/foods-v2/sut_kamaytirilgan_yogli_suyuq_2_yogli_a_va_d_vitamini_qoshilgan.webp"
+    },
+    {
+        "slug":  "sut_toliq_yogli_325_yogli_d_vitamini_qoshilgan",
+        "name_uz_lat":  "Sut, to\u0027liq yog\u0027li, 3.25% yog\u0027li, D vitamini qo\u0027shilgan",
+        "name_ru":  "РњРѕР»РѕРєРѕ С†РµР»СЊРЅРѕРµ Р¶РёСЂРЅРѕСЃС‚СЊСЋ 3,25% Р¶РёСЂРЅРѕСЃС‚Рё СЃ РґРѕР±Р°РІР»РµРЅРёРµРј РІРёС‚Р°РјРёРЅР° D.",
+        "name_en":  "Milk, full fat, 3.25% fat, with added vitamin D",
+        "photo_url":  "/data/photos/foods-v2/sut_toliq_yogli_325_yogli_d_vitamini_qoshilgan.webp"
+    },
+    {
+        "slug":  "sut_yogsiz_skim_suyuq_a_va_d_vitamini_qoshilgan",
+        "name_uz_lat":  "Sut, yog\u0027siz (skim), suyuq, A va D vitamini qo\u0027shilgan",
+        "name_ru":  "РњРѕР»РѕРєРѕ РѕР±РµР·Р¶РёСЂРµРЅРЅРѕРµ (РѕР±РµР·Р¶РёСЂРµРЅРЅРѕРµ) Р¶РёРґРєРѕРµ СЃ РґРѕР±Р°РІР»РµРЅРёРµРј РІРёС‚Р°РјРёРЅРѕРІ Рђ Рё D.",
+        "name_en":  "Milk, non-fat (skimmed), liquid, with added vitamins A and D",
+        "photo_url":  "/data/photos/foods-v2/sut_yogsiz_skim_suyuq_a_va_d_vitamini_qoshilgan.webp"
+    },
+    {
+        "slug":  "sutli_aralashma_1",
+        "name_uz_lat":  "Sutli aralashma 1",
+        "name_ru":  "РњРѕР»РѕС‡РЅР°СЏ СЃРјРµСЃСЊ 1",
+        "name_en":  "Milk mixture 1",
+        "photo_url":  "/data/photos/foods-v2/sutli_aralashma_1.webp"
+    },
+    {
+        "slug":  "sutli_aralashma_2",
+        "name_uz_lat":  "Sutli aralashma 2",
+        "name_ru":  "РњРѕР»РѕС‡РЅР°СЏ СЃРјРµСЃСЊ 2",
+        "name_en":  "Milk mixture 2",
+        "photo_url":  "/data/photos/foods-v2/sutli_aralashma_2.webp"
+    },
+    {
+        "slug":  "sutli_choy_ozb",
+        "name_uz_lat":  "Sutli choy (o\u0027zb.)",
+        "name_ru":  "Р§Р°Р№ СЃ РјРѕР»РѕРєРѕРј (РЈР·Р±.)",
+        "name_en":  "Milk tea (Uzb.)",
+        "photo_url":  "/data/photos/foods-v2/sutli_choy_ozb.webp"
+    },
+    {
+        "slug":  "sutli_kakao",
+        "name_uz_lat":  "Sutli kakao",
+        "name_ru":  "РњРѕР»РѕРєРѕ РєР°РєР°Рѕ",
+        "name_en":  "Milk cocoa",
+        "photo_url":  "/data/photos/foods-v2/sutli_kakao.webp"
+    },
+    {
+        "slug":  "sutli_kolbasa",
+        "name_uz_lat":  "Sutli kolbasa",
+        "name_ru":  "РњРѕР»РѕС‡РЅР°СЏ РєРѕР»Р±Р°СЃР°",
+        "name_en":  "Milk sausage",
+        "photo_url":  "/data/photos/foods-v2/sutli_kolbasa.webp"
+    },
+    {
+        "slug":  "sutli_pishganlik_makkajoxori",
+        "name_uz_lat":  "Sutli pishganlik makkajo\u0027xori",
+        "name_ru":  "РњРѕР»РѕС‡РЅР°СЏ СЃРїРµР»Р°СЏ РєСѓРєСѓСЂСѓР·Р°",
+        "name_en":  "Milk ripe corn",
+        "photo_url":  "/data/photos/foods-v2/sutli_pishganlik_makkajoxori.webp"
+    },
+    {
+        "slug":  "sutli_sosiska",
+        "name_uz_lat":  "Sutli sosiska",
+        "name_ru":  "РљРѕР»Р±Р°СЃР° СЃ РјРѕР»РѕРєРѕРј",
+        "name_en":  "Sausage with milk",
+        "photo_url":  "/data/photos/foods-v2/sutli_sosiska.webp"
+    },
+    {
+        "slug":  "uz_suv",
+        "name_uz_lat":  "Suv",
+        "name_ru":  "Р’РѕРґР°",
+        "name_en":  "Water",
+        "photo_url":  "/data/photos/foods-v2/uz_suv.webp"
+    },
+    {
+        "slug":  "suzma",
+        "name_uz_lat":  "Suzma",
+        "name_ru":  "РќРµ РїР»Р°РІР°Р№",
+        "name_en":  "Don\u0027t swim",
+        "photo_url":  "/data/photos/foods-v2/suzma.webp"
+    },
+    {
+        "slug":  "tam_kuchaytirgich_glutamat",
+        "name_uz_lat":  "Ta\u0027m kuchaytirgich (glutamat)",
+        "name_ru":  "РЈСЃРёР»РёС‚РµР»СЊ РІРєСѓСЃР° (РіР»СѓС‚Р°РјР°С‚)",
+        "name_en":  "Flavor enhancer (glutamate)",
+        "photo_url":  "/data/photos/foods-v2/tam_kuchaytirgich_glutamat.webp"
+    },
+    {
+        "slug":  "tabasko_sousi",
+        "name_uz_lat":  "Tabasko sousi",
+        "name_ru":  "РЎРѕСѓСЃ РўР°Р±Р°СЃРєРѕ",
+        "name_en":  "Tabasco sauce",
+        "photo_url":  "/data/photos/foods-v2/tabasko_sousi.webp"
+    },
+    {
+        "slug":  "tabiiy_yogurt_32",
+        "name_uz_lat":  "Tabiiy yogurt 3,2%",
+        "name_ru":  "РќР°С‚СѓСЂР°Р»СЊРЅС‹Р№ Р№РѕРіСѓСЂС‚ 3,2%",
+        "name_en":  "Natural yogurt 3.2%",
+        "photo_url":  "/data/photos/foods-v2/tabiiy_yogurt_32.webp"
+    },
+    {
+        "slug":  "tahini",
+        "name_uz_lat":  "Tahini",
+        "name_ru":  "РўР°С…РёРЅРё",
+        "name_en":  "Tahini",
+        "photo_url":  "/data/photos/foods-v2/tahini.webp"
+    },
+    {
+        "slug":  "tan",
+        "name_uz_lat":  "Tan",
+        "name_ru":  "РўР°РЅ",
+        "name_en":  "Tan",
+        "photo_url":  "/data/photos/foods-v2/tan.webp"
+    },
+    {
+        "slug":  "tarasiy_kvasi",
+        "name_uz_lat":  "Tarasiy kvasi",
+        "name_ru":  "РўР°СЂР°СЃРё РєРІР°СЃРё",
+        "name_en":  "Tarasi kvasi",
+        "photo_url":  "/data/photos/foods-v2/tarasiy_kvasi.webp"
+    },
+    {
+        "slug":  "uz_tarvuz",
+        "name_uz_lat":  "Tarvuz",
+        "name_ru":  "РђСЂР±СѓР·",
+        "name_en":  "Watermelon",
+        "photo_url":  "/data/photos/foods-v2/uz_tarvuz.webp"
+    },
+    {
+        "slug":  "tayyor_sariq_xantal",
+        "name_uz_lat":  "Tayyor sariq xantal",
+        "name_ru":  "Р“РѕС‚РѕРІР°СЏ Р¶РµР»С‚Р°СЏ РіРѕСЂС‡РёС†Р°",
+        "name_en":  "Ready yellow mustard",
+        "photo_url":  "/data/photos/foods-v2/tayyor_sariq_xantal.webp"
+    },
+    {
+        "slug":  "tekila",
+        "name_uz_lat":  "Tekila",
+        "name_ru":  "РўРµРєРёР»Р°",
+        "name_en":  "Tequila",
+        "photo_url":  "/data/photos/foods-v2/tekila.webp"
+    },
+    {
+        "slug":  "teriyaki_losos",
+        "name_uz_lat":  "Teriyaki losos",
+        "name_ru":  "Р»РѕСЃРѕСЃСЊ С‚РµСЂРёСЏРєРё",
+        "name_en":  "Teriyaki salmon",
+        "photo_url":  "/data/photos/foods-v2/teriyaki_losos.webp"
+    },
+    {
+        "slug":  "teriyaki_sousi",
+        "name_uz_lat":  "Teriyaki sousi",
+        "name_ru":  "РЎРѕСѓСЃ РўРµСЂРёСЏРєРё",
+        "name_en":  "Teriyaki sauce",
+        "photo_url":  "/data/photos/foods-v2/teriyaki_sousi.webp"
+    },
+    {
+        "slug":  "tilapiya",
+        "name_uz_lat":  "Tilapiya",
+        "name_ru":  "РўРёР»Р°РїРёСЏ",
+        "name_en":  "Tilapia",
+        "photo_url":  "/data/photos/foods-v2/tilapiya.webp"
+    },
+    {
+        "slug":  "timyan_chabretz",
+        "name_uz_lat":  "Timyan (chabretz)",
+        "name_ru":  "С‚РёРјСЊСЏРЅ (С€Р°Р±СЂРµС†)",
+        "name_en":  "thyme (chabretz)",
+        "photo_url":  "/data/photos/foods-v2/timyan_chabretz.webp"
+    },
+    {
+        "slug":  "tiramisu",
+        "name_uz_lat":  "Tiramisu",
+        "name_ru":  "РўРёСЂР°РјРёСЃСѓ",
+        "name_en":  "Tiramisu",
+        "photo_url":  "/data/photos/foods-v2/tiramisu.webp"
+    },
+    {
+        "slug":  "tkemali_olxori_sousi",
+        "name_uz_lat":  "Tkemali (olxo\u0027ri sousi)",
+        "name_ru":  "РўРєРµРјР°Р»Рё (СЃР»РёРІРѕРІС‹Р№ СЃРѕСѓСЃ)",
+        "name_en":  "Tkemali (plum sauce)",
+        "photo_url":  "/data/photos/foods-v2/tkemali_olxori_sousi.webp"
+    },
+    {
+        "slug":  "tomatli_sousda_loviya",
+        "name_uz_lat":  "Tomatli sousda loviya",
+        "name_ru":  "Р¤Р°СЃРѕР»СЊ РІ С‚РѕРјР°С‚РЅРѕРј СЃРѕСѓСЃРµ",
+        "name_en":  "Beans in tomato sauce",
+        "photo_url":  "/data/photos/foods-v2/tomatli_sousda_loviya.webp"
+    },
+    {
+        "slug":  "tonik",
+        "name_uz_lat":  "Tonik",
+        "name_ru":  "РўРѕРЅРёРє",
+        "name_en":  "Tonic",
+        "photo_url":  "/data/photos/foods-v2/tonik.webp"
+    },
+    {
+        "slug":  "topinambur",
+        "name_uz_lat":  "Topinambur",
+        "name_ru":  "РРµСЂСѓСЃР°Р»РёРјСЃРєРёР№ Р°СЂС‚РёС€РѕРє",
+        "name_en":  "Jerusalem artichoke",
+        "photo_url":  "/data/photos/foods-v2/topinambur.webp"
+    },
+    {
+        "slug":  "tortilgan_arabika_qahvasi",
+        "name_uz_lat":  "Tortilgan arabika qahvasi",
+        "name_ru":  "РњРѕР»РѕС‚С‹Р№ РєРѕС„Рµ РђСЂР°Р±РёРєР°",
+        "name_en":  "Ground Arabica coffee",
+        "photo_url":  "/data/photos/foods-v2/tortilgan_arabika_qahvasi.webp"
+    },
+    {
+        "slug":  "tortilgan_robusta_qahvasi",
+        "name_uz_lat":  "Tortilgan robusta qahvasi",
+        "name_ru":  "РћР±Р¶Р°СЂРµРЅРЅС‹Р№ РєРѕС„Рµ СЂРѕР±СѓСЃС‚Р°",
+        "name_en":  "Roasted robusta coffee",
+        "photo_url":  "/data/photos/foods-v2/tortilgan_robusta_qahvasi.webp"
+    },
+    {
+        "slug":  "toshkent_ayroni",
+        "name_uz_lat":  "Toshkent ayroni",
+        "name_ru":  "РўР°С€РєРµРЅС‚СЃРєРёР№ Р°Р№СЂРѕРЅ",
+        "name_en":  "Tashkent ayron",
+        "photo_url":  "/data/photos/foods-v2/toshkent_ayroni.webp"
+    },
+    {
+        "slug":  "uz_osh",
+        "name_uz_lat":  "Toshkent oshi",
+        "name_ru":  "РўР°С€РєРµРЅС‚СЃРєРёР№ СЃСѓРї",
+        "name_en":  "Tashkent soup",
+        "photo_url":  "/data/photos/foods-v2/uz_osh.webp"
+    },
+    {
+        "slug":  "tovuq_bulyon_kubigi",
+        "name_uz_lat":  "Tovuq bulyon kubigi",
+        "name_ru":  "РљСѓСЂРёРЅС‹Р№ Р±СѓР»СЊРѕРЅРЅС‹Р№ РєСѓР±РёРє",
+        "name_en":  "Chicken bouillon cube",
+        "photo_url":  "/data/photos/foods-v2/tovuq_bulyon_kubigi.webp"
+    },
+    {
+        "slug":  "tovuq_filesi_panirovkada",
+        "name_uz_lat":  "Tovuq filesi, panirovkada",
+        "name_ru":  "РљСѓСЂРёРЅРѕРµ С„РёР»Рµ РІ РїР°РЅРёСЂРѕРІРєРµ",
+        "name_en":  "Chicken fillet, breaded",
+        "photo_url":  "/data/photos/foods-v2/tovuq_filesi_panirovkada.webp"
+    },
+    {
+        "slug":  "tovuq_filesi_qaynatilgan",
+        "name_uz_lat":  "Tovuq filesi, qaynatilgan",
+        "name_ru":  "РљСѓСЂРёРЅРѕРµ С„РёР»Рµ, РѕС‚РІР°СЂРЅРѕРµ",
+        "name_en":  "Chicken fillet, boiled",
+        "photo_url":  "/data/photos/foods-v2/tovuq_filesi_qaynatilgan.webp"
+    },
+    {
+        "slug":  "tovuq_goshti",
+        "name_uz_lat":  "Tovuq go\u0027shti",
+        "name_ru":  "РљСѓСЂРёРЅРѕРµ РјСЏСЃРѕ",
+        "name_en":  "Chicken meat",
+        "photo_url":  "/data/photos/foods-v2/tovuq_goshti.webp"
+    },
+    {
+        "slug":  "tovuq_gril",
+        "name_uz_lat":  "Tovuq gril",
+        "name_ru":  "Р–Р°СЂРµРЅР°СЏ РєСѓСЂРёС†Р°",
+        "name_en":  "Grilled chicken",
+        "photo_url":  "/data/photos/foods-v2/tovuq_gril.webp"
+    },
+    {
+        "slug":  "tovuq_jigari",
+        "name_uz_lat":  "Tovuq jigari",
+        "name_ru":  "РљСѓСЂРёРЅР°СЏ РїРµС‡РµРЅСЊ",
+        "name_en":  "Chicken liver",
+        "photo_url":  "/data/photos/foods-v2/tovuq_jigari.webp"
+    },
+    {
+        "slug":  "tovuq_kokragi",
+        "name_uz_lat":  "Tovuq ko\u0027kragi",
+        "name_ru":  "РљСѓСЂРёРЅР°СЏ РіСЂСѓРґРєР°",
+        "name_en":  "Chicken breast",
+        "photo_url":  "/data/photos/foods-v2/tovuq_kokragi.webp"
+    },
+    {
+        "slug":  "tovuq_kolbasasi",
+        "name_uz_lat":  "Tovuq kolbasasi",
+        "name_ru":  "РљСѓСЂРёРЅР°СЏ РєРѕР»Р±Р°СЃР°",
+        "name_en":  "Chicken sausage",
+        "photo_url":  "/data/photos/foods-v2/tovuq_kolbasasi.webp"
+    },
+    {
+        "slug":  "tovuq_oshqozoni",
+        "name_uz_lat":  "Tovuq oshqozoni",
+        "name_ru":  "РљСѓСЂРёРЅС‹Р№ Р¶РµР»СѓРґРѕРє",
+        "name_en":  "Chicken stomach",
+        "photo_url":  "/data/photos/foods-v2/tovuq_oshqozoni.webp"
+    },
+    {
+        "slug":  "tovuq_oyogi",
+        "name_uz_lat":  "Tovuq oyog\u0027i",
+        "name_ru":  "РљСѓСЂРёРЅР°СЏ РЅРѕР¶РєР°",
+        "name_en":  "Chicken leg",
+        "photo_url":  "/data/photos/foods-v2/tovuq_oyogi.webp"
+    },
+    {
+        "slug":  "tovuq_qanoti",
+        "name_uz_lat":  "Tovuq qanoti",
+        "name_ru":  "РљСѓСЂРёРЅРѕРµ РєСЂС‹Р»С‹С€РєРѕ",
+        "name_en":  "Chicken wing",
+        "photo_url":  "/data/photos/foods-v2/tovuq_qanoti.webp"
+    },
+    {
+        "slug":  "tovuq_qiymasi",
+        "name_uz_lat":  "Tovuq qiymasi",
+        "name_ru":  "РљСѓСЂРёРЅС‹Р№ С„Р°СЂС€",
+        "name_en":  "Minced chicken",
+        "photo_url":  "/data/photos/foods-v2/tovuq_qiymasi.webp"
+    },
+    {
+        "slug":  "tovuq_ruleti",
+        "name_uz_lat":  "Tovuq ruleti",
+        "name_ru":  "РљСѓСЂРёРЅР°СЏ СЂСѓР»РµС‚РєР°",
+        "name_en":  "Chicken roulette",
+        "photo_url":  "/data/photos/foods-v2/tovuq_ruleti.webp"
+    },
+    {
+        "slug":  "tovuq_soni",
+        "name_uz_lat":  "Tovuq soni",
+        "name_ru":  "РљРѕР»РёС‡РµСЃС‚РІРѕ С†С‹РїР»СЏС‚",
+        "name_en":  "Number of chickens",
+        "photo_url":  "/data/photos/foods-v2/tovuq_soni.webp"
+    },
+    {
+        "slug":  "tovuq_terisi",
+        "name_uz_lat":  "Tovuq terisi",
+        "name_ru":  "РљСѓСЂРёРЅР°СЏ РєРѕР¶Р°",
+        "name_en":  "Chicken skin",
+        "photo_url":  "/data/photos/foods-v2/tovuq_terisi.webp"
+    },
+    {
+        "slug":  "tovuq_tuxumi",
+        "name_uz_lat":  "Tovuq tuxumi",
+        "name_ru":  "РљСѓСЂРёРЅРѕРµ СЏР№С†Рѕ",
+        "name_en":  "Chicken egg",
+        "photo_url":  "/data/photos/foods-v2/tovuq_tuxumi.webp"
+    },
+    {
+        "slug":  "tovuq_vetchinasi",
+        "name_uz_lat":  "Tovuq vetchinasi",
+        "name_ru":  "РљСѓСЂРёРЅР°СЏ РІРµС‚С‡РёРЅР°",
+        "name_en":  "Chicken ham",
+        "photo_url":  "/data/photos/foods-v2/tovuq_vetchinasi.webp"
+    },
+    {
+        "slug":  "tovuq_yuragi",
+        "name_uz_lat":  "Tovuq yuragi",
+        "name_ru":  "РљСѓСЂРёРЅРѕРµ СЃРµСЂРґС†Рµ",
+        "name_en":  "Chicken heart",
+        "photo_url":  "/data/photos/foods-v2/tovuq_yuragi.webp"
+    },
+    {
+        "slug":  "tovuq_broyler_yoki_fryer_kokrak_terisiz_suyaksiz_faqat_gosht_pishirilgan_dimlangan",
+        "name_uz_lat":  "Tovuq, broyler yoki fryer, ko\u0027krak, terisiz, suyaksiz, faqat go\u0027sht, pishirilgan, dimlangan",
+        "name_ru":  "РљСѓСЂРёС†Р°, Р±СЂРѕР№Р»РµСЂ РёР»Рё С„СЂРёС‚СЋСЂ, РіСЂСѓРґРєР°, Р±РµР· РєРѕР¶Рё, Р±РµР· РєРѕСЃС‚РµР№, С‚РѕР»СЊРєРѕ РјСЏСЃРѕ, РІР°СЂРµРЅР°СЏ, С‚СѓС€РµРЅР°СЏ",
+        "name_en":  "Chicken, broiler or fryer, breast, skinless, boneless, meat only, cooked, stewed",
+        "photo_url":  "/data/photos/foods-v2/tovuq_broyler_yoki_fryer_kokrak_terisiz_suyaksiz_faqat_gosht_pishirilgan_dimlangan.webp"
+    },
+    {
+        "slug":  "tovuq_broyler_yoki_fryer_oyoq_faqat_gosht_pishirilgan_dimlangan",
+        "name_uz_lat":  "Tovuq, broyler yoki fryer, oyoq, faqat go\u0027sht, pishirilgan, dimlangan",
+        "name_ru":  "РљСѓСЂРёС†Р°, Р±СЂРѕР№Р»РµСЂ РёР»Рё С„СЂРёС‚СЋСЂ, РЅРѕР¶РєР°, С‚РѕР»СЊРєРѕ РјСЏСЃРѕ, Р·Р°РїРµС‡РµРЅРЅР°СЏ, РЅР° РїР°СЂСѓ",
+        "name_en":  "Chicken, broiler or fryer, leg, meat only, baked, steamed",
+        "photo_url":  "/data/photos/foods-v2/tovuq_broyler_yoki_fryer_oyoq_faqat_gosht_pishirilgan_dimlangan.webp"
+    },
+    {
+        "slug":  "tovuq_kokrak_gosht_va_teri_xom",
+        "name_uz_lat":  "Tovuq, ko\u0027krak, go\u0027sht va teri, xom",
+        "name_ru":  "РљСѓСЂРёС†Р°, РіСЂСѓРґРєР°, РјСЏСЃРѕ Рё РєРѕР¶Р°, СЃС‹СЂС‹Рµ",
+        "name_en":  "Chicken, breast, meat and skin, raw",
+        "photo_url":  "/data/photos/foods-v2/tovuq_kokrak_gosht_va_teri_xom.webp"
+    },
+    {
+        "slug":  "tovuq_oyoq_gosht_va_teri_xom",
+        "name_uz_lat":  "Tovuq, oyoq, go\u0027sht va teri, xom",
+        "name_ru":  "РљСѓСЂРёС†Р°, РЅРѕР¶РєР°, РјСЏСЃРѕ Рё РєРѕР¶Р°, СЃС‹СЂС‹Рµ",
+        "name_en":  "Chicken, leg, meat and skin, raw",
+        "photo_url":  "/data/photos/foods-v2/tovuq_oyoq_gosht_va_teri_xom.webp"
+    },
+    {
+        "slug":  "tovuq_qanot_gosht_va_teri_xom",
+        "name_uz_lat":  "Tovuq, qanot, go\u0027sht va teri, xom",
+        "name_ru":  "РљСѓСЂРёС†Р°, РєСЂС‹Р»СЊСЏ, РјСЏСЃРѕ Рё РєРѕР¶Р°, СЃС‹СЂС‹Рµ",
+        "name_en":  "Chicken, wings, meat and skin, raw",
+        "photo_url":  "/data/photos/foods-v2/tovuq_qanot_gosht_va_teri_xom.webp"
+    },
+    {
+        "slug":  "tovuq_qiyma_qoshimchalar_bilan_xom",
+        "name_uz_lat":  "Tovuq, qiyma, qo\u0027shimchalar bilan, xom",
+        "name_ru":  "РљСѓСЂРёРЅС‹Р№ С„Р°СЂС€ СЃ РґРѕР±Р°РІРєР°РјРё, СЃС‹СЂРѕР№",
+        "name_en":  "Chicken, minced, with additives, raw",
+        "photo_url":  "/data/photos/foods-v2/tovuq_qiyma_qoshimchalar_bilan_xom.webp"
+    },
+    {
+        "slug":  "tovuq_son_gosht_va_teri_xom",
+        "name_uz_lat":  "Tovuq, son, go\u0027sht va teri, xom",
+        "name_ru":  "РљСѓСЂРёС†Р°, Р±РµРґСЂР°, РјСЏСЃРѕ Рё РєРѕР¶Р°, СЃС‹СЂС‹Рµ",
+        "name_en":  "Chicken, thigh, meat and skin, raw",
+        "photo_url":  "/data/photos/foods-v2/tovuq_son_gosht_va_teri_xom.webp"
+    },
+    {
+        "slug":  "tovuq_son_suyaksiz_terisiz_xom",
+        "name_uz_lat":  "Tovuq, son, suyaksiz, terisiz, xom",
+        "name_ru":  "РљСѓСЂРёС†Р°, Р±РµРґСЂР°, Р±РµР· РєРѕСЃС‚РµР№ Рё РєРѕР¶Рё, СЃС‹СЂС‹Рµ",
+        "name_en":  "Chicken, thigh, boneless, skinless, raw",
+        "photo_url":  "/data/photos/foods-v2/tovuq_son_suyaksiz_terisiz_xom.webp"
+    },
+    {
+        "slug":  "tovuqning_toq_goshti",
+        "name_uz_lat":  "Tovuqning to\u0027q go\u0027shti",
+        "name_ru":  "РўРµРјРЅРѕРµ РјСЏСЃРѕ РєСѓСЂРёС†С‹",
+        "name_en":  "Dark meat of chicken",
+        "photo_url":  "/data/photos/foods-v2/tovuqning_toq_goshti.webp"
+    },
+    {
+        "slug":  "tozalangan_suv",
+        "name_uz_lat":  "Tozalangan suv",
+        "name_ru":  "РћС‡РёС‰РµРЅРЅР°СЏ РІРѕРґР°",
+        "name_en":  "Purified water",
+        "photo_url":  "/data/photos/foods-v2/tozalangan_suv.webp"
+    },
+    {
+        "slug":  "treska",
+        "name_uz_lat":  "Treska",
+        "name_ru":  "РўСЂРµСЃРєР°",
+        "name_en":  "Cod",
+        "photo_url":  "/data/photos/foods-v2/treska.webp"
+    },
+    {
+        "slug":  "treska_tinch_okeani_yoki_alyaska_muzlatilgan_tabiiy_tutilgan",
+        "name_uz_lat":  "Treska, Tinch okeani yoki Alyaska, muzlatilgan, tabiiy tutilgan",
+        "name_ru":  "РўСЂРµСЃРєР° С‚РёС…РѕРѕРєРµР°РЅСЃРєР°СЏ РёР»Рё Р°Р»СЏСЃРєРёРЅСЃРєР°СЏ, Р·Р°РјРѕСЂРѕР¶РµРЅРЅР°СЏ, РІС‹Р»РѕРІР»РµРЅРЅР°СЏ РІ РЅР°С‚СѓСЂР°Р»СЊРЅРѕРј РІС‹Р»РѕРІРµ.",
+        "name_en":  "Cod, Pacific or Alaskan, frozen, natural caught",
+        "photo_url":  "/data/photos/foods-v2/treska_tinch_okeani_yoki_alyaska_muzlatilgan_tabiiy_tutilgan.webp"
+    },
+    {
+        "slug":  "uz_tuna",
+        "name_uz_lat":  "Tuna (konserv)",
+        "name_ru":  "РўСѓРЅРµС† (РєРѕРЅСЃРµСЂРІРёСЂРѕРІР°РЅРЅС‹Р№)",
+        "name_en":  "Tuna (canned)",
+        "photo_url":  "/data/photos/foods-v2/uz_tuna.webp"
+    },
+    {
+        "slug":  "tunets",
+        "name_uz_lat":  "Tunets",
+        "name_ru":  "РўСѓРЅРµС†",
+        "name_en":  "Tunets",
+        "photo_url":  "/data/photos/foods-v2/tunets.webp"
+    },
+    {
+        "slug":  "tunets_axi_yoki_sariq_qanot_muzlatilgan_tabiiy_tutilgan",
+        "name_uz_lat":  "Tunets, axi yoki sariq qanot, muzlatilgan, tabiiy tutilgan",
+        "name_ru":  "РўСѓРЅРµС†, Р°С…Рё РёР»Рё Р¶РµР»С‚РѕРїРµСЂС‹Р№, Р·Р°РјРѕСЂРѕР¶РµРЅРЅС‹Р№, РІС‹Р»РѕРІР»РµРЅРЅС‹Р№ РІ РЅР°С‚СѓСЂР°Р»СЊРЅРѕРј РІС‹Р»РѕРІРµ",
+        "name_en":  "Tuna, ahi or yellowfin, frozen, natural caught",
+        "photo_url":  "/data/photos/foods-v2/tunets_axi_yoki_sariq_qanot_muzlatilgan_tabiiy_tutilgan.webp"
+    },
+    {
+        "slug":  "tunetsli_maki",
+        "name_uz_lat":  "Tunetsli maki",
+        "name_ru":  "РњР°РєРё СЃ С‚СѓРЅС†РѕРј",
+        "name_en":  "Maki with tuna",
+        "photo_url":  "/data/photos/foods-v2/tunetsli_maki.webp"
+    },
+    {
+        "slug":  "tuxum_ikrasi_yastik",
+        "name_uz_lat":  "Tuxum ikrasi (yastik)",
+        "name_ru":  "РРєСЂР° СЏРёС‡РЅР°СЏ (РїРѕРґСѓС€РєР°)",
+        "name_en":  "Egg caviar (pillow)",
+        "photo_url":  "/data/photos/foods-v2/tuxum_ikrasi_yastik.webp"
+    },
+    {
+        "slug":  "uz_omlet",
+        "name_uz_lat":  "Tuxum omlet",
+        "name_ru":  "РЇРёС‡РЅС‹Р№ РѕРјР»РµС‚",
+        "name_en":  "Egg omelette",
+        "photo_url":  "/data/photos/foods-v2/uz_omlet.webp"
+    },
+    {
+        "slug":  "tuxum_oqi",
+        "name_uz_lat":  "Tuxum oqi",
+        "name_ru":  "РЇРёС‡РЅС‹Р№ Р±РµР»РѕРє",
+        "name_en":  "Egg white",
+        "photo_url":  "/data/photos/foods-v2/tuxum_oqi.webp"
+    },
+    {
+        "slug":  "tuxum_oqi_quritilgan",
+        "name_uz_lat":  "Tuxum oqi, quritilgan",
+        "name_ru":  "РЇРёС‡РЅС‹Р№ Р±РµР»РѕРє, СЃСѓС€РµРЅС‹Р№",
+        "name_en":  "Egg white, dried",
+        "photo_url":  "/data/photos/foods-v2/tuxum_oqi_quritilgan.webp"
+    },
+    {
+        "slug":  "tuxum_oqi_xom_muzlatilgan_pasterizatsiyalangan",
+        "name_uz_lat":  "Tuxum oqi, xom, muzlatilgan, pasterizatsiyalangan",
+        "name_ru":  "Р‘РµР»РєРё СЏРёС‡РЅС‹Рµ, СЃС‹СЂС‹Рµ, Р·Р°РјРѕСЂРѕР¶РµРЅРЅС‹Рµ, РїР°СЃС‚РµСЂРёР·РѕРІР°РЅРЅС‹Рµ",
+        "name_en":  "Egg whites, raw, frozen, pasteurized",
+        "photo_url":  "/data/photos/foods-v2/tuxum_oqi_xom_muzlatilgan_pasterizatsiyalangan.webp"
+    },
+    {
+        "slug":  "tuxum_oqsili",
+        "name_uz_lat":  "Tuxum oqsili",
+        "name_ru":  "РЇРёС‡РЅС‹Р№ Р±РµР»РѕРє",
+        "name_en":  "Egg protein",
+        "photo_url":  "/data/photos/foods-v2/tuxum_oqsili.webp"
+    },
+    {
+        "slug":  "tuxum_sarigi",
+        "name_uz_lat":  "Tuxum sarig\u0027i",
+        "name_ru":  "РЇРёС‡РЅС‹Р№ Р¶РµР»С‚РѕРє",
+        "name_en":  "Egg yolk",
+        "photo_url":  "/data/photos/foods-v2/tuxum_sarigi.webp"
+    },
+    {
+        "slug":  "tuxum_sarigi_quritilgan",
+        "name_uz_lat":  "Tuxum sarig\u0027i, quritilgan",
+        "name_ru":  "РЇРёС‡РЅС‹Р№ Р¶РµР»С‚РѕРє, СЃСѓС€РµРЅС‹Р№",
+        "name_en":  "Egg yolk, dried",
+        "photo_url":  "/data/photos/foods-v2/tuxum_sarigi_quritilgan.webp"
+    },
+    {
+        "slug":  "tuxum_sarigi_xom_muzlatilgan_pasterizatsiyalangan",
+        "name_uz_lat":  "Tuxum sarig\u0027i, xom, muzlatilgan, pasterizatsiyalangan",
+        "name_ru":  "РЇРёС‡РЅС‹Рµ Р¶РµР»С‚РєРё, СЃС‹СЂС‹Рµ, Р·Р°РјРѕСЂРѕР¶РµРЅРЅС‹Рµ, РїР°СЃС‚РµСЂРёР·РѕРІР°РЅРЅС‹Рµ",
+        "name_en":  "Egg yolks, raw, frozen, pasteurized",
+        "photo_url":  "/data/photos/foods-v2/tuxum_sarigi_xom_muzlatilgan_pasterizatsiyalangan.webp"
+    },
+    {
+        "slug":  "tuxumli_pasta",
+        "name_uz_lat":  "Tuxumli pasta",
+        "name_ru":  "РЇРёС‡РЅР°СЏ РїР°СЃС‚Р°",
+        "name_en":  "Egg paste",
+        "photo_url":  "/data/photos/foods-v2/tuxumli_pasta.webp"
+    },
+    {
+        "slug":  "uz_sendvich",
+        "name_uz_lat":  "Tuxumli sendvich",
+        "name_ru":  "РЎСЌРЅРґРІРёС‡ СЃ СЏР№С†РѕРј",
+        "name_en":  "Egg sandwich",
+        "photo_url":  "/data/photos/foods-v2/uz_sendvich.webp"
+    },
+    {
+        "slug":  "tuya_suti",
+        "name_uz_lat":  "Tuya suti",
+        "name_ru":  "Р’РµСЂР±Р»СЋР¶СЊРµ РјРѕР»РѕРєРѕ",
+        "name_en":  "Camel milk",
+        "photo_url":  "/data/photos/foods-v2/tuya_suti.webp"
+    },
+    {
+        "slug":  "tuyilgan_dolchin",
+        "name_uz_lat":  "Tuyilgan dolchin",
+        "name_ru":  "РџР°Р»РѕС‡РєРё РєРѕСЂРёС†С‹",
+        "name_en":  "Cinnamon sticks",
+        "photo_url":  "/data/photos/foods-v2/tuyilgan_dolchin.webp"
+    },
+    {
+        "slug":  "uz_tuz",
+        "name_uz_lat":  "Tuz",
+        "name_ru":  "РЎРѕР»СЊ",
+        "name_en":  "Salt",
+        "photo_url":  "/data/photos/foods-v2/uz_tuz.webp"
+    },
+    {
+        "slug":  "tuzlangan_karam",
+        "name_uz_lat":  "Tuzlangan karam",
+        "name_ru":  "РњР°СЂРёРЅРѕРІР°РЅРЅР°СЏ РєР°РїСѓСЃС‚Р°",
+        "name_en":  "Pickled cabbage",
+        "photo_url":  "/data/photos/foods-v2/tuzlangan_karam.webp"
+    },
+    {
+        "slug":  "tvorog_kottej_pishloq_toliq_yogli_yirik_yoki_mayda_donador",
+        "name_uz_lat":  "Tvorog (kottej pishloq), to\u0027liq yog\u0027li, yirik yoki mayda donador",
+        "name_ru":  "РўРІРѕСЂРѕРі (С‚РІРѕСЂРѕРі) Р¶РёСЂРЅС‹Р№, РєСЂСѓРїРЅРѕР·РµСЂРЅРёСЃС‚С‹Р№ РёР»Рё РјРµР»РєРѕР·РµСЂРЅРёСЃС‚С‹Р№",
+        "name_en":  "Cottage cheese (cottage cheese), full-fat, coarse or fine-grained",
+        "photo_url":  "/data/photos/foods-v2/tvorog_kottej_pishloq_toliq_yogli_yirik_yoki_mayda_donador.webp"
+    },
+    {
+        "slug":  "tvorog_5",
+        "name_uz_lat":  "Tvorog 5%",
+        "name_ru":  "С‚РІРѕСЂРѕРі 5%",
+        "name_en":  "cottage cheese 5%",
+        "photo_url":  "/data/photos/foods-v2/tvorog_5.webp"
+    },
+    {
+        "slug":  "tvorog_9",
+        "name_uz_lat":  "Tvorog 9%",
+        "name_ru":  "С‚РІРѕСЂРѕРі 9%",
+        "name_en":  "cottage cheese 9%",
+        "photo_url":  "/data/photos/foods-v2/tvorog_9.webp"
+    },
+    {
+        "slug":  "tvorog_pishloq_kottej_kam_yogli_2_yogli",
+        "name_uz_lat":  "Tvorog pishloq (kottej), kam yog\u0027li, 2% yog\u0027li",
+        "name_ru":  "РўРІРѕСЂРѕРі (С‚РІРѕСЂРѕРі) РЅРµР¶РёСЂРЅС‹Р№, 2% Р¶РёСЂРЅРѕСЃС‚Рё",
+        "name_en":  "Cottage cheese (cottage), low-fat, 2% fat",
+        "photo_url":  "/data/photos/foods-v2/tvorog_pishloq_kottej_kam_yogli_2_yogli.webp"
+    },
+    {
+        "slug":  "tvorogli_buloshka",
+        "name_uz_lat":  "Tvorogli buloshka",
+        "name_ru":  "Р‘СѓР»РѕС‡РєР° СЃ С‚РІРѕСЂРѕРіРѕРј",
+        "name_en":  "Bun with cottage cheese",
+        "photo_url":  "/data/photos/foods-v2/tvorogli_buloshka.webp"
+    },
+    {
+        "slug":  "tvorogli_eritma_pishloqcha",
+        "name_uz_lat":  "Tvorogli eritma pishloqcha",
+        "name_ru":  "РўРІРѕСЂРѕР¶РЅС‹Р№ СЂР°СЃС‚РІРѕСЂ СЃС‹СЂР°",
+        "name_en":  "Curd solution cheese",
+        "photo_url":  "/data/photos/foods-v2/tvorogli_eritma_pishloqcha.webp"
+    },
+    {
+        "slug":  "tvorogli_pasxa",
+        "name_uz_lat":  "Tvorogli pasxa",
+        "name_ru":  "РўРІРѕСЂРѕР¶РЅР°СЏ РџР°СЃС…Р°",
+        "name_en":  "Cottage cheese Easter",
+        "photo_url":  "/data/photos/foods-v2/tvorogli_pasxa.webp"
+    },
+    {
+        "slug":  "un_kartoshka",
+        "name_uz_lat":  "Un, kartoshka",
+        "name_ru":  "РњСѓРєР°, РєР°СЂС‚РѕС„РµР»СЊ",
+        "name_en":  "Flour, potatoes",
+        "photo_url":  "/data/photos/foods-v2/un_kartoshka.webp"
+    },
+    {
+        "slug":  "un_kassava",
+        "name_uz_lat":  "Un, kassava",
+        "name_ru":  "РњСѓРєР°, РјР°РЅРёРѕРєР°",
+        "name_en":  "Flour, cassava",
+        "photo_url":  "/data/photos/foods-v2/un_kassava.webp"
+    },
+    {
+        "slug":  "urbech",
+        "name_uz_lat":  "Urbech",
+        "name_ru":  "РЈСЂР±РµС‡",
+        "name_en":  "Urbech",
+        "photo_url":  "/data/photos/foods-v2/urbech.webp"
+    },
+    {
+        "slug":  "ustritsa",
+        "name_uz_lat":  "Ustritsa",
+        "name_ru":  "РЈСЃС‚СЂРёС†С‹",
+        "name_en":  "Oysters",
+        "photo_url":  "/data/photos/foods-v2/ustritsa.webp"
+    },
+    {
+        "slug":  "uy_lagmonli_shorva",
+        "name_uz_lat":  "Uy lag\u0027monli sho\u0027rva",
+        "name_ru":  "Р”РѕРјР°С€РЅРёР№ СЃСѓРї Р»Р°РіРјРѕРЅ",
+        "name_en":  "Homemade lagmon soup",
+        "photo_url":  "/data/photos/foods-v2/uy_lagmonli_shorva.webp"
+    },
+    {
+        "slug":  "uy_limonadi",
+        "name_uz_lat":  "Uy limonadi",
+        "name_ru":  "Р”РѕРјР°С€РЅРёР№ Р»РёРјРѕРЅР°Рґ",
+        "name_en":  "Homemade lemonade",
+        "photo_url":  "/data/photos/foods-v2/uy_limonadi.webp"
+    },
+    {
+        "slug":  "uy_oq_vinosi",
+        "name_uz_lat":  "Uy oq vinosi",
+        "name_ru":  "Р”РѕРјР°С€РЅРµРµ Р±РµР»РѕРµ РІРёРЅРѕ",
+        "name_en":  "House white wine",
+        "photo_url":  "/data/photos/foods-v2/uy_oq_vinosi.webp"
+    },
+    {
+        "slug":  "uy_qizil_vinosi",
+        "name_uz_lat":  "Uy qizil vinosi",
+        "name_ru":  "Р”РѕРјР°С€РЅРµРµ РєСЂР°СЃРЅРѕРµ РІРёРЅРѕ",
+        "name_en":  "House red wine",
+        "photo_url":  "/data/photos/foods-v2/uy_qizil_vinosi.webp"
+    },
+    {
+        "slug":  "uz_uzum",
+        "name_uz_lat":  "Uzum",
+        "name_ru":  "Р’РёРЅРѕРіСЂР°Рґ",
+        "name_en":  "Grapes",
+        "photo_url":  "/data/photos/foods-v2/uz_uzum.webp"
+    },
+    {
+        "slug":  "uzum_sharbati",
+        "name_uz_lat":  "Uzum sharbati",
+        "name_ru":  "Р’РёРЅРѕРіСЂР°РґРЅС‹Р№ СЃРѕРє",
+        "name_en":  "Grape juice",
+        "photo_url":  "/data/photos/foods-v2/uzum_sharbati.webp"
+    },
+    {
+        "slug":  "uzum_sirkasi",
+        "name_uz_lat":  "Uzum sirkasi",
+        "name_ru":  "Р’РёРЅРѕРіСЂР°РґРЅС‹Р№ СѓРєСЃСѓСЃ",
+        "name_en":  "Grape vinegar",
+        "photo_url":  "/data/photos/foods-v2/uzum_sirkasi.webp"
+    },
+    {
+        "slug":  "uzum_urugi_yogi",
+        "name_uz_lat":  "Uzum urug\u0027i yog\u0027i",
+        "name_ru":  "РњР°СЃР»Рѕ РІРёРЅРѕРіСЂР°РґРЅС‹С… РєРѕСЃС‚РѕС‡РµРє",
+        "name_en":  "Grape seed oil",
+        "photo_url":  "/data/photos/foods-v2/uzum_urugi_yogi.webp"
+    },
+    {
+        "slug":  "uzum_yashil_urugsiz_xom",
+        "name_uz_lat":  "Uzum, yashil, urug\u0027siz, xom",
+        "name_ru":  "Р’РёРЅРѕРіСЂР°Рґ Р·РµР»РµРЅС‹Р№, Р±РµР· РєРѕСЃС‚РѕС‡РµРє, СЃС‹СЂРѕР№",
+        "name_en":  "Grapes, green, seedless, raw",
+        "photo_url":  "/data/photos/foods-v2/uzum_yashil_urugsiz_xom.webp"
+    },
+    {
+        "slug":  "vakame",
+        "name_uz_lat":  "Vakame",
+        "name_ru":  "Р’Р°РєР°РјРµ",
+        "name_en":  "Wakame",
+        "photo_url":  "/data/photos/foods-v2/vakame.webp"
+    },
+    {
+        "slug":  "vakuumdagi_pishloq_bolaklangan",
+        "name_uz_lat":  "Vakuumdagi pishloq (bo\u0027laklangan)",
+        "name_ru":  "РЎС‹СЂ РІ РІР°РєСѓСѓРјРµ (РёР·РјРµР»СЊС‡С‘РЅРЅС‹Р№)",
+        "name_en":  "Cheese in a vacuum (shredded)",
+        "photo_url":  "/data/photos/foods-v2/vakuumdagi_pishloq_bolaklangan.webp"
+    },
+    {
+        "slug":  "vanil_qozoqlari",
+        "name_uz_lat":  "Vanil (qo\u0027zoqlari)",
+        "name_ru":  "Р’Р°РЅРёР»СЊ (СЃС‚СЂСѓС‡РєРё)",
+        "name_en":  "Vanilla (pods)",
+        "photo_url":  "/data/photos/foods-v2/vanil_qozoqlari.webp"
+    },
+    {
+        "slug":  "vanilin",
+        "name_uz_lat":  "Vanilin",
+        "name_ru":  "Р’Р°РЅРёР»РёРЅ",
+        "name_en":  "Vanillin",
+        "photo_url":  "/data/photos/foods-v2/vanilin.webp"
+    },
+    {
+        "slug":  "varenets",
+        "name_uz_lat":  "Varenets",
+        "name_ru":  "Р’Р°СЂРµРЅРµС†",
+        "name_en":  "Varenets",
+        "photo_url":  "/data/photos/foods-v2/varenets.webp"
+    },
+    {
+        "slug":  "vasabi",
+        "name_uz_lat":  "Vasabi",
+        "name_ru":  "Р’Р°СЃР°Р±Рё",
+        "name_en":  "Wasabi",
+        "photo_url":  "/data/photos/foods-v2/vasabi.webp"
+    },
+    {
+        "slug":  "vena_sosiskasi",
+        "name_uz_lat":  "Vena sosiskasi",
+        "name_ru":  "Р’РµРЅСЃРєР°СЏ РєРѕР»Р±Р°СЃР°",
+        "name_en":  "Vienna sausage",
+        "photo_url":  "/data/photos/foods-v2/vena_sosiskasi.webp"
+    },
+    {
+        "slug":  "vena_usulida_shnitsel",
+        "name_uz_lat":  "Vena usulida shnitsel",
+        "name_ru":  "РЁРЅРёС†РµР»СЊ РїРѕ-РІРµРЅСЃРєРё",
+        "name_en":  "Schnitzel in Vienna style",
+        "photo_url":  "/data/photos/foods-v2/vena_usulida_shnitsel.webp"
+    },
+    {
+        "slug":  "vetchina",
+        "name_uz_lat":  "Vetchina",
+        "name_ru":  "РІРµС‚С‡РёРЅР°",
+        "name_en":  "Ham",
+        "photo_url":  "/data/photos/foods-v2/vetchina.webp"
+    },
+    {
+        "slug":  "vetchina_bolakli_oldindan_oralgan_deli_gosht_96_yogsiz_suv_qoshilgan",
+        "name_uz_lat":  "Vetchina, bo\u0027lakli, oldindan o\u0027ralgan, deli go\u0027sht (96% yog\u0027siz, suv qo\u0027shilgan)",
+        "name_ru":  "Р’РµС‚С‡РёРЅР°, РЅР°СЂРµР·Р°РЅРЅР°СЏ, СЂР°СЃС„Р°СЃРѕРІР°РЅРЅР°СЏ, РјСЏСЃРЅС‹Рµ РґРµР»РёРєР°С‚РµСЃС‹ (96 % РїРѕСЃС‚РЅРѕРіРѕ РјСЏСЃР°, СЃ РґРѕР±Р°РІР»РµРЅРёРµРј РІРѕРґС‹)",
+        "name_en":  "Ham, sliced, prepackaged, deli meat (96% lean, water added)",
+        "photo_url":  "/data/photos/foods-v2/vetchina_bolakli_oldindan_oralgan_deli_gosht_96_yogsiz_suv_qoshilgan.webp"
+    },
+    {
+        "slug":  "vetchina_bolakli_restoran",
+        "name_uz_lat":  "Vetchina, bo\u0027lakli, restoran",
+        "name_ru":  "Р’РµС‚С‡РёРЅР° РЅР°СЂРµР·Р°РЅРЅР°СЏ СЂРµСЃС‚РѕСЂР°РЅРЅР°СЏ",
+        "name_en":  "Ham, sliced, restaurant",
+        "photo_url":  "/data/photos/foods-v2/vetchina_bolakli_restoran.webp"
+    },
+    {
+        "slug":  "vetchinali_eritma_pishloq",
+        "name_uz_lat":  "Vetchinali eritma pishloq",
+        "name_ru":  "РџР»Р°РІР»РµРЅС‹Р№ СЃС‹СЂ СЃ РІРµС‚С‡РёРЅРѕР№",
+        "name_en":  "Melted cheese with ham",
+        "photo_url":  "/data/photos/foods-v2/vetchinali_eritma_pishloq.webp"
+    },
+    {
+        "slug":  "viski",
+        "name_uz_lat":  "Viski",
+        "name_ru":  "Р’РёСЃРєРё",
+        "name_en":  "Whiskey",
+        "photo_url":  "/data/photos/foods-v2/viski.webp"
+    },
+    {
+        "slug":  "vusterskiy_sous",
+        "name_uz_lat":  "Vusterskiy sous",
+        "name_ru":  "Р’СѓСЃС‚РµСЂС€РёСЂСЃРєРёР№ СЃРѕСѓСЃ",
+        "name_en":  "Worcestershire sauce",
+        "photo_url":  "/data/photos/foods-v2/vusterskiy_sous.webp"
+    },
+    {
+        "slug":  "xalumi",
+        "name_uz_lat":  "Xalumi",
+        "name_ru":  "РҐР°Р»СѓРјРё",
+        "name_en":  "Halumi",
+        "photo_url":  "/data/photos/foods-v2/xalumi.webp"
+    },
+    {
+        "slug":  "xantal",
+        "name_uz_lat":  "Xantal",
+        "name_ru":  "Р“РѕСЂС‡РёС†Р°",
+        "name_en":  "Mustard",
+        "photo_url":  "/data/photos/foods-v2/xantal.webp"
+    },
+    {
+        "slug":  "xek_baliq",
+        "name_uz_lat":  "Xek baliq",
+        "name_ru":  "РҐРµРє СЂС‹Р±Р°",
+        "name_en":  "Hake fish",
+        "photo_url":  "/data/photos/foods-v2/xek_baliq.webp"
+    },
+    {
+        "slug":  "xlorella_kukun",
+        "name_uz_lat":  "Xlorella (kukun)",
+        "name_ru":  "РҐР»РѕСЂРµР»Р»Р° (РїРѕСЂРѕС€РѕРє)",
+        "name_en":  "Chlorella (powder)",
+        "photo_url":  "/data/photos/foods-v2/xlorella_kukun.webp"
+    },
+    {
+        "slug":  "xmeli_suneli",
+        "name_uz_lat":  "Xmeli-suneli",
+        "name_ru":  "РљР»Р°СЃСЃРёРєРё",
+        "name_en":  "Hopscotch",
+        "photo_url":  "/data/photos/foods-v2/xmeli_suneli.webp"
+    },
+    {
+        "slug":  "xren_otquloq",
+        "name_uz_lat":  "Xren (otquloq)",
+        "name_ru":  "С…СЂРµРЅ",
+        "name_en":  "horseradish",
+        "photo_url":  "/data/photos/foods-v2/xren_otquloq.webp"
+    },
+    {
+        "slug":  "xrenovina_pomidorxrensarimsoq",
+        "name_uz_lat":  "Xrenovina (pomidor+xren+sarimsoq)",
+        "name_ru":  "РҐСЂРµРЅ (РїРѕРјРёРґРѕСЂ+С…СЂРµРЅ+С‡РµСЃРЅРѕРє)",
+        "name_en":  "Horseradish (tomato+horseradish+garlic)",
+        "photo_url":  "/data/photos/foods-v2/xrenovina_pomidorxrensarimsoq.webp"
+    },
+    {
+        "slug":  "uz_xurmo",
+        "name_uz_lat":  "Xurmo",
+        "name_ru":  "РҐСѓСЂРјР°",
+        "name_en":  "Persimmon",
+        "photo_url":  "/data/photos/foods-v2/uz_xurmo.webp"
+    },
+    {
+        "slug":  "yalpiz_choy",
+        "name_uz_lat":  "Yalpiz choy",
+        "name_ru":  "РњСЏС‚РЅС‹Р№ С‡Р°Р№",
+        "name_en":  "Mint tea",
+        "photo_url":  "/data/photos/foods-v2/yalpiz_choy.webp"
+    },
+    {
+        "slug":  "yams",
+        "name_uz_lat":  "Yams",
+        "name_ru":  "РЇРјСЃ",
+        "name_en":  "Yams",
+        "photo_url":  "/data/photos/foods-v2/yams.webp"
+    },
+    {
+        "slug":  "yangi_zanjabil",
+        "name_uz_lat":  "Yangi zanjabil",
+        "name_ru":  "РЎРІРµР¶РёР№ РёРјР±РёСЂСЊ",
+        "name_en":  "Fresh ginger",
+        "photo_url":  "/data/photos/foods-v2/yangi_zanjabil.webp"
+    },
+    {
+        "slug":  "yarim_shirin_vino",
+        "name_uz_lat":  "Yarim shirin vino",
+        "name_ru":  "РџРѕР»СѓСЃР»Р°РґРєРѕРµ РІРёРЅРѕ",
+        "name_en":  "Semi-sweet wine",
+        "photo_url":  "/data/photos/foods-v2/yarim_shirin_vino.webp"
+    },
+    {
+        "slug":  "yashil_loviya_snap_xom",
+        "name_uz_lat":  "Yashil loviya (snap), xom",
+        "name_ru":  "Р¤Р°СЃРѕР»СЊ Р·РµР»РµРЅР°СЏ (СЃС‹СЂР°СЏ)",
+        "name_en":  "Green beans (snap), raw",
+        "photo_url":  "/data/photos/foods-v2/yashil_loviya_snap_xom.webp"
+    },
+    {
+        "slug":  "yashil_smuzi_ismaloq",
+        "name_uz_lat":  "Yashil smuzi (ismaloq)",
+        "name_ru":  "Р—РµР»РµРЅС‹Р№ СЃРјСѓР·Рё (С€РїРёРЅР°С‚)",
+        "name_en":  "Green smoothie (spinach)",
+        "photo_url":  "/data/photos/foods-v2/yashil_smuzi_ismaloq.webp"
+    },
+    {
+        "slug":  "yashil_smuzi_sabzavotli",
+        "name_uz_lat":  "Yashil smuzi (sabzavotli)",
+        "name_ru":  "Р—РµР»РµРЅС‹Р№ СЃРјСѓР·Рё (РѕРІРѕС‰РЅРѕР№)",
+        "name_en":  "Green smoothie (vegetable)",
+        "photo_url":  "/data/photos/foods-v2/yashil_smuzi_sabzavotli.webp"
+    },
+    {
+        "slug":  "yashil_turp",
+        "name_uz_lat":  "Yashil turp",
+        "name_ru":  "Р—РµР»С‘РЅР°СЏ СЂРµРґСЊРєР°",
+        "name_en":  "Green radish",
+        "photo_url":  "/data/photos/foods-v2/yashil_turp.webp"
+    },
+    {
+        "slug":  "yasmin_gulli_kok_choy",
+        "name_uz_lat":  "Yasmin gulli ko\u0027k choy",
+        "name_ru":  "РЎРёРЅРёР№ С‡Р°Р№ СЃ С†РІРµС‚РєР°РјРё Р¶Р°СЃРјРёРЅР°",
+        "name_en":  "Blue tea with jasmine flowers",
+        "photo_url":  "/data/photos/foods-v2/yasmin_gulli_kok_choy.webp"
+    },
+    {
+        "slug":  "yasmiq_shorvasi",
+        "name_uz_lat":  "Yasmiq sho\u0027rvasi",
+        "name_ru":  "Р§РµС‡РµРІРёС‡РЅС‹Р№ СЃСѓРї",
+        "name_en":  "Lentil soup",
+        "photo_url":  "/data/photos/foods-v2/yasmiq_shorvasi.webp"
+    },
+    {
+        "slug":  "yengil_mayonez_30",
+        "name_uz_lat":  "Yengil mayonez 30%",
+        "name_ru":  "РњР°Р№РѕРЅРµР· Р»РµРіРєРёР№ 30%",
+        "name_en":  "Light mayonnaise 30%",
+        "photo_url":  "/data/photos/foods-v2/yengil_mayonez_30.webp"
+    },
+    {
+        "slug":  "uz_arahis",
+        "name_uz_lat":  "Yeryong\u0027oq",
+        "name_ru":  "РђСЂР°С…РёСЃ",
+        "name_en":  "Peanut",
+        "photo_url":  "/data/photos/foods-v2/uz_arahis.webp"
+    },
+    {
+        "slug":  "yetilgan_ismaloq",
+        "name_uz_lat":  "Yetilgan ismaloq",
+        "name_ru":  "РЎРїРµР»С‹Р№ С€РїРёРЅР°С‚",
+        "name_en":  "Ripe spinach",
+        "photo_url":  "/data/photos/foods-v2/yetilgan_ismaloq.webp"
+    },
+    {
+        "slug":  "yotal_sharbati",
+        "name_uz_lat":  "Yo\u0027tal sharbati",
+        "name_ru":  "РЎРёСЂРѕРї РѕС‚ РєР°С€Р»СЏ",
+        "name_en":  "Cough syrup",
+        "photo_url":  "/data/photos/foods-v2/yotal_sharbati.webp"
+    },
+    {
+        "slug":  "yogsiz_tvorog",
+        "name_uz_lat":  "Yog\u0027siz tvorog",
+        "name_ru":  "РћР±РµР·Р¶РёСЂРµРЅРЅС‹Р№ С‚РІРѕСЂРѕРі",
+        "name_en":  "Fat-free cottage cheese",
+        "photo_url":  "/data/photos/foods-v2/yogsiz_tvorog.webp"
+    },
+    {
+        "slug":  "yogsizlangan_kefir",
+        "name_uz_lat":  "Yog\u0027sizlangan kefir",
+        "name_ru":  "РћР±РµР·Р¶РёСЂРµРЅРЅС‹Р№ РєРµС„РёСЂ",
+        "name_en":  "Skimmed kefir",
+        "photo_url":  "/data/photos/foods-v2/yogsizlangan_kefir.webp"
+    },
+    {
+        "slug":  "yogurt_oddiy_toliq_yogli_sutdan",
+        "name_uz_lat":  "Yogurt, oddiy, to\u0027liq yog\u0027li sutdan",
+        "name_ru":  "Р™РѕРіСѓСЂС‚ РїСЂРѕСЃС‚РѕР№, С†РµР»СЊРЅРѕРµ РјРѕР»РѕРєРѕ",
+        "name_en":  "Yogurt, plain, whole milk",
+        "photo_url":  "/data/photos/foods-v2/yogurt_oddiy_toliq_yogli_sutdan.webp"
+    },
+    {
+        "slug":  "yogurt_oddiy_yogsiz",
+        "name_uz_lat":  "Yogurt, oddiy, yog\u0027siz",
+        "name_ru":  "Р™РѕРіСѓСЂС‚ РѕР±С‹С‡РЅС‹Р№, РѕР±РµР·Р¶РёСЂРµРЅРЅС‹Р№",
+        "name_en":  "Yogurt, plain, non-fat",
+        "photo_url":  "/data/photos/foods-v2/yogurt_oddiy_yogsiz.webp"
+    },
+    {
+        "slug":  "uz_orex_gretski",
+        "name_uz_lat":  "Yong\u0027oq",
+        "name_ru":  "РћСЂРµС…",
+        "name_en":  "Walnut",
+        "photo_url":  "/data/photos/foods-v2/uz_orex_gretski.webp"
+    },
+    {
+        "slug":  "yongoqli_grek_yogurti",
+        "name_uz_lat":  "Yong\u0027oqli grek yogurti",
+        "name_ru":  "Р“СЂРµС‡РµСЃРєРёР№ Р№РѕРіСѓСЂС‚ СЃ РѕСЂРµС…Р°РјРё",
+        "name_en":  "Greek yogurt with nuts",
+        "photo_url":  "/data/photos/foods-v2/yongoqli_grek_yogurti.webp"
+    },
+    {
+        "slug":  "yongoqli_oq_shokolad",
+        "name_uz_lat":  "Yong\u0027oqli oq shokolad",
+        "name_ru":  "Р‘РµР»С‹Р№ С€РѕРєРѕР»Р°Рґ СЃ РѕСЂРµС…Р°РјРё",
+        "name_en":  "White chocolate with nuts",
+        "photo_url":  "/data/photos/foods-v2/yongoqli_oq_shokolad.webp"
+    },
+    {
+        "slug":  "yosh_ismaloq",
+        "name_uz_lat":  "Yosh ismaloq",
+        "name_ru":  "РњРѕР»РѕРґРѕР№ С€РїРёРЅР°С‚",
+        "name_en":  "Young spinach",
+        "photo_url":  "/data/photos/foods-v2/yosh_ismaloq.webp"
+    },
+    {
+        "slug":  "yozgi_qovoq_sariq_posti_bilan_xom",
+        "name_uz_lat":  "Yozgi qovoq, sariq, po\u0027sti bilan, xom",
+        "name_ru":  "РўС‹РєРІР° Р»РµС‚РЅСЏСЏ, Р¶РµР»С‚Р°СЏ, СЃ РєРѕР¶РёС†РµР№, СЃС‹СЂР°СЏ",
+        "name_en":  "Summer squash, yellow, with skin, raw",
+        "photo_url":  "/data/photos/foods-v2/yozgi_qovoq_sariq_posti_bilan_xom.webp"
+    },
+    {
+        "slug":  "yozgi_qovoq_yashil_sukini_kabachok_posti_bilan_xom",
+        "name_uz_lat":  "Yozgi qovoq, yashil sukini (kabachok), po\u0027sti bilan, xom",
+        "name_ru":  "Р›РµС‚РЅСЏСЏ С‚С‹РєРІР°, Р·РµР»РµРЅС‹Рµ РєР°Р±Р°С‡РєРё (С†СѓРєРєРёРЅРё), СЃ РєРѕР¶РёС†РµР№, СЃС‹СЂС‹Рµ",
+        "name_en":  "Summer squash, green zucchini (courgette), with skin, raw",
+        "photo_url":  "/data/photos/foods-v2/yozgi_qovoq_yashil_sukini_kabachok_posti_bilan_xom.webp"
+    },
+    {
+        "slug":  "yumshoq_qaynatilgan_tuxum",
+        "name_uz_lat":  "Yumshoq qaynatilgan tuxum",
+        "name_ru":  "РЇР№С†Рѕ РІСЃРјСЏС‚РєСѓ",
+        "name_en":  "Soft boiled egg",
+        "photo_url":  "/data/photos/foods-v2/yumshoq_qaynatilgan_tuxum.webp"
+    },
+    {
+        "slug":  "yunon_yogurti",
+        "name_uz_lat":  "Yunon yogurti",
+        "name_ru":  "Р“СЂРµС‡РµСЃРєРёР№ Р№РѕРіСѓСЂС‚",
+        "name_en":  "Greek yogurt",
+        "photo_url":  "/data/photos/foods-v2/yunon_yogurti.webp"
+    },
+    {
+        "slug":  "yunon_yogurti_oddiy_toliq_yogli_sutdan",
+        "name_uz_lat":  "Yunon yogurti, oddiy, to\u0027liq yog\u0027li sutdan",
+        "name_ru":  "Р“СЂРµС‡РµСЃРєРёР№ Р№РѕРіСѓСЂС‚, РїСЂРёРіРѕС‚РѕРІР»РµРЅРЅС‹Р№ РёР· РїСЂРѕСЃС‚РѕРіРѕ С†РµР»СЊРЅРѕРіРѕ РјРѕР»РѕРєР°.",
+        "name_en":  "Greek yogurt, made from plain, whole milk",
+        "photo_url":  "/data/photos/foods-v2/yunon_yogurti_oddiy_toliq_yogli_sutdan.webp"
+    },
+    {
+        "slug":  "yunon_yogurti_oddiy_yogsiz",
+        "name_uz_lat":  "Yunon yogurti, oddiy, yog\u0027siz",
+        "name_ru":  "Р“СЂРµС‡РµСЃРєРёР№ Р№РѕРіСѓСЂС‚, РїСЂРѕСЃС‚РѕР№, РѕР±РµР·Р¶РёСЂРµРЅРЅС‹Р№",
+        "name_en":  "Greek yogurt, plain, nonfat",
+        "photo_url":  "/data/photos/foods-v2/yunon_yogurti_oddiy_yogsiz.webp"
+    },
+    {
+        "slug":  "yunon_yogurti_qulupnayli_yogsiz",
+        "name_uz_lat":  "Yunon yogurti, qulupnayli, yog\u0027siz",
+        "name_ru":  "Р“СЂРµС‡РµСЃРєРёР№ Р№РѕРіСѓСЂС‚ СЃ РєР»СѓР±РЅРёРєРѕР№, РѕР±РµР·Р¶РёСЂРµРЅРЅС‹Р№",
+        "name_en":  "Greek yogurt, with strawberries, fat-free",
+        "photo_url":  "/data/photos/foods-v2/yunon_yogurti_qulupnayli_yogsiz.webp"
+    },
+    {
+        "slug":  "yupqa_pitsa",
+        "name_uz_lat":  "Yupqa pitsa",
+        "name_ru":  "РўРѕРЅРєР°СЏ РїРёС†С†Р°",
+        "name_en":  "Thin pizza",
+        "photo_url":  "/data/photos/foods-v2/yupqa_pitsa.webp"
+    },
+    {
+        "slug":  "zafaron",
+        "name_uz_lat":  "Za\u0027faron",
+        "name_ru":  "РЁР°С„СЂР°РЅ",
+        "name_en":  "Saffron",
+        "photo_url":  "/data/photos/foods-v2/zafaron.webp"
+    },
+    {
+        "slug":  "zaatar",
+        "name_uz_lat":  "Zaatar",
+        "name_ru":  "Р—Р°Р°С‚Р°СЂ",
+        "name_en":  "Zaatar",
+        "photo_url":  "/data/photos/foods-v2/zaatar.webp"
+    },
+    {
+        "slug":  "zanjabil_choy",
+        "name_uz_lat":  "Zanjabil choy",
+        "name_ru":  "РРјР±РёСЂРЅС‹Р№ С‡Р°Р№",
+        "name_en":  "Ginger tea",
+        "photo_url":  "/data/photos/foods-v2/zanjabil_choy.webp"
+    },
+    {
+        "slug":  "zanjabil_ildizi",
+        "name_uz_lat":  "Zanjabil ildizi",
+        "name_ru":  "РєРѕСЂРµРЅСЊ РёРјР±РёСЂСЏ",
+        "name_en":  "Ginger root",
+        "photo_url":  "/data/photos/foods-v2/zanjabil_ildizi.webp"
+    },
+    {
+        "slug":  "zarchava_kurkuma",
+        "name_uz_lat":  "Zarchava (kurkuma)",
+        "name_ru":  "Р—Р°СЂС‡Р°РІР° (РєСѓСЂРєСѓРјР°)",
+        "name_en":  "Zarchava (turmeric)",
+        "photo_url":  "/data/photos/foods-v2/zarchava_kurkuma.webp"
+    },
+    {
+        "slug":  "uz_zayt_yog",
+        "name_uz_lat":  "Zaytun yog\u0027i",
+        "name_ru":  "РћР»РёРІРєРѕРІРѕРµ РјР°СЃР»Рѕ",
+        "name_en":  "Olive oil",
+        "photo_url":  "/data/photos/foods-v2/uz_zayt_yog.webp"
+    },
+    {
+        "slug":  "zelts_xolodets",
+        "name_uz_lat":  "Zelts (xolodets)",
+        "name_ru":  "Р—РµР»СЊС†С‹ (С…РѕР»РѕРґРµС†)",
+        "name_en":  "Zelts (holodets)",
+        "photo_url":  "/data/photos/foods-v2/zelts_xolodets.webp"
+    },
+    {
+        "slug":  "zigir_yogi",
+        "name_uz_lat":  "Zig\u0027ir yog\u0027i",
+        "name_ru":  "Р›СЊРЅСЏРЅРѕРµ РјР°СЃР»Рѕ",
+        "name_en":  "Linseed oil",
+        "photo_url":  "/data/photos/foods-v2/zigir_yogi.webp"
+    },
+    {
+        "slug":  "zira",
+        "name_uz_lat":  "Zira",
+        "name_ru":  "РўРјРёРЅ",
+        "name_en":  "Cumin",
+        "photo_url":  "/data/photos/foods-v2/zira.webp"
+    },
+    {
+        "slug":  "zira_tmin",
+        "name_uz_lat":  "Zira (tmin)",
+        "name_ru":  "С‚РјРёРЅ (tmin)",
+        "name_en":  "cumin (tmin)",
+        "photo_url":  "/data/photos/foods-v2/zira_tmin.webp"
+    },
+    {
+        "slug":  "zubatka_baliq",
+        "name_uz_lat":  "Zubatka baliq",
+        "name_ru":  "Р—СѓР±Р°С‚РєР° СЂС‹Р±Р°",
+        "name_en":  "Zubatka fish",
+        "photo_url":  "/data/photos/foods-v2/zubatka_baliq.webp"
+    },
+    {
+        "slug":  "toshkent_to_y_oshi",
+        "name_uz_lat":  "Toshkent to\u0027y oshi",
+        "name_ru":  "РўР°С€РєРµРЅС‚СЃРєРёР№ СЃРІР°РґРµР±РЅС‹Р№ СѓР¶РёРЅ",
+        "name_en":  "Tashkent wedding dinner",
+        "photo_url":  "/data/photos/foods-v2/toshkent_to_y_oshi.webp"
+    },
+    {
+        "slug":  "choyxona_palov",
+        "name_uz_lat":  "Choyxona palov",
+        "name_ru":  "Р§Р°Р№РЅС‹Р№ РїР»РѕРІ",
+        "name_en":  "Teahouse pilaf",
+        "photo_url":  "/data/photos/foods-v2/choyxona_palov.webp"
+    },
+    {
+        "slug":  "samarqand_palov",
+        "name_uz_lat":  "Samarqand palov",
+        "name_ru":  "РЎР°РјР°СЂРєР°РЅРґСЃРєРёР№ РїР»РѕРІ",
+        "name_en":  "Samarkand pilaf",
+        "photo_url":  "/data/photos/foods-v2/samarqand_palov.webp"
+    },
+    {
+        "slug":  "farg_ona_palov",
+        "name_uz_lat":  "Farg\u0027ona palov",
+        "name_ru":  "Р¤РµСЂРіР°РЅСЃРєРёР№ РїР»РѕРІ",
+        "name_en":  "Ferghana pilaf",
+        "photo_url":  "/data/photos/foods-v2/farg_ona_palov.webp"
+    },
+    {
+        "slug":  "xorazm_palov",
+        "name_uz_lat":  "Xorazm palov",
+        "name_ru":  "РҐРѕСЂРµР·РјСЃРєРёР№ РїР»РѕРІ",
+        "name_en":  "Khorezm pilaf",
+        "photo_url":  "/data/photos/foods-v2/xorazm_palov.webp"
+    },
+    {
+        "slug":  "buxoro_palov",
+        "name_uz_lat":  "Buxoro palov",
+        "name_ru":  "Р‘СѓС…Р°СЂСЃРєРёР№ РїР»РѕРІ",
+        "name_en":  "Bukhara pilaf",
+        "photo_url":  "/data/photos/foods-v2/buxoro_palov.webp"
+    },
+    {
+        "slug":  "qashqadaryo_palov",
+        "name_uz_lat":  "Qashqadaryo palov",
+        "name_ru":  "РљР°С€РєР°РґР°СЂСЊРёРЅСЃРєРёР№ РїР»РѕРІ",
+        "name_en":  "Kashkadarya pilaf",
+        "photo_url":  "/data/photos/foods-v2/qashqadaryo_palov.webp"
+    },
+    {
+        "slug":  "kovatok_palov",
+        "name_uz_lat":  "Kovatok palov",
+        "name_ru":  "РљРѕРІР°С‚РѕРє РїР»РѕРІ",
+        "name_en":  "Kovatok pilaf",
+        "photo_url":  "/data/photos/foods-v2/kovatok_palov.webp"
+    },
+    {
+        "slug":  "behi_palov",
+        "name_uz_lat":  "Behi palov",
+        "name_ru":  "РџР»РѕРІ РёР· Р°Р№РІС‹",
+        "name_en":  "Quince pilaf",
+        "photo_url":  "/data/photos/foods-v2/behi_palov.webp"
+    },
+    {
+        "slug":  "mayiz_palov",
+        "name_uz_lat":  "Mayiz palov",
+        "name_ru":  "РџР»РѕРІ СЃ РёР·СЋРјРѕРј",
+        "name_en":  "Raisin pilaf",
+        "photo_url":  "/data/photos/foods-v2/mayiz_palov.webp"
+    },
+    {
+        "slug":  "sarimsoqli_palov",
+        "name_uz_lat":  "Sarimsoqli palov",
+        "name_ru":  "РџР»РѕРІ СЃ С‡РµСЃРЅРѕРєРѕРј",
+        "name_en":  "Pilaf with garlic",
+        "photo_url":  "/data/photos/foods-v2/sarimsoqli_palov.webp"
+    },
+    {
+        "slug":  "no_xatli_palov",
+        "name_uz_lat":  "No\u0027xatli palov",
+        "name_ru":  "РџР»РѕРІ СЃ РіРѕСЂРѕС€РєРѕРј",
+        "name_en":  "Pilaf with peas",
+        "photo_url":  "/data/photos/foods-v2/no_xatli_palov.webp"
+    },
+    {
+        "slug":  "zog_ora_palov",
+        "name_uz_lat":  "Zog\u0027ora palov",
+        "name_ru":  "Р—РѕС…РѕСЂР° РїР»РѕРІ",
+        "name_en":  "Zohora pilaf",
+        "photo_url":  "/data/photos/foods-v2/zog_ora_palov.webp"
+    },
+    {
+        "slug":  "qovurma_palov",
+        "name_uz_lat":  "Qovurma palov",
+        "name_ru":  "Р–Р°СЂРµРЅС‹Р№ РїР»РѕРІ",
+        "name_en":  "Fried pilaf",
+        "photo_url":  "/data/photos/foods-v2/qovurma_palov.webp"
+    },
+    {
+        "slug":  "safaki_palov",
+        "name_uz_lat":  "Safaki palov",
+        "name_ru":  "РЎР°С„Р°РєРё РїР»РѕРІ",
+        "name_en":  "Safaki pilaf",
+        "photo_url":  "/data/photos/foods-v2/safaki_palov.webp"
+    },
+    {
+        "slug":  "qazili_palov",
+        "name_uz_lat":  "Qazili palov",
+        "name_ru":  "Р“Р°Р·РёР»РёР№СЃРєРёР№ РїР»РѕРІ",
+        "name_en":  "Gazili pilaf",
+        "photo_url":  "/data/photos/foods-v2/qazili_palov.webp"
+    },
+    {
+        "slug":  "tovuqli_palov",
+        "name_uz_lat":  "Tovuqli palov",
+        "name_ru":  "РљСѓСЂРёРЅС‹Р№ РїР»РѕРІ",
+        "name_en":  "Chicken pilaf",
+        "photo_url":  "/data/photos/foods-v2/tovuqli_palov.webp"
+    },
+    {
+        "slug":  "bahorgi_palov",
+        "name_uz_lat":  "Bahorgi palov",
+        "name_ru":  "Р’РµСЃРµРЅРЅРёР№ РїР»РѕРІ",
+        "name_en":  "Spring pilaf",
+        "photo_url":  "/data/photos/foods-v2/bahorgi_palov.webp"
+    },
+    {
+        "slug":  "qo_y_go_shtli_palov",
+        "name_uz_lat":  "Qo\u0027y go\u0027shtli palov",
+        "name_ru":  "РџР»РѕРІ РёР· Р±Р°СЂР°РЅРёРЅС‹",
+        "name_en":  "Mutton pilaf",
+        "photo_url":  "/data/photos/foods-v2/qo_y_go_shtli_palov.webp"
+    },
+    {
+        "slug":  "mol_go_shtli_palov",
+        "name_uz_lat":  "Mol go\u0027shtli palov",
+        "name_ru":  "РџР»РѕРІ РёР· РіРѕРІСЏРґРёРЅС‹",
+        "name_en":  "Beef pilaf",
+        "photo_url":  "/data/photos/foods-v2/mol_go_shtli_palov.webp"
+    },
+    {
+        "slug":  "tandir_somsa_go_shtli",
+        "name_uz_lat":  "Tandir somsa go\u0027shtli",
+        "name_ru":  "РўР°РЅРґС‹СЂ-СЃРѕРјСЃР° СЃ РјСЏСЃРѕРј",
+        "name_en":  "Tandir somsa with meat",
+        "photo_url":  "/data/photos/foods-v2/tandir_somsa_go_shtli.webp"
+    },
+    {
+        "slug":  "tandir_somsa_qovoqli",
+        "name_uz_lat":  "Tandir somsa qovoqli",
+        "name_ru":  "РўР°РЅРґС‹СЂ-СЃРѕРјСЃР° СЃ С‚С‹РєРІРѕР№",
+        "name_en":  "Tandir somsa with pumpkin",
+        "photo_url":  "/data/photos/foods-v2/tandir_somsa_qovoqli.webp"
+    },
+    {
+        "slug":  "tandir_somsa_kartoshkali",
+        "name_uz_lat":  "Tandir somsa kartoshkali",
+        "name_ru":  "РўР°РЅРґСѓСЂРё-СЃРѕРјСЃР° СЃ РєР°СЂС‚РѕС„РµР»РµРј",
+        "name_en":  "Tandoori somsa with potatoes",
+        "photo_url":  "/data/photos/foods-v2/tandir_somsa_kartoshkali.webp"
+    },
+    {
+        "slug":  "varaqi_somsa_go_shtli",
+        "name_uz_lat":  "Varaqi somsa go\u0027shtli",
+        "name_ru":  "Р›РёСЃС‚ СЃРѕРјСЃС‹ СЃ РјСЏСЃРѕРј",
+        "name_en":  "A sheet of somsa with meat",
+        "photo_url":  "/data/photos/foods-v2/varaqi_somsa_go_shtli.webp"
+    },
+    {
+        "slug":  "varaqi_somsa_qovoqli",
+        "name_uz_lat":  "Varaqi somsa qovoqli",
+        "name_ru":  "Р›РёСЃС‚ СЃРѕРјСЃС‹ С‚С‹РєРІРµРЅРЅС‹Р№",
+        "name_en":  "The sheet of somsa is pumpkin",
+        "photo_url":  "/data/photos/foods-v2/varaqi_somsa_qovoqli.webp"
+    },
+    {
+        "slug":  "jizzax_somsasi",
+        "name_uz_lat":  "Jizzax somsasi",
+        "name_ru":  "Р”Р¶РёР·Р°РєСЃРєР°СЏ РЎРѕРјСЃР°",
+        "name_en":  "Jizzakh Somsa",
+        "photo_url":  "/data/photos/foods-v2/jizzax_somsasi.webp"
+    },
+    {
+        "slug":  "ko_katli_somsa_bichak",
+        "name_uz_lat":  "Ko\u0027katli somsa / Bichak",
+        "name_ru":  "Р—РµР»РµРЅР°СЏ СЃРѕРјСЃР° / Р‘РёС‡Р°Рє",
+        "name_en":  "Green somsa / Bichak",
+        "photo_url":  "/data/photos/foods-v2/ko_katli_somsa_bichak.webp"
+    },
+    {
+        "slug":  "qo_ziqorinli_somsa",
+        "name_uz_lat":  "Qo\u0027ziqorinli somsa",
+        "name_ru":  "РЎРѕРјСЃР° СЃ РіСЂРёР±Р°РјРё",
+        "name_en":  "Somsa with mushrooms",
+        "photo_url":  "/data/photos/foods-v2/qo_ziqorinli_somsa.webp"
+    },
+    {
+        "slug":  "tovuqli_somsa",
+        "name_uz_lat":  "Tovuqli somsa",
+        "name_ru":  "РЎРѕРјСЃР° СЃ РєСѓСЂРёС†РµР№",
+        "name_en":  "Somsa with chicken",
+        "photo_url":  "/data/photos/foods-v2/tovuqli_somsa.webp"
+    },
+    {
+        "slug":  "pishloqli_somsa",
+        "name_uz_lat":  "Pishloqli somsa",
+        "name_ru":  "РЎРѕРјСЃР° СЃ СЃС‹СЂРѕРј",
+        "name_en":  "Somsa with cheese",
+        "photo_url":  "/data/photos/foods-v2/pishloqli_somsa.webp"
+    },
+    {
+        "slug":  "dumba_jigar_somsa",
+        "name_uz_lat":  "Dumba-jigar somsa",
+        "name_ru":  "РљРѕСЂРёС‡РЅРµРІР°СЏ СЃРѕРјСЃР°",
+        "name_en":  "Butt-brown somsa",
+        "photo_url":  "/data/photos/foods-v2/dumba_jigar_somsa.webp"
+    },
+    {
+        "slug":  "mini_somsa_to_y_somsasi",
+        "name_uz_lat":  "Mini somsa / To\u0027y somsasi",
+        "name_ru":  "РњРёРЅРё-СЃРѕРјСЃР° / РЎРІР°РґРµР±РЅР°СЏ СЃРѕРјСЃР°",
+        "name_en":  "Mini somsa / Wedding somsa",
+        "photo_url":  "/data/photos/foods-v2/mini_somsa_to_y_somsasi.webp"
+    },
+    {
+        "slug":  "qatlama_somsa",
+        "name_uz_lat":  "Qatlama somsa",
+        "name_ru":  "РЎРєР»Р°РґРЅР°СЏ СЃРѕРјСЃР°",
+        "name_en":  "Folding somsa",
+        "photo_url":  "/data/photos/foods-v2/qatlama_somsa.webp"
+    },
+    {
+        "slug":  "farmuda_somsa",
+        "name_uz_lat":  "Farmuda somsa",
+        "name_ru":  "Р¤Р°СЂРјСѓРґР° СЃРѕРјСЃР°",
+        "name_en":  "Farmuda somsa",
+        "photo_url":  "/data/photos/foods-v2/farmuda_somsa.webp"
+    },
+    {
+        "slug":  "yalpizli_somsa",
+        "name_uz_lat":  "Yalpizli somsa",
+        "name_ru":  "РЎРѕРјСЃР° СЃ РјСЏС‚РѕР№",
+        "name_en":  "Somsa with mint",
+        "photo_url":  "/data/photos/foods-v2/yalpizli_somsa.webp"
+    },
+    {
+        "slug":  "ismaloqli_somsa",
+        "name_uz_lat":  "Ismaloqli somsa",
+        "name_ru":  "РЎРѕРјСЃР° СЃРѕ С€РїРёРЅР°С‚РѕРј",
+        "name_en":  "Somsa with spinach",
+        "photo_url":  "/data/photos/foods-v2/ismaloqli_somsa.webp"
+    },
+    {
+        "slug":  "manti_qovoqli",
+        "name_uz_lat":  "Manti qovoqli",
+        "name_ru":  "РњР°РЅС‚С‹ СЃ С‚С‹РєРІРѕР№",
+        "name_en":  "Manti with pumpkin",
+        "photo_url":  "/data/photos/foods-v2/manti_qovoqli.webp"
+    },
+    {
+        "slug":  "manti_kartoshkali",
+        "name_uz_lat":  "Manti kartoshkali",
+        "name_ru":  "РњР°РЅС‚С‹ СЃ РєР°СЂС‚РѕС€РєРѕР№",
+        "name_en":  "Manti with potatoes",
+        "photo_url":  "/data/photos/foods-v2/manti_kartoshkali.webp"
+    },
+    {
+        "slug":  "manti_ko_katli",
+        "name_uz_lat":  "Manti ko\u0027katli",
+        "name_ru":  "РњР°РЅС‚С‹ Р·РµР»РµРЅС‹Рµ",
+        "name_en":  "Manti green",
+        "photo_url":  "/data/photos/foods-v2/manti_ko_katli.webp"
+    },
+    {
+        "slug":  "manti_jigarli",
+        "name_uz_lat":  "Manti jigarli",
+        "name_ru":  "РџРµС‡РµРЅСЊ Р±РѕРіРѕРјРѕР»Р°",
+        "name_en":  "Mantis liver",
+        "photo_url":  "/data/photos/foods-v2/manti_jigarli.webp"
+    },
+    {
+        "slug":  "manti_dumba_jigar",
+        "name_uz_lat":  "Manti dumba-jigar",
+        "name_ru":  "РџРѕРїРєР°-РїРµС‡РµРЅСЊ Р±РѕРіРѕРјРѕР»Р°",
+        "name_en":  "Mantis butt-liver",
+        "photo_url":  "/data/photos/foods-v2/manti_dumba_jigar.webp"
+    },
+    {
+        "slug":  "qovurma_manti",
+        "name_uz_lat":  "Qovurma manti",
+        "name_ru":  "Р–Р°СЂРµРЅС‹Рµ РјР°РЅС‚С‹",
+        "name_en":  "Fried manti",
+        "photo_url":  "/data/photos/foods-v2/qovurma_manti.webp"
+    },
+    {
+        "slug":  "ochiq_manti_gul_manti",
+        "name_uz_lat":  "Ochiq manti / Gul manti",
+        "name_ru":  "РћС‚РєСЂС‹С‚С‹Р№ Р±РѕРіРѕРјРѕР» / Р¦РІРµС‚РѕС‡РЅС‹Р№ Р±РѕРіРѕРјРѕР»",
+        "name_en":  "Open mantis / Flower mantis",
+        "photo_url":  "/data/photos/foods-v2/ochiq_manti_gul_manti.webp"
+    },
+    {
+        "slug":  "tuxum_barak",
+        "name_uz_lat":  "Tuxum barak",
+        "name_ru":  "Р‘Р»Р°РіРѕСЃР»РѕРІРµРЅРёРµ СЏР№С†Р°",
+        "name_en":  "Egg blessing",
+        "photo_url":  "/data/photos/foods-v2/tuxum_barak.webp"
+    },
+    {
+        "slug":  "xiva_baragi",
+        "name_uz_lat":  "Xiva baragi",
+        "name_ru":  "РҐРёРІРёРЅСЃРєРёР№ Р»РёСЃС‚",
+        "name_en":  "Khiva leaf",
+        "photo_url":  "/data/photos/foods-v2/xiva_baragi.webp"
+    },
+    {
+        "slug":  "qovurma_barak",
+        "name_uz_lat":  "Qovurma barak",
+        "name_ru":  "Р–Р°СЂРёС‚СЊ Р±Р°СЂР°Рє",
+        "name_en":  "Fry barak",
+        "photo_url":  "/data/photos/foods-v2/qovurma_barak.webp"
+    },
+    {
+        "slug":  "suv_barak",
+        "name_uz_lat":  "Suv barak",
+        "name_ru":  "Р’РѕРґРЅС‹Р№ Р±Р°СЂР°Рє",
+        "name_en":  "Water barak",
+        "photo_url":  "/data/photos/foods-v2/suv_barak.webp"
+    },
+    {
+        "slug":  "shashlik_qo_y_jaz",
+        "name_uz_lat":  "Shashlik qo\u0027y jaz",
+        "name_ru":  "РЁР°С€Р»С‹Рє РёР· Р±Р°СЂР°РЅРёРЅС‹ РґР¶Р°Р·",
+        "name_en":  "Shashlik sheep jazz",
+        "photo_url":  "/data/photos/foods-v2/shashlik_qo_y_jaz.webp"
+    },
+    {
+        "slug":  "shashlik_mol_jaz",
+        "name_uz_lat":  "Shashlik mol jaz",
+        "name_ru":  "РЁР°С€Р»С‹Рє РјРѕР» РґР¶Р°Р·",
+        "name_en":  "Shashlik mol jazz",
+        "photo_url":  "/data/photos/foods-v2/shashlik_mol_jaz.webp"
+    },
+    {
+        "slug":  "shashlik_qiyma_qo_y",
+        "name_uz_lat":  "Shashlik qiyma qo\u0027y",
+        "name_ru":  "РќР°РЅРёР·С‹РІР°РµРј С„Р°СЂС€ РЅР° С€Р°РјРїСѓСЂС‹",
+        "name_en":  "Put minced meat on skewers",
+        "photo_url":  "/data/photos/foods-v2/shashlik_qiyma_qo_y.webp"
+    },
+    {
+        "slug":  "shashlik_qiyma_mol",
+        "name_uz_lat":  "Shashlik qiyma mol",
+        "name_ru":  "РЁР°С€Р»С‹Рє РёР· РіРѕРІСЏР¶СЊРµРіРѕ С„Р°СЂС€Р°",
+        "name_en":  "Shashlik minced beef",
+        "photo_url":  "/data/photos/foods-v2/shashlik_qiyma_mol.webp"
+    },
+    {
+        "slug":  "shashlik_jigar_qo_y",
+        "name_uz_lat":  "Shashlik jigar qo\u0027y",
+        "name_ru":  "РЁР°С€Р»С‹Рє РёР· Р±Р°СЂР°РЅСЊРµР№ РїРµС‡РµРЅРё",
+        "name_en":  "Shashlik lamb liver",
+        "photo_url":  "/data/photos/foods-v2/shashlik_jigar_qo_y.webp"
+    },
+    {
+        "slug":  "shashlik_jigar_mol",
+        "name_uz_lat":  "Shashlik jigar mol",
+        "name_ru":  "РЁР°С€Р»С‹Рє РёР· РїРµС‡РµРЅРё РјРѕР»СЊ",
+        "name_en":  "Shashlik liver mole",
+        "photo_url":  "/data/photos/foods-v2/shashlik_jigar_mol.webp"
+    },
+    {
+        "slug":  "shashlik_buyrak",
+        "name_uz_lat":  "Shashlik buyrak",
+        "name_ru":  "РЁР°С€РєРѕРІР°СЏ РїРѕС‡РєР°",
+        "name_en":  "Shashky kidney",
+        "photo_url":  "/data/photos/foods-v2/shashlik_buyrak.webp"
+    },
+    {
+        "slug":  "shashlik_tovuq",
+        "name_uz_lat":  "Shashlik tovuq",
+        "name_ru":  "РЁР°С€Р»С‹Рє РёР· РєСѓСЂРёС†С‹",
+        "name_en":  "Skewered chicken",
+        "photo_url":  "/data/photos/foods-v2/shashlik_tovuq.webp"
+    },
+    {
+        "slug":  "shashlik_qanotcha",
+        "name_uz_lat":  "Shashlik qanotcha",
+        "name_ru":  "РљСЂС‹Р»С‹С€РєРё С€Р°С€Р»С‹РєР°",
+        "name_en":  "Shashlik wings",
+        "photo_url":  "/data/photos/foods-v2/shashlik_qanotcha.webp"
+    },
+    {
+        "slug":  "shashlik_baliq",
+        "name_uz_lat":  "Shashlik baliq",
+        "name_ru":  "РЁР°С€Р»С‹Рє СЂС‹Р±РЅС‹Р№",
+        "name_en":  "Shashlik fish",
+        "photo_url":  "/data/photos/foods-v2/shashlik_baliq.webp"
+    },
+    {
+        "slug":  "shashlik_sabzavot",
+        "name_uz_lat":  "Shashlik sabzavot",
+        "name_ru":  "РЁР°С€Р»С‹Рє РёР· РѕРІРѕС‰РµР№",
+        "name_en":  "Skewered vegetables",
+        "photo_url":  "/data/photos/foods-v2/shashlik_sabzavot.webp"
+    },
+    {
+        "slug":  "shashlik_dumba",
+        "name_uz_lat":  "Shashlik dumba",
+        "name_ru":  "РџРµСЂРµРєРѕС€РµРЅРЅР°СЏ Р·Р°РґРЅРёС†Р°",
+        "name_en":  "Skewered butt",
+        "photo_url":  "/data/photos/foods-v2/shashlik_dumba.webp"
+    },
+    {
+        "slug":  "shashlik_rulet",
+        "name_uz_lat":  "Shashlik rulet",
+        "name_ru":  "РЁР°С€РєРё СЂСѓР»РµС‚РєР°",
+        "name_en":  "Checkers roulette",
+        "photo_url":  "/data/photos/foods-v2/shashlik_rulet.webp"
+    },
+    {
+        "slug":  "shashlik_beshpanja",
+        "name_uz_lat":  "Shashlik beshpanja",
+        "name_ru":  "РЁР°С€Р»С‹Рє РїСЏС‚СЊ Р»Р°Рї",
+        "name_en":  "Shashlik five paws",
+        "photo_url":  "/data/photos/foods-v2/shashlik_beshpanja.webp"
+    },
+    {
+        "slug":  "g_ijduvon_shashlik",
+        "name_uz_lat":  "G\u0027ijduvon shashlik",
+        "name_ru":  "Р“РёР¶РґСѓРІР°РЅСЃРєРёР№ С€Р°С€Р»С‹Рє",
+        "name_en":  "Gijduvan shashlik",
+        "photo_url":  "/data/photos/foods-v2/g_ijduvon_shashlik.webp"
+    },
+    {
+        "slug":  "katta_shashlik_napaleon",
+        "name_uz_lat":  "Katta shashlik / Napaleon",
+        "name_ru":  "Р‘РѕР»СЊС€РѕР№ РєРёРЅР¶Р°Р» / РќР°РїРѕР»РµРѕРЅ",
+        "name_en":  "Large dagger / Napoleon",
+        "photo_url":  "/data/photos/foods-v2/katta_shashlik_napaleon.webp"
+    },
+    {
+        "slug":  "lulya_kabob",
+        "name_uz_lat":  "Lulya-kabob",
+        "name_ru":  "Р›СЋР»СЏ-РєРµР±Р°Р±",
+        "name_en":  "Lulya kebab",
+        "photo_url":  "/data/photos/foods-v2/lulya_kabob.webp"
+    },
+    {
+        "slug":  "shashlik_pomidor",
+        "name_uz_lat":  "Shashlik pomidor",
+        "name_ru":  "РЁР°С€Р»С‹С‡РЅС‹Рµ РїРѕРјРёРґРѕСЂС‹",
+        "name_en":  "Skewered tomatoes",
+        "photo_url":  "/data/photos/foods-v2/shashlik_pomidor.webp"
+    },
+    {
+        "slug":  "shashlik_kartoshka",
+        "name_uz_lat":  "Shashlik kartoshka",
+        "name_ru":  "РљР°СЂС‚РѕС„РµР»СЊ РЅР° С€Р°РјРїСѓСЂРµ",
+        "name_en":  "Skewered potatoes",
+        "photo_url":  "/data/photos/foods-v2/shashlik_kartoshka.webp"
+    },
+    {
+        "slug":  "qozonkabob_qo_y",
+        "name_uz_lat":  "Qozonkabob qo\u0027y",
+        "name_ru":  "РљРµР±Р°Р± РёР· Р±Р°СЂР°РЅРёРЅС‹",
+        "name_en":  "Lamb kebab",
+        "photo_url":  "/data/photos/foods-v2/qozonkabob_qo_y.webp"
+    },
+    {
+        "slug":  "qozonkabob_mol",
+        "name_uz_lat":  "Qozonkabob mol",
+        "name_ru":  "РљР°Р·Р°РЅСЃРєРёР№ С€Р°С€Р»С‹Рє РјСЏСЃРЅРѕР№",
+        "name_en":  "Kazan kebab meat",
+        "photo_url":  "/data/photos/foods-v2/qozonkabob_mol.webp"
+    },
+    {
+        "slug":  "qozonkabob_tovuq",
+        "name_uz_lat":  "Qozonkabob tovuq",
+        "name_ru":  "РљР°Р·Р°РЅРєР°Р±РѕР± СЃ РєСѓСЂРёС†РµР№",
+        "name_en":  "Kazankabob chicken",
+        "photo_url":  "/data/photos/foods-v2/qozonkabob_tovuq.webp"
+    },
+    {
+        "slug":  "tandir_kabob",
+        "name_uz_lat":  "Tandir kabob",
+        "name_ru":  "РўР°РЅРґСѓСЂРё-РєРµР±Р°Р±",
+        "name_en":  "Tandoori kebab",
+        "photo_url":  "/data/photos/foods-v2/tandir_kabob.webp"
+    },
+    {
+        "slug":  "jiz",
+        "name_uz_lat":  "Jiz",
+        "name_ru":  "Р“РѕСЃРїРѕРґРё",
+        "name_en":  "Jeez",
+        "photo_url":  "/data/photos/foods-v2/jiz.webp"
+    },
+    {
+        "slug":  "do_lma_kabob",
+        "name_uz_lat":  "Do\u0027lma kabob",
+        "name_ru":  "Р¤Р°СЂС€РёСЂРѕРІР°РЅРЅС‹Р№ С€Р°С€Р»С‹Рє",
+        "name_en":  "Stuffed kebab",
+        "photo_url":  "/data/photos/foods-v2/do_lma_kabob.webp"
+    },
+    {
+        "slug":  "cho_pon_kabob",
+        "name_uz_lat":  "Cho\u0027pon kabob",
+        "name_ru":  "РЁР°С€Р»С‹Рє РёР· РѕРІС‡Р°СЂРєРё",
+        "name_en":  "Shepherd kebab",
+        "photo_url":  "/data/photos/foods-v2/cho_pon_kabob.webp"
+    },
+    {
+        "slug":  "qaynatma_shurva",
+        "name_uz_lat":  "Qaynatma shurva",
+        "name_ru":  "Р’Р°СЂРµРЅС‹Р№ СЃСѓРї",
+        "name_en":  "Boiled soup",
+        "photo_url":  "/data/photos/foods-v2/qaynatma_shurva.webp"
+    },
+    {
+        "slug":  "qovurma_shurva",
+        "name_uz_lat":  "Qovurma shurva",
+        "name_ru":  "Р–Р°СЂРµРЅС‹Р№ СЃСѓРї",
+        "name_en":  "Fried soup",
+        "photo_url":  "/data/photos/foods-v2/qovurma_shurva.webp"
+    },
+    {
+        "slug":  "no_xat_shorak",
+        "name_uz_lat":  "No\u0027xat shorak",
+        "name_ru":  "Р“РѕСЂРѕС…РѕРІС‹Р№ СЃСѓРї",
+        "name_en":  "Pea soup",
+        "photo_url":  "/data/photos/foods-v2/no_xat_shorak.webp"
+    },
+    {
+        "slug":  "kuza_shurva",
+        "name_uz_lat":  "Kuza shurva",
+        "name_ru":  "РљСѓР·Р° С€СѓСЂРІР°",
+        "name_en":  "Kuza shurva",
+        "photo_url":  "/data/photos/foods-v2/kuza_shurva.webp"
+    },
+    {
+        "slug":  "do_lma_shurva",
+        "name_uz_lat":  "Do\u0027lma shurva",
+        "name_ru":  "Р¤Р°СЂС€РёСЂРѕРІР°РЅРЅС‹Р№ СЃСѓРї",
+        "name_en":  "Stuffed soup",
+        "photo_url":  "/data/photos/foods-v2/do_lma_shurva.webp"
+    },
+    {
+        "slug":  "kifta_shurva",
+        "name_uz_lat":  "Kifta shurva",
+        "name_ru":  "РљРёС„С‚Р° СЃСѓРї",
+        "name_en":  "Kifta soup",
+        "photo_url":  "/data/photos/foods-v2/kifta_shurva.webp"
+    },
+    {
+        "slug":  "ugra_oshi",
+        "name_uz_lat":  "Ugra oshi",
+        "name_ru":  "Р®РіРѕСЂСЃРєРёР№ СЃСѓРї",
+        "name_en":  "Ugra soup",
+        "photo_url":  "/data/photos/foods-v2/ugra_oshi.webp"
+    },
+    {
+        "slug":  "cho_pon_shurva",
+        "name_uz_lat":  "Cho\u0027pon shurva",
+        "name_ru":  "РџР°СЃС‚СѓС… РЁСѓСЂРІР°",
+        "name_en":  "Shepherd Shurva",
+        "photo_url":  "/data/photos/foods-v2/cho_pon_shurva.webp"
+    },
+    {
+        "slug":  "chuchvara_shurva",
+        "name_uz_lat":  "Chuchvara shurva",
+        "name_ru":  "РЎСѓРї СЃ РєР»РµС†РєР°РјРё",
+        "name_en":  "Dumpling soup",
+        "photo_url":  "/data/photos/foods-v2/chuchvara_shurva.webp"
+    },
+    {
+        "slug":  "manpar",
+        "name_uz_lat":  "Manpar",
+        "name_ru":  "РњР°РЅРїР°СЂ",
+        "name_en":  "Manpar",
+        "photo_url":  "/data/photos/foods-v2/manpar.webp"
+    },
+    {
+        "slug":  "xarcho_o_zbekcha",
+        "name_uz_lat":  "Xarcho o\u0027zbekcha",
+        "name_ru":  "Р’СЃРµ РЅР° СѓР·Р±РµРєСЃРєРѕРј СЏР·С‹РєРµ",
+        "name_en":  "All in Uzbek",
+        "photo_url":  "/data/photos/foods-v2/xarcho_o_zbekcha.webp"
+    },
+    {
+        "slug":  "qiyma_shurva",
+        "name_uz_lat":  "Qiyma shurva",
+        "name_ru":  "РЎСѓРї-С„Р°СЂС€",
+        "name_en":  "Minced soup",
+        "photo_url":  "/data/photos/foods-v2/qiyma_shurva.webp"
+    },
+    {
+        "slug":  "baliq_shurva",
+        "name_uz_lat":  "Baliq shurva",
+        "name_ru":  "Р С‹Р±РЅС‹Р№ СЃСѓРї",
+        "name_en":  "Fish soup",
+        "photo_url":  "/data/photos/foods-v2/baliq_shurva.webp"
+    },
+    {
+        "slug":  "karam_shurva",
+        "name_uz_lat":  "Karam shurva",
+        "name_ru":  "РљР°РїСѓСЃС‚РЅС‹Р№ СЃСѓРї",
+        "name_en":  "Cabbage soup",
+        "photo_url":  "/data/photos/foods-v2/karam_shurva.webp"
+    },
+    {
+        "slug":  "makaron_shurva",
+        "name_uz_lat":  "Makaron shurva",
+        "name_ru":  "РЎСѓРї-РїР°СЃС‚Р°",
+        "name_en":  "Pasta soup",
+        "photo_url":  "/data/photos/foods-v2/makaron_shurva.webp"
+    },
+    {
+        "slug":  "mosh_ugra",
+        "name_uz_lat":  "Mosh-ugra",
+        "name_ru":  "РњРѕС€-Р®РіСЂР°",
+        "name_en":  "Mosh-ugra",
+        "photo_url":  "/data/photos/foods-v2/mosh_ugra.webp"
+    },
+    {
+        "slug":  "piyova",
+        "name_uz_lat":  "Piyova",
+        "name_ru":  "Р›СѓРє-РїРѕСЂРµР№",
+        "name_en":  "Leek",
+        "photo_url":  "/data/photos/foods-v2/piyova.webp"
+    },
+    {
+        "slug":  "yovvoyi_shurva",
+        "name_uz_lat":  "Yovvoyi shurva",
+        "name_ru":  "Р”РёРєРёР№ СЃСѓРї",
+        "name_en":  "Wild soup",
+        "photo_url":  "/data/photos/foods-v2/yovvoyi_shurva.webp"
+    },
+    {
+        "slug":  "loviyali_shurva",
+        "name_uz_lat":  "Loviyali shurva",
+        "name_ru":  "Р¤Р°СЃРѕР»РµРІС‹Р№ СЃСѓРї",
+        "name_en":  "Bean soup",
+        "photo_url":  "/data/photos/foods-v2/loviyali_shurva.webp"
+    },
+    {
+        "slug":  "tuxum_shurva",
+        "name_uz_lat":  "Tuxum shurva",
+        "name_ru":  "РЇРёС‡РЅС‹Р№ СЃСѓРї",
+        "name_en":  "Egg soup",
+        "photo_url":  "/data/photos/foods-v2/tuxum_shurva.webp"
+    },
+    {
+        "slug":  "lag_mon_suyuq",
+        "name_uz_lat":  "Lag\u0027mon suyuq",
+        "name_ru":  "Р›Р°РіРјРѕРЅ Р¶РёРґРєРёР№",
+        "name_en":  "Lagmon is liquid",
+        "photo_url":  "/data/photos/foods-v2/lag_mon_suyuq.webp"
+    },
+    {
+        "slug":  "lag_mon_qovurma",
+        "name_uz_lat":  "Lag\u0027mon qovurma",
+        "name_ru":  "Р–Р°СЂРµРЅС‹Р№ Р»Р°РіРјРѕРЅ",
+        "name_en":  "Roast Lagmon",
+        "photo_url":  "/data/photos/foods-v2/lag_mon_qovurma.webp"
+    },
+    {
+        "slug":  "chuzma_lag_mon",
+        "name_uz_lat":  "Chuzma lag\u0027mon",
+        "name_ru":  "Р§СѓР·СЊРјР° Р»Р°РіРјРѕРЅ",
+        "name_en":  "Chuzma lagmon",
+        "photo_url":  "/data/photos/foods-v2/chuzma_lag_mon.webp"
+    },
+    {
+        "slug":  "kesma_lag_mon",
+        "name_uz_lat":  "Kesma lag\u0027mon",
+        "name_ru":  "Р›Р°РіРјРѕРЅ РїРѕРїРµСЂРµС‡РЅС‹Р№",
+        "name_en":  "Cross-sectional lagmon",
+        "photo_url":  "/data/photos/foods-v2/kesma_lag_mon.webp"
+    },
+    {
+        "slug":  "shivit_oshi",
+        "name_uz_lat":  "Shivit oshi",
+        "name_ru":  "РЁРёРІРёС‚ СЃСѓРї",
+        "name_en":  "Shivit soup",
+        "photo_url":  "/data/photos/foods-v2/shivit_oshi.webp"
+    },
+    {
+        "slug":  "uyg_ur_lag_mon",
+        "name_uz_lat":  "Uyg\u0027ur lag\u0027mon",
+        "name_ru":  "РЈР№РіСѓСЂСЃРєРёР№ Р»Р°РіРјРѕРЅ",
+        "name_en":  "Uighur lagmon",
+        "photo_url":  "/data/photos/foods-v2/uyg_ur_lag_mon.webp"
+    },
+    {
+        "slug":  "tovuqli_lag_mon",
+        "name_uz_lat":  "Tovuqli lag\u0027mon",
+        "name_ru":  "РљСѓСЂРёРЅС‹Р№ Р»Р°РіРјРѕРЅ",
+        "name_en":  "Chicken lagmon",
+        "photo_url":  "/data/photos/foods-v2/tovuqli_lag_mon.webp"
+    },
+    {
+        "slug":  "chuchvara_qaynatma",
+        "name_uz_lat":  "Chuchvara qaynatma",
+        "name_ru":  "Р’Р°СЂРµРЅС‹Рµ РїРµР»СЊРјРµРЅРё",
+        "name_en":  "Dumpling stew",
+        "photo_url":  "/data/photos/foods-v2/chuchvara_qaynatma.webp"
+    },
+    {
+        "slug":  "chuchvara_qovurma",
+        "name_uz_lat":  "Chuchvara qovurma",
+        "name_ru":  "Р–Р°СЂРµРЅС‹Рµ РїРµР»СЊРјРµРЅРё",
+        "name_en":  "Fried dumplings",
+        "photo_url":  "/data/photos/foods-v2/chuchvara_qovurma.webp"
+    },
+    {
+        "slug":  "chuchvara_tabaqa",
+        "name_uz_lat":  "Chuchvara tabaqa",
+        "name_ru":  "РєР»Р°СЃСЃ Р§СѓС‡РІР°СЂР°",
+        "name_en":  "Chuchvara class",
+        "photo_url":  "/data/photos/foods-v2/chuchvara_tabaqa.webp"
+    },
+    {
+        "slug":  "ko_katli_chuchvara",
+        "name_uz_lat":  "Ko\u0027katli chuchvara",
+        "name_ru":  "Р—РµР»С‘РЅС‹Рµ РїРµР»СЊРјРµРЅРё",
+        "name_en":  "Green dumplings",
+        "photo_url":  "/data/photos/foods-v2/ko_katli_chuchvara.webp"
+    },
+    {
+        "slug":  "xonim_go_shtli",
+        "name_uz_lat":  "Xonim go\u0027shtli",
+        "name_ru":  "Р”Р°РјР° РјСЏСЃРёСЃС‚Р°СЏ",
+        "name_en":  "The lady is meaty",
+        "photo_url":  "/data/photos/foods-v2/xonim_go_shtli.webp"
+    },
+    {
+        "slug":  "xonim_qovoqli",
+        "name_uz_lat":  "Xonim qovoqli",
+        "name_ru":  "Р”Р°РјР° - С‚С‹РєРІР°",
+        "name_en":  "The lady is pumpkin",
+        "photo_url":  "/data/photos/foods-v2/xonim_qovoqli.webp"
+    },
+    {
+        "slug":  "xonim_kartoshkali",
+        "name_uz_lat":  "Xonim kartoshkali",
+        "name_ru":  "Р”Р°РјР° СЃ РєР°СЂС‚РѕС€РєРѕР№",
+        "name_en":  "Lady with potatoes",
+        "photo_url":  "/data/photos/foods-v2/xonim_kartoshkali.webp"
+    },
+    {
+        "slug":  "gulxonim",
+        "name_uz_lat":  "Gulxonim",
+        "name_ru":  "Р“СЋР»СЊС…Р°РЅРёРј",
+        "name_en":  "Gulkhanim",
+        "photo_url":  "/data/photos/foods-v2/gulxonim.webp"
+    },
+    {
+        "slug":  "beshbarmoq",
+        "name_uz_lat":  "Beshbarmoq",
+        "name_ru":  "РџСЏС‚СЊ РїР°Р»СЊС†РµРІ",
+        "name_en":  "Five fingers",
+        "photo_url":  "/data/photos/foods-v2/beshbarmoq.webp"
+    },
+    {
+        "slug":  "bug_lama",
+        "name_uz_lat":  "Bug\u0027lama",
+        "name_ru":  "РќРµ РїР°СЂРёС‚СЊСЃСЏ",
+        "name_en":  "Do not steam",
+        "photo_url":  "/data/photos/foods-v2/bug_lama.webp"
+    },
+    {
+        "slug":  "yaxna_go_sht",
+        "name_uz_lat":  "Yaxna go\u0027sht",
+        "name_ru":  "РЎС‹СЂРѕРµ РјСЏСЃРѕ",
+        "name_en":  "Raw meat",
+        "photo_url":  "/data/photos/foods-v2/yaxna_go_sht.webp"
+    },
+    {
+        "slug":  "kalla_pocha",
+        "name_uz_lat":  "Kalla-pocha",
+        "name_ru":  "РљР°Р»Р»Р°-РїРѕС‡Р°",
+        "name_en":  "Kalla-pocha",
+        "photo_url":  "/data/photos/foods-v2/kalla_pocha.webp"
+    },
+    {
+        "slug":  "xash",
+        "name_uz_lat":  "Xash",
+        "name_ru":  "РҐСЌС€",
+        "name_en":  "Hash",
+        "photo_url":  "/data/photos/foods-v2/xash.webp"
+    },
+    {
+        "slug":  "hasip",
+        "name_uz_lat":  "Hasip",
+        "name_ru":  "РҐР°СЃРёРї",
+        "name_en":  "Hasip",
+        "photo_url":  "/data/photos/foods-v2/hasip.webp"
+    },
+    {
+        "slug":  "jo_ja_tabaka",
+        "name_uz_lat":  "Jo\u0027ja tabaka",
+        "name_ru":  "РљСѓСЂРёРЅС‹Р№ РЅРµСЃСѓС€РєР°",
+        "name_en":  "Chick layer",
+        "photo_url":  "/data/photos/foods-v2/jo_ja_tabaka.webp"
+    },
+    {
+        "slug":  "zirvak",
+        "name_uz_lat":  "Zirvak",
+        "name_ru":  "Р—РёСЂРІР°Рє",
+        "name_en":  "Zirvak",
+        "photo_url":  "/data/photos/foods-v2/zirvak.webp"
+    },
+    {
+        "slug":  "bifshteks_o_zbekcha",
+        "name_uz_lat":  "Bifshteks o\u0027zbekcha",
+        "name_ru":  "РЎС‚РµР№Рє РїРѕ-СѓР·Р±РµРєСЃРєРё",
+        "name_en":  "Steak in Uzbek",
+        "photo_url":  "/data/photos/foods-v2/bifshteks_o_zbekcha.webp"
+    },
+    {
+        "slug":  "kotlet_o_zbekcha",
+        "name_uz_lat":  "Kotlet o\u0027zbekcha",
+        "name_ru":  "РљРѕС‚Р»РµС‚Р° РїРѕ-СѓР·Р±РµРєСЃРєРё",
+        "name_en":  "Cutlet in Uzbek",
+        "photo_url":  "/data/photos/foods-v2/kotlet_o_zbekcha.webp"
+    },
+    {
+        "slug":  "qatlama",
+        "name_uz_lat":  "Qatlama",
+        "name_ru":  "РЎРєР»Р°РґРЅРѕР№",
+        "name_en":  "Folding",
+        "photo_url":  "/data/photos/foods-v2/qatlama.webp"
+    },
+    {
+        "slug":  "lochira",
+        "name_uz_lat":  "Lochira",
+        "name_ru":  "Р›РѕС‡РёСЂР°",
+        "name_en":  "Lochira",
+        "photo_url":  "/data/photos/foods-v2/lochira.webp"
+    },
+    {
+        "slug":  "shirmoq_non",
+        "name_uz_lat":  "Shirmoq non",
+        "name_ru":  "РЁРёСЂРјР°РєСЃРєРёР№ С…Р»РµР±",
+        "name_en":  "Shirmak bread",
+        "photo_url":  "/data/photos/foods-v2/shirmoq_non.webp"
+    },
+    {
+        "slug":  "zog_ora_non",
+        "name_uz_lat":  "Zog\u0027ora non",
+        "name_ru":  "Р—РѕРіРѕСЂР° С…Р»РµР±",
+        "name_en":  "Zoghora bread",
+        "photo_url":  "/data/photos/foods-v2/zog_ora_non.webp"
+    },
+    {
+        "slug":  "piyozli_non",
+        "name_uz_lat":  "Piyozli non",
+        "name_ru":  "Р›СѓРєРѕРІС‹Р№ С…Р»РµР±",
+        "name_en":  "Onion bread",
+        "photo_url":  "/data/photos/foods-v2/piyozli_non.webp"
+    },
+    {
+        "slug":  "jizzali_non",
+        "name_uz_lat":  "Jizzali non",
+        "name_ru":  "РЁРёРєР°СЂРЅС‹Р№ С…Р»РµР±",
+        "name_en":  "Gizzy bread",
+        "photo_url":  "/data/photos/foods-v2/jizzali_non.webp"
+    },
+    {
+        "slug":  "go_shtli_non",
+        "name_uz_lat":  "Go\u0027shtli non",
+        "name_ru":  "РјСЏСЃРЅРѕР№ СЂСѓР»РµС‚",
+        "name_en":  "Meatloaf",
+        "photo_url":  "/data/photos/foods-v2/go_shtli_non.webp"
+    },
+    {
+        "slug":  "samarqand_noni",
+        "name_uz_lat":  "Samarqand noni",
+        "name_ru":  "РЎР°РјР°СЂРєР°РЅРґСЃРєРёР№ С…Р»РµР±",
+        "name_en":  "Samarkand bread",
+        "photo_url":  "/data/photos/foods-v2/samarqand_noni.webp"
+    },
+    {
+        "slug":  "toshkent_noni",
+        "name_uz_lat":  "Toshkent noni",
+        "name_ru":  "РўР°С€РєРµРЅС‚СЃРєРёР№ С…Р»РµР±",
+        "name_en":  "Tashkent bread",
+        "photo_url":  "/data/photos/foods-v2/toshkent_noni.webp"
+    },
+    {
+        "slug":  "qo_qon_patiri",
+        "name_uz_lat":  "Qo\u0027qon patiri",
+        "name_ru":  "РљРѕРєР°РЅ РїР°С‚РёСЂ",
+        "name_en":  "Kokan patir",
+        "photo_url":  "/data/photos/foods-v2/qo_qon_patiri.webp"
+    },
+    {
+        "slug":  "g_ijduvon_noni",
+        "name_uz_lat":  "G\u0027ijduvon noni",
+        "name_ru":  "Р“РёР¶РґСѓРІР°РЅСЃРєРёР№ С…Р»РµР±",
+        "name_en":  "Gijduvan bread",
+        "photo_url":  "/data/photos/foods-v2/g_ijduvon_noni.webp"
+    },
+    {
+        "slug":  "xorazm_noni",
+        "name_uz_lat":  "Xorazm noni",
+        "name_ru":  "РҐРѕСЂРµР·РјСЃРєРёР№ С…Р»РµР±",
+        "name_en":  "Khorezm bread",
+        "photo_url":  "/data/photos/foods-v2/xorazm_noni.webp"
+    },
+    {
+        "slug":  "qora_non",
+        "name_uz_lat":  "Qora non",
+        "name_ru":  "Р§РµСЂРЅС‹Р№ С…Р»РµР±",
+        "name_en":  "Black bread",
+        "photo_url":  "/data/photos/foods-v2/qora_non.webp"
+    },
+    {
+        "slug":  "g_ilmindi",
+        "name_uz_lat":  "G\u0027ilmindi",
+        "name_ru":  "Р“РёР»СЊРјРёРЅРґРё",
+        "name_en":  "Gilmindi",
+        "photo_url":  "/data/photos/foods-v2/g_ilmindi.webp"
+    },
+    {
+        "slug":  "bo_g_irsoq",
+        "name_uz_lat":  "Bo\u0027g\u0027irsoq",
+        "name_ru":  "Р“РѕСЂР»Рѕ",
+        "name_en":  "Throat",
+        "photo_url":  "/data/photos/foods-v2/bo_g_irsoq.webp"
+    },
+    {
+        "slug":  "qush_tili",
+        "name_uz_lat":  "Qush tili",
+        "name_ru":  "РџС‚РёС‡РёР№ СЏР·С‹Рє",
+        "name_en":  "Bird language",
+        "photo_url":  "/data/photos/foods-v2/qush_tili.webp"
+    },
+    {
+        "slug":  "balyish",
+        "name_uz_lat":  "Balyish",
+        "name_ru":  "Р‘Р°Р»РёС€",
+        "name_en":  "Balish",
+        "photo_url":  "/data/photos/foods-v2/balyish.webp"
+    },
+    {
+        "slug":  "gumma",
+        "name_uz_lat":  "Gumma",
+        "name_ru":  "Р“СѓРјРјР°",
+        "name_en":  "Gumma",
+        "photo_url":  "/data/photos/foods-v2/gumma.webp"
+    },
+    {
+        "slug":  "cheburek",
+        "name_uz_lat":  "Cheburek",
+        "name_ru":  "Р§РµР±СѓСЂРµРє",
+        "name_en":  "Cheburek",
+        "photo_url":  "/data/photos/foods-v2/cheburek.webp"
+    },
+    {
+        "slug":  "belyash",
+        "name_uz_lat":  "Belyash",
+        "name_ru":  "Р‘РµР»СЏС€",
+        "name_en":  "Belyash",
+        "photo_url":  "/data/photos/foods-v2/belyash.webp"
+    },
+    {
+        "slug":  "achchiq_chuchuk_shakarob",
+        "name_uz_lat":  "Achchiq-chuchuk / Shakarob",
+        "name_ru":  "Р“РѕСЂСЊРєРѕ-СЃР»Р°РґРєРёР№ / РЎР°С…Р°СЂ",
+        "name_en":  "Bittersweet / Sugar",
+        "photo_url":  "/data/photos/foods-v2/achchiq_chuchuk_shakarob.webp"
+    },
+    {
+        "slug":  "suzma_sarimsoq_bilan",
+        "name_uz_lat":  "Suzma sarimsoq bilan",
+        "name_ru":  "РЎ Р¶Р°СЂРµРЅС‹Рј С‡РµСЃРЅРѕРєРѕРј",
+        "name_en":  "With fried garlic",
+        "photo_url":  "/data/photos/foods-v2/suzma_sarimsoq_bilan.webp"
+    },
+    {
+        "slug":  "qurt",
+        "name_uz_lat":  "Qurt",
+        "name_ru":  "Р§РµСЂРІСЊ",
+        "name_en":  "Worm",
+        "photo_url":  "/data/photos/foods-v2/qurt.webp"
+    },
+    {
+        "slug":  "marg_ilon_turpi_salati",
+        "name_uz_lat":  "Marg\u0027ilon turpi salati",
+        "name_ru":  "РЎР°Р»Р°С‚ РёР· РјР°СЂРіРёР»Р°РЅСЃРєРѕР№ СЂРµРїС‹",
+        "name_en":  "Margylan turnip salad",
+        "photo_url":  "/data/photos/foods-v2/marg_ilon_turpi_salati.webp"
+    },
+    {
+        "slug":  "chakka",
+        "name_uz_lat":  "Chakka",
+        "name_ru":  "Р§Р°РєРєР°",
+        "name_en":  "Chakka",
+        "photo_url":  "/data/photos/foods-v2/chakka.webp"
+    },
+    {
+        "slug":  "baqlajon_salat",
+        "name_uz_lat":  "Baqlajon salat",
+        "name_ru":  "РЎР°Р»Р°С‚ РёР· Р±Р°РєР»Р°Р¶Р°РЅРѕРІ",
+        "name_en":  "Eggplant salad",
+        "photo_url":  "/data/photos/foods-v2/baqlajon_salat.webp"
+    },
+    {
+        "slug":  "sabzi_salat_marko_vcha",
+        "name_uz_lat":  "Sabzi salat / Marko\u0027vcha",
+        "name_ru":  "РЎР°Р»Р°С‚ РњРѕСЂРєРѕРІРЅС‹Р№/РњР°СЂРєРѕРІС‡Р°",
+        "name_en":  "Carrot salad / Markovcha",
+        "photo_url":  "/data/photos/foods-v2/sabzi_salat_marko_vcha.webp"
+    },
+    {
+        "slug":  "bahor_salati",
+        "name_uz_lat":  "\"Bahor salati \"",
+        "name_ru":  "В«Р’РµСЃРµРЅРЅРёР№ СЃР°Р»Р°С‚В»",
+        "name_en":  "\"Spring Salad\"",
+        "photo_url":  "/data/photos/foods-v2/bahor_salati.webp"
+    },
+    {
+        "slug":  "hammayoq_salati",
+        "name_uz_lat":  "Hammayoq salati",
+        "name_ru":  "РљР°РїСѓСЃС‚РЅС‹Р№ СЃР°Р»Р°С‚",
+        "name_en":  "Cabbage salad",
+        "photo_url":  "/data/photos/foods-v2/hammayoq_salati.webp"
+    },
+    {
+        "slug":  "lavlagi_salati",
+        "name_uz_lat":  "Lavlagi salati",
+        "name_ru":  "РЎРІРµРєРѕР»СЊРЅС‹Р№ СЃР°Р»Р°С‚",
+        "name_en":  "Beet salad",
+        "photo_url":  "/data/photos/foods-v2/lavlagi_salati.webp"
+    },
+    {
+        "slug":  "tuzlangan_bodring",
+        "name_uz_lat":  "Tuzlangan bodring",
+        "name_ru":  "РњР°СЂРёРЅРѕРІР°РЅРЅС‹Р№ РѕРіСѓСЂРµС†",
+        "name_en":  "Pickled cucumber",
+        "photo_url":  "/data/photos/foods-v2/tuzlangan_bodring.webp"
+    },
+    {
+        "slug":  "tuzlangan_pomidor",
+        "name_uz_lat":  "Tuzlangan pomidor",
+        "name_ru":  "РЎРѕР»РµРЅС‹Рµ РїРѕРјРёРґРѕСЂС‹",
+        "name_en":  "Salted tomatoes",
+        "photo_url":  "/data/photos/foods-v2/tuzlangan_pomidor.webp"
+    },
+    {
+        "slug":  "qora_aralashma",
+        "name_uz_lat":  "Qora aralashma",
+        "name_ru":  "Р§РµСЂРЅР°СЏ СЃРјРµСЃСЊ",
+        "name_en":  "Black mixture",
+        "photo_url":  "/data/photos/foods-v2/qora_aralashma.webp"
+    },
+    {
+        "slug":  "qo_qon_holva",
+        "name_uz_lat":  "Qo\u0027qon holva",
+        "name_ru":  "РљРѕРєР°РЅ С…Р°Р»РІР°",
+        "name_en":  "Kokan halwa",
+        "photo_url":  "/data/photos/foods-v2/qo_qon_holva.webp"
+    },
+    {
+        "slug":  "samarqand_holva",
+        "name_uz_lat":  "Samarqand holva",
+        "name_ru":  "РЎР°РјР°СЂРєР°РЅРґСЃРєР°СЏ С…РѕР»РІР°",
+        "name_en":  "Samarkand holva",
+        "photo_url":  "/data/photos/foods-v2/samarqand_holva.webp"
+    },
+    {
+        "slug":  "pashmak",
+        "name_uz_lat":  "Pashmak",
+        "name_ru":  "РџР°С€РјР°Рє",
+        "name_en":  "Pashmak",
+        "photo_url":  "/data/photos/foods-v2/pashmak.webp"
+    },
+    {
+        "slug":  "bodom_holva",
+        "name_uz_lat":  "Bodom holva",
+        "name_ru":  "РњРёРЅРґР°Р»СЊРЅР°СЏ С…Р°Р»РІР°",
+        "name_en":  "Almond halwa",
+        "photo_url":  "/data/photos/foods-v2/bodom_holva.webp"
+    },
+    {
+        "slug":  "yong_oq_holva",
+        "name_uz_lat":  "Yong\u0027oq holva",
+        "name_ru":  "РћСЂРµС…РѕРІР°СЏ РҐР°Р»РІР°",
+        "name_en":  "Walnut Halva",
+        "photo_url":  "/data/photos/foods-v2/yong_oq_holva.webp"
+    },
+    {
+        "slug":  "navvat",
+        "name_uz_lat":  "Navvat",
+        "name_ru":  "РћС‡РµСЂРµРґСЊ",
+        "name_en":  "Queue",
+        "photo_url":  "/data/photos/foods-v2/navvat.webp"
+    },
+    {
+        "slug":  "sumalak",
+        "name_uz_lat":  "Sumalak",
+        "name_ru":  "РЎСѓРјР°С…",
+        "name_en":  "Sumac",
+        "photo_url":  "/data/photos/foods-v2/sumalak.webp"
+    },
+    {
+        "slug":  "nisholda",
+        "name_uz_lat":  "Nisholda",
+        "name_ru":  "Р¦РµР»СЊ",
+        "name_en":  "Target",
+        "photo_url":  "/data/photos/foods-v2/nisholda.webp"
+    },
+    {
+        "slug":  "chak_chak",
+        "name_uz_lat":  "Chak-chak",
+        "name_ru":  "Р§Р°Рє-С‡Р°Рє",
+        "name_en":  "Chak-chak",
+        "photo_url":  "/data/photos/foods-v2/chak_chak.webp"
+    },
+    {
+        "slug":  "hashtak",
+        "name_uz_lat":  "Hashtak",
+        "name_ru":  "РҐСЌС€С‚РµРі",
+        "name_en":  "Hashtag",
+        "photo_url":  "/data/photos/foods-v2/hashtak.webp"
+    },
+    {
+        "slug":  "asalli_yong_oq",
+        "name_uz_lat":  "Asalli yong\u0027oq",
+        "name_ru":  "РћСЂРµС…Рё СЃ РјРµРґРѕРј",
+        "name_en":  "Nuts with honey",
+        "photo_url":  "/data/photos/foods-v2/asalli_yong_oq.webp"
+    },
+    {
+        "slug":  "qovun_qoqi",
+        "name_uz_lat":  "Qovun qoqi",
+        "name_ru":  "РєРѕР¶СѓСЂР° РґС‹РЅРё",
+        "name_en":  "Melon peel",
+        "photo_url":  "/data/photos/foods-v2/qovun_qoqi.webp"
+    },
+    {
+        "slug":  "o_rik_qaqa_turshak",
+        "name_uz_lat":  "O\u0027rik qaqa / Turshak",
+        "name_ru":  "РђР±СЂРёРєРѕСЃ / РўСѓСЂС€Р°Рє",
+        "name_en":  "Apricot / Turshak",
+        "photo_url":  "/data/photos/foods-v2/o_rik_qaqa_turshak.webp"
+    },
+    {
+        "slug":  "behi_murabbo",
+        "name_uz_lat":  "Behi murabbo",
+        "name_ru":  "Р’Р°СЂРµРЅСЊРµ РёР· Р°Р№РІС‹",
+        "name_en":  "Quince jam",
+        "photo_url":  "/data/photos/foods-v2/behi_murabbo.webp"
+    },
+    {
+        "slug":  "anjir_murabbo",
+        "name_uz_lat":  "Anjir murabbo",
+        "name_ru":  "РРЅР¶РёСЂРЅРѕРµ РІР°СЂРµРЅСЊРµ",
+        "name_en":  "Fig jam",
+        "photo_url":  "/data/photos/foods-v2/anjir_murabbo.webp"
+    },
+    {
+        "slug":  "olcha_murabbo",
+        "name_uz_lat":  "Olcha murabbo",
+        "name_ru":  "Р’РёС€РЅРµРІРѕРµ РІР°СЂРµРЅСЊРµ",
+        "name_en":  "Cherry jam",
+        "photo_url":  "/data/photos/foods-v2/olcha_murabbo.webp"
+    },
+    {
+        "slug":  "qulupnay_murabbo",
+        "name_uz_lat":  "Qulupnay murabbo",
+        "name_ru":  "РљР»СѓР±РЅРёС‡РЅРѕРµ РІР°СЂРµРЅСЊРµ",
+        "name_en":  "Strawberry jam",
+        "photo_url":  "/data/photos/foods-v2/qulupnay_murabbo.webp"
+    },
+    {
+        "slug":  "yalpizli_qand",
+        "name_uz_lat":  "Yalpizli qand",
+        "name_ru":  "РњСЏС‚РЅС‹Р№ СЃР°С…Р°СЂ",
+        "name_en":  "Peppermint sugar",
+        "photo_url":  "/data/photos/foods-v2/yalpizli_qand.webp"
+    },
+    {
+        "slug":  "limon_choy",
+        "name_uz_lat":  "Limon choy",
+        "name_ru":  "Р›РёРјРѕРЅРЅС‹Р№ С‡Р°Р№",
+        "name_en":  "Lemon tea",
+        "photo_url":  "/data/photos/foods-v2/limon_choy.webp"
+    },
+    {
+        "slug":  "asalli_choy",
+        "name_uz_lat":  "Asalli choy",
+        "name_ru":  "Р§Р°Р№ СЃ РјРµРґРѕРј",
+        "name_en":  "Tea with honey",
+        "photo_url":  "/data/photos/foods-v2/asalli_choy.webp"
+    },
+    {
+        "slug":  "gilos_sharbati",
+        "name_uz_lat":  "Gilos sharbati",
+        "name_ru":  "Р’РёС€РЅРµРІС‹Р№ СЃРѕРє",
+        "name_en":  "Cherry juice",
+        "photo_url":  "/data/photos/foods-v2/gilos_sharbati.webp"
+    },
+    {
+        "slug":  "mandarin",
+        "name_uz_lat":  "Mandarin",
+        "name_ru":  "РњР°РЅРґР°СЂРёРЅ",
+        "name_en":  "Tangerine",
+        "photo_url":  "/data/photos/foods-v2/mandarin.webp"
+    },
+    {
+        "slug":  "greypfrut",
+        "name_uz_lat":  "Greypfrut",
+        "name_ru":  "Р“СЂРµР№РїС„СЂСѓС‚",
+        "name_en":  "Grapefruit",
+        "photo_url":  "/data/photos/foods-v2/greypfrut.webp"
+    },
+    {
+        "slug":  "olxo_ri",
+        "name_uz_lat":  "Olxo\u0027ri",
+        "name_ru":  "РЎР»РёРІР°",
+        "name_en":  "Plum",
+        "photo_url":  "/data/photos/foods-v2/olxo_ri.webp"
+    },
+    {
+        "slug":  "gilos",
+        "name_uz_lat":  "Gilos",
+        "name_ru":  "Р’РёС€РЅСЏ",
+        "name_en":  "Cherry",
+        "photo_url":  "/data/photos/foods-v2/gilos.webp"
+    },
+    {
+        "slug":  "olcha",
+        "name_uz_lat":  "Olcha",
+        "name_ru":  "Р’РёС€РЅСЏ",
+        "name_en":  "Cherry",
+        "photo_url":  "/data/photos/foods-v2/olcha.webp"
+    },
+    {
+        "slug":  "chernika",
+        "name_uz_lat":  "Chernika",
+        "name_ru":  "Р§РµСЂРЅРёРєР°",
+        "name_en":  "Chernika",
+        "photo_url":  "/data/photos/foods-v2/chernika.webp"
+    },
+    {
+        "slug":  "qora_smorodina",
+        "name_uz_lat":  "Qora smorodina",
+        "name_ru":  "Р§РµСЂРЅР°СЏ СЃРјРѕСЂРѕРґРёРЅР°",
+        "name_en":  "Black currant",
+        "photo_url":  "/data/photos/foods-v2/qora_smorodina.webp"
+    },
+    {
+        "slug":  "malina_yangi",
+        "name_uz_lat":  "Malina yangi",
+        "name_ru":  "РњР°Р»РёРЅР° СЃРІРµР¶Р°СЏ",
+        "name_en":  "Raspberries are fresh",
+        "photo_url":  "/data/photos/foods-v2/malina_yangi.webp"
+    },
+    {
+        "slug":  "behi_yangi",
+        "name_uz_lat":  "Behi yangi",
+        "name_ru":  "РђР№РІР° СЃРІРµР¶Р°СЏ",
+        "name_en":  "Quince is fresh",
+        "photo_url":  "/data/photos/foods-v2/behi_yangi.webp"
+    },
+    {
+        "slug":  "qoroli",
+        "name_uz_lat":  "Qoroli",
+        "name_ru":  "РљР°СЂРѕР»Рё",
+        "name_en":  "Karoli",
+        "photo_url":  "/data/photos/foods-v2/qoroli.webp"
+    },
+    {
+        "slug":  "olma_qoqi",
+        "name_uz_lat":  "Olma qoqi",
+        "name_ru":  "РЇР±Р»РѕС‡РЅР°СЏ РєРѕР¶СѓСЂР°",
+        "name_en":  "Apple peel",
+        "photo_url":  "/data/photos/foods-v2/olma_qoqi.webp"
+    },
+    {
+        "slug":  "kunjut_urug_i",
+        "name_uz_lat":  "Kunjut urug\u0027i",
+        "name_ru":  "РЎРµРјРµРЅР° РєСѓРЅР¶СѓС‚Р°",
+        "name_en":  "Sesame seeds",
+        "photo_url":  "/data/photos/foods-v2/kunjut_urug_i.webp"
+    },
+    {
+        "slug":  "zig_ir_urug_i",
+        "name_uz_lat":  "Zig\u0027ir urug\u0027i",
+        "name_ru":  "РЎРµРјСЏ Р»СЊРЅР°",
+        "name_en":  "Flax seed",
+        "photo_url":  "/data/photos/foods-v2/zig_ir_urug_i.webp"
+    },
+    {
+        "slug":  "chia_urug_i",
+        "name_uz_lat":  "Chia urug\u0027i",
+        "name_ru":  "РЎРµРјРµРЅР° С‡РёР°",
+        "name_en":  "Chia seeds",
+        "photo_url":  "/data/photos/foods-v2/chia_urug_i.webp"
+    },
+    {
+        "slug":  "kedr_yong_og_i",
+        "name_uz_lat":  "Kedr yong\u0027og\u0027i",
+        "name_ru":  "РљРµРґСЂРѕРІС‹Р№ РѕСЂРµС…",
+        "name_en":  "Cedar nut",
+        "photo_url":  "/data/photos/foods-v2/kedr_yong_og_i.webp"
+    },
+    {
+        "slug":  "pekan_yong_og_i",
+        "name_uz_lat":  "Pekan yong\u0027og\u0027i",
+        "name_ru":  "РїРµРєР°РЅ",
+        "name_en":  "Pecans",
+        "photo_url":  "/data/photos/foods-v2/pekan_yong_og_i.webp"
+    },
+    {
+        "slug":  "braziliya_yong_og_i",
+        "name_uz_lat":  "Braziliya yong\u0027og\u0027i",
+        "name_ru":  "Р‘СЂР°Р·РёР»СЊСЃРєРёР№ РѕСЂРµС…",
+        "name_en":  "Brazil nut",
+        "photo_url":  "/data/photos/foods-v2/braziliya_yong_og_i.webp"
+    },
+    {
+        "slug":  "kinoa",
+        "name_uz_lat":  "Kinoa",
+        "name_ru":  "РљРёРЅРѕР°",
+        "name_en":  "Quinoa",
+        "photo_url":  "/data/photos/foods-v2/kinoa.webp"
+    },
+    {
+        "slug":  "amarant_yormasi",
+        "name_uz_lat":  "Amarant yormasi",
+        "name_ru":  "РђРјР°СЂР°РЅС‚РѕРІР°СЏ РєСЂСѓРїР°",
+        "name_en":  "Amaranth cereal",
+        "photo_url":  "/data/photos/foods-v2/amarant_yormasi.webp"
+    },
+    {
+        "slug":  "arpa_yormasi_yachka",
+        "name_uz_lat":  "Arpa yormasi / Yachka",
+        "name_ru":  "РљСЂСѓРїР° СЏС‡РЅРµРІР°СЏ / РЇС‡РєР°",
+        "name_en":  "Barley groats / Yachka",
+        "photo_url":  "/data/photos/foods-v2/arpa_yormasi_yachka.webp"
+    },
+    {
+        "slug":  "javdar_uni",
+        "name_uz_lat":  "Javdar uni",
+        "name_ru":  "Р Р¶Р°РЅР°СЏ РјСѓРєР°",
+        "name_en":  "Rye flour",
+        "photo_url":  "/data/photos/foods-v2/javdar_uni.webp"
+    },
+    {
+        "slug":  "guruch_uni",
+        "name_uz_lat":  "Guruch uni",
+        "name_ru":  "Р РёСЃРѕРІР°СЏ РјСѓРєР°",
+        "name_en":  "Rice flour",
+        "photo_url":  "/data/photos/foods-v2/guruch_uni.webp"
+    },
+    {
+        "slug":  "makkajo_xori_uni",
+        "name_uz_lat":  "Makkajo\u0027xori uni",
+        "name_ru":  "РљСѓРєСѓСЂСѓР·РЅР°СЏ РјСѓРєР°",
+        "name_en":  "Corn flour",
+        "photo_url":  "/data/photos/foods-v2/makkajo_xori_uni.webp"
+    },
+    {
+        "slug":  "sarimsoqpiyoz_yangi",
+        "name_uz_lat":  "Sarimsoqpiyoz yangi",
+        "name_ru":  "Р§РµСЃРЅРѕРє СЃРІРµР¶РёР№",
+        "name_en":  "Garlic is fresh",
+        "photo_url":  "/data/photos/foods-v2/sarimsoqpiyoz_yangi.webp"
+    },
+    {
+        "slug":  "konservalangan_makkajo_xori",
+        "name_uz_lat":  "Konservalangan makkajo\u0027xori",
+        "name_ru":  "РљРѕРЅСЃРµСЂРІРёСЂРѕРІР°РЅРЅР°СЏ РєСѓРєСѓСЂСѓР·Р°",
+        "name_en":  "Canned corn",
+        "photo_url":  "/data/photos/foods-v2/konservalangan_makkajo_xori.webp"
+    },
+    {
+        "slug":  "konservalangan_ko_k_no_xat",
+        "name_uz_lat":  "Konservalangan ko\u0027k no\u0027xat",
+        "name_ru":  "РљРѕРЅСЃРµСЂРІРёСЂРѕРІР°РЅРЅС‹Р№ Р·РµР»РµРЅС‹Р№ РіРѕСЂРѕС€РµРє",
+        "name_en":  "Canned green peas",
+        "photo_url":  "/data/photos/foods-v2/konservalangan_ko_k_no_xat.webp"
+    },
+    {
+        "slug":  "shprot_yog_da",
+        "name_uz_lat":  "Shprot yog\u0027da",
+        "name_ru":  "РЁРїСЂРѕС‚С‹ РІ РјР°СЃР»Рµ",
+        "name_en":  "Sprats in oil",
+        "photo_url":  "/data/photos/foods-v2/shprot_yog_da.webp"
+    },
+    {
+        "slug":  "quruq_sut",
+        "name_uz_lat":  "Quruq sut",
+        "name_ru":  "РЎСѓС…РѕРµ РјРѕР»РѕРєРѕ",
+        "name_en":  "Dry milk",
+        "photo_url":  "/data/photos/foods-v2/quruq_sut.webp"
+    },
+    {
+        "slug":  "jelatin",
+        "name_uz_lat":  "Jelatin",
+        "name_ru":  "Р–РµР»Р°С‚РёРЅ",
+        "name_en":  "Gelatin",
+        "photo_url":  "/data/photos/foods-v2/jelatin.webp"
+    },
+    {
+        "slug":  "xantal_kukuni",
+        "name_uz_lat":  "Xantal kukuni",
+        "name_ru":  "Р“РѕСЂС‡РёС‡РЅС‹Р№ РїРѕСЂРѕС€РѕРє",
+        "name_en":  "Mustard powder",
+        "photo_url":  "/data/photos/foods-v2/xantal_kukuni.webp"
+    },
+    {
+        "slug":  "limon_kislotasi",
+        "name_uz_lat":  "Limon kislotasi",
+        "name_ru":  "Р›РёРјРѕРЅРЅР°СЏ РєРёСЃР»РѕС‚Р°",
+        "name_en":  "Citric acid",
+        "photo_url":  "/data/photos/foods-v2/limon_kislotasi.webp"
+    },
+    {
+        "slug":  "jigarrang_shakar",
+        "name_uz_lat":  "Jigarrang shakar",
+        "name_ru":  "РљРѕСЂРёС‡РЅРµРІС‹Р№ СЃР°С…Р°СЂ",
+        "name_en":  "Brown sugar",
+        "photo_url":  "/data/photos/foods-v2/jigarrang_shakar.webp"
+    },
+    {
+        "slug":  "kungaboqar_holvasi",
+        "name_uz_lat":  "Kungaboqar holvasi",
+        "name_ru":  "РџРѕРґСЃРѕР»РЅРµС‡РЅР°СЏ С…Р°Р»РІР°",
+        "name_en":  "Sunflower halwa",
+        "photo_url":  "/data/photos/foods-v2/kungaboqar_holvasi.webp"
+    },
+    {
+        "slug":  "pryanik",
+        "name_uz_lat":  "Pryanik",
+        "name_ru":  "РџСЂСЏРЅРёРє",
+        "name_en":  "Pryanik",
+        "photo_url":  "/data/photos/foods-v2/pryanik.webp"
+    },
+    {
+        "slug":  "sushka_baranka",
+        "name_uz_lat":  "Sushka / Baranka",
+        "name_ru":  "РЎСѓС€РєР° / Р‘Р°СЂР°РЅРєР°",
+        "name_en":  "Sushka / Baranka",
+        "photo_url":  "/data/photos/foods-v2/sushka_baranka.webp"
+    },
+    {
+        "slug":  "karamel_konfeti",
+        "name_uz_lat":  "Karamel konfeti",
+        "name_ru":  "РљР°СЂР°РјРµР»СЊРЅС‹Рµ РєРѕРЅС„РµС‚С‹",
+        "name_en":  "Caramel candy",
+        "photo_url":  "/data/photos/foods-v2/karamel_konfeti.webp"
+    },
+    {
+        "slug":  "iris_konfeti",
+        "name_uz_lat":  "Iris konfeti",
+        "name_ru":  "РСЂРёСЃ РєРѕРЅС„РµС‚С‹",
+        "name_en":  "Iris candy",
+        "photo_url":  "/data/photos/foods-v2/iris_konfeti.webp"
+    },
+    {
+        "slug":  "bulgur",
+        "name_uz_lat":  "Bulgur",
+        "name_ru":  "Р‘СѓР»РіСѓСЂ",
+        "name_en":  "Bulgur",
+        "photo_url":  "/data/photos/foods-v2/bulgur.webp"
+    },
+    {
+        "slug":  "kuskus",
+        "name_uz_lat":  "Kuskus",
+        "name_ru":  "РљСѓСЃРєСѓСЃ",
+        "name_en":  "Couscous",
+        "photo_url":  "/data/photos/foods-v2/kuskus.webp"
+    },
+    {
+        "slug":  "manka_yormasi",
+        "name_uz_lat":  "Manka yormasi",
+        "name_ru":  "РњР°РЅРЅР°СЏ РєР°С€Р°",
+        "name_en":  "Semolina porridge",
+        "photo_url":  "/data/photos/foods-v2/manka_yormasi.webp"
+    },
+    {
+        "slug":  "tariq_yormasi",
+        "name_uz_lat":  "Tariq yormasi",
+        "name_ru":  "РџС€РµРЅРЅР°СЏ РєСЂСѓРїР°",
+        "name_en":  "Millet groats",
+        "photo_url":  "/data/photos/foods-v2/tariq_yormasi.webp"
+    },
+    {
+        "slug":  "qizil_yasmiq",
+        "name_uz_lat":  "Qizil yasmiq",
+        "name_ru":  "РљСЂР°СЃРЅР°СЏ С‡РµС‡РµРІРёС†Р°",
+        "name_en":  "Red lentils",
+        "photo_url":  "/data/photos/foods-v2/qizil_yasmiq.webp"
+    },
+    {
+        "slug":  "sariq_no_xat",
+        "name_uz_lat":  "Sariq no\u0027xat",
+        "name_ru":  "Р–РµР»С‚С‹Р№ РіРѕСЂРѕС€РµРє",
+        "name_en":  "Yellow peas",
+        "photo_url":  "/data/photos/foods-v2/sariq_no_xat.webp"
+    },
+    {
+        "slug":  "oq_loviya",
+        "name_uz_lat":  "Oq loviya",
+        "name_ru":  "Р‘РµР»Р°СЏ С„Р°СЃРѕР»СЊ",
+        "name_en":  "White beans",
+        "photo_url":  "/data/photos/foods-v2/oq_loviya.webp"
+    },
+    {
+        "slug":  "soya_go_shti",
+        "name_uz_lat":  "Soya go\u0027shti",
+        "name_ru":  "РЎРѕРµРІРѕРµ РјСЏСЃРѕ",
+        "name_en":  "Soy meat",
+        "photo_url":  "/data/photos/foods-v2/soya_go_shti.webp"
+    },
+    {
+        "slug":  "kungaboqar_urug_i",
+        "name_uz_lat":  "Kungaboqar urug\u0027i",
+        "name_ru":  "РЎРµРјРµРЅР° РїРѕРґСЃРѕР»РЅРµС‡РЅРёРєР°",
+        "name_en":  "Sunflower seeds",
+        "photo_url":  "/data/photos/foods-v2/kungaboqar_urug_i.webp"
+    },
+    {
+        "slug":  "qovoq_urug_i",
+        "name_uz_lat":  "Qovoq urug\u0027i",
+        "name_ru":  "РЎРµРјРµРЅР° С‚С‹РєРІС‹",
+        "name_en":  "Pumpkin seeds",
+        "photo_url":  "/data/photos/foods-v2/qovoq_urug_i.webp"
+    },
+    {
+        "slug":  "keshyu",
+        "name_uz_lat":  "Keshyu",
+        "name_ru":  "РљРµС€СЊСЋ",
+        "name_en":  "Cashew",
+        "photo_url":  "/data/photos/foods-v2/keshyu.webp"
+    },
+    {
+        "slug":  "makadamiya",
+        "name_uz_lat":  "Makadamiya",
+        "name_ru":  "РњР°РєР°РґР°РјРёСЏ",
+        "name_en":  "Macadamia",
+        "photo_url":  "/data/photos/foods-v2/makadamiya.webp"
+    },
+    {
+        "slug":  "zaytun_olivka",
+        "name_uz_lat":  "Zaytun / Olivka",
+        "name_ru":  "РћР»РёРІРєРѕРІРѕРµ / РћР»РёРІРєРѕРІРѕРµ",
+        "name_en":  "Olive / Olive",
+        "photo_url":  "/data/photos/foods-v2/zaytun_olivka.webp"
+    },
+    {
+        "slug":  "qora_zaytun_maslina",
+        "name_uz_lat":  "Qora zaytun / Maslina",
+        "name_ru":  "Р§РµСЂРЅР°СЏ РѕР»РёРІРєР° / РњР°СЃР»РёРЅР°",
+        "name_en":  "Black olive / Maslina",
+        "photo_url":  "/data/photos/foods-v2/qora_zaytun_maslina.webp"
+    },
+    {
+        "slug":  "petrushka_yangi",
+        "name_uz_lat":  "Petrushka yangi",
+        "name_ru":  "РЎРІРµР¶Р°СЏ РїРµС‚СЂСѓС€РєР°",
+        "name_en":  "Fresh parsley",
+        "photo_url":  "/data/photos/foods-v2/petrushka_yangi.webp"
+    },
+    {
+        "slug":  "ukrop_yangi",
+        "name_uz_lat":  "Ukrop yangi",
+        "name_ru":  "РЈРєСЂРѕРї СЃРІРµР¶РёР№",
+        "name_en":  "Dill is fresh",
+        "photo_url":  "/data/photos/foods-v2/ukrop_yangi.webp"
+    },
+    {
+        "slug":  "shovul",
+        "name_uz_lat":  "Shovul",
+        "name_ru":  "РЁСѓР»",
+        "name_en":  "Shoul",
+        "photo_url":  "/data/photos/foods-v2/shovul.webp"
+    },
+    {
+        "slug":  "kalla_karam",
+        "name_uz_lat":  "Kalla karam",
+        "name_ru":  "РљР°РїСѓСЃС‚Р°",
+        "name_en":  "Cabbage",
+        "photo_url":  "/data/photos/foods-v2/kalla_karam.webp"
+    },
+    {
+        "slug":  "tut",
+        "name_uz_lat":  "Tut",
+        "name_ru":  "Р”РµСЂР¶РёСЃСЊ",
+        "name_en":  "Hold on",
+        "photo_url":  "/data/photos/foods-v2/tut.webp"
+    },
+    {
+        "slug":  "maymunjon",
+        "name_uz_lat":  "Maymunjon",
+        "name_ru":  "РћР±РµР·СЊСЏРЅР°",
+        "name_en":  "Monkey",
+        "photo_url":  "/data/photos/foods-v2/maymunjon.webp"
+    },
+    {
+        "slug":  "anjir_yangi",
+        "name_uz_lat":  "Anjir yangi",
+        "name_ru":  "РРЅР¶РёСЂ СЃРІРµР¶РёР№",
+        "name_en":  "Figs are fresh",
+        "photo_url":  "/data/photos/foods-v2/anjir_yangi.webp"
+    },
+    {
+        "slug":  "baton_non",
+        "name_uz_lat":  "Baton non",
+        "name_ru":  "Р‘Р°С‚РѕРЅ С…Р»РµР±",
+        "name_en":  "Baton bread",
+        "photo_url":  "/data/photos/foods-v2/baton_non.webp"
+    },
+    {
+        "slug":  "tvorog_massasi_mayizli",
+        "name_uz_lat":  "Tvorog massasi mayizli",
+        "name_ru":  "РўРІРѕСЂРѕР¶РЅР°СЏ РјР°СЃСЃР° СЃ РёР·СЋРјРѕРј",
+        "name_en":  "Curd mass with raisins",
+        "photo_url":  "/data/photos/foods-v2/tvorog_massasi_mayizli.webp"
+    },
+    {
+        "slug":  "zefir",
+        "name_uz_lat":  "Zefir",
+        "name_ru":  "Р—РµС„РёСЂ",
+        "name_en":  "Marshmallow",
+        "photo_url":  "/data/photos/foods-v2/zefir.webp"
+    },
+    {
+        "slug":  "marmelad_jelli",
+        "name_uz_lat":  "Marmelad jelli",
+        "name_ru":  "РњР°СЂРјРµР»Р°Рґ Р¶РµР»Рµ",
+        "name_en":  "Marmalade jelly",
+        "photo_url":  "/data/photos/foods-v2/marmelad_jelli.webp"
+    },
+    {
+        "slug":  "kakao_kukuni",
+        "name_uz_lat":  "Kakao kukuni",
+        "name_ru":  "РљР°РєР°Рѕ-РїРѕСЂРѕС€РѕРє",
+        "name_en":  "Cocoa powder",
+        "photo_url":  "/data/photos/foods-v2/kakao_kukuni.webp"
+    },
+    {
+        "slug":  "kraxmal",
+        "name_uz_lat":  "Kraxmal",
+        "name_ru":  "РљСЂР°С…РјР°Р»",
+        "name_en":  "Starch",
+        "photo_url":  "/data/photos/foods-v2/kraxmal.webp"
+    },
+    {
+        "slug":  "xamirturush_quruq",
+        "name_uz_lat":  "Xamirturush quruq",
+        "name_ru":  "Р”СЂРѕР¶Р¶Рё СЃСѓС…РёРµ",
+        "name_en":  "Yeast is dry",
+        "photo_url":  "/data/photos/foods-v2/xamirturush_quruq.webp"
+    },
+    {
+        "slug":  "pishiriq_sodasi",
+        "name_uz_lat":  "Pishiriq sodasi",
+        "name_ru":  "РџРёС‰РµРІР°СЏ СЃРѕРґР°",
+        "name_en":  "Baking soda",
+        "photo_url":  "/data/photos/foods-v2/pishiriq_sodasi.webp"
+    }
+]
