@@ -2,16 +2,16 @@ const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret, defineString } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
 
-const geminiApiKey = defineSecret("GEMINI_API_KEY");
-const geminiModel = defineString("GEMINI_MODEL", {
-  default: "gemini-3.1-flash-lite",
+const deepseekApiKey = defineSecret("DEEPSEEK_API_KEY");
+const deepseekModel = defineString("DEEPSEEK_MODEL", {
+  default: "deepseek-v4-flash",
 });
 
 exports.aiAdvice = onCall(
   {
     region: "us-central1",
     enforceAppCheck: true,
-    secrets: [geminiApiKey],
+    secrets: [deepseekApiKey],
     timeoutSeconds: 30,
     memory: "256MiB",
     maxInstances: 20,
@@ -24,22 +24,22 @@ exports.aiAdvice = onCall(
     const snapshot = request.data && request.data.snapshot;
     validateSnapshot(snapshot);
 
-    const model = geminiModel.value().trim();
+    const model = deepseekModel.value().trim();
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      "https://api.deepseek.com/chat/completions",
       {
         method: "POST",
         headers: {
+          "authorization": `Bearer ${deepseekApiKey.value()}`,
           "content-type": "application/json",
-          "x-goog-api-key": geminiApiKey.value(),
         },
-        body: JSON.stringify(buildGeminiRequest(snapshot, model)),
+        body: JSON.stringify(buildDeepSeekRequest(snapshot, model)),
       },
     );
 
     const raw = await response.text();
     if (!response.ok) {
-      logger.warn("Gemini request failed", { status: response.status });
+      logger.warn("DeepSeek request failed", { status: response.status });
       throw new HttpsError("unavailable", "AI service is temporarily unavailable.");
     }
 
@@ -47,13 +47,13 @@ exports.aiAdvice = onCall(
     try {
       decoded = JSON.parse(raw);
     } catch (error) {
-      logger.warn("Gemini returned non-JSON transport response");
+      logger.warn("DeepSeek returned non-JSON transport response");
       throw new HttpsError("internal", "AI returned an unexpected response.");
     }
 
     const items = extractAdviceItems(decoded);
     if (items.length < 2) {
-      logger.warn("Gemini returned no usable advice items");
+      logger.warn("DeepSeek returned no usable advice items");
       throw new HttpsError("internal", "AI returned an empty response.");
     }
 
@@ -80,37 +80,24 @@ function validateSnapshot(snapshot) {
   }
 }
 
-function buildGeminiRequest(snapshot, model) {
-  const thinkingConfig = thinkingConfigFor(model);
-
+function buildDeepSeekRequest(snapshot, model) {
   return {
-    store: false,
-    systemInstruction: {
-      parts: [{ text: instructionsFor(snapshot.language_name) }],
-    },
-    contents: [
+    model,
+    messages: [
+      {
+        role: "system",
+        content: instructionsFor(snapshot.language_name),
+      },
       {
         role: "user",
-        parts: [{ text: JSON.stringify(snapshot) }],
+        content: JSON.stringify(snapshot),
       },
     ],
-    generationConfig: {
-      maxOutputTokens: 1200,
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: "object",
-        properties: {
-          items: {
-            type: "array",
-            minItems: 4,
-            maxItems: 4,
-            items: { type: "string" },
-          },
-        },
-        required: ["items"],
-      },
-      ...(thinkingConfig ? { thinkingConfig } : {}),
-    },
+    response_format: { type: "json_object" },
+    thinking: { type: "disabled" },
+    max_tokens: 1200,
+    temperature: 0.2,
+    stream: false,
   };
 }
 
@@ -141,16 +128,6 @@ Each item must be a complete sentence and fit on a mobile card.
 `;
 }
 
-function thinkingConfigFor(model) {
-  if (model.startsWith("gemini-2.5")) {
-    return { thinkingBudget: 0 };
-  }
-  if (model.startsWith("gemini-3")) {
-    return { thinkingLevel: "minimal" };
-  }
-  return null;
-}
-
 function extractAdviceItems(decoded) {
   const text = extractText(decoded);
   if (!text) return [];
@@ -173,18 +150,14 @@ function extractAdviceItems(decoded) {
 }
 
 function extractText(decoded) {
-  const candidates = decoded && decoded.candidates;
-  if (!Array.isArray(candidates)) return "";
+  const choices = decoded && decoded.choices;
+  if (!Array.isArray(choices)) return "";
 
   const parts = [];
-  for (const candidate of candidates) {
-    const contentParts = candidate && candidate.content && candidate.content.parts;
-    if (!Array.isArray(contentParts)) continue;
-
-    for (const piece of contentParts) {
-      if (piece && typeof piece.text === "string" && piece.text.trim()) {
-        parts.push(piece.text);
-      }
+  for (const choice of choices) {
+    const content = choice && choice.message && choice.message.content;
+    if (typeof content === "string" && content.trim()) {
+      parts.push(content);
     }
   }
   return parts.join("\n");

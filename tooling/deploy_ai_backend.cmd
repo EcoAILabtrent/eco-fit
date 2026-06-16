@@ -22,9 +22,9 @@ if errorlevel 1 exit /b %errorlevel%
 popd
 
 echo.
-echo Setting GEMINI_API_KEY in Firebase Secret Manager.
-echo Paste the Gemini API key when Firebase asks for it. The value will not be stored in the app.
-call tooling\firebase_cli.cmd functions:secrets:set GEMINI_API_KEY
+echo Setting DEEPSEEK_API_KEY in Firebase Secret Manager.
+echo Paste the DeepSeek API key when Firebase asks for it. The value will not be stored in the app.
+call tooling\firebase_cli.cmd functions:secrets:set DEEPSEEK_API_KEY
 if errorlevel 1 exit /b %errorlevel%
 
 echo.

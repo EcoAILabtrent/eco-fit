@@ -1,17 +1,17 @@
 # Firebase AI Backend
 
-The Android app must not contain the Gemini API key. AI advice now goes through
+The Android app must not contain the DeepSeek API key. AI advice now goes through
 a Firebase callable function:
 
 ```text
-Flutter app -> Firebase Callable Function aiAdvice -> Gemini API
+Flutter app -> Firebase Callable Function aiAdvice -> DeepSeek API
 ```
 
 ## One-time setup
 
 Firebase Secret Manager requires the Firebase project to be on the Blaze
 pay-as-you-go plan. The app can still stay free/low-cost in practice if usage is
-small, but Firebase will not allow `functions:secrets:set GEMINI_API_KEY` on the
+small, but Firebase will not allow `functions:secrets:set DEEPSEEK_API_KEY` on the
 Spark plan.
 
 1. Sign in to Firebase from a normal terminal:
@@ -28,7 +28,7 @@ package name `uz.ecokomitet.eco_mobile`.
 
 Download `google-services.json` from Firebase Console and place it at
 `android/app/google-services.json`. This file contains Firebase project
-identifiers, not the Gemini API secret.
+identifiers, not the DeepSeek API secret.
 
 3. Copy `.firebaserc.example` to `.firebaserc` and replace
 `YOUR_FIREBASE_PROJECT_ID`.
@@ -37,14 +37,14 @@ Do not commit `.firebaserc` or `android/app/google-services.json`; both are
 local project bindings. Another developer should create their own Firebase
 project and add their own files.
 
-4. Store the Gemini key in Secret Manager and deploy the function:
+4. Store the DeepSeek key in Secret Manager and deploy the function:
 
 ```powershell
 tooling\deploy_ai_backend.cmd
 ```
 
 This script installs the Cloud Functions dependencies, asks Firebase to store
-`GEMINI_API_KEY` as a Secret Manager secret, then deploys `aiAdvice`.
+`DEEPSEEK_API_KEY` as a Secret Manager secret, then deploys `aiAdvice`.
 
 If Firebase says the project must be on the Blaze plan, upgrade that Firebase
 project in Firebase Console first. After upgrading, run
@@ -67,16 +67,16 @@ token printed in logs, and add it in Firebase Console under App Check debug
 tokens.
 
 The function also sets `enforceAppCheck: true`, so requests without a valid App
-Check token are rejected before Gemini is called.
+Check token are rejected before DeepSeek is called.
 
 ## Model
 
-The default model is `gemini-3.1-flash-lite`. To override it, create
+The default model is `deepseek-v4-flash`. To override it, create
 `functions/.env` from `functions/.env.example` and set:
 
 ```bash
-GEMINI_MODEL=gemini-3.5-flash
+DEEPSEEK_MODEL=deepseek-v4-pro
 ```
 
-Do not put `GEMINI_API_KEY` in Flutter `--dart-define`, `.env`, `BuildConfig`,
+Do not put `DEEPSEEK_API_KEY` in Flutter `--dart-define`, `.env`, `BuildConfig`,
 Remote Config, or any file bundled into the APK.
