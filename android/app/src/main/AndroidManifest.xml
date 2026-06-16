@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- AI recommendations call the configured model API when online. -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Independent pedometer: hardware step sensor (runtime perm on 10+). -->
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <!-- Re-baseline the step counter right after reboot (BootReceiver). -->

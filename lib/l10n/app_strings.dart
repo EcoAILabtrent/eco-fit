@@ -169,6 +169,20 @@ class AppStrings {
       'home.recommendations': 'Recommendations',
       'home.recommendationBody':
           'Regular activity is good for your health. The more you move, the better you feel.',
+      'ai.ready':
+          "AI can review today's meals: possible gaps, excesses, and simple next steps.",
+      'ai.generate': 'Get AI advice',
+      'ai.refresh': 'Refresh',
+      'ai.retry': 'Check again',
+      'ai.loading': 'Preparing an evidence-based nutrition note...',
+      'ai.checking': 'Checking internet connection...',
+      'ai.offline': 'Connect to the internet to get AI nutrition advice.',
+      'ai.notConfigured':
+          'Add your Gemini API key or run with --dart-define=GEMINI_API_KEY=...',
+      'ai.noFood': 'Add foods for today, then AI will analyze your nutrition.',
+      'ai.error': 'Could not get AI advice. Check the API key and try again.',
+      'ai.disclaimer':
+          'Not a diagnosis. For symptoms or chronic conditions, consult a clinician.',
       'home.food': 'Food',
       'home.nutrition': 'Nutrition',
       'home.bodyParams': 'Body metrics',
@@ -334,6 +348,21 @@ class AppStrings {
       'home.recommendations': 'Рекомендации',
       'home.recommendationBody':
           'Регулярная активность полезна для здоровья. Чем больше вы двигаетесь — тем лучше себя чувствуете.',
+      'ai.ready':
+          'ИИ может разобрать сегодняшний рацион: возможные дефициты, избытки и простые шаги на день.',
+      'ai.generate': 'Получить ИИ-совет',
+      'ai.refresh': 'Обновить',
+      'ai.retry': 'Проверить снова',
+      'ai.loading': 'Готовлю доказательный совет по питанию...',
+      'ai.checking': 'Проверяю подключение к интернету...',
+      'ai.offline': 'Для AI-советов по питанию подключитесь к интернету.',
+      'ai.notConfigured':
+          'Добавьте Gemini API key или запустите с --dart-define=GEMINI_API_KEY=...',
+      'ai.noFood': 'Добавьте еду за сегодня, и ИИ проанализирует ваш рацион.',
+      'ai.error':
+          'Не удалось получить AI-совет. Проверьте API key и попробуйте снова.',
+      'ai.disclaimer':
+          'Это не диагноз. При симптомах или хронических заболеваниях обратитесь к врачу.',
       'home.food': 'Еда',
       'home.nutrition': 'Питательность',
       'home.bodyParams': 'Параметры тела',
@@ -498,6 +527,22 @@ class AppStrings {
       'home.recommendations': 'Tavsiyalar',
       'home.recommendationBody':
           "Muntazam faollik sog'liq uchun foydali. Qancha ko'p harakat qilsangiz, o'zingizni shuncha yaxshi his qilasiz.",
+      'ai.ready':
+          "AI bugungi ratsionni ko'rib chiqadi: yetishmovchilik, ortiqcha iste'mol va amaliy qadamlar.",
+      'ai.generate': 'AI tavsiya',
+      'ai.refresh': 'Yangilash',
+      'ai.retry': 'Qayta tekshirish',
+      'ai.loading': 'Ishonchli ovqatlanish tavsiyasi tayyorlanmoqda...',
+      'ai.checking': 'Internet ulanishi tekshirilmoqda...',
+      'ai.offline': 'AI tavsiyalar uchun internetga ulaning.',
+      'ai.notConfigured':
+          "Gemini API key qo'shing yoki --dart-define=GEMINI_API_KEY=... bilan ishga tushiring.",
+      'ai.noFood':
+          "Bugungi ovqatlarni qo'shing, keyin AI ratsionni tahlil qiladi.",
+      'ai.error':
+          "AI tavsiya olinmadi. API key va internetni tekshirib qayta urinib ko'ring.",
+      'ai.disclaimer':
+          "Bu tashxis emas. Alomatlar yoki surunkali kasallik bo'lsa, shifokor bilan maslahat qiling.",
       'home.food': 'Ovqat',
       'home.nutrition': 'Ovqatlanish',
       'home.bodyParams': "Tana ko'rsatkichlari",
@@ -664,6 +709,22 @@ class AppStrings {
       'home.recommendations': 'Тавсиялар',
       'home.recommendationBody':
           'Мунтазам фаоллик соғлиқ учун фойдали. Қанча кўп ҳаракат қилсангиз, ўзингизни шунча яхши ҳис қиласиз.',
+      'ai.ready':
+          'ИИ бугунги рационни кўриб чиқади: етишмовчилик, ортиқча истеъмол ва амалий қадамлар.',
+      'ai.generate': 'ИИ тавсия',
+      'ai.refresh': 'Янгилаш',
+      'ai.retry': 'Қайта текшириш',
+      'ai.loading': 'Ишончли овқатланиш тавсияси тайёрланмоқда...',
+      'ai.checking': 'Интернет уланиши текширилмоқда...',
+      'ai.offline': 'ИИ тавсиялар учун интернетга уланинг.',
+      'ai.notConfigured':
+          'Gemini API key қўшинг ёки --dart-define=GEMINI_API_KEY=... билан ишга туширинг.',
+      'ai.noFood':
+          'Бугунги овқатларни қўшинг, кейин ИИ рационни таҳлил қилади.',
+      'ai.error':
+          'ИИ тавсия олинмади. API key ва интернетни текшириб қайта уриниб кўринг.',
+      'ai.disclaimer':
+          'Бу ташхис эмас. Аломатлар ёки сурункали касаллик бўлса, шифокор билан маслаҳат қилинг.',
       'home.food': 'Овқат',
       'home.nutrition': 'Овқатланиш',
       'home.bodyParams': 'Тана кўрсаткичлари',

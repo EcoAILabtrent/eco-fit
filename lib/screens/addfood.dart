@@ -54,7 +54,14 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       if (p == null) continue;
       store.addFood(
         widget.mealKey,
-        LogItem(p.name, p.kcal, protein: p.protein, carbs: p.carbs, fat: p.fat),
+        LogItem(
+          p.name,
+          p.kcal,
+          protein: p.protein,
+          carbs: p.carbs,
+          fat: p.fat,
+          micros: p.microsForGrams(100),
+        ),
         date: widget.date,
       );
       added++;

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../ai/ai_advice_card.dart';
 import '../l10n/app_strings.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
@@ -54,57 +55,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
 
-            // Рекомендации
-            EcoCard(
-              t: t,
-              margin: const EdgeInsets.only(bottom: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  EcoCardHead(
-                    t: t,
-                    icon: 'bulb',
-                    title: l.t('home.recommendations'),
-                    mb: 12,
-                  ),
-                  Text(
-                    l.t('home.recommendationBody'),
-                    style: const TextStyle(
-                      fontSize: 13.5,
-                      height: 1.45,
-                      color: EcoColors.sub,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      for (final k in ['up', 'down'])
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: GestureDetector(
-                            onTap: () =>
-                                context.read<AppStore>().setRecFeedback(k),
-                            child: Container(
-                              width: 40,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: s.recFeedback == k ? t.dark : t.bandSoft,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                ecoIcon(k == 'up' ? 'thumbUp' : 'thumbDn'),
-                                size: 17,
-                                color: s.recFeedback == k ? t.pill : t.dark,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            const AiAdviceCard(t: t),
 
             // Еда
             EcoCard(

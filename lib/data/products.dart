@@ -73,6 +73,11 @@ class Product {
   String calorieBaseLabel(AppLanguage language) =>
       '${_unit(language, 'kcal')}/100 ${displayUnit(language)}';
 
+  Map<String, double> microsForGrams(num grams) => {
+    for (final entry in micros.entries)
+      entry.key: entry.value.toDouble() * grams / 100,
+  };
+
   static String _unit(AppLanguage language, String code) {
     final labels = _unitLabels[language] ?? _unitLabels[AppLanguage.ru]!;
     return labels[code] ?? code;

@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local AI keys for --dart-define-from-file. Keep examples in git, never real keys.
+env/*.local.json
+env/*.local.env

@@ -116,6 +116,7 @@ class _DishScreenState extends State<DishScreen> {
                 protein: _scaled(p.protein),
                 carbs: _scaled(p.carbs),
                 fat: _scaled(p.fat),
+                micros: p.microsForGrams(grams),
               ),
               date: widget.date,
             );

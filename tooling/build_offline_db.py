@@ -501,6 +501,10 @@ def add_serving(
 
 
 def image_fields(item: dict[str, Any]) -> tuple[str | None, str | None, str | None, str | None]:
+    slug = str(item.get("slug") or "").strip()
+    slug_asset_path = f"assets/foods/images/{slug}.webp" if slug else None
+    slug_asset_exists = bool(slug_asset_path and (ROOT / slug_asset_path).exists())
+
     photo_url = item.get("photo_url")
     photo_file_name = Path(str(photo_url)).name if photo_url else None
     photo_asset_path = f"assets/foods/images/{photo_file_name}" if photo_file_name else None
@@ -511,6 +515,7 @@ def image_fields(item: dict[str, Any]) -> tuple[str | None, str | None, str | No
         or item.get("image_asset")
         or item.get("asset_path")
         or item.get("image_path")
+        or (slug_asset_path if slug_asset_exists else None)
         or (photo_asset_path if photo_asset_exists else None)
     )
     storage_path = item.get("image_storage_path") or item.get("storage_path") or photo_url

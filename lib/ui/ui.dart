@@ -9,6 +9,8 @@ import '../theme/tokens.dart';
 /// icons.jsx can replace this later without touching call sites).
 IconData ecoIcon(String name) {
   switch (name) {
+    case 'ai':
+      return Icons.auto_awesome;
     case 'bulb':
       return Icons.lightbulb_outline;
     case 'food':
