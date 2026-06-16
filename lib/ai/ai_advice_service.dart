@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
+
+import 'package:cloud_functions/cloud_functions.dart';
 
 import '../l10n/app_language.dart';
 import '../state/store.dart';
@@ -22,7 +23,7 @@ class AiAdviceService {
   Future<bool> hasInternet() async {
     try {
       final lookup = await InternetAddress.lookup(
-        AiConfig.host,
+        AiConfig.connectivityHost,
       ).timeout(const Duration(seconds: 4));
       return lookup.isNotEmpty && lookup.first.rawAddress.isNotEmpty;
     } on Object {
@@ -36,100 +37,44 @@ class AiAdviceService {
     AiAdvicePeriod period = AiAdvicePeriod.day,
     String? date,
   }) async {
-    if (!AiConfig.hasApiKey) {
-      throw const AiAdviceException('API key is not configured.');
+    if (!AiConfig.hasBackend) {
+      throw const AiAdviceException('AI backend is not configured.');
     }
     if (!await hasInternet()) {
       throw const AiAdviceException('No internet connection.');
     }
 
-    final uri = AiConfig.endpoint;
-    final client = HttpClient()..connectionTimeout = AiConfig.timeout;
     try {
-      final request = await client.postUrl(uri).timeout(AiConfig.timeout);
-      request.headers
-        ..contentType = ContentType.json
-        ..set('x-goog-api-key', AiConfig.apiKey);
+      final callable = FirebaseFunctions.instanceFor(
+        region: AiConfig.functionsRegion,
+      ).httpsCallable(
+        AiConfig.adviceFunctionName,
+        options: HttpsCallableOptions(timeout: AiConfig.timeout),
+      );
+      final result = await callable.call({
+        'snapshot': _periodSnapshot(store, language, period, date),
+      });
 
-      request.write(jsonEncode(_requestBody(store, language, period, date)));
-
-      final response = await request.close().timeout(AiConfig.timeout);
-      final raw = await utf8.decoder.bind(response).join();
-      if (response.statusCode < 200 || response.statusCode >= 300) {
-        throw AiAdviceException(_apiError(raw, response.statusCode));
-      }
-
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map<String, dynamic>) {
-        throw const AiAdviceException('Unexpected AI response.');
-      }
-
-      final text = _extractText(decoded)?.trim();
-      if (text == null || text.isEmpty) {
+      final items = _itemsFromFunctionResult(result.data);
+      if (items.isEmpty) {
         throw const AiAdviceException('AI returned an empty response.');
       }
-      final normalized = _normalizeAdviceText(text);
+      final normalized = _formatItems(items);
       if (normalized.isEmpty) {
         throw const AiAdviceException('AI returned an empty response.');
       }
       return normalized;
     } on AiAdviceException {
       rethrow;
+    } on FirebaseFunctionsException catch (error) {
+      throw AiAdviceException(_functionError(error));
     } on TimeoutException {
       throw const AiAdviceException('AI request timed out.');
     } on SocketException {
       throw const AiAdviceException('No internet connection.');
     } on Object catch (error) {
       throw AiAdviceException('AI request failed: $error');
-    } finally {
-      client.close(force: true);
     }
-  }
-
-  Map<String, Object?> _requestBody(
-    AppStore store,
-    AppLanguage language,
-    AiAdvicePeriod period,
-    String? date,
-  ) {
-    return {
-      'store': false,
-      'systemInstruction': {
-        'parts': [
-          {'text': _instructions(language)},
-        ],
-      },
-      'contents': [
-        {
-          'role': 'user',
-          'parts': [
-            {
-              'text': jsonEncode(
-                _periodSnapshot(store, language, period, date),
-              ),
-            },
-          ],
-        },
-      ],
-      'generationConfig': {
-        'maxOutputTokens': 1200,
-        'responseMimeType': 'application/json',
-        'responseSchema': {
-          'type': 'object',
-          'properties': {
-            'items': {
-              'type': 'array',
-              'items': {'type': 'string'},
-            },
-          },
-          'required': ['items'],
-        },
-        if (AiConfig.model.startsWith('gemini-2.5'))
-          'thinkingConfig': {'thinkingBudget': 0}
-        else
-          'thinkingConfig': {'thinkingLevel': 'minimal'},
-      },
-    };
   }
 
   Map<String, Object?> _periodSnapshot(
@@ -242,30 +187,6 @@ class AiAdviceService {
     }
 
     return snapshot;
-  }
-
-  String _instructions(AppLanguage language) {
-    final lang = _languageName(language);
-    return '''
-You are Eco Fit's nutrition advisor. Answer only in $lang.
-Use mainstream public-health nutrition guidance. Be practical and concise.
-Analyze the user's daily food diary, calories, macros, and any micronutrients provided.
-Use daily_target_gaps and micronutrient_reference_gaps for exact numbers.
-If the snapshot period is week or month, focus on repeated patterns and averages, not one meal.
-If logged_days is low for the selected period, say the conclusion is limited by missing diary data.
-Mention likely deficiency or excess patterns only as risks, never as a diagnosis.
-When relevant, explain what health problems may be associated with sustained lack or excess of nutrients or food groups.
-Do not claim certainty from one day of data. If data is incomplete, say so briefly.
-Never call a one-day intake a severe deficiency. Prefer neutral wording like "today is below target" or "if this repeats for weeks".
-Recommend food changes first; supplements or medical care only when appropriate.
-Do not spend an advice item on a generic medical disclaimer; the app shows that separately.
-Each item should include: observed amount vs target, shortage/excess amount, possible long-term risk, and concrete foods to add/reduce when relevant.
-Return exactly 4 advice items. Keep each item concise enough for a mobile card.
-Return only valid JSON with this exact shape:
-{"items":["short advice 1","short advice 2","short advice 3","short advice 4"]}
-Do not use Markdown, bold text, headings, asterisks, code fences, or diagnosis labels.
-Each item must be a complete sentence and fit on a mobile card.
-''';
   }
 
   List<String> _dateKeys(AiAdvicePeriod period, String? date) {
@@ -443,61 +364,14 @@ Each item must be a complete sentence and fit on a mobile card.
     };
   }
 
-  String? _extractText(Map<String, dynamic> decoded) {
-    final candidates = decoded['candidates'];
-    if (candidates is! List) return null;
-    final parts = <String>[];
-    for (final candidate in candidates) {
-      if (candidate is! Map) continue;
-      final content = candidate['content'];
-      if (content is! Map) continue;
-      final contentParts = content['parts'];
-      if (contentParts is! List) continue;
-      for (final piece in contentParts) {
-        if (piece is! Map) continue;
-        final text = piece['text'];
-        if (text is String && text.trim().isNotEmpty) parts.add(text);
-      }
-    }
-    return parts.isEmpty ? null : parts.join('\n');
-  }
-
-  String _normalizeAdviceText(String text) {
-    final jsonItems = _itemsFromJson(text);
-    if (jsonItems.isNotEmpty) return _formatItems(jsonItems);
-
-    final lines = text
-        .replaceAll(RegExp(r'```(?:json)?|```', caseSensitive: false), '')
-        .split(RegExp(r'\r?\n'))
-        .map(_cleanAdviceItem)
-        .where((line) => line.length >= 12)
-        .toList();
-    if (lines.isNotEmpty) return _formatItems(lines);
-
-    final cleaned = _cleanAdviceItem(text);
-    return cleaned.isEmpty ? '' : _formatItems([cleaned]);
-  }
-
-  List<String> _itemsFromJson(String text) {
-    final compact = text
-        .replaceAll(RegExp(r'```(?:json)?|```', caseSensitive: false), '')
-        .trim();
-    final start = compact.indexOf('{');
-    final end = compact.lastIndexOf('}');
-    if (start < 0 || end <= start) return const [];
-
-    try {
-      final decoded = jsonDecode(compact.substring(start, end + 1));
-      if (decoded is! Map) return const [];
-      final items = decoded['items'];
-      if (items is! List) return const [];
-      return [
-        for (final item in items)
-          if (item is String) _cleanAdviceItem(item),
-      ].where((item) => item.length >= 12).toList();
-    } on Object {
-      return const [];
-    }
+  List<String> _itemsFromFunctionResult(Object? data) {
+    if (data is! Map) return const [];
+    final items = data['items'];
+    if (items is! List) return const [];
+    return [
+      for (final item in items)
+        if (item is String) _cleanAdviceItem(item),
+    ].where((item) => item.length >= 12).toList();
   }
 
   String _formatItems(List<String> rawItems) {
@@ -526,18 +400,18 @@ Each item must be a complete sentence and fit on a mobile card.
     return '$value.';
   }
 
-  String _apiError(String raw, int statusCode) {
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is Map &&
-          decoded['error'] is Map &&
-          decoded['error']['message'] is String) {
-        return decoded['error']['message'] as String;
-      }
-    } on Object {
-      // Keep the status-only fallback below.
-    }
-    return 'AI API returned HTTP $statusCode.';
+  String _functionError(FirebaseFunctionsException error) {
+    final message = error.message?.trim();
+    if (message != null && message.isNotEmpty) return message;
+
+    return switch (error.code) {
+      'failed-precondition' => 'AI backend rejected this app.',
+      'invalid-argument' => 'AI request data is invalid.',
+      'resource-exhausted' => 'AI advice limit reached. Try again later.',
+      'unauthenticated' => 'AI backend could not verify this app.',
+      'unavailable' => 'AI service is temporarily unavailable.',
+      _ => 'AI backend failed: ${error.code}.',
+    };
   }
 
   static double _round(double value) => double.parse(value.toStringAsFixed(2));

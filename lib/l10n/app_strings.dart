@@ -178,9 +178,9 @@ class AppStrings {
       'ai.checking': 'Checking internet connection...',
       'ai.offline': 'Connect to the internet to get AI nutrition advice.',
       'ai.notConfigured':
-          'Add your Gemini API key or run with --dart-define=GEMINI_API_KEY=...',
+          'AI backend is not connected yet. Configure Firebase to enable online advice.',
       'ai.noFood': 'Add foods for today, then AI will analyze your nutrition.',
-      'ai.error': 'Could not get AI advice. Check the API key and try again.',
+      'ai.error': 'Could not get AI advice. Check internet and try again.',
       'ai.disclaimer':
           'Not a diagnosis. For symptoms or chronic conditions, consult a clinician.',
       'home.food': 'Food',
@@ -357,10 +357,10 @@ class AppStrings {
       'ai.checking': 'Проверяю подключение к интернету...',
       'ai.offline': 'Для AI-советов по питанию подключитесь к интернету.',
       'ai.notConfigured':
-          'Добавьте Gemini API key или запустите с --dart-define=GEMINI_API_KEY=...',
+          'ИИ-сервер еще не подключен. Настройте Firebase, чтобы включить онлайн-советы.',
       'ai.noFood': 'Добавьте еду за сегодня, и ИИ проанализирует ваш рацион.',
       'ai.error':
-          'Не удалось получить AI-совет. Проверьте API key и попробуйте снова.',
+          'Не удалось получить AI-совет. Проверьте интернет и попробуйте снова.',
       'ai.disclaimer':
           'Это не диагноз. При симптомах или хронических заболеваниях обратитесь к врачу.',
       'home.food': 'Еда',
@@ -536,11 +536,11 @@ class AppStrings {
       'ai.checking': 'Internet ulanishi tekshirilmoqda...',
       'ai.offline': 'AI tavsiyalar uchun internetga ulaning.',
       'ai.notConfigured':
-          "Gemini API key qo'shing yoki --dart-define=GEMINI_API_KEY=... bilan ishga tushiring.",
+          'AI backend hali ulanmagan. Onlayn tavsiyalar uchun Firebase sozlang.',
       'ai.noFood':
           "Bugungi ovqatlarni qo'shing, keyin AI ratsionni tahlil qiladi.",
       'ai.error':
-          "AI tavsiya olinmadi. API key va internetni tekshirib qayta urinib ko'ring.",
+          "AI tavsiya olinmadi. Internetni tekshirib qayta urinib ko'ring.",
       'ai.disclaimer':
           "Bu tashxis emas. Alomatlar yoki surunkali kasallik bo'lsa, shifokor bilan maslahat qiling.",
       'home.food': 'Ovqat',
@@ -718,11 +718,11 @@ class AppStrings {
       'ai.checking': 'Интернет уланиши текширилмоқда...',
       'ai.offline': 'ИИ тавсиялар учун интернетга уланинг.',
       'ai.notConfigured':
-          'Gemini API key қўшинг ёки --dart-define=GEMINI_API_KEY=... билан ишга туширинг.',
+          'AI backend ҳали уланмаган. Онлайн тавсиялар учун Firebase созланг.',
       'ai.noFood':
           'Бугунги овқатларни қўшинг, кейин ИИ рационни таҳлил қилади.',
       'ai.error':
-          'ИИ тавсия олинмади. API key ва интернетни текшириб қайта уриниб кўринг.',
+          'AI тавсия олинмади. Интернетни текшириб қайта уриниб кўринг.',
       'ai.disclaimer':
           'Бу ташхис эмас. Аломатлар ёки сурункали касаллик бўлса, шифокор билан маслаҳат қилинг.',
       'home.food': 'Овқат',

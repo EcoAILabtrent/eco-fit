@@ -16,6 +16,9 @@ dependencies:
   hive_flutter: ^1.1.0
   sqflite: ^2.4.3
   path: ^1.9.1
+  firebase_core: ^4.10.0
+  firebase_app_check: ^0.4.4+2
+  cloud_functions: ^6.3.2
 
 dev_dependencies:
   flutter_test:

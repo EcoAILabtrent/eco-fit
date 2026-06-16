@@ -55,7 +55,7 @@ class _AiAdviceCardState extends State<AiAdviceCard>
     final hasFoodInAnyPeriod = AiAdvicePeriod.values.any(
       (period) => _foodCount(store, period) > 0,
     );
-    final canOpenPicker = AiConfig.hasApiKey && !_loading && _online != false;
+    final canOpenPicker = AiConfig.hasBackend && !_loading && _online != false;
     final canGenerate = canOpenPicker && foodCount > 0;
     final visibleAdvice = _visibleAdvice;
 
@@ -155,7 +155,7 @@ class _AiAdviceCardState extends State<AiAdviceCard>
                   icon: Icons.close,
                   onTap: _closePeriodPicker,
                 ),
-              ] else if (AiConfig.hasApiKey && _online == false)
+              ] else if (AiConfig.hasBackend && _online == false)
                 EcoBtn(
                   t: widget.t,
                   height: 38,
@@ -164,7 +164,7 @@ class _AiAdviceCardState extends State<AiAdviceCard>
                   onTap: _checkOnline,
                   child: Text(l.t('ai.retry')),
                 )
-              else if (AiConfig.hasApiKey)
+              else if (AiConfig.hasBackend)
                 Expanded(
                   child: EcoBtn(
                     t: widget.t,
@@ -189,7 +189,7 @@ class _AiAdviceCardState extends State<AiAdviceCard>
     required bool revealPeriod,
     required bool hasFoodInAnyPeriod,
   }) {
-    if (!AiConfig.hasApiKey) return l.t('ai.notConfigured');
+    if (!AiConfig.hasBackend) return l.t('ai.notConfigured');
     if (_checking) return l.t('ai.checking');
     if (_online == false) return l.t('ai.offline');
     if (_loading) return l.t('ai.loading');

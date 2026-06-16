@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'data/products.dart';
+import 'firebase/firebase_backend.dart';
 import 'l10n/app_language.dart';
 import 'l10n/app_strings.dart';
 import 'screens/addfood.dart';
@@ -21,6 +22,7 @@ import 'ui/ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FirebaseBackend.initialize();
   runApp(const EcoBootstrap());
 }
 

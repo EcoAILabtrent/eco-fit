@@ -47,3 +47,8 @@ app.*.map.json
 # Local AI keys for --dart-define-from-file. Keep examples in git, never real keys.
 env/*.local.json
 env/*.local.env
+
+# Local Firebase project binding. Keep examples in git, but each developer
+# should use their own Firebase project files.
+.firebaserc
+android/app/google-services.json
