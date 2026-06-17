@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -193,7 +194,9 @@ class _AiAdviceCardState extends State<AiAdviceCard>
     if (_checking) return l.t('ai.checking');
     if (_online == false) return l.t('ai.offline');
     if (_loading) return l.t('ai.loading');
-    if (_error != null) return l.t('ai.error');
+    if (_error != null) {
+      return kDebugMode ? '${l.t('ai.error')}\n$_error' : l.t('ai.error');
+    }
     if (revealPeriod) {
       if (foodCount == 0) return _noFoodText(l);
       return _readyText(l);
@@ -256,6 +259,7 @@ class _AiAdviceCardState extends State<AiAdviceCard>
       });
       _startTyping(advice);
     } on Object catch (error) {
+      debugPrint('AI advice failed: $error');
       if (!mounted) return;
       setState(() {
         _error = '$error';

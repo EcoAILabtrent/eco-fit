@@ -402,7 +402,12 @@ class AiAdviceService {
 
   String _functionError(FirebaseFunctionsException error) {
     final message = error.message?.trim();
-    if (message != null && message.isNotEmpty) return message;
+    final normalizedMessage = message?.toLowerCase();
+    if (message != null &&
+        message.isNotEmpty &&
+        normalizedMessage != error.code.toLowerCase()) {
+      return message;
+    }
 
     return switch (error.code) {
       'failed-precondition' => 'AI backend rejected this app.',

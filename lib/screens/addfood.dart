@@ -23,22 +23,32 @@ class AddFoodScreen extends StatefulWidget {
 
 class _AddFoodScreenState extends State<AddFoodScreen> {
   static const t = EcoTheme.meadow;
-  int tab = 1; // 0 favourites · 1 all products · 2 dishes (recipes)
   final sel = <String>{}; // selected slugs
   String query = '';
+  bool catalogMode = false;
+  Set<String> categoryFilterIds = {};
+  Set<String>? categoryFilterSlugs;
   final _searchCtrl = TextEditingController();
+  final _searchFocus = FocusNode();
 
   Meal get meal => kMeals.firstWhere(
     (m) => m.key == widget.mealKey,
     orElse: () => kMeals.first,
   );
 
-  // No cap — the full database is shown and scrolled lazily.
-  List<Product> get list =>
-      FoodDb.instance.search(query, recipesOnly: tab == 2, limit: 100000);
+  @override
+  void initState() {
+    super.initState();
+    _searchFocus.addListener(() {
+      if (_searchFocus.hasFocus && !catalogMode && mounted) {
+        setState(() => catalogMode = true);
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _searchFocus.dispose();
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -86,11 +96,57 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       );
   }
 
+  void _applyCategoryFilters(Iterable<ProductCategory> categories) {
+    final selected = categories.toList();
+    setState(() {
+      categoryFilterIds = {for (final category in selected) category.id};
+      categoryFilterSlugs = selected.isEmpty
+          ? null
+          : {for (final category in selected) ...category.categorySlugs};
+    });
+  }
+
+  void _toggleCategory(
+    ProductCategory category,
+    List<ProductCategory> categories,
+  ) {
+    final nextIds = categoryFilterIds.contains(category.id)
+        ? <String>{}
+        : <String>{category.id};
+    _applyCategoryFilters(
+      categories.where((item) => nextIds.contains(item.id)),
+    );
+  }
+
+  void _showCatalog({bool focusSearch = false}) {
+    setState(() => catalogMode = true);
+    if (focusSearch) _searchFocus.requestFocus();
+  }
+
+  void _showFavorites() {
+    _searchCtrl.clear();
+    _searchFocus.unfocus();
+    setState(() {
+      query = '';
+      catalogMode = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final items = list;
+    final categories = FoodDb.instance.categories();
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final store = context.watch<AppStore>();
+    final matchingItems = FoodDb.instance.search(
+      query,
+      categorySlugs: categoryFilterSlugs,
+      limit: 100000,
+    );
+    final items = catalogMode
+        ? matchingItems
+        : matchingItems
+              .where((product) => store.isFavoriteProduct(product.slug))
+              .toList();
     final l = context.l10n;
     final mealCount = store.itemsFor(widget.mealKey, date: widget.date).length;
     final mealKcal = store.mealKcal(widget.mealKey, date: widget.date);
@@ -112,42 +168,50 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                   ),
 
                   // Search field
-                  Container(
-                    height: 52,
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: t.card,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(ecoIcon('search'), size: 20, color: t.dark),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _searchCtrl,
-                            onChanged: (v) => setState(() => query = v),
-                            decoration: InputDecoration(
-                              hintText: l.t('food.search'),
-                              border: InputBorder.none,
-                              isDense: true,
-                            ),
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _showCatalog(focusSearch: true),
+                    child: Container(
+                      height: 52,
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: t.card,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(ecoIcon('search'), size: 20, color: t.dark),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              focusNode: _searchFocus,
+                              controller: _searchCtrl,
+                              keyboardType: TextInputType.text,
+                              textInputAction: TextInputAction.search,
+                              onChanged: (v) => setState(() => query = v),
+                              decoration: InputDecoration(
+                                hintText: l.t('food.search'),
+                                border: InputBorder.none,
+                                isDense: true,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
-                        ),
-                        if (query.isNotEmpty)
-                          GestureDetector(
-                            onTap: () {
-                              _searchCtrl.clear();
-                              setState(() => query = '');
-                            },
-                            child: Icon(Icons.close, size: 18, color: t.dark),
-                          ),
-                      ],
+                          if (query.isNotEmpty)
+                            GestureDetector(
+                              onTap: () {
+                                _searchCtrl.clear();
+                                setState(() => query = '');
+                                _searchFocus.requestFocus();
+                              },
+                              child: Icon(Icons.close, size: 18, color: t.dark),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
 
@@ -173,15 +237,15 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                     ),
                   ),
 
-                  FolderTabs(
-                    t: t,
-                    tabs: [
-                      l.t('food.favorites'),
-                      l.t('food.allProducts'),
-                      l.t('food.dishes'),
-                    ],
-                    active: tab,
-                    onChanged: (i) => setState(() => tab = i),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _CategoryFilterCard(
+                      title: l.t('food.filters'),
+                      categories: categories,
+                      selectedIds: categoryFilterIds,
+                      onToggle: (category) =>
+                          _toggleCategory(category, categories),
+                    ),
                   ),
 
                   // Running total already in this meal — feedback as you add.
@@ -213,74 +277,90 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                         borderRadius: BorderRadius.circular(t.r),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: (tab == 0)
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(40),
-                                child: Text(
-                                  l.t('food.favoritesEmpty'),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: EcoColors.sub,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : items.isEmpty
-                          ? Center(
-                              child: Text(
-                                l.t('food.noResults'),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: EcoColors.sub,
-                                ),
-                              ),
-                            )
-                          : ListView.separated(
-                              padding: EdgeInsets.fromLTRB(
-                                18,
-                                6,
-                                18,
-                                100 + bottomInset,
-                              ),
-                              itemCount: items.length,
-                              separatorBuilder: (_, __) => Divider(
-                                height: 1.5,
-                                thickness: 1.5,
-                                color: t.bandSoft,
-                              ),
-                              itemBuilder: (ctx, i) {
-                                final p = items[i];
-                                return _ProductRow(
-                                  p: p,
-                                  selected: sel.contains(p.slug),
-                                  onToggle: () => setState(
-                                    () => sel.contains(p.slug)
-                                        ? sel.remove(p.slug)
-                                        : sel.add(p.slug),
-                                  ),
-                                  onOpen: () async {
-                                    final l = context.l10nRead;
-                                    // Open portion detail; on add, return here
-                                    // and keep adding (Yazio/Lifesum pattern).
-                                    final added = await Navigator.of(context)
-                                        .push<String>(
-                                          MaterialPageRoute(
-                                            builder: (_) => DishScreen(
-                                              product: p,
-                                              mealKey: widget.mealKey,
-                                              date: widget.date,
+                      child: Column(
+                        children: [
+                          _ListSourceHeader(
+                            title: l.t(
+                              catalogMode
+                                  ? 'food.allProducts'
+                                  : 'food.favorites',
+                            ),
+                            favoritesTooltip: l.t('food.favorites'),
+                            catalogMode: catalogMode,
+                            onShowFavorites: _showFavorites,
+                          ),
+                          Divider(height: 1, thickness: 1, color: t.bandSoft),
+                          Expanded(
+                            child: items.isEmpty
+                                ? !catalogMode &&
+                                          store.favoriteProductSlugs.isEmpty
+                                      ? _EmptyFavorites(
+                                          text: l.t('food.favoritesEmpty'),
+                                          buttonLabel: l.t(
+                                            'food.browseProducts',
+                                          ),
+                                          onBrowse: () =>
+                                              _showCatalog(focusSearch: true),
+                                        )
+                                      : Center(
+                                          child: Text(
+                                            l.t('food.noResults'),
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: EcoColors.sub,
                                             ),
                                           ),
-                                        );
-                                    if (added != null && mounted) {
-                                      _toast(l.addedName(added));
-                                    }
-                                  },
-                                );
-                              },
-                            ),
+                                        )
+                                : ListView.separated(
+                                    keyboardDismissBehavior:
+                                        ScrollViewKeyboardDismissBehavior
+                                            .onDrag,
+                                    padding: EdgeInsets.fromLTRB(
+                                      18,
+                                      6,
+                                      18,
+                                      100 + bottomInset,
+                                    ),
+                                    itemCount: items.length,
+                                    separatorBuilder: (_, __) => Divider(
+                                      height: 1.5,
+                                      thickness: 1.5,
+                                      color: t.bandSoft,
+                                    ),
+                                    itemBuilder: (ctx, i) {
+                                      final p = items[i];
+                                      return _ProductRow(
+                                        p: p,
+                                        selected: sel.contains(p.slug),
+                                        onToggle: () => setState(
+                                          () => sel.contains(p.slug)
+                                              ? sel.remove(p.slug)
+                                              : sel.add(p.slug),
+                                        ),
+                                        onOpen: () async {
+                                          final l = context.l10nRead;
+                                          final added =
+                                              await Navigator.of(
+                                                context,
+                                              ).push<String>(
+                                                MaterialPageRoute(
+                                                  builder: (_) => DishScreen(
+                                                    product: p,
+                                                    mealKey: widget.mealKey,
+                                                    date: widget.date,
+                                                  ),
+                                                ),
+                                              );
+                                          if (added != null && mounted) {
+                                            _toast(l.addedName(added));
+                                          }
+                                        },
+                                      );
+                                    },
+                                  ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -402,6 +482,217 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                   ),
                 ),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryFilterCard extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final String title;
+  final List<ProductCategory> categories;
+  final Set<String> selectedIds;
+  final ValueChanged<ProductCategory> onToggle;
+
+  const _CategoryFilterCard({
+    required this.title,
+    required this.categories,
+    required this.selectedIds,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+      decoration: BoxDecoration(
+        color: t.card,
+        borderRadius: BorderRadius.circular(t.r),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.tune_rounded, size: 17, color: t.dark),
+              const SizedBox(width: 7),
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: t.dark,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 9),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: categories.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisExtent: 44,
+              crossAxisSpacing: 7,
+              mainAxisSpacing: 7,
+            ),
+            itemBuilder: (context, index) {
+              final category = categories[index];
+              return _FilterTile(
+                label: category.name,
+                selected: selectedIds.contains(category.id),
+                onTap: () => onToggle(category),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterTile extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _FilterTile({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          decoration: BoxDecoration(
+            color: selected ? t.dark : t.bandSoft,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              height: 1.05,
+              fontWeight: FontWeight.w800,
+              color: selected ? t.pill : t.dark,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ListSourceHeader extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final String title;
+  final String favoritesTooltip;
+  final bool catalogMode;
+  final VoidCallback onShowFavorites;
+
+  const _ListSourceHeader({
+    required this.title,
+    required this.favoritesTooltip,
+    required this.catalogMode,
+    required this.onShowFavorites,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 44,
+      child: Padding(
+        padding: const EdgeInsets.only(left: 16, right: 8),
+        child: Row(
+          children: [
+            Icon(
+              catalogMode ? Icons.search_rounded : Icons.star_rounded,
+              size: 18,
+              color: t.dark,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: t.dark,
+                ),
+              ),
+            ),
+            if (catalogMode)
+              IconButton(
+                onPressed: onShowFavorites,
+                tooltip: favoritesTooltip,
+                visualDensity: VisualDensity.compact,
+                icon: Icon(Icons.star_border_rounded, size: 21, color: t.dark),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyFavorites extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final String text;
+  final String buttonLabel;
+  final VoidCallback onBrowse;
+
+  const _EmptyFavorites({
+    required this.text,
+    required this.buttonLabel,
+    required this.onBrowse,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.star_border_rounded, size: 34, color: t.olive),
+            const SizedBox(height: 10),
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.35,
+                color: EcoColors.sub,
+              ),
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: 190,
+              child: EcoBtn(
+                t: t,
+                height: 42,
+                fontSize: 13,
+                onTap: onBrowse,
+                child: Text(buttonLabel),
+              ),
+            ),
           ],
         ),
       ),

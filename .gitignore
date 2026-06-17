@@ -48,6 +48,9 @@ app.*.map.json
 env/*.local.json
 env/*.local.env
 
+# Local backups created by the browser food-review tool.
+tooling/.food_review_backups/
+
 # Local Firebase project binding. Keep examples in git, but each developer
 # should use their own Firebase project files.
 .firebaserc

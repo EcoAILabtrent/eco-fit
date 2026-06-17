@@ -59,6 +59,8 @@ class _DishScreenState extends State<DishScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final store = context.watch<AppStore>();
+    final isFavorite = store.isFavoriteProduct(p.slug);
     // Macro split for the bar (by calories of the scaled portion).
     final pKcal = _scaled(p.protein) * 4;
     final cKcal = _scaled(p.carbs) * 4;
@@ -145,7 +147,24 @@ class _DishScreenState extends State<DishScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(child: _DishVisual(product: p)),
+                      Stack(
+                        children: [
+                          Center(child: _DishVisual(product: p)),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: _FavoriteButton(
+                              selected: isFavorite,
+                              tooltip: l.t(
+                                isFavorite
+                                    ? 'food.removeFavorite'
+                                    : 'food.addFavorite',
+                              ),
+                              onTap: () => store.toggleFavoriteProduct(p.slug),
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 14),
                       Text(
                         p.name,
@@ -421,6 +440,36 @@ class _DishScreenState extends State<DishScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FavoriteButton extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final bool selected;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _FavoriteButton({
+    required this.selected,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onTap,
+      tooltip: tooltip,
+      style: IconButton.styleFrom(
+        fixedSize: const Size(42, 42),
+        backgroundColor: selected ? t.dark : t.cardAlt,
+        foregroundColor: selected ? t.pill : t.dark,
+      ),
+      icon: Icon(
+        selected ? Icons.star_rounded : Icons.star_border_rounded,
+        size: 23,
       ),
     );
   }

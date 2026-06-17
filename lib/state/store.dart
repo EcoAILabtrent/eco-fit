@@ -89,6 +89,7 @@ class AppStore extends ChangeNotifier {
 
   // Food diary keyed by date: ymd -> (meal.key -> items).
   Map<String, Map<String, List<LogItem>>> diary = {};
+  Set<String> favoriteProductSlugs = {};
 
   /// "YYYY-MM-DD" key for a date (local), default today.
   static String ymd([DateTime? d]) {
@@ -145,6 +146,10 @@ class AppStore extends ChangeNotifier {
     fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
     protGoal = _box.get('protGoal', defaultValue: 150) as int;
     onboarded = _box.get('onboarded', defaultValue: false) as bool;
+    final rawFavorites = _box.get('favoriteProductSlugs');
+    if (rawFavorites is List) {
+      favoriteProductSlugs = rawFavorites.whereType<String>().toSet();
+    }
     final rawTimes = _box.get('mealTimes');
     if (rawTimes is Map) {
       mealTimes = rawTimes.map((k, v) => MapEntry(k as String, v as String));
@@ -196,6 +201,7 @@ class AppStore extends ChangeNotifier {
     _box.put('fatGoal', fatGoal);
     _box.put('protGoal', protGoal);
     _box.put('onboarded', onboarded);
+    _box.put('favoriteProductSlugs', favoriteProductSlugs.toList());
     _box.put(
       'diary',
       diary.map(
@@ -208,6 +214,16 @@ class AppStore extends ChangeNotifier {
       ),
     );
     _box.put('mealTimes', mealTimes);
+  }
+
+  bool isFavoriteProduct(String slug) => favoriteProductSlugs.contains(slug);
+
+  void toggleFavoriteProduct(String slug) {
+    if (!favoriteProductSlugs.add(slug)) {
+      favoriteProductSlugs.remove(slug);
+    }
+    _box.put('favoriteProductSlugs', favoriteProductSlugs.toList());
+    notifyListeners();
   }
 
   Future<void> setLanguage(AppLanguage next) async {
