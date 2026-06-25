@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +34,31 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   final _searchCtrl = TextEditingController();
   final _searchFocus = FocusNode();
 
+  // Кэш результатов: поиск/категории считаем не в build(), а только при смене
+  // запроса/фильтра. Раньше FoodDb.search() (полный проход по базе) запускался
+  // на каждый build — в т.ч. на фоновых тиках store (шаги/вода).
+  List<Product> _matching = const [];
+  List<ProductCategory>? _categoriesCache;
+  String? _categoriesLocale;
+  Timer? _searchDebounce;
+
+  void _recomputeMatching() {
+    _matching = FoodDb.instance.search(
+      query,
+      categorySlugs: categoryFilterSlugs,
+      limit: FoodDb.instance.all.length, // показать весь подходящий каталог
+    );
+  }
+
+  List<ProductCategory> _categoriesFor(AppStrings l) {
+    final code = l.language.code;
+    if (_categoriesCache == null || _categoriesLocale != code) {
+      _categoriesCache = FoodDb.instance.categories();
+      _categoriesLocale = code;
+    }
+    return _categoriesCache!;
+  }
+
   Meal get meal => kMeals.firstWhere(
         (m) => m.key == widget.mealKey,
         orElse: () => kMeals.first,
@@ -40,6 +67,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   @override
   void initState() {
     super.initState();
+    _recomputeMatching();
     _searchFocus.addListener(() {
       if (_searchFocus.hasFocus && _filterMenuOpen && mounted) {
         setState(() => _filterMenuOpen = false);
@@ -49,6 +77,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchFocus.dispose();
     _searchCtrl.dispose();
     super.dispose();
@@ -93,6 +122,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       categoryFilterSlugs = selected.isEmpty
           ? null
           : {for (final category in selected) ...category.categorySlugs};
+      _recomputeMatching();
     });
   }
 
@@ -114,6 +144,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       _filterMenuOpen = false;
       categoryFilterIds = {};
       categoryFilterSlugs = null;
+      _recomputeMatching();
     });
     if (focusSearch) _searchFocus.requestFocus();
   }
@@ -125,6 +156,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       _filterMenuOpen = false;
       categoryFilterIds = {};
       categoryFilterSlugs = null;
+      _recomputeMatching();
     });
   }
 
@@ -149,25 +181,25 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = FoodDb.instance.categories();
+    final l = context.l10n;
+    final categories = _categoriesFor(l);
     final bottomInset = MediaQuery.of(context).padding.bottom;
     final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
     final searchBottom =
         keyboardInset > 0 ? keyboardInset + 10.0 : bottomInset + 90.0;
     final productCardBottomGap = searchBottom + 58.0;
     const listBottomPadding = 12.0;
-    final store = context.watch<AppStore>();
-    final matchingItems = FoodDb.instance.search(
-      query,
-      categorySlugs: categoryFilterSlugs,
-      limit: 100000,
-    );
+    final store = context.read<AppStore>();
+    // В режиме «избранное» пересобираемся только при изменении набора избранного
+    // (а не на каждый notify стора). В каталоге эта подписка не нужна.
+    if (!catalogMode) {
+      context.select<AppStore, int>((s) => s.favoriteProductSlugs.length);
+    }
     final items = catalogMode
-        ? matchingItems
-        : matchingItems
+        ? _matching
+        : _matching
             .where((product) => store.isFavoriteProduct(product.slug))
             .toList();
-    final l = context.l10n;
     final activeFilterLabel = _activeFilterLabel(l, categories);
     final selectedCount = _selected.length;
     final selectedKcal = _selected.entries.fold<int>(0, (sum, entry) {
@@ -387,7 +419,18 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                             controller: _searchCtrl,
                             keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.search,
-                            onChanged: (v) => setState(() => query = v),
+                            onChanged: (v) {
+                              // Поле обновляем сразу (крестик очистки), а
+                              // дорогой пересчёт списка откладываем на 150 мс.
+                              setState(() => query = v);
+                              _searchDebounce?.cancel();
+                              _searchDebounce = Timer(
+                                const Duration(milliseconds: 150),
+                                () {
+                                  if (mounted) setState(_recomputeMatching);
+                                },
+                              );
+                            },
                             decoration: InputDecoration(
                               hintText: l.t('food.search'),
                               border: InputBorder.none,
@@ -403,7 +446,11 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                           GestureDetector(
                             onTap: () {
                               _searchCtrl.clear();
-                              setState(() => query = '');
+                              _searchDebounce?.cancel();
+                              setState(() {
+                                query = '';
+                                _recomputeMatching();
+                              });
                               _searchFocus.requestFocus();
                             },
                             child: Icon(Icons.close, size: 18, color: t.dark),

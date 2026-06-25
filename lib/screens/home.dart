@@ -18,7 +18,28 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppStore>();
+    final s = context.read<AppStore>();
+    // Пересобираем главный экран только когда меняется одно из ПОКАЗАННЫХ
+    // значений, а не на любой notify стора (тоггл избранного, смена времени
+    // приёма, аватар и т.п.). Фоновые тики, не меняющие эти числа, экран не
+    // трогают.
+    context.select<AppStore, int>(
+      (s) => Object.hash(
+        s.macros.carbs,
+        s.macros.fat,
+        s.macros.protein,
+        s.carbGoal,
+        s.fatGoal,
+        s.protGoal,
+        s.consumed,
+        s.goalKcal,
+        s.weight,
+        s.steps,
+        s.stepsGoal,
+        s.water,
+        s.waterGoal,
+      ),
+    );
     final l = context.l10n;
     final waterPct =
         (s.waterGoal > 0 ? s.water / s.waterGoal * 100 : 0).round();

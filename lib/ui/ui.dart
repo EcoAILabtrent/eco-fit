@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -209,10 +208,16 @@ class _BgBlob extends StatelessWidget {
       left: left,
       width: width,
       height: height,
-      child: ImageFiltered(
-        imageFilter: ui.ImageFilter.blur(sigmaX: 64, sigmaY: 64),
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      // Блобы статичны (амбиентная анимация выключена). Раньше — сплошной круг
+      // + ImageFilter.blur(σ64): Impeller перекодирует этот offscreen-блюр КАЖДЫЙ
+      // кадр (главная остаточная стоимость растера). Радиальный градиент даёт тот
+      // же мягкий ореол практически бесплатно, без offscreen-прохода.
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [color, color.withValues(alpha: 0)],
+          ),
         ),
       ),
     );
@@ -308,6 +313,11 @@ class EcoTopBar extends StatelessWidget {
   }
 }
 
+/// Без живого backdrop-блюра тонкая (≈20%) заливка читалась бы прозрачной.
+/// Поднимаем непрозрачность до матового уровня — карточка остаётся «стеклом»,
+/// но без покадрового размытия фона при скролле.
+Color _frostFill(Color c) => c.a >= 0.5 ? c : c.withValues(alpha: 0.5);
+
 /// Card surface.
 class EcoGlassSurface extends StatelessWidget {
   final EcoTheme t;
@@ -338,32 +348,32 @@ class EcoGlassSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = borderRadius ?? BorderRadius.circular(t.r);
-    return Container(
-      width: width,
-      height: height,
-      margin: margin,
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: shadows ??
-            const [
-              BoxShadow(
-                color: Color(0x34FFFFFF),
-                blurRadius: 18,
-                offset: Offset(-2, -2),
-              ),
-            ],
-      ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: BackdropFilter.grouped(
-          filter: ui.ImageFilter.blur(
-            sigmaX: blur ?? t.blur,
-            sigmaY: blur ?? t.blur,
-          ),
+    // Раньше «матовость» давал BackdropFilter (живое размытие фона) — он
+    // пересчитывался каждый кадр при скролле и был главным источником лагов.
+    // Заменяем на статичную плотную заливку + RepaintBoundary, чтобы карточка
+    // кэшировалась как готовый слой и не перерисовывалась при прокрутке.
+    return RepaintBoundary(
+      child: Container(
+        width: width,
+        height: height,
+        margin: margin,
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          boxShadow: shadows ??
+              const [
+                BoxShadow(
+                  color: Color(0x34FFFFFF),
+                  blurRadius: 18,
+                  offset: Offset(-2, -2),
+                ),
+              ],
+        ),
+        child: ClipRRect(
+          borderRadius: radius,
           child: Container(
             padding: padding,
             decoration: BoxDecoration(
-              color: bg ?? t.card,
+              color: _frostFill(bg ?? t.card),
               borderRadius: radius,
               border: Border.all(color: t.glassBorder),
             ),
@@ -443,31 +453,31 @@ class EcoIconBadge extends StatelessWidget {
           ),
         ],
       ),
+      // Бейдж и так на 60–92% непрозрачно-белый, сквозь него почти ничего не
+      // видно — убираем дорогой BackdropFilter и чуть поднимаем заливку, вид
+      // практически не меняется.
       child: ClipOval(
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            width: size,
-            height: size,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.60),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.72)),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.92),
-                  Colors.white.withValues(alpha: 0.55),
-                ],
-              ),
+        child: Container(
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white.withValues(alpha: 0.78),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.72)),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.92),
+                Colors.white.withValues(alpha: 0.55),
+              ],
             ),
-            child: Icon(
-              iconData ?? ecoIcon(name ?? ''),
-              size: icon,
-              color: t.dark,
-            ),
+          ),
+          child: Icon(
+            iconData ?? ecoIcon(name ?? ''),
+            size: icon,
+            color: t.dark,
           ),
         ),
       ),
@@ -2052,12 +2062,12 @@ class _LiquidNavBand extends StatelessWidget {
       children: [
         ClipPath(
           clipper: _LiquidNavClipper(),
-          child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-            child: Container(
-              color:
-                  darkGlass ? const Color(0x82F7FAF9) : const Color(0x42F7FAF9),
-            ),
+          // Навигация закреплена, контент скроллит под ней -> BackdropFilter
+          // пересчитывался каждый кадр. Статичный плотный тон убирает покадровый
+          // блюр; форму и блик дают clipper + chrome-painter поверх.
+          child: Container(
+            color:
+                darkGlass ? const Color(0xC2F7FAF9) : const Color(0x88F7FAF9),
           ),
         ),
         Positioned.fill(child: CustomPaint(painter: _LiquidNavChromePainter())),
@@ -2091,15 +2101,13 @@ class _LiquidNavPill extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(27.5),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color:
-                  darkGlass ? const Color(0x62FFFFFF) : const Color(0x3FAFB6B6),
-              borderRadius: BorderRadius.circular(27.5),
-            ),
-            child: Stack(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color:
+                darkGlass ? const Color(0x9EFFFFFF) : const Color(0x82AFB6B6),
+            borderRadius: BorderRadius.circular(27.5),
+          ),
+          child: Stack(
               children: [
                 Positioned(
                   left: 10.4,
@@ -2129,7 +2137,6 @@ class _LiquidNavPill extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -2148,15 +2155,13 @@ class _LiquidFabVisual extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipOval(
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color:
-                darkGlass ? const Color(0x88F2F6F2) : const Color(0x46AEB6B6),
-            shape: BoxShape.circle,
-          ),
-          child: Stack(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color:
+              darkGlass ? const Color(0xC8F2F6F2) : const Color(0x8AAEB6B6),
+          shape: BoxShape.circle,
+        ),
+        child: Stack(
             alignment: Alignment.center,
             children: [
               Positioned(
@@ -2194,7 +2199,6 @@ class _LiquidFabVisual extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }
