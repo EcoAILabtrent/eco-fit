@@ -1,11 +1,12 @@
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import '../l10n/app_language.dart';
+import '../nutrition/micronutrients.dart';
 
 /// Product from the offline SQLite catalog (assets/db/eco_fit.db).
 class Product {
@@ -74,20 +75,20 @@ class Product {
       imageRemoteUrl != null;
 
   String displayUnit(AppLanguage language) => switch (unit) {
-    'ml' => _unit(language, 'ml'),
-    'l' => _unit(language, 'l'),
-    'piece' => _unit(language, 'piece'),
-    'portion' => _unit(language, 'portion'),
-    _ => _unit(language, 'g'),
-  };
+        'ml' => _unit(language, 'ml'),
+        'l' => _unit(language, 'l'),
+        'piece' => _unit(language, 'piece'),
+        'portion' => _unit(language, 'portion'),
+        _ => _unit(language, 'g'),
+      };
 
   String calorieBaseLabel(AppLanguage language) =>
       '${_unit(language, 'kcal')}/100 ${displayUnit(language)}';
 
   Map<String, double> microsForGrams(num grams) => {
-    for (final entry in micros.entries)
-      entry.key: entry.value.toDouble() * grams / 100,
-  };
+        for (final entry in micros.entries)
+          entry.key: entry.value.toDouble() * grams / 100,
+      };
 
   static String _unit(AppLanguage language, String code) {
     final labels = _unitLabels[language] ?? _unitLabels[AppLanguage.ru]!;
@@ -194,17 +195,24 @@ class FoodDb {
   Database? _db;
   bool _loaded = false;
 
+  Set<String> get availableMicronutrientKeys => {
+        for (final product in all)
+          for (final key in product.micros.keys)
+            if (canonicalMicronutrientKey(key) case final canonical?) canonical,
+      };
+
   Future<void> load({String? localeCode, bool force = false}) async {
     final nextLocale = localeCode ?? _locale;
     if (_loaded && _locale == nextLocale && !force) return;
-    final path = await _ensureDatabaseFile();
-    final db = _db ?? await openDatabase(path, readOnly: false);
-    _db = db;
-    _locale = nextLocale;
+    try {
+      final path = await _ensureDatabaseFile();
+      final db = _db ?? await openDatabase(path, readOnly: false);
+      _db = db;
+      _locale = nextLocale;
 
-    final microsByFoodId = await _loadMicros(db);
-    final rows = await db.rawQuery(
-      '''
+      final microsByFoodId = await _loadMicros(db);
+      final rows = await db.rawQuery(
+        '''
       SELECT
         f.id,
         f.slug,
@@ -266,18 +274,22 @@ class FoodDb {
       WHERE f.is_active = 1
       ORDER BY name COLLATE NOCASE
       ''',
-      [_locale, _locale],
-    );
-
-    all
-      ..clear()
-      ..addAll(
-        rows.map((row) {
-          final id = (row['id'] as num).toInt();
-          return Product.fromDbRow(row, microsByFoodId[id] ?? const {});
-        }),
+        [_locale, _locale],
       );
-    _loaded = true;
+
+      all
+        ..clear()
+        ..addAll(
+          rows.map((row) {
+            final id = (row['id'] as num).toInt();
+            return Product.fromDbRow(row, microsByFoodId[id] ?? const {});
+          }),
+        );
+      _loaded = true;
+    } catch (e) {
+      debugPrint('Error loading food database: $e');
+      _loaded = true;
+    }
   }
 
   Future<Map<int, Map<String, num>>> _loadMicros(Database db) async {
@@ -290,9 +302,9 @@ class FoodDb {
     final out = <int, Map<String, num>>{};
     for (final row in rows) {
       final foodId = (row['food_id'] as num).toInt();
-      final code = row['code'] as String;
+      final code = canonicalMicronutrientKey(row['code'] as String);
       final amount = row['amount_per_100g'];
-      if (amount is! num) continue;
+      if (code == null || amount is! num) continue;
       out.putIfAbsent(foodId, () => {})[code] = amount;
     }
     return out;
@@ -510,37 +522,37 @@ _CategoryGroupDefinition _categoryGroupForSlug(String slug) {
 String _categoryGroupName(String id, String localeCode) {
   return switch (localeCode) {
     'en' => switch (id) {
-      'dishes' => 'Dishes',
-      'drinks' => 'Drinks',
-      'produce' => 'Fruits & vegetables',
-      'protein' => 'Protein foods',
-      'grains' => 'Grains & bread',
-      _ => 'Sweets & other',
-    },
+        'dishes' => 'Dishes',
+        'drinks' => 'Drinks',
+        'produce' => 'Fruits & vegetables',
+        'protein' => 'Protein foods',
+        'grains' => 'Grains & bread',
+        _ => 'Sweets & other',
+      },
     'uz_latn' => switch (id) {
-      'dishes' => 'Taomlar',
-      'drinks' => 'Ichimliklar',
-      'produce' => 'Meva-sabzavot',
-      'protein' => 'Oqsilli mahsulotlar',
-      'grains' => 'Don va non',
-      _ => 'Shirinlik/boshqa',
-    },
+        'dishes' => 'Taomlar',
+        'drinks' => 'Ichimliklar',
+        'produce' => 'Meva-sabzavot',
+        'protein' => 'Oqsilli mahsulotlar',
+        'grains' => 'Don va non',
+        _ => 'Shirinlik/boshqa',
+      },
     'uz_cyrl' => switch (id) {
-      'dishes' => 'Таомлар',
-      'drinks' => 'Ичимликлар',
-      'produce' => 'Мева-сабзавот',
-      'protein' => 'Оқсилли маҳсулотлар',
-      'grains' => 'Дон ва нон',
-      _ => 'Ширинлик/бошқа',
-    },
+        'dishes' => 'Таомлар',
+        'drinks' => 'Ичимликлар',
+        'produce' => 'Мева-сабзавот',
+        'protein' => 'Оқсилли маҳсулотлар',
+        'grains' => 'Дон ва нон',
+        _ => 'Ширинлик/бошқа',
+      },
     _ => switch (id) {
-      'dishes' => 'Блюда',
-      'drinks' => 'Напитки',
-      'produce' => 'Фрукты и овощи',
-      'protein' => 'Белковые продукты',
-      'grains' => 'Крупы и хлеб',
-      _ => 'Сладости и прочее',
-    },
+        'dishes' => 'Блюда',
+        'drinks' => 'Напитки',
+        'produce' => 'Фрукты и овощи',
+        'protein' => 'Белковые продукты',
+        'grains' => 'Крупы и хлеб',
+        _ => 'Сладости и прочее',
+      },
   };
 }
 
@@ -593,7 +605,8 @@ int? _normalizedSearchRune(int rune) {
     0x02bb ||
     0x02bc ||
     0x2018 ||
-    0x2019 => _removedRune,
+    0x2019 =>
+      _removedRune,
     0x0451 => 0x0435, // yo -> e
     0x045e => 0x0443, // short u -> u
     0x0493 => 0x0433, // ghe -> ge

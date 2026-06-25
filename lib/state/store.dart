@@ -33,6 +33,8 @@ class LogItem {
   final double carbs;
   final double fat;
   final Map<String, double> micros;
+  final String? productSlug;
+  final int? grams;
   const LogItem(
     this.name,
     this.kcal, {
@@ -40,24 +42,30 @@ class LogItem {
     this.carbs = 0,
     this.fat = 0,
     this.micros = const {},
+    this.productSlug,
+    this.grams,
   });
 
   Map<String, dynamic> toMap() => {
-    'name': name,
-    'kcal': kcal,
-    'p': protein,
-    'c': carbs,
-    'f': fat,
-    'm': micros,
-  };
+        'name': name,
+        'kcal': kcal,
+        'p': protein,
+        'c': carbs,
+        'f': fat,
+        'm': micros,
+        'slug': productSlug,
+        'grams': grams,
+      };
   static LogItem fromMap(Map m) => LogItem(
-    m['name'] as String,
-    (m['kcal'] as num).toInt(),
-    protein: (m['p'] as num?)?.toDouble() ?? 0,
-    carbs: (m['c'] as num?)?.toDouble() ?? 0,
-    fat: (m['f'] as num?)?.toDouble() ?? 0,
-    micros: _microsFromMap(m['m']),
-  );
+        m['name'] as String,
+        (m['kcal'] as num).toInt(),
+        protein: (m['p'] as num?)?.toDouble() ?? 0,
+        carbs: (m['c'] as num?)?.toDouble() ?? 0,
+        fat: (m['f'] as num?)?.toDouble() ?? 0,
+        micros: _microsFromMap(m['m']),
+        productSlug: m['slug'] as String?,
+        grams: (m['grams'] as num?)?.toInt(),
+      );
 
   static Map<String, double> _microsFromMap(Object? raw) {
     if (raw is! Map) return const {};
@@ -72,6 +80,39 @@ class LogItem {
 
 /// App state — mirrors the Eco design INITIAL store, persisted to Hive so the
 /// app is fully offline-first. Supabase sync attaches on top of this later.
+class BodyMetricEntry {
+  final DateTime date;
+  final double weightKg;
+  final double skeletalMuscle;
+  final double bodyFat;
+
+  const BodyMetricEntry({
+    required this.date,
+    required this.weightKg,
+    required this.skeletalMuscle,
+    required this.bodyFat,
+  });
+
+  Map<String, dynamic> toMap() => {
+        'date': AppStore.ymd(date),
+        'weightKg': weightKg,
+        'skeletalMuscle': skeletalMuscle,
+        'bodyFat': bodyFat,
+      };
+
+  static BodyMetricEntry fromMap(Map<dynamic, dynamic> m) {
+    final rawDate = m['date'] as String?;
+    return BodyMetricEntry(
+      date: rawDate == null
+          ? DateTime.now()
+          : DateTime.tryParse(rawDate) ?? DateTime.now(),
+      weightKg: (m['weightKg'] as num?)?.toDouble() ?? 0,
+      skeletalMuscle: (m['skeletalMuscle'] as num?)?.toDouble() ?? 0,
+      bodyFat: (m['bodyFat'] as num?)?.toDouble() ?? 0,
+    );
+  }
+}
+
 class AppStore extends ChangeNotifier {
   static const _boxName = 'eco';
   static const _seedDemoFood = bool.fromEnvironment('SEED_DEMO_FOOD');
@@ -106,10 +147,9 @@ class AppStore extends ChangeNotifier {
   int goalKcal = 2045;
 
   // Health detail metrics
-  String? pressure; // "120/80"
-  double? sugar; // мг/дл
   double bodyFat = 17.5; // %
   double skeletalMuscle = 30.2; // кг
+  List<BodyMetricEntry> bodyHistory = [];
 
   // Macro goals in grams (set from target kcal at onboarding).
   int carbGoal = 230;
@@ -118,12 +158,26 @@ class AppStore extends ChangeNotifier {
 
   // Onboarding profile
   bool onboarded = false;
+  String? profileName;
   String? gender;
-  int? age;
+  int? age; // derived from birthDate when it is set
+  DateTime? birthDate;
   int? heightCm;
   double? weightKg;
   String? activity;
   String? goal; // lose | keep | gain
+  String? avatarPath; // local file path of the chosen profile photo
+
+  /// Whole years from [birth] to today.
+  static int ageFromBirth(DateTime birth) {
+    final now = DateTime.now();
+    var years = now.year - birth.year;
+    if (now.month < birth.month ||
+        (now.month == birth.month && now.day < birth.day)) {
+      years--;
+    }
+    return years;
+  }
 
   Future<void> init() async {
     await Hive.initFlutter();
@@ -133,11 +187,9 @@ class AppStore extends ChangeNotifier {
     steps = _box.get('steps', defaultValue: 0) as int;
     stepsGoal = _box.get('stepsGoal', defaultValue: 10000) as int;
     weight = (_box.get('weight', defaultValue: 0.0) as num).toDouble();
-    pressure = _box.get('pressure') as String?;
-    sugar = (_box.get('sugar') as num?)?.toDouble();
     bodyFat = (_box.get('bodyFat', defaultValue: 17.5) as num).toDouble();
-    skeletalMuscle = (_box.get('skeletalMuscle', defaultValue: 30.2) as num)
-        .toDouble();
+    skeletalMuscle =
+        (_box.get('skeletalMuscle', defaultValue: 30.2) as num).toDouble();
     language = AppLanguage.fromCode(
       _box.get('language', defaultValue: AppLanguage.ru.code) as String?,
     );
@@ -146,6 +198,46 @@ class AppStore extends ChangeNotifier {
     fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
     protGoal = _box.get('protGoal', defaultValue: 150) as int;
     onboarded = _box.get('onboarded', defaultValue: false) as bool;
+    profileName = _cleanName(_box.get('profileName') as String?);
+    gender = _box.get('gender') as String?;
+    final birthStr = _box.get('birthDate') as String?;
+    birthDate = birthStr != null ? DateTime.tryParse(birthStr) : null;
+    age = birthDate != null
+        ? ageFromBirth(birthDate!)
+        : (_box.get('age') as num?)?.toInt();
+    heightCm = (_box.get('heightCm') as num?)?.toInt();
+    weightKg = (_box.get('weightKg') as num?)?.toDouble();
+    activity = _box.get('activity') as String?;
+    goal = _box.get('goal') as String?;
+    avatarPath = _box.get('avatarPath') as String?;
+    final hasCompleteProfile = (gender == 'm' || gender == 'f') &&
+        age != null &&
+        heightCm != null &&
+        (weightKg != null || weight > 0);
+    if (onboarded && !hasCompleteProfile) {
+      onboarded = false;
+      await _box.put('onboarded', false);
+    }
+    final rawBodyHistory = _box.get('bodyHistory');
+    if (rawBodyHistory is List) {
+      bodyHistory = rawBodyHistory
+          .whereType<Map<dynamic, dynamic>>()
+          .map(BodyMetricEntry.fromMap)
+          .where((entry) => entry.weightKg > 0)
+          .toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+    }
+    final currentWeight = weight > 0 ? weight : (weightKg ?? 0);
+    if (bodyHistory.isEmpty && currentWeight > 0) {
+      bodyHistory = [
+        BodyMetricEntry(
+          date: DateTime.now(),
+          weightKg: currentWeight,
+          skeletalMuscle: skeletalMuscle,
+          bodyFat: bodyFat,
+        ),
+      ];
+    }
     final rawFavorites = _box.get('favoriteProductSlugs');
     if (rawFavorites is List) {
       favoriteProductSlugs = rawFavorites.whereType<String>().toSet();
@@ -191,16 +283,23 @@ class AppStore extends ChangeNotifier {
     _box.put('steps', steps);
     _box.put('stepsGoal', stepsGoal);
     _box.put('weight', weight);
-    _box.put('pressure', pressure);
-    _box.put('sugar', sugar);
     _box.put('bodyFat', bodyFat);
     _box.put('skeletalMuscle', skeletalMuscle);
+    _box.put('bodyHistory', bodyHistory.map((entry) => entry.toMap()).toList());
     _box.put('language', language.code);
     _box.put('goalKcal', goalKcal);
     _box.put('carbGoal', carbGoal);
     _box.put('fatGoal', fatGoal);
     _box.put('protGoal', protGoal);
     _box.put('onboarded', onboarded);
+    _box.put('profileName', profileName);
+    _box.put('gender', gender);
+    _box.put('age', age);
+    _box.put('birthDate', birthDate?.toIso8601String());
+    _box.put('heightCm', heightCm);
+    _box.put('weightKg', weightKg);
+    _box.put('activity', activity);
+    _box.put('goal', goal);
     _box.put('favoriteProductSlugs', favoriteProductSlugs.toList());
     _box.put(
       'diary',
@@ -249,7 +348,8 @@ class AppStore extends ChangeNotifier {
   List<LogItem> itemsFor(String mealKey, {String? date}) =>
       diary[date ?? ymd()]?[mealKey] ?? const [];
 
-  int consumedOn([String? date]) => (diary[date ?? ymd()] ?? const {}).values
+  int consumedOn([String? date]) => (diary[date ?? ymd()] ?? const {})
+      .values
       .expand((items) => items)
       .fold(0, (sum, e) => sum + e.kcal);
 
@@ -349,6 +449,14 @@ class AppStore extends ChangeNotifier {
   void setWeight(double kg) {
     weight = kg;
     weightKg = kg;
+    _upsertBodyHistory(
+      BodyMetricEntry(
+        date: DateTime.now(),
+        weightKg: kg,
+        skeletalMuscle: skeletalMuscle,
+        bodyFat: bodyFat,
+      ),
+    );
     _persist();
     notifyListeners();
   }
@@ -356,30 +464,64 @@ class AppStore extends ChangeNotifier {
   void setBodyComposition({double? bodyFat, double? skeletalMuscle}) {
     if (bodyFat != null) this.bodyFat = bodyFat;
     if (skeletalMuscle != null) this.skeletalMuscle = skeletalMuscle;
+    final currentWeight = weight > 0 ? weight : (weightKg ?? 0);
+    if (currentWeight > 0) {
+      _upsertBodyHistory(
+        BodyMetricEntry(
+          date: DateTime.now(),
+          weightKg: currentWeight,
+          skeletalMuscle: this.skeletalMuscle,
+          bodyFat: this.bodyFat,
+        ),
+      );
+    }
     _persist();
     notifyListeners();
   }
 
-  void setPressureFull(int sys, int dia) {
-    pressure = '$sys/$dia';
+  void saveBodyMetrics({
+    required double weightKg,
+    required double skeletalMuscle,
+    required double bodyFat,
+    DateTime? date,
+  }) {
+    final roundedWeight = double.parse(weightKg.toStringAsFixed(1));
+    this.weightKg = roundedWeight;
+    weight = roundedWeight;
+    this.skeletalMuscle = double.parse(skeletalMuscle.toStringAsFixed(1));
+    this.bodyFat = double.parse(bodyFat.toStringAsFixed(1));
+    _upsertBodyHistory(
+      BodyMetricEntry(
+        date: date ?? DateTime.now(),
+        weightKg: roundedWeight,
+        skeletalMuscle: this.skeletalMuscle,
+        bodyFat: this.bodyFat,
+      ),
+    );
     _persist();
+    notifyListeners();
+  }
+
+  void updateProfileBasics({
+    required String? profileName,
+    required int age,
+    required String gender,
+  }) {
+    this.profileName = _cleanName(profileName);
+    this.age = age;
+    this.gender = gender;
+    _persist();
+    notifyListeners();
+  }
+
+  void setAvatarPath(String? path) {
+    avatarPath = path;
+    _box.put('avatarPath', path);
     notifyListeners();
   }
 
   void setRecFeedback(String? v) {
     recFeedback = recFeedback == v ? null : v;
-    notifyListeners();
-  }
-
-  void setPressure(String v) {
-    pressure = v;
-    _persist();
-    notifyListeners();
-  }
-
-  void setSugar(double v) {
-    sugar = v;
-    _persist();
     notifyListeners();
   }
 
@@ -397,17 +539,28 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateFood(String mealKey, int index, LogItem item, {String? date}) {
+    final items = diary[date ?? ymd()]?[mealKey];
+    if (items == null || index < 0 || index >= items.length) return;
+    items[index] = item;
+    _persist();
+    notifyListeners();
+  }
+
   void completeOnboarding({
+    required String? profileName,
     required String gender,
-    required int age,
+    required DateTime birthDate,
     required int heightCm,
     required double weightKg,
     required String activity,
     required String goal,
     required int targetKcal,
   }) {
+    this.profileName = _cleanName(profileName);
     this.gender = gender;
-    this.age = age;
+    this.birthDate = birthDate;
+    age = ageFromBirth(birthDate);
     this.heightCm = heightCm;
     this.weightKg = weightKg;
     weight = weightKg;
@@ -419,8 +572,33 @@ class AppStore extends ChangeNotifier {
     protGoal = (targetKcal * 0.30 / 4).round();
     fatGoal = (targetKcal * 0.25 / 9).round();
     onboarded = true;
+    _upsertBodyHistory(
+      BodyMetricEntry(
+        date: DateTime.now(),
+        weightKg: weightKg,
+        skeletalMuscle: skeletalMuscle,
+        bodyFat: bodyFat,
+      ),
+    );
     _persist();
     notifyListeners();
+  }
+
+  void _upsertBodyHistory(BodyMetricEntry entry) {
+    final key = ymd(entry.date);
+    bodyHistory = [
+      for (final item in bodyHistory)
+        if (ymd(item.date) != key) item,
+      entry,
+    ]..sort((a, b) => a.date.compareTo(b.date));
+    if (bodyHistory.length > 90) {
+      bodyHistory = bodyHistory.sublist(bodyHistory.length - 90);
+    }
+  }
+
+  String? _cleanName(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
   }
 
   void _seedDemoFood30Days() {
@@ -441,6 +619,16 @@ class AppStore extends ChangeNotifier {
       protGoal = (goalKcal * 0.30 / 4).round();
       fatGoal = (goalKcal * 0.25 / 9).round();
       onboarded = true;
+    }
+    if (bodyHistory.isEmpty && weight > 0) {
+      _upsertBodyHistory(
+        BodyMetricEntry(
+          date: DateTime.now(),
+          weightKg: weight,
+          skeletalMuscle: skeletalMuscle,
+          bodyFat: bodyFat,
+        ),
+      );
     }
 
     final today = DateTime.now();

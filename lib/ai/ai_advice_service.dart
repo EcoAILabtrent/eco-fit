@@ -3,8 +3,11 @@ import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
 
+import '../data/products.dart';
 import '../l10n/app_language.dart';
+import '../nutrition/micronutrients.dart';
 import '../state/store.dart';
+import 'ai_advice_contract.dart';
 import 'ai_config.dart';
 
 enum AiAdvicePeriod {
@@ -15,6 +18,13 @@ enum AiAdvicePeriod {
   final int days;
 
   const AiAdvicePeriod({required this.days});
+}
+
+const _mainMealKeys = {'breakfast', 'lunch', 'dinner'};
+
+bool isAiAdviceDayComplete(Iterable<String> loggedMealKeys) {
+  final loggedMeals = loggedMealKeys.toSet();
+  return loggedMeals.containsAll(_mainMealKeys);
 }
 
 class AiAdviceService {
@@ -45,21 +55,21 @@ class AiAdviceService {
     }
 
     try {
+      final snapshot = _periodSnapshot(store, language, period, date);
       final callable = FirebaseFunctions.instanceFor(
         region: AiConfig.functionsRegion,
       ).httpsCallable(
         AiConfig.adviceFunctionName,
         options: HttpsCallableOptions(timeout: AiConfig.timeout),
       );
-      final result = await callable.call({
-        'snapshot': _periodSnapshot(store, language, period, date),
-      });
+      final result = await callable.call({'snapshot': snapshot});
 
-      final items = _itemsFromFunctionResult(result.data);
-      if (items.isEmpty) {
-        throw const AiAdviceException('AI returned an empty response.');
-      }
-      final normalized = _formatItems(items);
+      final aiItems = AiAdviceContract.parseFunctionResult(result.data);
+      final fallbackItems = _localAdviceItems(snapshot, language);
+      final normalized = AiAdviceContract.format(
+        AiAdviceContract.merge(aiItems: aiItems, fallbackItems: fallbackItems),
+        language,
+      );
       if (normalized.isEmpty) {
         throw const AiAdviceException('AI returned an empty response.');
       }
@@ -83,20 +93,38 @@ class AiAdviceService {
     AiAdvicePeriod period,
     String? date,
   ) {
+    final now = DateTime.now();
     final dates = _dateKeys(period, date);
-    final loggedDates = dates.where((day) => _itemsOn(store, day).isNotEmpty);
+    final loggedDates =
+        dates.where((day) => _itemsOn(store, day).isNotEmpty).toList();
     final totals = _periodTotals(store, dates);
     final averageDays = loggedDates.isEmpty ? 1 : loggedDates.length;
     final averageKcal = totals.kcal / averageDays;
     final averageProtein = totals.protein / averageDays;
     final averageCarbs = totals.carbs / averageDays;
     final averageFat = totals.fat / averageDays;
+    final loggedMeals = period == AiAdvicePeriod.day
+        ? [
+            for (final meal in kMealsByTime)
+              if (store.itemsFor(meal.key, date: dates.last).isNotEmpty)
+                meal.key,
+          ]
+        : <String>[];
+    final isDayComplete = isAiAdviceDayComplete(loggedMeals);
+    final isCalendarCurrentDay =
+        period == AiAdvicePeriod.day && dates.last == AppStore.ymd(now);
     final snapshot = <String, Object?>{
       'period': period.name,
       'period_days': period.days,
       'start_date': dates.first,
       'end_date': dates.last,
       'logged_days': loggedDates.length,
+      'generated_at_local': now.toIso8601String(),
+      'current_local_hour': now.hour,
+      'is_calendar_current_day': isCalendarCurrentDay,
+      'is_current_day': isCalendarCurrentDay && !isDayComplete,
+      'is_day_complete': isDayComplete,
+      'logged_meals': loggedMeals,
       'language': language.code,
       'language_name': _languageName(language),
       'profile': {
@@ -144,9 +172,12 @@ class AiAdviceService {
         store,
         totals.micros,
         averageDays,
+        totals.microItemCounts,
+        totals.itemCount,
       ),
       'micronutrient_note':
-          'Micronutrient values are estimates from foods that have nutrient data in the local catalog.',
+          'Micronutrient values are estimates from foods that have nutrient data in the local catalog. '
+              'Never interpret insufficient_data as zero intake.',
       'daily_breakdown': [
         for (final day in dates)
           {
@@ -177,7 +208,7 @@ class AiAdviceService {
                   'carbs_g': _round(item.carbs),
                   'fat_g': _round(item.fat),
                   'micronutrients': {
-                    for (final entry in item.micros.entries)
+                    for (final entry in _normalizedMicros(item.micros).entries)
                       entry.key: _round(entry.value),
                   },
                 },
@@ -207,8 +238,9 @@ class AiAdviceService {
   }
 
   List<LogItem> _itemsOn(AppStore store, String date) => [
-    for (final meal in kMealsByTime) ...store.itemsFor(meal.key, date: date),
-  ];
+        for (final meal in kMealsByTime)
+          ...store.itemsFor(meal.key, date: date),
+      ];
 
   ({
     int kcal,
@@ -216,13 +248,16 @@ class AiAdviceService {
     double carbs,
     double fat,
     Map<String, double> micros,
-  })
-  _periodTotals(AppStore store, List<String> dates) {
+    Map<String, int> microItemCounts,
+    int itemCount,
+  }) _periodTotals(AppStore store, List<String> dates) {
     var kcal = 0;
     double protein = 0;
     double carbs = 0;
     double fat = 0;
     final micros = <String, double>{};
+    final microItemCounts = <String, int>{};
+    var itemCount = 0;
 
     for (final day in dates) {
       kcal += store.consumedOn(day);
@@ -230,12 +265,22 @@ class AiAdviceService {
       protein += macros.protein;
       carbs += macros.carbs;
       fat += macros.fat;
-      for (final entry in store.microsOn(day).entries) {
-        micros.update(
-          entry.key,
-          (current) => current + entry.value,
-          ifAbsent: () => entry.value,
-        );
+      for (final item in _itemsOn(store, day)) {
+        itemCount++;
+        for (final entry in item.micros.entries) {
+          final key = canonicalMicronutrientKey(entry.key);
+          if (key == null) continue;
+          micros.update(
+            key,
+            (current) => current + entry.value,
+            ifAbsent: () => entry.value,
+          );
+          microItemCounts.update(
+            key,
+            (current) => current + 1,
+            ifAbsent: () => 1,
+          );
+        }
       }
     }
 
@@ -245,6 +290,8 @@ class AiAdviceService {
       carbs: carbs,
       fat: fat,
       micros: micros,
+      microItemCounts: microItemCounts,
+      itemCount: itemCount,
     );
   }
 
@@ -309,37 +356,631 @@ class AiAdviceService {
     AppStore store,
     Map<String, double> totals,
     int averageDays,
+    Map<String, int> itemCounts,
+    int totalItemCount,
   ) {
-    final refs = _micronutrientReferences(store);
+    final databaseKeys = FoodDb.instance.availableMicronutrientKeys;
+    final refs = _micronutrientReferences(store, databaseKeys);
     return {
-      for (final entry in refs.entries)
-        entry.key: _gap(
-          name: _microNames[entry.key] ?? entry.key,
-          average: (totals[entry.key] ?? 0) / averageDays,
-          target: entry.value.target,
-          unit: entry.value.unit,
-          upperLimit: entry.value.upperLimit,
+      for (final target in refs)
+        target.key: _micronutrientGap(
+          target: target,
+          total: totals[target.key],
+          averageDays: averageDays,
+          coveredItems: itemCounts[target.key] ?? 0,
+          totalItems: totalItemCount,
         ),
     };
   }
 
-  Map<String, ({double target, String unit, bool upperLimit})>
-  _micronutrientReferences(AppStore store) {
-    final female = store.gender == 'f';
-    final age = store.age ?? 30;
-    final calcium = age >= 51 && female || age >= 71 ? 1200.0 : 1000.0;
+  List<MicroTarget> _micronutrientReferences(
+    AppStore store,
+    Iterable<String> databaseKeys,
+  ) {
+    final age = store.age;
+    final heightCm = store.heightCm;
+    final weightKg = store.weightKg ?? (store.weight > 0 ? store.weight : null);
+    final gender = store.gender;
+    if (age == null ||
+        heightCm == null ||
+        weightKg == null ||
+        (gender != 'm' && gender != 'f')) {
+      return const [];
+    }
+
+    return calculateMicroTargets(
+      NutritionProfile(
+        ageYears: age,
+        sex: gender == 'f' ? ProfileSex.female : ProfileSex.male,
+        weightKg: weightKg,
+        heightCm: heightCm.toDouble(),
+      ),
+      databaseNutrientKeys: databaseKeys,
+    );
+  }
+
+  Map<String, double> _normalizedMicros(Map<String, double> source) {
+    final normalized = <String, double>{};
+    for (final entry in source.entries) {
+      final key = canonicalMicronutrientKey(entry.key);
+      if (key == null) continue;
+      normalized.update(
+        key,
+        (current) => current + entry.value,
+        ifAbsent: () => entry.value,
+      );
+    }
+    return normalized;
+  }
+
+  Map<String, Object?> _micronutrientGap({
+    required MicroTarget target,
+    required double? total,
+    required int averageDays,
+    required int coveredItems,
+    required int totalItems,
+  }) {
+    final coverage = totalItems == 0 ? 0.0 : coveredItems / totalItems;
+    final enoughData = total != null && coveredItems > 0;
+    final average = (total ?? 0) / averageDays;
+    final delta = average - target.target;
+    final dataQuality = !enoughData
+        ? 'unavailable'
+        : coverage >= 0.8
+            ? 'high'
+            : coverage >= 0.4
+                ? 'medium'
+                : 'low';
+
+    String status;
+    if (!enoughData) {
+      status = 'insufficient_data';
+    } else if (target.cdrr != null) {
+      status = average > target.cdrr! ? 'above_cdrr_by' : 'within_cdrr';
+    } else {
+      status = delta < 0 ? 'below_target_by' : 'meets_or_above_target';
+    }
+
+    var safetyStatus = 'not_established';
+    if (enoughData && target.cdrr != null) {
+      safetyStatus = average > target.cdrr! ? 'above_cdrr' : 'within_cdrr';
+    } else if (enoughData && target.ul != null) {
+      final formSpecific = const {
+        'mg',
+        'vit_a',
+        'vit_e',
+        'vit_b3',
+        'folate',
+      }.contains(target.key);
+      safetyStatus = formSpecific
+          ? 'not_evaluated_form_specific_ul'
+          : (average > target.ul! ? 'above_ul' : 'within_ul');
+    }
+
     return {
-      'fe': (target: female ? 18.0 : 8.0, unit: 'mg', upperLimit: false),
-      'mg': (target: female ? 320.0 : 420.0, unit: 'mg', upperLimit: false),
-      'ca': (target: calcium, unit: 'mg', upperLimit: false),
-      'p': (target: 700.0, unit: 'mg', upperLimit: false),
-      'k': (target: female ? 2600.0 : 3400.0, unit: 'mg', upperLimit: false),
-      'na': (target: 2300.0, unit: 'mg', upperLimit: true),
-      'zn': (target: female ? 8.0 : 11.0, unit: 'mg', upperLimit: false),
-      'vit_c': (target: female ? 75.0 : 90.0, unit: 'mg', upperLimit: false),
-      'vit_a': (target: female ? 700.0 : 900.0, unit: 'mcg', upperLimit: false),
-      'vit_d': (target: 15.0, unit: 'mcg', upperLimit: false),
+      'name': _microNames[target.key] ?? target.key,
+      'average_per_logged_day': enoughData ? _round(average) : null,
+      'reference_per_day': _round(target.target),
+      'basis': target.basis.name,
+      'delta_to_target': enoughData ? _round(delta) : null,
+      'absolute_gap': enoughData ? _round(delta.abs()) : null,
+      'unit': target.unit.code,
+      'status': status,
+      'safety_status': safetyStatus,
+      'data_quality': dataQuality,
+      'data_coverage_percent': _round(coverage * 100),
+      if (target.ul != null) 'ul': _round(target.ul!),
+      if (target.cdrr != null) 'cdrr': _round(target.cdrr!),
+      if (target.notes.isNotEmpty) 'notes': target.notes,
     };
+  }
+
+  List<AiAdviceEntry> _localAdviceItems(
+    Map<String, Object?> snapshot,
+    AppLanguage language,
+  ) =>
+      [
+        ..._localMacroAdviceItems(snapshot, language),
+        ..._localMicronutrientAdviceItems(snapshot, language),
+      ];
+
+  List<AiAdviceEntry> _localMacroAdviceItems(
+    Map<String, Object?> snapshot,
+    AppLanguage language,
+  ) {
+    final rawGaps = snapshot['daily_target_gaps'];
+    final gaps = rawGaps is Map
+        ? rawGaps.cast<Object?, Object?>()
+        : const <Object?, Object?>{};
+    const topics = [
+      (AiAdviceTopic.calories, 'kcal'),
+      (AiAdviceTopic.protein, 'protein_g'),
+      (AiAdviceTopic.fat, 'fat_g'),
+      (AiAdviceTopic.carbohydrates, 'carbs_g'),
+    ];
+    return [
+      for (final (topic, key) in topics)
+        AiAdviceEntry(
+          topic,
+          _localMacroAdvice(topic, gaps[key], snapshot, language),
+        ),
+    ];
+  }
+
+  String _localMacroAdvice(
+    AiAdviceTopic topic,
+    Object? rawData,
+    Map<String, Object?> snapshot,
+    AppLanguage language,
+  ) {
+    if (rawData is! Map) return _dataUnavailable(language);
+    final data = rawData.cast<Object?, Object?>();
+    final amountValue = data['average_per_logged_day'];
+    final referenceValue = data['reference_per_day'];
+    if (amountValue is! num || referenceValue is! num) {
+      return _dataUnavailable(language);
+    }
+
+    final amount = amountValue.toDouble();
+    final reference = referenceValue.toDouble();
+    final status = data['status'] as String?;
+    final below = status == 'below_target_by';
+    final gap = (data['absolute_gap'] as num?)?.toDouble() ??
+        (amount - reference).abs();
+    final unit = topic == AiAdviceTopic.calories
+        ? switch (language) {
+            AppLanguage.ru || AppLanguage.uzCyrl => 'ккал',
+            _ => 'kcal',
+          }
+        : switch (language) {
+            AppLanguage.ru || AppLanguage.uzCyrl => 'г',
+            _ => 'g',
+          };
+    final amountText = _localizedNumber(amount, language);
+    final referenceText = _localizedNumber(reference, language);
+    final gapText = _localizedNumber(gap, language);
+    final period = '${snapshot['period'] ?? 'day'}';
+    final loggedDays = (snapshot['logged_days'] as num?)?.toInt() ?? 0;
+    final mentionProgress =
+        snapshot['is_current_day'] == true && topic == AiAdviceTopic.calories;
+    final reading = switch ((language, period, mentionProgress, below)) {
+      (AppLanguage.en, 'day', true, true) =>
+        '$amountText of $referenceText $unit so far; $gapText $unit remains.',
+      (AppLanguage.ru, 'day', true, true) =>
+        'Сейчас $amountText из $referenceText $unit; осталось $gapText $unit.',
+      (AppLanguage.uzLatn, 'day', true, true) =>
+        'Hozir $referenceText $unit dan $amountText; $gapText $unit qoldi.',
+      (AppLanguage.uzCyrl, 'day', true, true) =>
+        'Ҳозир $referenceText $unit дан $amountText; $gapText $unit қолди.',
+      (AppLanguage.en, 'day', true, false) =>
+        '$amountText $unit so far against $referenceText $unit; $gapText $unit over.',
+      (AppLanguage.ru, 'day', true, false) =>
+        'Сейчас $amountText $unit при ориентире $referenceText $unit; выше на $gapText $unit.',
+      (AppLanguage.uzLatn, 'day', true, false) =>
+        'Hozir $amountText $unit, moʼljal $referenceText $unit; $gapText $unit ortiq.',
+      (AppLanguage.uzCyrl, 'day', true, false) =>
+        'Ҳозир $amountText $unit, мўлжал $referenceText $unit; $gapText $unit ортиқ.',
+      (AppLanguage.en, 'day', false, true) =>
+        '$amountText of $referenceText $unit; $gapText $unit short.',
+      (AppLanguage.ru, 'day', false, true) =>
+        '$amountText из $referenceText $unit; не хватает $gapText $unit.',
+      (AppLanguage.uzLatn, 'day', false, true) =>
+        '$referenceText $unit dan $amountText; $gapText $unit kam.',
+      (AppLanguage.uzCyrl, 'day', false, true) =>
+        '$referenceText $unit дан $amountText; $gapText $unit кам.',
+      (AppLanguage.en, 'day', false, false) =>
+        '$amountText $unit against $referenceText $unit; $gapText $unit over.',
+      (AppLanguage.ru, 'day', false, false) =>
+        '$amountText $unit при ориентире $referenceText $unit; выше на $gapText $unit.',
+      (AppLanguage.uzLatn, 'day', false, false) =>
+        '$amountText $unit, moʼljal $referenceText $unit; $gapText $unit ortiq.',
+      (AppLanguage.uzCyrl, 'day', false, false) =>
+        '$amountText $unit, мўлжал $referenceText $unit; $gapText $unit ортиқ.',
+      (AppLanguage.en, _, _, true) =>
+        '$amountText of $referenceText $unit on average across $loggedDays logged days; $gapText $unit short.',
+      (AppLanguage.ru, _, _, true) =>
+        'В среднем $amountText из $referenceText $unit за $loggedDays заполненных дней; не хватает $gapText $unit.',
+      (AppLanguage.uzLatn, _, _, true) =>
+        '$loggedDays qayd etilgan kunda oʼrtacha $referenceText $unit dan $amountText; $gapText $unit kam.',
+      (AppLanguage.uzCyrl, _, _, true) =>
+        '$loggedDays қайд этилган кунда ўртача $referenceText $unit дан $amountText; $gapText $unit кам.',
+      (AppLanguage.en, _, _, false) =>
+        '$amountText $unit on average across $loggedDays logged days against $referenceText $unit; $gapText $unit over.',
+      (AppLanguage.ru, _, _, false) =>
+        'В среднем $amountText $unit за $loggedDays заполненных дней при ориентире $referenceText $unit; выше на $gapText $unit.',
+      (AppLanguage.uzLatn, _, _, false) =>
+        '$loggedDays qayd etilgan kunda oʼrtacha $amountText $unit, moʼljal $referenceText $unit; $gapText $unit ortiq.',
+      (AppLanguage.uzCyrl, _, _, false) =>
+        '$loggedDays қайд этилган кунда ўртача $amountText $unit, мўлжал $referenceText $unit; $gapText $unit ортиқ.',
+    };
+    final detail = _macroConsequenceAndFoods(
+      topic,
+      language,
+      below,
+      minorGap: reference > 0 && gap / reference < 0.05,
+    );
+    return '$reading $detail';
+  }
+
+  String _macroConsequenceAndFoods(
+    AiAdviceTopic topic,
+    AppLanguage language,
+    bool below, {
+    required bool minorGap,
+  }) {
+    const belowDetails = {
+      AiAdviceTopic.calories: [
+        'A persistent shortfall can cause fatigue and reduced performance; add buckwheat, yogurt, or nuts.',
+        'Регулярный недобор может вызывать усталость и снижение работоспособности; добавьте гречку, йогурт или орехи.',
+        'Muntazam kamlik charchoq va ish qobiliyati pasayishiga olib kelishi mumkin; grechka, yogurt yoki yongʼoq qoʼshing.',
+        'Мунтазам камлик чарчоқ ва иш қобилияти пасайишига олиб келиши мумкин; гречка, йогурт ёки ёнғоқ қўшинг.',
+      ],
+      AiAdviceTopic.protein: [
+        'A sustained shortfall can impair recovery and muscle maintenance; add eggs, fish, or legumes.',
+        'Устойчивая нехватка может ухудшать восстановление и сохранение мышц; добавьте яйца, рыбу или бобовые.',
+        'Doimiy kamlik tiklanish va mushaklarni saqlashni yomonlashtirishi mumkin; tuxum, baliq yoki dukkakli qoʼshing.',
+        'Доимий камлик тикланиш ва мушакларни сақлашни ёмонлаштириши мумкин; тухум, балиқ ёки дуккакли қўшинг.',
+      ],
+      AiAdviceTopic.fat: [
+        'A prolonged marked shortfall can impair absorption of vitamins A, D, E, and K; choose nuts, olive oil, or fish.',
+        'Длительный выраженный недобор может ухудшать усвоение витаминов A, D, E и K; выберите орехи, растительное масло или рыбу.',
+        'Uzoq davom etgan katta kamlik A, D, E va K vitaminlari soʼrilishini yomonlashtirishi mumkin; yongʼoq, oʼsimlik yogʼi yoki baliq tanlang.',
+        'Узоқ давом этган катта камлик A, D, E ва K витаминлари сўрилишини ёмонлаштириши мумкин; ёнғоқ, ўсимлик ёғи ёки балиқ танланг.',
+      ],
+      AiAdviceTopic.carbohydrates: [
+        'A repeated shortfall can reduce energy for physical and mental work; choose oats, potatoes, or fruit.',
+        'Повторяющийся недобор может снижать энергию для физической и умственной работы; выберите овсянку, картофель или фрукты.',
+        'Takroriy kamlik jismoniy va aqliy ish uchun energiyani kamaytirishi mumkin; suli, kartoshka yoki meva tanlang.',
+        'Такрорий камлик жисмоний ва ақлий иш учун энергияни камайтириши мумкин; сули, картошка ёки мева танланг.',
+      ],
+    };
+    const aboveDetails = {
+      AiAdviceTopic.calories: [
+        'A persistent excess can promote weight gain; reduce sugary drinks, pastries, or oversized portions.',
+        'Постоянный избыток может способствовать набору веса; сократите сладкие напитки, выпечку или слишком большие порции.',
+        'Doimiy ortiqcha miqdor vazn oshishiga olib kelishi mumkin; shirin ichimlik, pishiriq yoki katta porsiyalarni kamaytiring.',
+        'Доимий ортиқча миқдор вазн ошишига олиб келиши мумкин; ширин ичимлик, пишириқ ёки катта порцияларни камайтиринг.',
+      ],
+      AiAdviceTopic.protein: [
+        'Exceeding the target brings no extra benefit for most people; keep portions moderate and vary fish, dairy, and legumes.',
+        'Превышение ориентира обычно не даёт дополнительной пользы; держите порции умеренными и чередуйте рыбу, кисломолочные продукты и бобовые.',
+        'Moʼljaldan oshish odatda qoʼshimcha foyda bermaydi; porsiyani moʼtadil tutib, baliq, sut mahsuloti va dukkaklini navbatlang.',
+        'Мўлжалдан ошиш одатда қўшимча фойда бермайди; порцияни мўътадил тутиб, балиқ, сут маҳсулоти ва дуккаклини навбатланг.',
+      ],
+      AiAdviceTopic.fat: [
+        'A regular excess raises total calorie intake; reduce fried foods, fatty sauces, or added oil.',
+        'Регулярный избыток повышает калорийность рациона; сократите жареное, жирные соусы или добавленное масло.',
+        'Muntazam ortiqcha miqdor ratsion kaloriyasini oshiradi; qovurilgan taom, yogʼli sous yoki qoʼshilgan yogʼni kamaytiring.',
+        'Мунтазам ортиқча миқдор рацион калориясини оширади; қовурилган таом, ёғли соус ёки қўшилган ёғни камайтиринг.',
+      ],
+      AiAdviceTopic.carbohydrates: [
+        'A repeated excess, especially from sugar, can raise calorie intake and glucose swings; limit sweets, sugary drinks, or pastries.',
+        'Повторяющийся избыток, особенно сахара, повышает калорийность и колебания глюкозы; ограничьте сладости, сладкие напитки или выпечку.',
+        'Takroriy ortiqcha miqdor, ayniqsa shakar, kaloriya va glyukoza tebranishini oshiradi; shirinlik, shirin ichimlik yoki pishiriqni cheklang.',
+        'Такрорий ортиқча миқдор, айниқса шакар, калория ва глюкоза тебранишини оширади; ширинлик, ширин ичимлик ёки пишириқни чекланг.',
+      ],
+    };
+    if (below && minorGap) {
+      const foods = {
+        AiAdviceTopic.calories: [
+          'a banana, yogurt, or nuts',
+          'банан, йогурт или орехи',
+          'banan, yogurt yoki yongʼoq',
+          'банан, йогурт ёки ёнғоқ',
+        ],
+        AiAdviceTopic.protein: [
+          'an egg, yogurt, or beans',
+          'яйцо, йогурт или фасоль',
+          'tuxum, yogurt yoki loviya',
+          'тухум, йогурт ёки ловия',
+        ],
+        AiAdviceTopic.fat: [
+          'nuts, olive oil, or fish',
+          'орехи, растительное масло или рыба',
+          'yongʼoq, oʼsimlik yogʼi yoki baliq',
+          'ёнғоқ, ўсимлик ёғи ёки балиқ',
+        ],
+        AiAdviceTopic.carbohydrates: [
+          'oats, potatoes, or fruit',
+          'овсянка, картофель или фрукты',
+          'suli, kartoshka yoki meva',
+          'сули, картошка ёки мева',
+        ],
+      };
+      final examples = foods[topic]![language.index];
+      return switch (language) {
+        AppLanguage.en =>
+          'The difference is small and has no practical consequence; it can be covered by $examples.',
+        AppLanguage.ru =>
+          'Разница небольшая и практических последствий не имеет; её закроют $examples.',
+        AppLanguage.uzLatn =>
+          'Farq kichik va amaliy oqibati yoʼq; uni $examples bilan toʼldirish mumkin.',
+        AppLanguage.uzCyrl =>
+          'Фарқ кичик ва амалий оқибати йўқ; уни $examples билан тўлдириш мумкин.',
+      };
+    }
+    return (below ? belowDetails : aboveDetails)[topic]![language.index];
+  }
+
+  List<AiAdviceEntry> _localMicronutrientAdviceItems(
+    Map<String, Object?> snapshot,
+    AppLanguage language,
+  ) {
+    final rawGaps = snapshot['micronutrient_reference_gaps'];
+    final gaps = rawGaps is Map
+        ? rawGaps.cast<Object?, Object?>()
+        : const <Object?, Object?>{};
+    const keys = ['fe', 'mg', 'ca', 'p', 'k', 'na'];
+    return [
+      for (final key in keys)
+        AiAdviceEntry(
+          _topicForMicro(key),
+          _micronutrientAdvice(key, gaps[key], snapshot, language),
+        ),
+    ];
+  }
+
+  AiAdviceTopic _topicForMicro(String key) => switch (key) {
+        'fe' => AiAdviceTopic.iron,
+        'mg' => AiAdviceTopic.magnesium,
+        'ca' => AiAdviceTopic.calcium,
+        'p' => AiAdviceTopic.phosphorus,
+        'k' => AiAdviceTopic.potassium,
+        'na' => AiAdviceTopic.sodium,
+        _ => throw ArgumentError.value(key, 'key'),
+      };
+
+  String _micronutrientAdvice(
+    String key,
+    Object? rawData,
+    Map<String, Object?> snapshot,
+    AppLanguage language,
+  ) {
+    if (rawData is! Map) return _dataUnavailable(language);
+    final data = rawData.cast<Object?, Object?>();
+    if (data['reference_per_day'] is! num) return _dataUnavailable(language);
+    final period = '${snapshot['period'] ?? 'day'}';
+    final loggedDays = (snapshot['logged_days'] as num?)?.toInt() ?? 0;
+    return _micronutrientClause(key, data, language, period, loggedDays);
+  }
+
+  String _micronutrientClause(
+    String key,
+    Map<Object?, Object?> data,
+    AppLanguage language,
+    String period,
+    int loggedDays,
+  ) {
+    final reference = (data['reference_per_day'] as num).toDouble();
+    final amountValue = data['average_per_logged_day'];
+    final status = data['status'] as String?;
+    final cdrr = (data['cdrr'] as num?)?.toDouble();
+    final unit = _localizedMicroUnit('${data['unit'] ?? 'mg'}', language);
+    final referenceText = _localizedNumber(reference, language);
+
+    if (amountValue is! num || status == 'insufficient_data') {
+      final sources = _microSources(key, language);
+      return switch (language) {
+        AppLanguage.en =>
+          'No usable diary data; the personal reference is $referenceText $unit. Check intake using $sources.',
+        AppLanguage.ru =>
+          'Нет данных для расчёта; персональный ориентир — $referenceText $unit. Проверьте рацион по источникам: $sources.',
+        AppLanguage.uzLatn =>
+          'Hisoblash uchun maʼlumot yoʼq; shaxsiy moʼljal — $referenceText $unit. Manbalar: $sources.',
+        AppLanguage.uzCyrl =>
+          'Ҳисоблаш учун маълумот йўқ; шахсий мўлжал — $referenceText $unit. Манбалар: $sources.',
+      };
+    }
+
+    final amount = amountValue.toDouble();
+    final estimate = data['data_quality'] == 'low' ? '≈' : '';
+    final amountText = '$estimate${_localizedNumber(amount, language)}';
+
+    if (key == 'na' && cdrr != null) {
+      return _sodiumAdvice(
+        amount: amount,
+        amountText: amountText,
+        limit: cdrr,
+        unit: unit,
+        language: language,
+      );
+    }
+
+    if (status == 'below_target_by') {
+      final shortageText = _localizedNumber(reference - amount, language);
+      final reading = _microShortageReading(
+        amountText: amountText,
+        referenceText: referenceText,
+        shortageText: shortageText,
+        unit: unit,
+        language: language,
+        period: period,
+        loggedDays: loggedDays,
+      );
+      return '$reading ${_microShortageDetail(key, language)}';
+    }
+
+    final sources = _microSources(key, language);
+    return switch (language) {
+      AppLanguage.en =>
+        '$amountText $unit against a $referenceText $unit reference; the target is met. Maintain it with $sources.',
+      AppLanguage.ru =>
+        '$amountText $unit при ориентире $referenceText $unit; нехватки нет. Поддерживайте уровень: $sources.',
+      AppLanguage.uzLatn =>
+        '$amountText $unit, moʼljal $referenceText $unit; kamlik yoʼq. Manbalar: $sources.',
+      AppLanguage.uzCyrl =>
+        '$amountText $unit, мўлжал $referenceText $unit; камлик йўқ. Манбалар: $sources.',
+    };
+  }
+
+  String _microShortageReading({
+    required String amountText,
+    required String referenceText,
+    required String shortageText,
+    required String unit,
+    required AppLanguage language,
+    required String period,
+    required int loggedDays,
+  }) {
+    if (period != 'day') {
+      return switch (language) {
+        AppLanguage.en =>
+          '$amountText of $referenceText $unit on average across $loggedDays logged days; $shortageText $unit short.',
+        AppLanguage.ru =>
+          'В среднем $amountText из $referenceText $unit за $loggedDays заполненных дней; не хватает $shortageText $unit.',
+        AppLanguage.uzLatn =>
+          '$loggedDays qayd etilgan kunda oʼrtacha $referenceText $unit dan $amountText; $shortageText $unit kam.',
+        AppLanguage.uzCyrl =>
+          '$loggedDays қайд этилган кунда ўртача $referenceText $unit дан $amountText; $shortageText $unit кам.',
+      };
+    }
+    return switch (language) {
+      AppLanguage.en =>
+        '$amountText of $referenceText $unit; $shortageText $unit short.',
+      AppLanguage.ru =>
+        '$amountText из $referenceText $unit; не хватает $shortageText $unit.',
+      AppLanguage.uzLatn =>
+        '$referenceText $unit dan $amountText; $shortageText $unit kam.',
+      AppLanguage.uzCyrl =>
+        '$referenceText $unit дан $amountText; $shortageText $unit кам.',
+    };
+  }
+
+  String _microShortageDetail(String key, AppLanguage language) {
+    const details = {
+      'fe': [
+        'A prolonged shortfall can cause weakness, fatigue, and anemia; add meat, legumes, or buckwheat.',
+        'Длительная нехватка может вызывать слабость, утомляемость и анемию; добавьте мясо, бобовые или гречку.',
+        'Uzoq davom etgan kamlik holsizlik, charchoq va kamqonlikka olib kelishi mumkin; goʼsht, dukkakli yoki grechka qoʼshing.',
+        'Узоқ давом этган камлик ҳолсизлик, чарчоқ ва камқонликка олиб келиши мумкин; гўшт, дуккакли ёки гречка қўшинг.',
+      ],
+      'mg': [
+        'Low intake can contribute to fatigue, muscle weakness, and cramps; choose nuts, beans, or buckwheat.',
+        'Нехватка может приводить к утомляемости, мышечной слабости и судорогам; выберите орехи, фасоль или гречку.',
+        'Kamlik charchoq, mushak zaifligi va tirishishga olib kelishi mumkin; yongʼoq, loviya yoki grechka tanlang.',
+        'Камлик чарчоқ, мушак заифлиги ва тиришишга олиб келиши мумкин; ёнғоқ, ловия ёки гречка танланг.',
+      ],
+      'ca': [
+        'A long-term shortfall weakens bones and raises fracture risk; add yogurt, cheese, or sardines.',
+        'Длительный недобор ослабляет кости и повышает риск переломов; добавьте йогурт, сыр или сардины.',
+        'Uzoq muddatli kamlik suyaklarni zaiflashtiradi va sinish xavfini oshiradi; yogurt, pishloq yoki sardina qoʼshing.',
+        'Узоқ муддатли камлик суякларни заифлаштиради ва синиш хавфини оширади; йогурт, пишлоқ ёки сардина қўшинг.',
+      ],
+      'p': [
+        'A prolonged shortfall can cause weakness and bone pain; choose fish, eggs, or cottage cheese.',
+        'Длительная нехватка может вызывать слабость и боли в костях; выберите рыбу, яйца или творог.',
+        'Uzoq davom etgan kamlik holsizlik va suyak ogʼrigʼiga olib kelishi mumkin; baliq, tuxum yoki tvorog tanlang.',
+        'Узоқ давом этган камлик ҳолсизлик ва суяк оғриғига олиб келиши мумкин; балиқ, тухум ёки творог танланг.',
+      ],
+      'k': [
+        'A sustained shortfall can cause weakness, cramps, and abnormal heart rhythm; add potatoes, beans, or dried apricots.',
+        'Стойкая нехватка может вызывать слабость, судороги и нарушения сердечного ритма; добавьте картофель, фасоль или курагу.',
+        'Doimiy kamlik holsizlik, tirishish va yurak ritmi buzilishiga olib kelishi mumkin; kartoshka, loviya yoki turshak qoʼshing.',
+        'Доимий камлик ҳолсизлик, тиришиш ва юрак ритми бузилишига олиб келиши мумкин; картошка, ловия ёки туршак қўшинг.',
+      ],
+    };
+    return details[key]?[language.index] ?? '';
+  }
+
+  String _microSources(String key, AppLanguage language) {
+    const sources = {
+      'fe': [
+        'meat, legumes, or buckwheat',
+        'мясо, бобовые или гречка',
+        'goʼsht, dukkakli yoki grechka',
+        'гўшт, дуккакли ёки гречка',
+      ],
+      'mg': [
+        'nuts, beans, or buckwheat',
+        'орехи, фасоль или гречка',
+        'yongʼoq, loviya yoki grechka',
+        'ёнғоқ, ловия ёки гречка',
+      ],
+      'ca': [
+        'yogurt, cheese, or sardines',
+        'йогурт, сыр или сардины',
+        'yogurt, pishloq yoki sardina',
+        'йогурт, пишлоқ ёки сардина',
+      ],
+      'p': [
+        'fish, eggs, or cottage cheese',
+        'рыба, яйца или творог',
+        'baliq, tuxum yoki tvorog',
+        'балиқ, тухум ёки творог',
+      ],
+      'k': [
+        'potatoes, beans, or dried apricots',
+        'картофель, фасоль или курага',
+        'kartoshka, loviya yoki turshak',
+        'картошка, ловия ёки туршак',
+      ],
+      'na': [
+        'sausages, chips, or salty sauces',
+        'колбасы, чипсы или солёные соусы',
+        'kolbasa, chips yoki shoʼr sous',
+        'колбаса, чипс ёки шўр соус',
+      ],
+    };
+    return sources[key]?[language.index] ?? '';
+  }
+
+  String _sodiumAdvice({
+    required double amount,
+    required String amountText,
+    required double limit,
+    required String unit,
+    required AppLanguage language,
+  }) {
+    final limitText = _localizedNumber(limit, language);
+    final over = amount > limit;
+    final gapText = _localizedNumber((amount - limit).abs(), language);
+    return switch ((language, over)) {
+      (AppLanguage.en, true) =>
+        '$amountText $unit against a $limitText $unit limit; $gapText $unit over. A persistent excess raises blood-pressure risk; reduce sausages, chips, or salty sauces.',
+      (AppLanguage.ru, true) =>
+        '$amountText $unit при лимите $limitText $unit; превышение $gapText $unit. Постоянный избыток повышает риск высокого давления; сократите колбасы, чипсы или солёные соусы.',
+      (AppLanguage.uzLatn, true) =>
+        '$amountText $unit, chegara $limitText $unit; $gapText $unit ortiq. Doimiy ortiqcha miqdor yuqori qon bosimi xavfini oshiradi; kolbasa, chips yoki shoʼr sousni kamaytiring.',
+      (AppLanguage.uzCyrl, true) =>
+        '$amountText $unit, чегара $limitText $unit; $gapText $unit ортиқ. Доимий ортиқча миқдор юқори қон босими хавфини оширади; колбаса, чипс ёки шўр соусни камайтиринг.',
+      (AppLanguage.en, false) =>
+        '$amountText $unit against the $limitText $unit limit; there is no excess. Keep limiting sausages, chips, and salty sauces because regular excess raises blood pressure.',
+      (AppLanguage.ru, false) =>
+        '$amountText $unit при лимите $limitText $unit; превышения нет. Сохраняйте умеренность в колбасах, чипсах и солёных соусах: регулярный избыток повышает давление.',
+      (AppLanguage.uzLatn, false) =>
+        '$amountText $unit, chegara $limitText $unit; ortiqcha emas. Kolbasa, chips va shoʼr sousni cheklang: muntazam ortiqcha miqdor qon bosimini oshiradi.',
+      (AppLanguage.uzCyrl, false) =>
+        '$amountText $unit, чегара $limitText $unit; ортиқча эмас. Колбаса, чипс ва шўр соусни чекланг: мунтазам ортиқча миқдор қон босимини оширади.',
+    };
+  }
+
+  String _dataUnavailable(AppLanguage language) {
+    return switch (language) {
+      AppLanguage.en =>
+        'There is not enough profile or food-composition data to estimate this item reliably yet.',
+      AppLanguage.ru =>
+        'Пока недостаточно данных профиля или состава продуктов, чтобы надёжно оценить этот пункт.',
+      AppLanguage.uzLatn =>
+        'Bu bandni ishonchli baholash uchun profil yoki mahsulot tarkibi maʼlumoti yetarli emas.',
+      AppLanguage.uzCyrl =>
+        'Бу бандни ишончли баҳолаш учун профиль ёки маҳсулот таркиби маълумоти етарли эмас.',
+    };
+  }
+
+  String _localizedMicroUnit(String unit, AppLanguage language) {
+    if (language == AppLanguage.ru || language == AppLanguage.uzCyrl) {
+      return unit == 'mcg' ? 'мкг' : 'мг';
+    }
+    return unit == 'mcg' ? 'mcg' : 'mg';
+  }
+
+  String _localizedNumber(double value, AppLanguage language) {
+    final rounded = value.abs() >= 10
+        ? value.toStringAsFixed(0)
+        : value.toStringAsFixed(1).replaceFirst(RegExp(r'\.0$'), '');
+    return language == AppLanguage.ru || language == AppLanguage.uzCyrl
+        ? rounded.replaceAll('.', ',')
+        : rounded;
   }
 
   Map<String, Object?> _gap({
@@ -364,42 +1005,6 @@ class AiAdviceService {
     };
   }
 
-  List<String> _itemsFromFunctionResult(Object? data) {
-    if (data is! Map) return const [];
-    final items = data['items'];
-    if (items is! List) return const [];
-    return [
-      for (final item in items)
-        if (item is String) _cleanAdviceItem(item),
-    ].where((item) => item.length >= 12).toList();
-  }
-
-  String _formatItems(List<String> rawItems) {
-    final items = rawItems
-        .map(_cleanAdviceItem)
-        .where((item) => item.length >= 12)
-        .take(4)
-        .toList();
-    if (items.length < 2) return '';
-    return items.map(_withFinalPunctuation).join('\n');
-  }
-
-  String _cleanAdviceItem(String value) {
-    return value
-        .replaceAll(RegExp(r'\*\*|__|`'), '')
-        .replaceAll(RegExp('^\\s*(?:[-*]|\\u2022)\\s*'), '')
-        .replaceAll(RegExp(r'^\s*\d+[\).]\s*'), '')
-        .replaceAll(RegExp(r'\s+'), ' ')
-        .trim();
-  }
-
-  String _withFinalPunctuation(String value) {
-    if (value.isEmpty || RegExp(r'[.!?]$').hasMatch(value)) {
-      return value;
-    }
-    return '$value.';
-  }
-
   String _functionError(FirebaseFunctionsException error) {
     final message = error.message?.trim();
     final normalizedMessage = message?.toLowerCase();
@@ -422,11 +1027,11 @@ class AiAdviceService {
   static double _round(double value) => double.parse(value.toStringAsFixed(2));
 
   static String _languageName(AppLanguage language) => switch (language) {
-    AppLanguage.en => 'English',
-    AppLanguage.ru => 'Russian',
-    AppLanguage.uzLatn => 'Uzbek in Latin script',
-    AppLanguage.uzCyrl => 'Uzbek in Cyrillic script',
-  };
+        AppLanguage.en => 'English',
+        AppLanguage.ru => 'Russian',
+        AppLanguage.uzLatn => 'Uzbek in Latin script',
+        AppLanguage.uzCyrl => 'Uzbek in Cyrillic script',
+      };
 
   static const _microNames = {
     'fe': 'iron',
@@ -439,6 +1044,14 @@ class AiAdviceService {
     'vit_c': 'vitamin C',
     'vit_a': 'vitamin A',
     'vit_d': 'vitamin D',
+    'vit_e': 'vitamin E',
+    'vit_k': 'vitamin K',
+    'vit_b1': 'thiamin (vitamin B1)',
+    'vit_b2': 'riboflavin (vitamin B2)',
+    'vit_b3': 'niacin (vitamin B3)',
+    'vit_b6': 'vitamin B6',
+    'vit_b12': 'vitamin B12',
+    'folate': 'folate',
   };
 
   static const _microUnits = {
@@ -452,6 +1065,14 @@ class AiAdviceService {
     'vit_c': 'mg',
     'vit_a': 'mcg',
     'vit_d': 'mcg',
+    'vit_e': 'mg',
+    'vit_k': 'mcg',
+    'vit_b1': 'mg',
+    'vit_b2': 'mg',
+    'vit_b3': 'mg_ne',
+    'vit_b6': 'mg',
+    'vit_b12': 'mcg',
+    'folate': 'mcg_dfe',
   };
 }
 

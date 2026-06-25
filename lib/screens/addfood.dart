@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,25 +22,27 @@ class AddFoodScreen extends StatefulWidget {
 
 class _AddFoodScreenState extends State<AddFoodScreen> {
   static const t = EcoTheme.meadow;
-  final sel = <String>{}; // selected slugs
+  final _selected = <String, _SelectedProduct>{};
   String query = '';
-  bool catalogMode = false;
+  bool catalogMode = true;
+  bool _filterMenuOpen = false;
   Set<String> categoryFilterIds = {};
   Set<String>? categoryFilterSlugs;
+  final _filterLayerLink = LayerLink();
   final _searchCtrl = TextEditingController();
   final _searchFocus = FocusNode();
 
   Meal get meal => kMeals.firstWhere(
-    (m) => m.key == widget.mealKey,
-    orElse: () => kMeals.first,
-  );
+        (m) => m.key == widget.mealKey,
+        orElse: () => kMeals.first,
+      );
 
   @override
   void initState() {
     super.initState();
     _searchFocus.addListener(() {
-      if (_searchFocus.hasFocus && !catalogMode && mounted) {
-        setState(() => catalogMode = true);
+      if (_searchFocus.hasFocus && _filterMenuOpen && mounted) {
+        setState(() => _filterMenuOpen = false);
       }
     });
   }
@@ -55,50 +56,39 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
 
   /// Bulk quick-add the checkbox-selected products at 100 г, then stay on the
   /// list (top-app pattern) so the user can keep adding.
-  void _addSelected() {
+  int _commitSelected() {
     final store = context.read<AppStore>();
-    final l = context.l10nRead;
     var added = 0;
-    for (final slug in sel) {
-      final p = FoodDb.instance.bySlug(slug);
+    for (final entry in _selected.entries) {
+      final p = FoodDb.instance.bySlug(entry.key);
       if (p == null) continue;
       store.addFood(
         widget.mealKey,
-        LogItem(
-          p.name,
-          p.kcal,
-          protein: p.protein,
-          carbs: p.carbs,
-          fat: p.fat,
-          micros: p.microsForGrams(100),
-        ),
+        entry.value.toLogItem(p),
         date: widget.date,
       );
       added++;
     }
-    setState(() => sel.clear());
-    _toast(l.addedCount(added));
+    if (added > 0) setState(() => _selected.clear());
+    return added;
   }
 
-  void _toast(String msg) {
-    ScaffoldMessenger.of(context)
-      ..clearSnackBars()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(
-            msg,
-            style: TextStyle(color: t.pill, fontWeight: FontWeight.w600),
-          ),
-          duration: const Duration(milliseconds: 1100),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: t.dark,
-        ),
-      );
+  void _finish() {
+    if (_selected.isEmpty) return;
+    _commitSelected();
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) =>
+            MealLogScreen(mealKey: widget.mealKey, date: widget.date),
+      ),
+    );
   }
 
   void _applyCategoryFilters(Iterable<ProductCategory> categories) {
     final selected = categories.toList();
     setState(() {
+      catalogMode = true;
+      _filterMenuOpen = false;
       categoryFilterIds = {for (final category in selected) category.id};
       categoryFilterSlugs = selected.isEmpty
           ? null
@@ -119,23 +109,53 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   }
 
   void _showCatalog({bool focusSearch = false}) {
-    setState(() => catalogMode = true);
+    setState(() {
+      catalogMode = true;
+      _filterMenuOpen = false;
+      categoryFilterIds = {};
+      categoryFilterSlugs = null;
+    });
     if (focusSearch) _searchFocus.requestFocus();
   }
 
   void _showFavorites() {
-    _searchCtrl.clear();
     _searchFocus.unfocus();
     setState(() {
-      query = '';
       catalogMode = false;
+      _filterMenuOpen = false;
+      categoryFilterIds = {};
+      categoryFilterSlugs = null;
     });
   }
+
+  void _toggleFilterMenu() {
+    setState(() => _filterMenuOpen = !_filterMenuOpen);
+  }
+
+  String _activeFilterLabel(AppStrings l, List<ProductCategory> categories) {
+    if (!catalogMode) return l.t('food.favorites');
+    for (final category in categories) {
+      if (categoryFilterIds.contains(category.id)) return category.name;
+    }
+    return _allFilterLabel(l);
+  }
+
+  String _allFilterLabel(AppStrings l) => switch (l.language.code) {
+        'en' => 'All',
+        'uz_latn' => 'Hammasi',
+        'uz_cyrl' => 'Ҳаммаси',
+        _ => 'Всё',
+      };
 
   @override
   Widget build(BuildContext context) {
     final categories = FoodDb.instance.categories();
     final bottomInset = MediaQuery.of(context).padding.bottom;
+    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
+    final searchBottom =
+        keyboardInset > 0 ? keyboardInset + 10.0 : bottomInset + 90.0;
+    final productCardBottomGap = searchBottom + 58.0;
+    const listBottomPadding = 12.0;
     final store = context.watch<AppStore>();
     final matchingItems = FoodDb.instance.search(
       query,
@@ -145,218 +165,367 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
     final items = catalogMode
         ? matchingItems
         : matchingItems
-              .where((product) => store.isFavoriteProduct(product.slug))
-              .toList();
+            .where((product) => store.isFavoriteProduct(product.slug))
+            .toList();
     final l = context.l10n;
-    final mealCount = store.itemsFor(widget.mealKey, date: widget.date).length;
-    final mealKcal = store.mealKcal(widget.mealKey, date: widget.date);
+    final activeFilterLabel = _activeFilterLabel(l, categories);
+    final selectedCount = _selected.length;
+    final selectedKcal = _selected.entries.fold<int>(0, (sum, entry) {
+      final product = FoodDb.instance.bySlug(entry.key);
+      return product == null ? sum : sum + entry.value.kcal(product);
+    });
     return Scaffold(
       backgroundColor: t.bg,
-      body: Stack(
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  EcoTopBar(
-                    t: t,
-                    title: l.meal(meal.key),
-                    onBack: () => Navigator.of(context).pop(),
-                  ),
-
-                  // Search field
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _showCatalog(focusSearch: true),
-                    child: Container(
-                      height: 52,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: t.card,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(ecoIcon('search'), size: 20, color: t.dark),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TextField(
-                              focusNode: _searchFocus,
-                              controller: _searchCtrl,
-                              keyboardType: TextInputType.text,
-                              textInputAction: TextInputAction.search,
-                              onChanged: (v) => setState(() => query = v),
-                              decoration: InputDecoration(
-                                hintText: l.t('food.search'),
-                                border: InputBorder.none,
-                                isDense: true,
+      resizeToAvoidBottomInset: false,
+      body: BackdropGroup(
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            const Positioned.fill(child: EcoGlassBackground(t: t)),
+            SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _AddFoodTopBar(
+                      t: t,
+                      title: l.meal(meal.key),
+                      onBack: () => Navigator.of(context).pop(),
+                    ),
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeOutCubic,
+                      alignment: Alignment.topLeft,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 180),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        child: selectedCount > 0
+                            ? Padding(
+                                key: const ValueKey('selected-summary'),
+                                padding:
+                                    const EdgeInsets.only(top: 10, left: 4),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle,
+                                      size: 16,
+                                      color: t.dark,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      l.selectedFoods(
+                                        selectedCount,
+                                        selectedKcal,
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                        color: t.dark,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : const SizedBox(
+                                key: ValueKey('selected-summary-empty'),
+                                width: double.infinity,
                               ),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Expanded(
+                      child: AnimatedPadding(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeOutCubic,
+                        padding: EdgeInsets.only(
+                          top: 16,
+                          bottom: productCardBottomGap,
+                        ),
+                        child: EcoGlassSurface(
+                          t: t,
+                          padding: EdgeInsets.zero,
+                          borderRadius: BorderRadius.circular(t.r),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 18, 20, 12),
+                                child: Text(
+                                  activeFilterLabel,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: EcoColors.ink,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          if (query.isNotEmpty)
-                            GestureDetector(
-                              onTap: () {
-                                _searchCtrl.clear();
-                                setState(() => query = '');
-                                _searchFocus.requestFocus();
-                              },
-                              child: Icon(Icons.close, size: 18, color: t.dark),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Quick "Добавить калории"
-                  GestureDetector(
-                    onTap: _quickKcal,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        children: [
-                          Icon(ecoIcon('cutlery'), size: 18, color: t.dark),
-                          const SizedBox(width: 8),
-                          Text(
-                            l.t('food.addCaloriesManual'),
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: t.dark,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: _CategoryFilterCard(
-                      title: l.t('food.filters'),
-                      categories: categories,
-                      selectedIds: categoryFilterIds,
-                      onToggle: (category) =>
-                          _toggleCategory(category, categories),
-                    ),
-                  ),
-
-                  // Running total already in this meal — feedback as you add.
-                  if (mealCount > 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10, left: 4),
-                      child: Row(
-                        children: [
-                          Icon(Icons.check_circle, size: 16, color: t.dark),
-                          const SizedBox(width: 6),
-                          Text(
-                            l.inMeal(mealCount, mealKcal),
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: t.dark,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Lazy, fully-scrollable product list filling the rest.
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: t.card,
-                        borderRadius: BorderRadius.circular(t.r),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: Column(
-                        children: [
-                          _ListSourceHeader(
-                            title: l.t(
-                              catalogMode
-                                  ? 'food.allProducts'
-                                  : 'food.favorites',
-                            ),
-                            favoritesTooltip: l.t('food.favorites'),
-                            catalogMode: catalogMode,
-                            onShowFavorites: _showFavorites,
-                          ),
-                          Divider(height: 1, thickness: 1, color: t.bandSoft),
-                          Expanded(
-                            child: items.isEmpty
-                                ? !catalogMode &&
-                                          store.favoriteProductSlugs.isEmpty
-                                      ? _EmptyFavorites(
-                                          text: l.t('food.favoritesEmpty'),
-                                          buttonLabel: l.t(
-                                            'food.browseProducts',
-                                          ),
-                                          onBrowse: () =>
-                                              _showCatalog(focusSearch: true),
-                                        )
-                                      : Center(
-                                          child: Text(
-                                            l.t('food.noResults'),
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: EcoColors.sub,
+                              Divider(
+                                height: 1,
+                                thickness: 1,
+                                color: t.glassBorder,
+                              ),
+                              Expanded(
+                                child: items.isEmpty
+                                    ? !catalogMode &&
+                                            store.favoriteProductSlugs.isEmpty
+                                        ? _EmptyFavorites(
+                                            text: l.t('food.favoritesEmpty'),
+                                            buttonLabel:
+                                                l.t('food.browseProducts'),
+                                            onBrowse: () =>
+                                                _showCatalog(focusSearch: true),
+                                          )
+                                        : Center(
+                                            child: Text(
+                                              l.t('food.noResults'),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                color: EcoColors.sub,
+                                              ),
                                             ),
-                                          ),
-                                        )
-                                : ListView.separated(
-                                    keyboardDismissBehavior:
-                                        ScrollViewKeyboardDismissBehavior
-                                            .onDrag,
-                                    padding: EdgeInsets.fromLTRB(
-                                      18,
-                                      6,
-                                      18,
-                                      100 + bottomInset,
-                                    ),
-                                    itemCount: items.length,
-                                    separatorBuilder: (_, __) => Divider(
-                                      height: 1.5,
-                                      thickness: 1.5,
-                                      color: t.bandSoft,
-                                    ),
-                                    itemBuilder: (ctx, i) {
-                                      final p = items[i];
-                                      return _ProductRow(
-                                        p: p,
-                                        selected: sel.contains(p.slug),
-                                        onToggle: () => setState(
-                                          () => sel.contains(p.slug)
-                                              ? sel.remove(p.slug)
-                                              : sel.add(p.slug),
+                                          )
+                                    : ListView.separated(
+                                        keyboardDismissBehavior:
+                                            ScrollViewKeyboardDismissBehavior
+                                                .onDrag,
+                                        padding: const EdgeInsets.only(
+                                          bottom: listBottomPadding,
                                         ),
-                                        onOpen: () async {
-                                          final l = context.l10nRead;
-                                          final added =
-                                              await Navigator.of(
-                                                context,
-                                              ).push<String>(
+                                        itemCount: items.length,
+                                        separatorBuilder: (_, __) => Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 32,
+                                          ),
+                                          child: Divider(
+                                            height: 1,
+                                            thickness: 1,
+                                            color: t.bandSoft,
+                                          ),
+                                        ),
+                                        itemBuilder: (ctx, i) {
+                                          final p = items[i];
+                                          final selected = _selected[p.slug];
+                                          return _ProductRow(
+                                            p: p,
+                                            selected: selected != null,
+                                            grams: selected?.grams ?? 100,
+                                            onToggle: () => setState(
+                                              () => selected != null
+                                                  ? _selected.remove(p.slug)
+                                                  : _selected[p.slug] =
+                                                      const _SelectedProduct(
+                                                          grams: 100),
+                                            ),
+                                            onOpen: () async {
+                                              final result = await Navigator.of(
+                                                      context)
+                                                  .push<DishSelectionResult>(
                                                 MaterialPageRoute(
                                                   builder: (_) => DishScreen(
                                                     product: p,
                                                     mealKey: widget.mealKey,
                                                     date: widget.date,
+                                                    initialGrams:
+                                                        selected?.grams ?? 100,
                                                   ),
                                                 ),
                                               );
-                                          if (added != null && mounted) {
-                                            _toast(l.addedName(added));
-                                          }
+                                              if (result == null || !mounted) {
+                                                return;
+                                              }
+                                              setState(() {
+                                                _selected[result.product.slug] =
+                                                    _SelectedProduct(
+                                                  grams: result.grams,
+                                                );
+                                              });
+                                            },
+                                          );
                                         },
-                                      );
-                                    },
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              left: 16,
+              right: 16,
+              bottom: searchBottom,
+              child: CompositedTransformTarget(
+                link: _filterLayerLink,
+                child: EcoGlassSurface(
+                  t: t,
+                  padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+                  borderRadius: BorderRadius.circular(t.r),
+                  child: SizedBox(
+                    height: 46,
+                    child: Row(
+                      children: [
+                        Icon(
+                          ecoIcon('search'),
+                          size: 30,
+                          color: EcoColors.sub,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            focusNode: _searchFocus,
+                            controller: _searchCtrl,
+                            keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.search,
+                            onChanged: (v) => setState(() => query = v),
+                            decoration: InputDecoration(
+                              hintText: l.t('food.search'),
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        if (query.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              _searchCtrl.clear();
+                              setState(() => query = '');
+                              _searchFocus.requestFocus();
+                            },
+                            child: Icon(Icons.close, size: 18, color: t.dark),
+                          ),
+                        SizedBox(
+                          width: 38,
+                          height: 38,
+                          child: IconButton(
+                            onPressed: _toggleFilterMenu,
+                            tooltip: l.t('food.filters'),
+                            padding: EdgeInsets.zero,
+                            icon: Icon(
+                              Icons.tune_rounded,
+                              size: 20,
+                              color: t.dark,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            if (_filterMenuOpen)
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(() => _filterMenuOpen = false),
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            if (_filterMenuOpen)
+              CompositedTransformFollower(
+                link: _filterLayerLink,
+                targetAnchor: Alignment.topRight,
+                followerAnchor: Alignment.bottomRight,
+                offset: const Offset(0, -10),
+                showWhenUnlinked: false,
+                child: _FilterMenuPopup(
+                  allLabel: _allFilterLabel(l),
+                  favoritesLabel: l.t('food.favorites'),
+                  categories: categories,
+                  activeLabel: activeFilterLabel,
+                  catalogMode: catalogMode,
+                  selectedIds: categoryFilterIds,
+                  onAll: () => _showCatalog(),
+                  onFavorites: _showFavorites,
+                  onCategory: (category) =>
+                      _toggleCategory(category, categories),
+                ),
+              ),
+
+            // Pinned action buttons + fade so the list slides under them.
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: IgnorePointer(
+                child: Container(
+                  height: 86 + bottomInset,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [t.bg.withValues(alpha: 0), t.bg],
+                      stops: const [0, 0.6],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 18 + bottomInset,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: EcoBtn(
+                      t: t,
+                      bg: t.dark,
+                      fg: t.pill,
+                      onTap: () {
+                        if (_selected.isNotEmpty) {
+                          setState(_selected.clear);
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: Text(
+                        l.t('common.cancel'),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: EcoBtn(
+                      t: t,
+                      bg: _selected.isEmpty
+                          ? t.dark.withValues(alpha: 0.30)
+                          : t.dark,
+                      fg: t.pill,
+                      onTap: _selected.isEmpty ? null : _finish,
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: Text(
+                              l.t('common.add'),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 24,
+                            child: _selected.isEmpty
+                                ? null
+                                : Text(
+                                    '${_selected.length}',
+                                    textAlign: TextAlign.right,
                                   ),
                           ),
                         ],
@@ -366,122 +535,6 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                 ],
               ),
             ),
-          ),
-
-          // Pinned action buttons + fade so the list slides under them.
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: IgnorePointer(
-              child: Container(
-                height: 86 + bottomInset,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [t.bg.withValues(alpha: 0), t.bg],
-                    stops: const [0, 0.6],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 18 + bottomInset,
-            child: Row(
-              children: [
-                Expanded(
-                  child: EcoBtn(
-                    t: t,
-                    disabled: sel.isEmpty,
-                    onTap: _addSelected,
-                    child: Text(
-                      sel.isNotEmpty
-                          ? l.addCount(sel.length)
-                          : l.t('common.add'),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: EcoBtn(
-                    t: t,
-                    bg: mealCount > 0 ? t.dark : t.band,
-                    fg: mealCount > 0 ? t.pill : t.dark,
-                    onTap: () => Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (_) => MealLogScreen(
-                          mealKey: widget.mealKey,
-                          date: widget.date,
-                        ),
-                      ),
-                    ),
-                    child: Text(
-                      mealCount > 0
-                          ? l.doneCount(mealCount)
-                          : l.t('common.done'),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _quickKcal() {
-    final l = context.l10nRead;
-    var v = 210;
-    final values = [for (var i = 10; i <= 1500; i += 10) i];
-    showEcoSheet(
-      context: context,
-      t: t,
-      title: l.t('food.addCalories'),
-      onDone: () {
-        context.read<AppStore>().addFood(
-          widget.mealKey,
-          LogItem(l.t('food.quickAdd'), v),
-          date: widget.date,
-        );
-        _toast(l.addedKcal(v));
-      },
-      body: SizedBox(
-        height: 130,
-        child: CupertinoPicker(
-          scrollController: FixedExtentScrollController(
-            initialItem: values.indexOf(210),
-          ),
-          itemExtent: 44,
-          onSelectedItemChanged: (i) => v = values[i],
-          children: [
-            for (final n in values)
-              Center(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '$n',
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '  ${l.unit('kcal')}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -489,64 +542,64 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   }
 }
 
-class _CategoryFilterCard extends StatelessWidget {
-  static const t = EcoTheme.meadow;
-  final String title;
-  final List<ProductCategory> categories;
-  final Set<String> selectedIds;
-  final ValueChanged<ProductCategory> onToggle;
+class _SelectedProduct {
+  final int grams;
 
-  const _CategoryFilterCard({
+  const _SelectedProduct({required this.grams});
+
+  double _scaled(Product p, num value) => value * grams / 100;
+
+  int kcal(Product p) => _scaled(p, p.kcal).round();
+
+  LogItem toLogItem(Product p) => LogItem(
+        p.name,
+        kcal(p),
+        protein: _scaled(p, p.protein),
+        carbs: _scaled(p, p.carbs),
+        fat: _scaled(p, p.fat),
+        micros: p.microsForGrams(grams),
+        productSlug: p.slug,
+        grams: grams,
+      );
+}
+
+class _AddFoodTopBar extends StatelessWidget {
+  final String title;
+  final VoidCallback onBack;
+
+  const _AddFoodTopBar({
+    required EcoTheme t,
     required this.title,
-    required this.categories,
-    required this.selectedIds,
-    required this.onToggle,
+    required this.onBack,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-      decoration: BoxDecoration(
-        color: t.card,
-        borderRadius: BorderRadius.circular(t.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Icon(Icons.tune_rounded, size: 17, color: t.dark),
-              const SizedBox(width: 7),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: t.dark,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 9),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: categories.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisExtent: 44,
-              crossAxisSpacing: 7,
-              mainAxisSpacing: 7,
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onBack,
+            child: const SizedBox(
+              width: 28,
+              height: 28,
+              child: Icon(Icons.chevron_left, size: 28, color: EcoColors.ink),
             ),
-            itemBuilder: (context, index) {
-              final category = categories[index];
-              return _FilterTile(
-                label: category.name,
-                selected: selectedIds.contains(category.id),
-                onTap: () => onToggle(category),
-              );
-            },
+          ),
+          const SizedBox(width: 2),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: EcoColors.ink,
+              ),
+            ),
           ),
         ],
       ),
@@ -554,13 +607,89 @@ class _CategoryFilterCard extends StatelessWidget {
   }
 }
 
-class _FilterTile extends StatelessWidget {
+class _FilterMenuPopup extends StatelessWidget {
+  static const t = EcoTheme.meadow;
+  final String allLabel;
+  final String favoritesLabel;
+  final List<ProductCategory> categories;
+  final String activeLabel;
+  final bool catalogMode;
+  final Set<String> selectedIds;
+  final VoidCallback onAll;
+  final VoidCallback onFavorites;
+  final ValueChanged<ProductCategory> onCategory;
+
+  const _FilterMenuPopup({
+    required this.allLabel,
+    required this.favoritesLabel,
+    required this.categories,
+    required this.activeLabel,
+    required this.catalogMode,
+    required this.selectedIds,
+    required this.onAll,
+    required this.onFavorites,
+    required this.onCategory,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final width = (MediaQuery.sizeOf(context).width - 96).clamp(220.0, 244.0);
+    return Material(
+      color: Colors.transparent,
+      child: SizedBox(
+        width: width,
+        child: EcoGlassSurface(
+          t: t,
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+          bg: Colors.white.withValues(alpha: 0.46),
+          blur: 22,
+          borderRadius: BorderRadius.circular(22),
+          shadows: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 24,
+              offset: const Offset(0, 12),
+            ),
+            BoxShadow(
+              color: Colors.white.withValues(alpha: 0.34),
+              blurRadius: 18,
+              offset: const Offset(-2, -2),
+            ),
+          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _FilterMenuItem(
+                label: allLabel,
+                selected: catalogMode && selectedIds.isEmpty,
+                onTap: onAll,
+              ),
+              _FilterMenuItem(
+                label: favoritesLabel,
+                selected: !catalogMode,
+                onTap: onFavorites,
+              ),
+              for (final category in categories)
+                _FilterMenuItem(
+                  label: category.name,
+                  selected: activeLabel == category.name,
+                  onTap: () => onCategory(category),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterMenuItem extends StatelessWidget {
   static const t = EcoTheme.meadow;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
-  const _FilterTile({
+  const _FilterMenuItem({
     required this.label,
     required this.selected,
     required this.onTap,
@@ -572,79 +701,38 @@ class _FilterTile extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-          decoration: BoxDecoration(
-            color: selected ? t.dark : t.bandSoft,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              height: 1.05,
-              fontWeight: FontWeight.w800,
-              color: selected ? t.pill : t.dark,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          height: 41,
+          alignment: Alignment.centerRight,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            height: selected ? 36 : 41,
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: selected
+                  ? Colors.white.withValues(alpha: 0.18)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(999),
+              border: selected
+                  ? Border.all(color: Colors.white.withValues(alpha: 0.58))
+                  : null,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ListSourceHeader extends StatelessWidget {
-  static const t = EcoTheme.meadow;
-  final String title;
-  final String favoritesTooltip;
-  final bool catalogMode;
-  final VoidCallback onShowFavorites;
-
-  const _ListSourceHeader({
-    required this.title,
-    required this.favoritesTooltip,
-    required this.catalogMode,
-    required this.onShowFavorites,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 44,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 8),
-        child: Row(
-          children: [
-            Icon(
-              catalogMode ? Icons.search_rounded : Icons.star_rounded,
-              size: 18,
-              color: t.dark,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w800,
-                  color: t.dark,
-                ),
+            alignment: Alignment.centerRight,
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                fontSize: 16,
+                height: 1.05,
+                fontWeight: FontWeight.w800,
+                color: t.dark.withValues(alpha: selected ? 0.95 : 0.88),
               ),
             ),
-            if (catalogMode)
-              IconButton(
-                onPressed: onShowFavorites,
-                tooltip: favoritesTooltip,
-                visualDensity: VisualDensity.compact,
-                icon: Icon(Icons.star_border_rounded, size: 21, color: t.dark),
-              ),
-          ],
+          ),
         ),
       ),
     );
@@ -677,7 +765,7 @@ class _EmptyFavorites extends StatelessWidget {
               text,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 height: 1.35,
                 color: EcoColors.sub,
               ),
@@ -688,7 +776,7 @@ class _EmptyFavorites extends StatelessWidget {
               child: EcoBtn(
                 t: t,
                 height: 42,
-                fontSize: 13,
+                fontSize: 12,
                 onTap: onBrowse,
                 child: Text(buttonLabel),
               ),
@@ -704,12 +792,14 @@ class _ProductRow extends StatelessWidget {
   static const t = EcoTheme.meadow;
   final Product p;
   final bool selected;
+  final int grams;
   final VoidCallback onToggle;
   final VoidCallback onOpen;
 
   const _ProductRow({
     required this.p,
     required this.selected,
+    required this.grams,
     required this.onToggle,
     required this.onOpen,
   });
@@ -717,71 +807,83 @@ class _ProductRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final selectedKcal = (p.kcal * grams / 100).round();
+    final kcalLabel = selected
+        ? '$selectedKcal ${l.unit('kcal')} · $grams ${p.displayUnit(l.language)}'
+        : '${p.kcal} ${p.calorieBaseLabel(l.language).replaceAll(' ', '')}';
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
       child: Row(
         children: [
           GestureDetector(
             onTap: onToggle,
-            child: Container(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: selected ? t.dark : t.bandSoft,
+                color: selected ? t.dark : Colors.white.withValues(alpha: 0.42),
                 shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? t.dark : const Color(0xFFD8E1EF),
+                  width: 1.3,
+                ),
               ),
-              child: selected
-                  ? Icon(Icons.check, size: 14, color: t.pill)
-                  : null,
+              child:
+                  selected ? Icon(Icons.check, size: 14, color: t.pill) : null,
             ),
           ),
-          const SizedBox(width: 12),
-          _ProductVisual(product: p),
           const SizedBox(width: 12),
           Expanded(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: onOpen,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Text(
-                    p.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w700,
+                  _ProductVisual(product: p),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          p.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          p.category,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: EcoColors.sub,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 1),
-                  Text(
-                    p.category,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      color: EcoColors.sub,
+                  const SizedBox(width: 8),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: selected ? 128 : 104),
+                    child: Text(
+                      kcalLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: selected ? 12 : 12.5,
+                        fontWeight: FontWeight.w800,
+                        color: selected ? t.dark : EcoColors.ink,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${p.kcal}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                p.calorieBaseLabel(l.language),
-                style: const TextStyle(fontSize: 10, color: EcoColors.sub),
-              ),
-            ],
           ),
         ],
       ),
@@ -798,9 +900,10 @@ class _ProductVisual extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imagePath = product.imageAssetPath;
+    final cacheExtent = (42 * MediaQuery.devicePixelRatioOf(context)).round();
     return Container(
-      width: 38,
-      height: 38,
+      width: 42,
+      height: 42,
       decoration: BoxDecoration(
         color: t.bandSoft,
         borderRadius: BorderRadius.circular(8),
@@ -810,9 +913,12 @@ class _ProductVisual extends StatelessWidget {
       child: imagePath != null
           ? Image.asset(
               imagePath,
-              width: 38,
-              height: 38,
+              width: 42,
+              height: 42,
+              cacheWidth: cacheExtent,
+              cacheHeight: cacheExtent,
               fit: BoxFit.cover,
+              filterQuality: FilterQuality.medium,
               errorBuilder: (_, __, ___) => _fallback(),
             )
           : _fallback(),
@@ -822,7 +928,7 @@ class _ProductVisual extends StatelessWidget {
   Widget _fallback() {
     final emoji = product.emoji;
     if (emoji != null && emoji.isNotEmpty) {
-      return Text(emoji, style: const TextStyle(fontSize: 20));
+      return Text(emoji, style: const TextStyle(fontSize: 18));
     }
     return Icon(
       product.isDrink ? Icons.local_drink_outlined : Icons.restaurant_menu,

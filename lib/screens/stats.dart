@@ -88,7 +88,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       Text(
                         l.t('stats.averageSleepRange'),
                         style: const TextStyle(
-                          fontSize: 17,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: EcoColors.sub,
                         ),
@@ -112,7 +112,7 @@ class _StatsScreenState extends State<StatsScreen> {
                                   Text(
                                     l.t('stats.averageBedtime'),
                                     style: const TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 12,
                                       color: EcoColors.sub,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -144,7 +144,7 @@ class _StatsScreenState extends State<StatsScreen> {
                                   Text(
                                     l.t('stats.averageWakeup'),
                                     style: const TextStyle(
-                                      fontSize: 13,
+                                      fontSize: 12,
                                       color: EcoColors.sub,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -175,7 +175,7 @@ class _StatsScreenState extends State<StatsScreen> {
                       Text(
                         l.t('stats.sleepDurationSample'),
                         style: const TextStyle(
-                          fontSize: 17,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -231,7 +231,7 @@ class _SleepBars extends StatelessWidget {
             child: Text(
               l.t('stats.eightHours'),
               style: const TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: EcoColors.carb,
               ),
@@ -356,7 +356,7 @@ class _SleepCircle extends StatelessWidget {
                   Text(
                     l.t('stats.sleepTime'),
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       color: EcoColors.sub,
                       fontWeight: FontWeight.w600,
                     ),
@@ -364,7 +364,7 @@ class _SleepCircle extends StatelessWidget {
                   Text(
                     l.t('stats.sleepCircleValue'),
                     style: const TextStyle(
-                      fontSize: 26,
+                      fontSize: 24,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

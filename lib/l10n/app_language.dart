@@ -52,6 +52,6 @@ enum AppLanguage {
   }
 
   static List<Locale> get supportedLocales => [
-    for (final language in values) language.locale,
-  ];
+        for (final language in values) language.locale,
+      ];
 }

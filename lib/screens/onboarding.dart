@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,31 +19,60 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   static const t = EcoTheme.meadow;
-  static const total = 7;
+  static const total = 8;
 
   int step = 0;
+  String profileName = '';
   String sex = 'm';
-  int age = 28;
+  late DateTime birthDate;
   int height = 178;
   int weight = 66;
   String activity = 'mid';
   String goal = 'lose';
+  late final TextEditingController _nameCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    final store = context.read<AppStore>();
+    profileName = store.profileName ?? '';
+    sex = store.gender == 'f' ? 'f' : 'm';
+    birthDate = store.birthDate ?? DateTime(DateTime.now().year - 25, 1, 1);
+    height = store.heightCm ?? 178;
+    weight = (store.weightKg ?? (store.weight > 0 ? store.weight : 66))
+        .round()
+        .clamp(30, 200)
+        .toInt();
+    activity = store.activity ?? 'mid';
+    goal = store.goal ?? 'lose';
+    _nameCtrl = TextEditingController(text: profileName);
+  }
+
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    super.dispose();
+  }
 
   // Mifflin–St Jeor daily norm (as in the design).
-  int get _bmr =>
-      (10 * weight + 6.25 * height - 5 * age + (sex == 'm' ? 5 : -161)).round();
+  int get _bmr {
+    final age = AppStore.ageFromBirth(birthDate);
+    return (10 * weight + 6.25 * height - 5 * age + (sex == 'm' ? 5 : -161))
+        .round();
+  }
+
   double get _actMul => switch (activity) {
-    'low' => 1.2,
-    'high' => 1.7,
-    _ => 1.45,
-  };
+        'low' => 1.2,
+        'high' => 1.7,
+        _ => 1.45,
+      };
   int get _norm {
     final tdee = (_bmr * _actMul).round();
     return goal == 'lose'
         ? tdee - 400
         : goal == 'gain'
-        ? tdee + 350
-        : tdee;
+            ? tdee + 350
+            : tdee;
   }
 
   void _next() {
@@ -52,14 +82,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
     final norm = _norm;
     context.read<AppStore>().completeOnboarding(
-      gender: sex,
-      age: age,
-      heightCm: height,
-      weightKg: weight.toDouble(),
-      activity: activity,
-      goal: goal,
-      targetKcal: norm,
-    );
+          profileName: profileName,
+          gender: sex,
+          birthDate: birthDate,
+          heightCm: height,
+          weightKg: weight.toDouble(),
+          activity: activity,
+          goal: goal,
+          targetKcal: norm,
+        );
     Navigator.of(context).pushReplacementNamed('/');
   }
 
@@ -70,75 +101,74 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return EcoScreen(
-      t: t,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16, bottom: 40),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    return Scaffold(
+      backgroundColor: t.bg,
+      body: BackdropGroup(
+        child: Stack(
           children: [
-            // Progress row: back chevron + bar + counter
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: _prev,
-                  child: Icon(
-                    Icons.chevron_left,
-                    size: 26,
-                    color: step > 0 ? EcoColors.ink : EcoColors.faint,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: SizedBox(
-                      height: 6,
-                      child: Stack(
-                        children: [
-                          Container(color: t.card),
-                          AnimatedFractionallySizedBox(
-                            duration: const Duration(milliseconds: 300),
-                            widthFactor: (step + 1) / (total + 1),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: t.dark,
-                                borderRadius: BorderRadius.circular(999),
+            Positioned.fill(child: EcoGlassBackground(t: t)),
+            Positioned.fill(
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      _ProgressHeader(
+                        t: t,
+                        step: step,
+                        total: total,
+                        onBack: _prev,
+                      ),
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, box) {
+                            return SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(
+                                parent: ClampingScrollPhysics(),
                               ),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: box.maxHeight,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 18,
+                                    ),
+                                    child: _buildStep(),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          bottom: bottomInset + 24,
+                          top: 8,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: EcoBtn(
+                            t: t,
+                            onTap: _next,
+                            child: Text(
+                              step == 0
+                                  ? l.t('onboarding.start')
+                                  : step == total
+                                      ? l.t('onboarding.enterApp')
+                                      : l.t('onboarding.next'),
                             ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  '${step + 1}/${total + 1}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: EcoColors.sub,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const LanguageSelector(t: t, compact: true),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildStep(),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: EcoBtn(
-                t: t,
-                onTap: _next,
-                child: Text(
-                  step == 0
-                      ? l.t('onboarding.start')
-                      : step == total
-                      ? l.t('onboarding.enterApp')
-                      : l.t('onboarding.next'),
                 ),
               ),
             ),
@@ -152,125 +182,161 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final l = context.l10n;
     switch (step) {
       case 0:
-        return Column(
-          children: [
-            const SizedBox(height: 40),
-            Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                color: t.dark,
-                borderRadius: BorderRadius.circular(30),
+        return SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: t.dark,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Icon(Icons.restaurant, size: 48, color: t.pill),
               ),
-              child: Icon(Icons.restaurant, size: 48, color: t.pill),
-            ),
-            const SizedBox(height: 28),
-            const Text(
-              'Eco',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -1.2,
-              ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: 280,
-              child: Text(
-                l.t('onboarding.intro'),
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: EcoColors.sub,
-                  height: 1.5,
+              const SizedBox(height: 28),
+              const Text(
+                'Eco',
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0,
                 ),
               ),
-            ),
-            const SizedBox(height: 40),
-          ],
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 280,
+                child: Text(
+                  l.t('onboarding.intro'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: EcoColors.sub,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         );
       case 1:
         return _Step(
+          title: l.t('onboarding.nameTitle'),
+          sub: l.t('onboarding.nameSub'),
+          children: [
+            EcoCard(
+              t: t,
+              child: TextField(
+                controller: _nameCtrl,
+                textInputAction: TextInputAction.next,
+                onChanged: (v) => profileName = v,
+                decoration: InputDecoration(
+                  hintText: l.t('profile.myProfile'),
+                  border: InputBorder.none,
+                  isDense: true,
+                ),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: EcoColors.ink,
+                ),
+              ),
+            ),
+          ],
+        );
+      case 2:
+        return _Step(
           title: l.t('onboarding.genderTitle'),
-          sub: l.t('onboarding.genderSub'),
           children: [
             _OptionCard(
-              icon: 'user',
+              icon: 'male',
               title: l.t('profile.male'),
               active: sex == 'm',
               onTap: () => setState(() => sex = 'm'),
             ),
             _OptionCard(
-              icon: 'user',
+              icon: 'female',
               title: l.t('profile.female'),
               active: sex == 'f',
               onTap: () => setState(() => sex = 'f'),
             ),
           ],
         );
-      case 2:
+      case 3:
         return _Step(
           title: l.t('onboarding.ageTitle'),
           children: [
             EcoCard(
               t: t,
-              child: _BigStepper(
-                value: age,
-                unit: l.unit('years'),
-                onChanged: (v) => setState(() => age = v.clamp(12, 100)),
-              ),
-            ),
-          ],
-        );
-      case 3:
-        return _Step(
-          title: l.t('onboarding.heightTitle'),
-          children: [
-            EcoCard(
-              t: t,
-              child: _BigStepper(
-                value: height,
-                unit: l.unit('cm'),
-                onChanged: (v) => setState(() => height = v.clamp(120, 220)),
+              child: SizedBox(
+                height: 200,
+                child: EcoDatePicker(
+                  t: t,
+                  initialDate: birthDate,
+                  minYear: DateTime.now().year - 100,
+                  maxYear: DateTime.now().year - 12,
+                  monthNames: [for (var m = 1; m <= 12; m++) l.monthName(m)],
+                  onChanged: (d) => setState(() => birthDate = d),
+                ),
               ),
             ),
           ],
         );
       case 4:
         return _Step(
-          title: l.t('onboarding.weightTitle'),
-          sub: l.t('onboarding.weightSub'),
+          title: l.t('onboarding.heightTitle'),
           children: [
             EcoCard(
               t: t,
-              child: _BigStepper(
-                value: weight,
-                unit: l.unit('kg'),
-                onChanged: (v) => setState(() => weight = v.clamp(30, 200)),
+              child: _WheelValuePicker(
+                value: height,
+                min: 120,
+                max: 220,
+                unit: l.unit('cm'),
+                onChanged: (v) => setState(() => height = v),
               ),
             ),
           ],
         );
       case 5:
         return _Step(
+          title: l.t('onboarding.weightTitle'),
+          children: [
+            EcoCard(
+              t: t,
+              child: _WheelValuePicker(
+                value: weight,
+                min: 30,
+                max: 200,
+                unit: l.unit('kg'),
+                onChanged: (v) => setState(() => weight = v),
+              ),
+            ),
+          ],
+        );
+      case 6:
+        return _Step(
           title: l.t('onboarding.activityTitle'),
           children: [
             _OptionCard(
-              icon: 'bed',
+              icon: 'seat',
               title: l.t('onboarding.activityLow'),
               sub: l.t('onboarding.activityLowSub'),
               active: activity == 'low',
               onTap: () => setState(() => activity = 'low'),
             ),
             _OptionCard(
-              icon: 'steps',
+              icon: 'walk',
               title: l.t('onboarding.activityMid'),
               sub: l.t('onboarding.activityMidSub'),
               active: activity == 'mid',
               onTap: () => setState(() => activity = 'mid'),
             ),
             _OptionCard(
-              icon: 'pulse',
+              icon: 'fitness',
               title: l.t('onboarding.activityHigh'),
               sub: l.t('onboarding.activityHighSub'),
               active: activity == 'high',
@@ -278,24 +344,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ],
         );
-      case 6:
+      case 7:
         return _Step(
           title: l.t('onboarding.goalTitle'),
           children: [
             _OptionCard(
-              icon: 'water',
+              icon: 'trendDown',
               title: l.t('onboarding.goalLose'),
               active: goal == 'lose',
               onTap: () => setState(() => goal = 'lose'),
             ),
             _OptionCard(
-              icon: 'gauge',
+              icon: 'balance',
               title: l.t('onboarding.goalKeep'),
               active: goal == 'keep',
               onTap: () => setState(() => goal = 'keep'),
             ),
             _OptionCard(
-              icon: 'pulse',
+              icon: 'trendUp',
               title: l.t('onboarding.goalGain'),
               active: goal == 'gain',
               onTap: () => setState(() => goal = 'gain'),
@@ -304,118 +370,211 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         );
       default:
         final norm = _norm;
+        final carbs = (norm * 0.45 / 4).round();
+        final protein = (norm * 0.3 / 4).round();
+        final fat = (norm * 0.25 / 9).round();
         return _Step(
           title: l.t('onboarding.dailyNorm'),
           sub: l.t('onboarding.dailyNormSub'),
           children: [
             EcoCard(
               t: t,
+              pad: 18,
               child: SizedBox(
-                height: 178,
-                child: Center(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const MacroRings(
-                        size: 170,
-                        data: [
-                          MacroRingData(
-                            value: 1,
-                            goal: 1,
-                            color: EcoColors.carb,
-                            soft: EcoColors.carbSoft,
-                          ),
-                          MacroRingData(
-                            value: 0.74,
-                            goal: 1,
-                            color: EcoColors.fat,
-                            soft: EcoColors.fatSoft,
-                          ),
-                          MacroRingData(
-                            value: 0.48,
-                            goal: 1,
-                            color: EcoColors.prot,
-                            soft: EcoColors.protSoft,
-                          ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
+                height: 234,
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 145,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          const MacroRings(
+                            size: 138,
+                            data: [
+                              MacroRingData(
+                                value: 1,
+                                goal: 1,
+                                color: EcoColors.carb,
+                                soft: EcoColors.carbSoft,
+                              ),
+                              MacroRingData(
+                                value: 0.74,
+                                goal: 1,
+                                color: EcoColors.fat,
+                                soft: EcoColors.fatSoft,
+                              ),
+                              MacroRingData(
+                                value: 0.48,
+                                goal: 1,
+                                color: EcoColors.prot,
+                                soft: EcoColors.protSoft,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
                           Text(
                             '$norm',
+                            textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0,
+                              height: 1,
                             ),
                           ),
+                          const SizedBox(height: 4),
                           Text(
                             l.unit('kcalPerDay'),
+                            textAlign: TextAlign.center,
                             style: const TextStyle(
-                              fontSize: 13,
+                              fontSize: 12,
                               color: EcoColors.sub,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
+                              height: 1.05,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _macroLine(
+                            l.nutrient('carbs'),
+                            '$carbs ${l.unit('g')}',
+                            EcoColors.carb,
+                          ),
+                          const SizedBox(height: 20),
+                          _macroLine(
+                            l.nutrient('fat'),
+                            '$fat ${l.unit('g')}',
+                            EcoColors.fat,
+                          ),
+                          const SizedBox(height: 20),
+                          _macroLine(
+                            l.nutrient('protein'),
+                            '$protein ${l.unit('g')}',
+                            EcoColors.prot,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _macroCard(
-                  l.nutrient('carbs'),
-                  '${(norm * 0.45 / 4).round()} ${l.unit('g')}',
-                  EcoColors.carb,
-                ),
-                const SizedBox(width: 12),
-                _macroCard(
-                  l.nutrient('protein'),
-                  '${(norm * 0.3 / 4).round()} ${l.unit('g')}',
-                  EcoColors.prot,
-                ),
-                const SizedBox(width: 12),
-                _macroCard(
-                  l.nutrient('fat'),
-                  '${(norm * 0.25 / 9).round()} ${l.unit('g')}',
-                  EcoColors.fat,
-                ),
-              ],
             ),
           ],
         );
     }
   }
 
-  Widget _macroCard(String label, String value, Color color) {
-    return Expanded(
-      child: EcoCard(
-        t: t,
-        pad: 14,
-        child: Column(
-          children: [
-            Container(
-              width: 14,
-              height: 14,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 11.5, color: EcoColors.sub),
-            ),
-          ],
+  Widget _macroLine(String label, String value, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 16,
+          height: 16,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-      ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  height: 1.05,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: EcoColors.sub,
+                  fontWeight: FontWeight.w700,
+                  height: 1.05,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ProgressHeader extends StatelessWidget {
+  final EcoTheme t;
+  final int step;
+  final int total;
+  final VoidCallback onBack;
+
+  const _ProgressHeader({
+    required this.t,
+    required this.step,
+    required this.total,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: onBack,
+          child: Icon(
+            Icons.chevron_left,
+            size: 26,
+            color: step > 0 ? EcoColors.ink : EcoColors.faint,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: SizedBox(
+              height: 6,
+              child: Stack(
+                children: [
+                  Container(color: t.card),
+                  AnimatedFractionallySizedBox(
+                    duration: const Duration(milliseconds: 300),
+                    widthFactor: (step + 1) / (total + 1),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: t.dark,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Text(
+          '${step + 1}/${total + 1}',
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            color: EcoColors.sub,
+          ),
+        ),
+        const SizedBox(width: 8),
+        const LanguageSelector(t: EcoTheme.meadow, compact: true),
+      ],
     );
   }
 }
@@ -430,34 +589,37 @@ class _Step extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 27,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.5,
-          ),
-        ),
-        if (sub != null) ...[
-          const SizedBox(height: 6),
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Text(
-            sub!,
+            title,
             style: const TextStyle(
-              fontSize: 14.5,
-              color: EcoColors.sub,
-              height: 1.4,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0,
             ),
           ),
+          if (sub != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              sub!,
+              style: const TextStyle(
+                fontSize: 14,
+                color: EcoColors.sub,
+                height: 1.4,
+              ),
+            ),
+          ],
+          SizedBox(height: sub != null ? 22 : 20),
+          for (final (i, c) in children.indexed) ...[
+            if (i > 0) const SizedBox(height: 12),
+            c,
+          ],
         ],
-        SizedBox(height: sub != null ? 22 : 20),
-        for (final (i, c) in children.indexed) ...[
-          if (i > 0) const SizedBox(height: 12),
-          c,
-        ],
-      ],
+      ),
     );
   }
 }
@@ -501,7 +663,7 @@ class _OptionCard extends StatelessWidget {
               ),
               child: Icon(
                 ecoIcon(icon),
-                size: 20,
+                size: 30,
                 color: active ? t.pill : t.dark,
               ),
             ),
@@ -513,7 +675,7 @@ class _OptionCard extends StatelessWidget {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: active ? t.pill : EcoColors.ink,
                     ),
@@ -524,7 +686,7 @@ class _OptionCard extends StatelessWidget {
                       child: Text(
                         sub!,
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: active
                               ? Colors.white.withValues(alpha: 0.65)
                               : EcoColors.sub,
@@ -552,6 +714,117 @@ class _OptionCard extends StatelessWidget {
 }
 
 /// Big −/+ stepper around a large value.
+class _WheelValuePicker extends StatefulWidget {
+  final int value;
+  final int min;
+  final int max;
+  final String unit;
+  final ValueChanged<int> onChanged;
+
+  const _WheelValuePicker({
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.unit,
+    required this.onChanged,
+  });
+
+  @override
+  State<_WheelValuePicker> createState() => _WheelValuePickerState();
+}
+
+class _WheelValuePickerState extends State<_WheelValuePicker> {
+  late FixedExtentScrollController _controller;
+
+  int get _index =>
+      (widget.value - widget.min).clamp(0, widget.max - widget.min).toInt();
+  int get _count => widget.max - widget.min + 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = FixedExtentScrollController(initialItem: _index);
+  }
+
+  @override
+  void didUpdateWidget(covariant _WheelValuePicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.min != widget.min || oldWidget.max != widget.max) {
+      _controller.dispose();
+      _controller = FixedExtentScrollController(initialItem: _index);
+      return;
+    }
+    if (oldWidget.value != widget.value && _controller.selectedItem != _index) {
+      _controller.jumpToItem(_index);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 216,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          const EcoPickerSelectionOverlay(
+            t: EcoTheme.meadow,
+            margin: EdgeInsets.symmetric(horizontal: 28, vertical: 79),
+            radius: 22,
+          ),
+          CupertinoPicker.builder(
+            scrollController: _controller,
+            itemExtent: 58,
+            diameterRatio: 1.35,
+            squeeze: 0.92,
+            useMagnifier: true,
+            magnification: 1.12,
+            selectionOverlay: const SizedBox.shrink(),
+            childCount: _count,
+            onSelectedItemChanged: (index) =>
+                widget.onChanged(widget.min + index),
+            itemBuilder: (context, index) {
+              final value = widget.min + index;
+              return Center(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '$value',
+                        style: const TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0,
+                          color: EcoColors.ink,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' ${widget.unit}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: EcoColors.sub,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ignore: unused_element
 class _BigStepper extends StatelessWidget {
   static const t = EcoTheme.meadow;
   final int value;
@@ -580,9 +853,9 @@ class _BigStepper extends StatelessWidget {
                   TextSpan(
                     text: '$value',
                     style: const TextStyle(
-                      fontSize: 56,
+                      fontSize: 40,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: -1,
+                      letterSpacing: 0,
                     ),
                   ),
                   TextSpan(

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -74,21 +75,21 @@ class NumberWheel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget row(int v, bool dim) => GestureDetector(
-      onTap: dim ? () => onChanged(v.clamp(min, max)) : null,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: dim ? 4 : 2),
-        child: Text(
-          _f(v),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: dim ? 26 : 40,
-            fontWeight: FontWeight.w700,
-            color: dim ? const Color(0x52364025) : _t.dark,
+          onTap: dim ? () => onChanged(v.clamp(min, max)) : null,
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: dim ? 4 : 2),
+            child: Text(
+              _f(v),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: dim ? 26 : 40,
+                fontWeight: FontWeight.w700,
+                color: dim ? const Color(0x52364025) : _t.dark,
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        );
     return SizedBox(
       width: width == double.infinity ? null : width,
       child: Column(
@@ -129,14 +130,14 @@ class FieldRow extends StatelessWidget {
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(ecoIcon(icon!), size: 20, color: _t.dark),
+            Icon(ecoIcon(icon!), size: 30, color: _t.dark),
             const SizedBox(width: 12),
           ],
           Expanded(
             child: Text(
               label,
               style: const TextStyle(
-                fontSize: 15.5,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: EcoColors.sub,
               ),
@@ -173,10 +174,9 @@ class UnderlineInput extends StatelessWidget {
         SizedBox(
           width: width,
           child: TextField(
-            controller: initial != null
-                ? TextEditingController(text: initial)
-                : null,
-            keyboardType: TextInputType.number,
+            controller:
+                initial != null ? TextEditingController(text: initial) : null,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textAlign: TextAlign.right,
             onChanged: onChanged,
             style: const TextStyle(
@@ -241,7 +241,7 @@ class NotesField extends StatelessWidget {
                 border: InputBorder.none,
                 isDense: true,
               ),
-              style: const TextStyle(fontSize: 15, color: EcoColors.ink),
+              style: const TextStyle(fontSize: 16, color: EcoColors.ink),
             ),
           ),
         ],
@@ -286,338 +286,6 @@ Widget actionFooter(
   );
 }
 
-// ── Давление ──────────────────────────────────────────────────
-
-class PressureScreen extends StatefulWidget {
-  const PressureScreen({super.key});
-  @override
-  State<PressureScreen> createState() => _PressureScreenState();
-}
-
-class _PressureScreenState extends State<PressureScreen> {
-  late int sys;
-  late int dia;
-
-  @override
-  void initState() {
-    super.initState();
-    final parts = (context.read<AppStore>().pressure ?? '120/80').split('/');
-    sys = int.tryParse(parts[0]) ?? 120;
-    dia = int.tryParse(parts.length > 1 ? parts[1] : '80') ?? 80;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return EcoScreen(
-      t: _t,
-      footer: actionFooter(
-        context,
-        onSave: () {
-          context.read<AppStore>().setPressureFull(sys, dia);
-          Navigator.of(context).pop();
-        },
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const DatePill(time: '20:28'),
-          EcoCard(
-            t: _t,
-            margin: const EdgeInsets.only(bottom: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: [
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${l.t('health.systolic')} ',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          TextSpan(
-                            text: l.t('health.pressureUnit'),
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: EcoColors.sub,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      '$sys',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Center(
-                  child: NumberWheel(
-                    value: sys,
-                    min: 70,
-                    max: 220,
-                    onChanged: (v) => setState(() => sys = v),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Divider(height: 1.5, thickness: 1.5, color: _t.bandSoft),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${l.t('health.diastolic')} ${l.t('health.pressureUnit')}',
-                        style: const TextStyle(
-                          fontSize: 15.5,
-                          fontWeight: FontWeight.w600,
-                          color: EcoColors.sub,
-                        ),
-                      ),
-                    ),
-                    _roundBtn(
-                      Icons.remove,
-                      () => setState(() => dia = (dia - 1).clamp(40, 160)),
-                    ),
-                    SizedBox(
-                      width: 36,
-                      child: Text(
-                        '$dia',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    _roundBtn(
-                      Icons.add,
-                      () => setState(() => dia = (dia + 1).clamp(40, 160)),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          EcoCard(
-            t: _t,
-            pad: 16,
-            child: Column(
-              children: [
-                FieldRow(
-                  icon: 'pulse',
-                  label: l.t('health.pulse'),
-                  right: UnderlineInput(suffix: l.unit('bpm')),
-                ),
-                FieldRow(
-                  icon: 'drop',
-                  label: l.t('health.medication'),
-                  last: true,
-                  right: _none(context),
-                ),
-              ],
-            ),
-          ),
-          const NotesField(),
-        ],
-      ),
-    );
-  }
-}
-
-Widget _roundBtn(IconData icon, VoidCallback onTap) => GestureDetector(
-  onTap: onTap,
-  child: Container(
-    width: 30,
-    height: 30,
-    margin: const EdgeInsets.symmetric(horizontal: 6),
-    decoration: BoxDecoration(color: _t.bandSoft, shape: BoxShape.circle),
-    child: Icon(icon, size: 16, color: _t.dark),
-  ),
-);
-
-Widget _none(BuildContext context) {
-  final l = context.l10n;
-  return Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Text(
-        l.t('common.none'),
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-      ),
-      const Icon(Icons.keyboard_arrow_down, size: 16, color: EcoColors.sub),
-    ],
-  );
-}
-
-// ── Сахар крови ───────────────────────────────────────────────
-
-class SugarScreen extends StatefulWidget {
-  const SugarScreen({super.key});
-  @override
-  State<SugarScreen> createState() => _SugarScreenState();
-}
-
-class _SugarScreenState extends State<SugarScreen> {
-  late int val = (context.read<AppStore>().sugar ?? 100).round();
-  int status = 0;
-
-  static const _opts = [
-    (icon: 'cutlery', labelKey: 'health.fasting'),
-    (icon: 'food', labelKey: 'health.beforeMeal'),
-    (icon: 'bulb', labelKey: 'health.afterMeal'),
-    (icon: 'user', labelKey: 'health.general'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return EcoScreen(
-      t: _t,
-      footer: actionFooter(
-        context,
-        onSave: () {
-          context.read<AppStore>().setSugar(val.toDouble());
-          Navigator.of(context).pop();
-        },
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const DatePill(time: '20:29'),
-          EcoCard(
-            t: _t,
-            margin: const EdgeInsets.only(bottom: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '${l.t('health.bloodSugar')} ',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      TextSpan(
-                        text: '(${l.unit('mgdl')})',
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: EcoColors.sub,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Center(
-                  child: NumberWheel(
-                    value: val,
-                    min: 40,
-                    max: 400,
-                    onChanged: (v) => setState(() => val = v),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          EcoCard(
-            t: _t,
-            margin: const EdgeInsets.only(bottom: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l.t('health.currentStatus'),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    for (final (i, o) in _opts.indexed)
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => status = i),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: 50,
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: i == status ? _t.dark : _t.bandSoft,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  ecoIcon(o.icon),
-                                  size: 22,
-                                  color: i == status ? _t.pill : _t.olive,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                l.t(o.labelKey),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: i == status
-                                      ? EcoColors.ink
-                                      : EcoColors.sub,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          EcoCard(
-            t: _t,
-            pad: 16,
-            child: Column(
-              children: [
-                FieldRow(
-                  icon: 'drop',
-                  label: l.t('health.medication'),
-                  right: _none(context),
-                ),
-                FieldRow(
-                  icon: 'pulse',
-                  label: l.t('health.insulin'),
-                  last: true,
-                  right: UnderlineInput(suffix: l.unit('unit')),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 // ── Вода ──────────────────────────────────────────────────────
 
 class WaterScreen extends StatelessWidget {
@@ -638,7 +306,7 @@ class WaterScreen extends StatelessWidget {
             t: _t,
             title: l.t('home.water'),
             onBack: () => Navigator.of(context).pop(),
-            right: Icon(ecoIcon('chart'), size: 22, color: _t.dark),
+            right: Icon(ecoIcon('chart'), size: 33, color: _t.dark),
           ),
           // last 7 days row with goal dotted line
           Padding(
@@ -659,7 +327,7 @@ class WaterScreen extends StatelessWidget {
                     child: Text(
                       '${now.subtract(Duration(days: i)).day}',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: i == 0 ? EcoColors.ink : EcoColors.sub,
                       ),
@@ -681,14 +349,14 @@ class WaterScreen extends StatelessWidget {
                 Text(
                   '${s.water}',
                   style: const TextStyle(
-                    fontSize: 44,
+                    fontSize: 40,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
                   '/ ${s.waterGoal} ${l.unit('ml')}',
                   style: const TextStyle(
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: FontWeight.w700,
                     color: EcoColors.sub,
                   ),
@@ -772,21 +440,47 @@ class _CupPainter extends CustomPainter {
 
 // ── Состав тела ───────────────────────────────────────────────
 
-class BodyScreen extends StatelessWidget {
+class BodyScreen extends StatefulWidget {
   const BodyScreen({super.key});
+
+  @override
+  State<BodyScreen> createState() => _BodyScreenState();
+}
+
+class _BodyScreenState extends State<BodyScreen> {
+  int? _selectedIndex;
 
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppStore>();
     final l = context.l10n;
-    final fatMass = (s.weight * s.bodyFat / 100);
+    final currentWeight = s.weight > 0 ? s.weight : (s.weightKg ?? 0);
+    final entries = _chartEntries(s, currentWeight);
+    final selectedIndex = entries.isEmpty
+        ? 0
+        : (_selectedIndex ?? entries.length - 1).clamp(0, entries.length - 1);
+    final selected = entries.isEmpty
+        ? BodyMetricEntry(
+            date: DateTime.now(),
+            weightKg: currentWeight,
+            skeletalMuscle: s.skeletalMuscle,
+            bodyFat: s.bodyFat,
+          )
+        : entries[selectedIndex];
+    final bodyWeight = selected.weightKg;
+    final skeletalMuscle = selected.skeletalMuscle;
+    final bodyFat = selected.bodyFat;
+    final fatMass = (bodyWeight * bodyFat / 100);
+    final chartPoints = entries.map((entry) => entry.weightKg).toList();
     String fmt(num v) {
       final decimal =
           l.language == AppLanguage.ru || l.language == AppLanguage.uzCyrl
-          ? ','
-          : '.';
+              ? ','
+              : '.';
       return v.toStringAsFixed(1).replaceAll('.', decimal);
     }
+
+    void openEntry() => Navigator.of(context).pushNamed('/bodyEntry');
 
     return EcoScreen(
       t: _t,
@@ -807,18 +501,53 @@ class BodyScreen extends StatelessWidget {
             t: _t,
             title: l.t('health.bodyComposition'),
             onBack: () => Navigator.of(context).pop(),
-            right: Icon(ecoIcon('chart'), size: 22, color: _t.dark),
+            right: Icon(ecoIcon('chart'), size: 33, color: _t.dark),
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 90),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: 110,
-                  child: CustomPaint(
-                    size: const Size(double.infinity, 110),
-                    painter: _BodyChartPainter(),
+                LayoutBuilder(
+                  builder: (context, box) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTapDown: (details) => _selectChartPoint(
+                        details.localPosition,
+                        box.maxWidth,
+                        entries.length,
+                      ),
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 102,
+                            child: CustomPaint(
+                              size: Size(box.maxWidth, 102),
+                              painter: _BodyChartPainter(
+                                chartPoints,
+                                selectedIndex: selectedIndex,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          _BodyDateTicks(
+                            dates: [for (final entry in entries) entry.date],
+                            selectedIndex: selectedIndex,
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: Text(
+                    l.dayMonth(selected.date),
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: _t.dark,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -828,14 +557,14 @@ class BodyScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _stat('scale', fmt(s.weight), l.unit('kg'), _t.dark),
+                      _stat('scale', fmt(bodyWeight), l.unit('kg'), _t.dark),
                       _stat(
                         'gauge',
-                        fmt(s.skeletalMuscle),
+                        fmt(skeletalMuscle),
                         l.unit('kg'),
                         EcoColors.carb,
                       ),
-                      _stat('flame', fmt(s.bodyFat), '%', EcoColors.fat),
+                      _stat('flame', fmt(bodyFat), '%', EcoColors.fat),
                     ],
                   ),
                 ),
@@ -854,25 +583,27 @@ class BodyScreen extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          Icon(ecoIcon('bulb'), size: 20, color: EcoColors.sub),
+                          Icon(ecoIcon('bulb'), size: 30, color: EcoColors.sub),
                         ],
                       ),
                       _RangeRow(
                         label: l.t('profile.weight'),
-                        value: fmt(s.weight),
+                        value: fmt(bodyWeight),
                         unit: l.unit('kg'),
                         lo: fmt(53.5),
                         hi: fmt(72.3),
-                        frac: ((s.weight - 48) / 30),
+                        frac: ((bodyWeight - 48) / 30),
+                        onTap: openEntry,
                       ),
                       _RangeRow(
                         label: l.t('health.skeletalMuscle'),
-                        value: fmt(s.skeletalMuscle),
+                        value: fmt(skeletalMuscle),
                         unit: l.unit('kg'),
                         lo: fmt(25.8),
                         hi: fmt(28.9),
-                        frac: ((s.skeletalMuscle - 22) / 10),
+                        frac: ((skeletalMuscle - 22) / 10),
                         over: true,
+                        onTap: openEntry,
                       ),
                       _RangeRow(
                         label: l.t('health.fatMass'),
@@ -881,6 +612,7 @@ class BodyScreen extends StatelessWidget {
                         lo: fmt(6.7),
                         hi: fmt(12.5),
                         frac: ((fatMass - 4) / 12),
+                        onTap: openEntry,
                       ),
                       _RangeRow(
                         label: l.t('health.bodyWater'),
@@ -903,35 +635,117 @@ class BodyScreen extends StatelessWidget {
   }
 
   Widget _stat(String icon, String v, String u, Color c) => Column(
-    children: [
-      Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-        child: Icon(ecoIcon(icon), size: 20, color: Colors.white),
-      ),
-      const SizedBox(height: 10),
-      Text.rich(
-        TextSpan(
-          children: [
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+            child: Icon(ecoIcon(icon), size: 30, color: Colors.white),
+          ),
+          const SizedBox(height: 10),
+          Text.rich(
             TextSpan(
-              text: v,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+              children: [
+                TextSpan(
+                  text: v,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w700),
+                ),
+                TextSpan(
+                  text: ' $u',
+                  style: const TextStyle(fontSize: 12, color: EcoColors.sub),
+                ),
+              ],
             ),
-            TextSpan(
-              text: ' $u',
-              style: const TextStyle(fontSize: 13, color: EcoColors.sub),
+          ),
+        ],
+      );
+
+  void _selectChartPoint(Offset local, double width, int count) {
+    if (count <= 0) return;
+    final index = count == 1
+        ? 0
+        : ((local.dx - 10) / ((width - 20) / (count - 1))).round();
+    setState(() => _selectedIndex = index.clamp(0, count - 1));
+  }
+
+  List<BodyMetricEntry> _chartEntries(AppStore s, double currentWeight) {
+    final saved = s.bodyHistory.where((entry) => entry.weightKg > 0).toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+    if (saved.length >= 7) {
+      return saved.sublist(saved.length - 7);
+    }
+    if (saved.isNotEmpty) {
+      final first = saved.first;
+      final missing = 7 - saved.length;
+      final generated = [
+        for (var i = missing; i >= 1; i--)
+          BodyMetricEntry(
+            date: first.date.subtract(Duration(days: i)),
+            weightKg: double.parse(
+              (first.weightKg - i * 0.28).clamp(30.0, 200.0).toStringAsFixed(1),
             ),
-          ],
+            skeletalMuscle: double.parse(
+              (first.skeletalMuscle - i * 0.04)
+                  .clamp(10.0, 80.0)
+                  .toStringAsFixed(1),
+            ),
+            bodyFat: double.parse(
+              (first.bodyFat + i * 0.08).clamp(3.0, 60.0).toStringAsFixed(1),
+            ),
+          ),
+      ];
+      return [...generated, ...saved];
+    }
+    final base = currentWeight > 0 ? currentWeight : 66.0;
+    return [
+      for (var i = 6; i >= 0; i--)
+        BodyMetricEntry(
+          date: DateTime.now().subtract(Duration(days: i)),
+          weightKg: double.parse((base - i * 0.55).toStringAsFixed(1)),
+          skeletalMuscle: s.skeletalMuscle,
+          bodyFat: s.bodyFat,
         ),
-      ),
-    ],
-  );
+    ];
+  }
+}
+
+class _BodyDateTicks extends StatelessWidget {
+  final List<DateTime> dates;
+  final int selectedIndex;
+
+  const _BodyDateTicks({required this.dates, required this.selectedIndex});
+
+  @override
+  Widget build(BuildContext context) {
+    if (dates.isEmpty) return const SizedBox(height: 18);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        for (var i = 0; i < dates.length; i++)
+          Expanded(
+            child: Center(
+              child: AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 150),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight:
+                      i == selectedIndex ? FontWeight.w900 : FontWeight.w700,
+                  color: i == selectedIndex ? _t.dark : EcoColors.sub,
+                ),
+                child: Text('${dates[i].day}'),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }
 
 class _RangeRow extends StatelessWidget {
   final String label, value, unit, lo, hi;
   final double frac;
+  final VoidCallback? onTap;
   final bool over, last;
   const _RangeRow({
     required this.label,
@@ -940,6 +754,7 @@ class _RangeRow extends StatelessWidget {
     required this.lo,
     required this.hi,
     required this.frac,
+    this.onTap,
     this.over = false,
     this.last = false,
   });
@@ -947,7 +762,7 @@ class _RangeRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = frac.clamp(0.04, 1.0);
-    return Container(
+    final row = Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
         border: last
@@ -962,7 +777,7 @@ class _RangeRow extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -977,14 +792,14 @@ class _RangeRow extends StatelessWidget {
                 TextSpan(
                   text: value,
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 TextSpan(
                   text: ' $unit',
                   style: const TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     color: EcoColors.sub,
                     fontWeight: FontWeight.w600,
                   ),
@@ -996,7 +811,7 @@ class _RangeRow extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(999),
             child: SizedBox(
-              height: 8,
+              height: 12,
               child: Stack(
                 children: [
                   Container(color: _t.bandSoft),
@@ -1012,6 +827,21 @@ class _RangeRow extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Inset (recessed) shadow — adds depth, like the macro bars.
+                  const Positioned.fill(
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [Color(0x40000000), Color(0x00000000)],
+                            stops: [0.0, 0.5],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1023,7 +853,7 @@ class _RangeRow extends StatelessWidget {
               Text(
                 lo,
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: EcoColors.sub,
                 ),
@@ -1031,7 +861,7 @@ class _RangeRow extends StatelessWidget {
               Text(
                 hi,
                 style: const TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
                   color: EcoColors.sub,
                 ),
@@ -1041,24 +871,49 @@ class _RangeRow extends StatelessWidget {
         ],
       ),
     );
+    if (onTap == null) return row;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: row,
+    );
   }
 }
 
 class _BodyChartPainter extends CustomPainter {
-  static const _pts = [62.5, 63.0, 63.4, 64.0, 64.3, 64.9, 65.4];
-  static const _sel = 4;
+  final List<double> points;
+  final int selectedIndex;
+
+  _BodyChartPainter(this.points, {required this.selectedIndex});
 
   @override
   void paint(Canvas canvas, Size size) {
-    const min = 61.5, max = 68.5;
-    double x(int i) => 10 + i * ((size.width - 20) / (_pts.length - 1));
+    if (points.isEmpty) return;
+    var min = points.first;
+    var max = points.first;
+    for (final value in points.skip(1)) {
+      if (value < min) min = value;
+      if (value > max) max = value;
+    }
+    final span = max - min;
+    if (span.abs() < 0.1) {
+      min -= 3;
+      max += 3;
+    } else {
+      final pad = span * 0.4;
+      min -= pad;
+      max += pad;
+    }
+    double x(int i) => points.length == 1
+        ? size.width / 2
+        : 10 + i * ((size.width - 20) / (points.length - 1));
     double y(double v) => size.height - ((v - min) / (max - min)) * size.height;
     final path = Path();
-    for (var i = 0; i < _pts.length; i++) {
+    for (var i = 0; i < points.length; i++) {
       if (i == 0) {
-        path.moveTo(x(i), y(_pts[i]));
+        path.moveTo(x(i), y(points[i]));
       } else {
-        path.lineTo(x(i), y(_pts[i]));
+        path.lineTo(x(i), y(points[i]));
       }
     }
     canvas.drawPath(
@@ -1070,17 +925,25 @@ class _BodyChartPainter extends CustomPainter {
         ..strokeJoin = StrokeJoin.round
         ..color = _t.dark,
     );
-    for (var i = 0; i < _pts.length; i++) {
+    final selected = selectedIndex.clamp(0, points.length - 1);
+    for (var i = 0; i < points.length; i++) {
       canvas.drawCircle(
-        Offset(x(i), y(_pts[i])),
-        i == _sel ? 5 : 3.5,
-        Paint()..color = i == _sel ? _t.dark : _t.olive,
+        Offset(x(i), y(points[i])),
+        i == selected ? 5 : 3.5,
+        Paint()..color = i == selected ? _t.dark : _t.olive,
       );
     }
   }
 
   @override
-  bool shouldRepaint(_BodyChartPainter old) => false;
+  bool shouldRepaint(_BodyChartPainter old) {
+    if (old.selectedIndex != selectedIndex) return true;
+    if (old.points.length != points.length) return true;
+    for (var i = 0; i < points.length; i++) {
+      if (old.points[i] != points[i]) return true;
+    }
+    return false;
+  }
 }
 
 // ── Ввод веса ─────────────────────────────────────────────────
@@ -1092,6 +955,9 @@ class BodyEntryScreen extends StatefulWidget {
 }
 
 class _BodyEntryScreenState extends State<BodyEntryScreen> {
+  static const _weightMin = 30;
+  static const _weightMax = 200;
+
   late int intv;
   late int decv;
   late double skeletal = context.read<AppStore>().skeletalMuscle;
@@ -1100,9 +966,135 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
   @override
   void initState() {
     super.initState();
-    final w = context.read<AppStore>().weight;
-    intv = w.floor().clamp(30, 200);
-    decv = ((w - w.floor()) * 10).round() % 10;
+    final store = context.read<AppStore>();
+    final w = store.weight > 0 ? store.weight : (store.weightKg ?? 66.0);
+    intv = w.floor().clamp(_weightMin, _weightMax).toInt();
+    decv = (((w - w.floor()) * 10).round() % 10).toInt();
+  }
+
+  String _fmt(num v) {
+    final language = context.l10nRead.language;
+    final decimal = language == AppLanguage.ru || language == AppLanguage.uzCyrl
+        ? ','
+        : '.';
+    return v.toStringAsFixed(1).replaceAll('.', decimal);
+  }
+
+  double get _weightValue =>
+      double.parse((intv + decv / 10).toStringAsFixed(1));
+
+  Future<void> _pickMetric({
+    required String title,
+    required String unit,
+    required double value,
+    required int min,
+    required int max,
+    required ValueChanged<double> onSave,
+  }) {
+    var whole = value.floor().clamp(min, max).toInt();
+    var tenth = ((value - value.floor()) * 10).round().clamp(0, 9).toInt();
+    return showEcoSheet(
+      context: context,
+      t: _t,
+      title: title,
+      doneLabel: context.l10nRead.t('common.save'),
+      onDone: () => setState(
+        () => onSave(double.parse((whole + tenth / 10).toStringAsFixed(1))),
+      ),
+      body: SizedBox(
+        height: 150,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: SizedBox(
+                width: 252,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: CupertinoPicker.builder(
+                        scrollController: FixedExtentScrollController(
+                          initialItem: whole - min,
+                        ),
+                        itemExtent: 44,
+                        selectionOverlay: const EcoPickerSelectionOverlay(
+                          t: _t,
+                        ),
+                        onSelectedItemChanged: (index) => whole = min + index,
+                        childCount: max - min + 1,
+                        itemBuilder: (_, index) {
+                          final current = min + index;
+                          return Center(
+                            child: Text(
+                              '$current',
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 34,
+                      child: Center(
+                        child: Text(
+                          ',',
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: CupertinoPicker.builder(
+                        scrollController: FixedExtentScrollController(
+                          initialItem: tenth,
+                        ),
+                        itemExtent: 44,
+                        selectionOverlay: const EcoPickerSelectionOverlay(
+                          t: _t,
+                        ),
+                        onSelectedItemChanged: (index) => tenth = index,
+                        childCount: 10,
+                        itemBuilder: (_, index) {
+                          return Center(
+                            child: Text(
+                              '$index',
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              right: 28,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: Text(
+                  unit,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: EcoColors.sub,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -1114,8 +1106,11 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
         context,
         onSave: () {
           final store = context.read<AppStore>();
-          store.setWeight(double.parse((intv + decv / 10).toStringAsFixed(1)));
-          store.setBodyComposition(bodyFat: fat, skeletalMuscle: skeletal);
+          store.saveBodyMetrics(
+            weightKg: _weightValue,
+            skeletalMuscle: skeletal,
+            bodyFat: fat,
+          );
           Navigator.of(context).pop();
         },
       ),
@@ -1125,48 +1120,26 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
           const DatePill(time: '20:25'),
           EcoCard(
             t: _t,
+            pad: 16,
             margin: const EdgeInsets.only(bottom: 14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${l.t('profile.weight')} (${l.unit('kg')})',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+            child: FieldRow(
+              label: l.t('health.bodyMass'),
+              last: true,
+              right: _MetricValueButton(
+                value: _fmt(_weightValue),
+                unit: l.unit('kg'),
+                onTap: () => _pickMetric(
+                  title: l.t('health.bodyMass'),
+                  unit: l.unit('kg'),
+                  value: _weightValue,
+                  min: _weightMin,
+                  max: _weightMax,
+                  onSave: (v) {
+                    intv = v.floor().clamp(_weightMin, _weightMax).toInt();
+                    decv = ((v - v.floor()) * 10).round().clamp(0, 9).toInt();
+                  },
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    NumberWheel(
-                      value: intv,
-                      min: 30,
-                      max: 200,
-                      width: 90,
-                      onChanged: (v) => setState(() => intv = v),
-                    ),
-                    Text(
-                      ',',
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.w700,
-                        color: _t.dark,
-                      ),
-                    ),
-                    NumberWheel(
-                      value: decv,
-                      min: 0,
-                      max: 9,
-                      width: 90,
-                      fmt: (v) => '${(v + 10) % 10}',
-                      onChanged: (v) => setState(() => decv = (v + 10) % 10),
-                    ),
-                  ],
-                ),
-              ],
+              ),
             ),
           ),
           Padding(
@@ -1174,7 +1147,7 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
             child: Text(
               l.t('health.weightAlsoProfile'),
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 color: EcoColors.sub,
                 height: 1.45,
               ),
@@ -1188,19 +1161,33 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
               children: [
                 FieldRow(
                   label: '${l.t('health.skeletalMuscle')} (${l.unit('kg')})',
-                  right: UnderlineInput(
-                    width: 56,
-                    initial: skeletal.toString(),
-                    onChanged: (v) => skeletal = double.tryParse(v) ?? skeletal,
+                  right: _MetricValueButton(
+                    value: _fmt(skeletal),
+                    unit: l.unit('kg'),
+                    onTap: () => _pickMetric(
+                      title: l.t('health.skeletalMuscle'),
+                      unit: l.unit('kg'),
+                      value: skeletal,
+                      min: 10,
+                      max: 80,
+                      onSave: (v) => skeletal = v,
+                    ),
                   ),
                 ),
                 FieldRow(
                   label: '${l.t('health.bodyFat')} (%)',
                   last: true,
-                  right: UnderlineInput(
-                    width: 56,
-                    initial: fat.toString(),
-                    onChanged: (v) => fat = double.tryParse(v) ?? fat,
+                  right: _MetricValueButton(
+                    value: _fmt(fat),
+                    unit: '%',
+                    onTap: () => _pickMetric(
+                      title: l.t('health.bodyFat'),
+                      unit: '%',
+                      value: fat,
+                      min: 3,
+                      max: 60,
+                      onSave: (v) => fat = v,
+                    ),
                   ),
                 ),
               ],
@@ -1211,7 +1198,7 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
             child: Text(
               l.t('health.bodyCompositionNote'),
               style: const TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 color: EcoColors.sub,
                 height: 1.45,
               ),
@@ -1220,6 +1207,54 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
           const NotesField(),
           const SizedBox(height: 90),
         ],
+      ),
+    );
+  }
+}
+
+class _MetricValueButton extends StatelessWidget {
+  final String value;
+  final String unit;
+  final VoidCallback onTap;
+
+  const _MetricValueButton({
+    required this.value,
+    required this.unit,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.only(left: 8, right: 2, bottom: 3),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: _t.olive, width: 1.5)),
+        ),
+        child: Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: EcoColors.ink,
+                ),
+              ),
+              TextSpan(
+                text: ' $unit',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: EcoColors.sub,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

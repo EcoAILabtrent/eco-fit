@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_language.dart';
@@ -68,27 +69,65 @@ class _AiAdviceCardState extends State<AiAdviceCard>
         children: [
           _AiCardHeader(t: widget.t, title: _aiTitle(l), animation: _aiMotion),
           const SizedBox(height: 12),
-          _advice == null
-              ? Text(
-                  _bodyText(
-                    l,
-                    foodCount,
-                    revealPeriod: _periodPickerOpen,
-                    hasFoodInAnyPeriod: hasFoodInAnyPeriod,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    height: 1.45,
-                    color: EcoColors.sub,
-                  ),
-                )
-              : _AdviceList(text: visibleAdvice, showCursor: _typing),
-          if (_advice == null && _periodPickerOpen) ...[
+          AnimatedSize(
+            duration: const Duration(milliseconds: 420),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 420),
+              reverseDuration: const Duration(milliseconds: 260),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.025),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: _loading
+                  ? KeyedSubtree(
+                      key: const ValueKey('ai-loading'),
+                      child: _AiAdviceLoading(
+                        t: widget.t,
+                        label: l.t('ai.loading'),
+                      ),
+                    )
+                  : _advice == null
+                      ? KeyedSubtree(
+                          key: const ValueKey('ai-intro'),
+                          child: Text(
+                            _bodyText(
+                              l,
+                              foodCount,
+                              revealPeriod: _periodPickerOpen,
+                              hasFoodInAnyPeriod: hasFoodInAnyPeriod,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              height: 1.45,
+                              color: EcoColors.sub,
+                            ),
+                          ),
+                        )
+                      : KeyedSubtree(
+                          key: const ValueKey('ai-advice'),
+                          child: _AdviceList(
+                            text: visibleAdvice,
+                            showCursor: _typing,
+                          ),
+                        ),
+            ),
+          ),
+          if (!_loading && _advice == null && _periodPickerOpen) ...[
             const SizedBox(height: 14),
             Text(
               _periodPrompt(l),
               style: TextStyle(
-                fontSize: 12.5,
+                fontSize: 12,
                 height: 1.2,
                 color: widget.t.dark,
                 fontWeight: FontWeight.w700,
@@ -102,83 +141,85 @@ class _AiAdviceCardState extends State<AiAdviceCard>
               onChanged: _setPeriod,
             ),
           ],
-          if (_advice != null) ...[
+          if (!_loading && _advice != null) ...[
             const SizedBox(height: 10),
             Text(
               l.t('ai.disclaimer'),
               style: const TextStyle(
-                fontSize: 11.5,
+                fontSize: 12,
                 height: 1.35,
                 color: EcoColors.sub,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ],
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              if (_advice != null) ...[
-                EcoBtn(
-                  t: widget.t,
-                  height: 38,
-                  fontSize: 13,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: _clearAdvice,
-                  child: Text(_closeLabel(l)),
-                ),
-                const SizedBox(width: 8),
-                _IconChip(
-                  t: widget.t,
-                  icon: Icons.refresh,
-                  onTap: canGenerate ? () => _loadAdvice(store) : null,
-                ),
-              ] else if (_periodPickerOpen) ...[
-                Expanded(
-                  child: EcoBtn(
+          if (!_loading) ...[
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                if (_advice != null) ...[
+                  EcoBtn(
                     t: widget.t,
                     height: 38,
-                    fontSize: 13,
-                    padding: const EdgeInsets.symmetric(horizontal: 14),
-                    disabled: _online == false ? false : !canGenerate,
-                    onTap: _online == false
-                        ? _checkOnline
-                        : canGenerate
-                        ? () => _loadAdvice(store)
-                        : null,
-                    child: Text(
-                      _online == false ? l.t('ai.retry') : l.t('ai.generate'),
+                    fontSize: 12,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    onTap: _clearAdvice,
+                    child: Text(_closeLabel(l)),
+                  ),
+                  const SizedBox(width: 8),
+                  _IconChip(
+                    t: widget.t,
+                    icon: Icons.refresh,
+                    onTap: canGenerate ? () => _loadAdvice(store) : null,
+                  ),
+                ] else if (_periodPickerOpen) ...[
+                  Expanded(
+                    child: EcoBtn(
+                      t: widget.t,
+                      height: 38,
+                      fontSize: 12,
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      disabled: _online == false ? false : !canGenerate,
+                      onTap: _online == false
+                          ? _checkOnline
+                          : canGenerate
+                              ? () => _loadAdvice(store)
+                              : null,
+                      child: Text(
+                        _online == false ? l.t('ai.retry') : l.t('ai.generate'),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                _IconChip(
-                  t: widget.t,
-                  icon: Icons.close,
-                  onTap: _closePeriodPicker,
-                ),
-              ] else if (AiConfig.hasBackend && _online == false)
-                EcoBtn(
-                  t: widget.t,
-                  height: 38,
-                  fontSize: 13,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  onTap: _checkOnline,
-                  child: Text(l.t('ai.retry')),
-                )
-              else if (AiConfig.hasBackend)
-                Expanded(
-                  child: EcoBtn(
+                  const SizedBox(width: 8),
+                  _IconChip(
+                    t: widget.t,
+                    icon: Icons.close,
+                    onTap: _closePeriodPicker,
+                  ),
+                ] else if (AiConfig.hasBackend && _online == false)
+                  EcoBtn(
                     t: widget.t,
                     height: 38,
-                    fontSize: 13,
+                    fontSize: 12,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    disabled: !canOpenPicker,
-                    onTap: canOpenPicker ? _openPeriodPicker : null,
-                    child: Text(l.t('ai.generate')),
+                    onTap: _checkOnline,
+                    child: Text(l.t('ai.retry')),
+                  )
+                else if (AiConfig.hasBackend)
+                  Expanded(
+                    child: EcoBtn(
+                      t: widget.t,
+                      height: 38,
+                      fontSize: 12,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      disabled: !canOpenPicker,
+                      onTap: canOpenPicker ? _openPeriodPicker : null,
+                      child: Text(l.t('ai.generate')),
+                    ),
                   ),
-                ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -205,10 +246,7 @@ class _AiAdviceCardState extends State<AiAdviceCard>
     return l.t('ai.ready');
   }
 
-  String get _visibleAdvice {
-    if (!_typing) return _advice ?? '';
-    return _typedAdvice;
-  }
+  String get _visibleAdvice => _typing ? _typedAdvice : _advice ?? '';
 
   int _foodCount(AppStore store, AiAdvicePeriod period) {
     var count = 0;
@@ -236,11 +274,12 @@ class _AiAdviceCardState extends State<AiAdviceCard>
   }
 
   Future<void> _loadAdvice(AppStore store) async {
+    final startedAt = DateTime.now();
     _stopTyping();
     setState(() {
       _loading = true;
-      _typing = false;
       _typedAdvice = '';
+      _typing = false;
       _error = null;
     });
     try {
@@ -249,14 +288,22 @@ class _AiAdviceCardState extends State<AiAdviceCard>
         language: store.language,
         period: _period,
       );
+      final elapsed = DateTime.now().difference(startedAt);
+      const minimumLoaderDuration = Duration(milliseconds: 2400);
+      if (elapsed < minimumLoaderDuration) {
+        await Future<void>.delayed(minimumLoaderDuration - elapsed);
+      }
       if (!mounted) return;
       setState(() {
         _advice = advice;
         _periodPickerOpen = false;
         _typedAdvice = '';
         _typing = true;
+        _loading = false;
         _online = true;
       });
+      await Future<void>.delayed(const Duration(milliseconds: 280));
+      if (!mounted || _advice != advice) return;
       _startTyping(advice);
     } on Object catch (error) {
       debugPrint('AI advice failed: $error');
@@ -314,12 +361,15 @@ class _AiAdviceCardState extends State<AiAdviceCard>
   void _startTyping(String text) {
     _stopTyping();
     var index = 0;
-    _typingTimer = Timer.periodic(const Duration(milliseconds: 18), (timer) {
+    // Keep the live-stream effect legible while completing a long ten-item
+    // answer in roughly six to seven seconds.
+    final charsPerTick = math.max(1, (text.length / 440).ceil());
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
-      index = (index + 2).clamp(0, text.length);
+      index = math.min(index + charsPerTick, text.length);
       setState(() {
         _typedAdvice = text.substring(0, index);
         _typing = index < text.length;
@@ -344,101 +394,108 @@ class _AiAdviceCardState extends State<AiAdviceCard>
   }
 
   List<String> _periodOptions(AppStrings l) => switch (l.language) {
-    AppLanguage.en => const ['Day', 'Week', 'Month'],
-    AppLanguage.ru => const ['День', 'Неделя', 'Месяц'],
-    AppLanguage.uzLatn => const ['Kun', 'Hafta', 'Oy'],
-    AppLanguage.uzCyrl => const ['Кун', 'Ҳафта', 'Ой'],
-  };
+        AppLanguage.en => const ['Day', 'Week', 'Month'],
+        AppLanguage.ru => const ['День', 'Неделя', 'Месяц'],
+        AppLanguage.uzLatn => const ['Kun', 'Hafta', 'Oy'],
+        AppLanguage.uzCyrl => const ['Кун', 'Ҳафта', 'Ой'],
+      };
 
   String _periodPrompt(AppStrings l) => switch (l.language) {
-    AppLanguage.en => 'Choose the advice period',
-    AppLanguage.ru => 'Выберите период совета',
-    AppLanguage.uzLatn => 'Tavsiya davrini tanlang',
-    AppLanguage.uzCyrl => 'Тавсия даврини танланг',
-  };
+        AppLanguage.en => 'Choose the advice period',
+        AppLanguage.ru => 'Выберите период совета',
+        AppLanguage.uzLatn => 'Tavsiya davrini tanlang',
+        AppLanguage.uzCyrl => 'Тавсия даврини танланг',
+      };
 
   String _readyText(AppStrings l) => switch (l.language) {
-    AppLanguage.en => switch (_period) {
-      AiAdvicePeriod.day => "AI can review today's meals in a short note.",
-      AiAdvicePeriod.week => 'AI can review your last 7 days of meals.',
-      AiAdvicePeriod.month => 'AI can review your last 30 days of meals.',
-    },
-    AppLanguage.ru => switch (_period) {
-      AiAdvicePeriod.day => 'ИИ коротко разберёт сегодняшний рацион.',
-      AiAdvicePeriod.week => 'ИИ разберёт питание за последние 7 дней.',
-      AiAdvicePeriod.month => 'ИИ разберёт питание за последние 30 дней.',
-    },
-    AppLanguage.uzLatn => switch (_period) {
-      AiAdvicePeriod.day => 'AI bugungi ratsionni qisqa tahlil qiladi.',
-      AiAdvicePeriod.week => 'AI oxirgi 7 kunlik ratsionni tahlil qiladi.',
-      AiAdvicePeriod.month => 'AI oxirgi 30 kunlik ratsionni tahlil qiladi.',
-    },
-    AppLanguage.uzCyrl => switch (_period) {
-      AiAdvicePeriod.day => 'ИИ бугунги рационни қисқа таҳлил қилади.',
-      AiAdvicePeriod.week => 'ИИ охирги 7 кунлик рационни таҳлил қилади.',
-      AiAdvicePeriod.month => 'ИИ охирги 30 кунлик рационни таҳлил қилади.',
-    },
-  };
+        AppLanguage.en => switch (_period) {
+            AiAdvicePeriod.day =>
+              "AI can review today's meals in a short note.",
+            AiAdvicePeriod.week => 'AI can review your last 7 days of meals.',
+            AiAdvicePeriod.month => 'AI can review your last 30 days of meals.',
+          },
+        AppLanguage.ru => switch (_period) {
+            AiAdvicePeriod.day => 'ИИ коротко разберёт сегодняшний рацион.',
+            AiAdvicePeriod.week => 'ИИ разберёт питание за последние 7 дней.',
+            AiAdvicePeriod.month => 'ИИ разберёт питание за последние 30 дней.',
+          },
+        AppLanguage.uzLatn => switch (_period) {
+            AiAdvicePeriod.day => 'AI bugungi ratsionni qisqa tahlil qiladi.',
+            AiAdvicePeriod.week =>
+              'AI oxirgi 7 kunlik ratsionni tahlil qiladi.',
+            AiAdvicePeriod.month =>
+              'AI oxirgi 30 kunlik ratsionni tahlil qiladi.',
+          },
+        AppLanguage.uzCyrl => switch (_period) {
+            AiAdvicePeriod.day => 'ИИ бугунги рационни қисқа таҳлил қилади.',
+            AiAdvicePeriod.week => 'ИИ охирги 7 кунлик рационни таҳлил қилади.',
+            AiAdvicePeriod.month =>
+              'ИИ охирги 30 кунлик рационни таҳлил қилади.',
+          },
+      };
 
   String _noFoodText(AppStrings l) => switch (l.language) {
-    AppLanguage.en => switch (_period) {
-      AiAdvicePeriod.day => 'Add foods for today, then AI will analyze them.',
-      AiAdvicePeriod.week =>
-        'Add foods in the last 7 days to get weekly advice.',
-      AiAdvicePeriod.month =>
-        'Add foods in the last 30 days to get monthly advice.',
-    },
-    AppLanguage.ru => switch (_period) {
-      AiAdvicePeriod.day => 'Добавьте еду за сегодня, и ИИ её проанализирует.',
-      AiAdvicePeriod.week =>
-        'Добавьте еду за 7 дней, чтобы получить совет за неделю.',
-      AiAdvicePeriod.month =>
-        'Добавьте еду за 30 дней, чтобы получить совет за месяц.',
-    },
-    AppLanguage.uzLatn => switch (_period) {
-      AiAdvicePeriod.day =>
-        "Bugungi ovqatlarni qo'shing, keyin AI tahlil qiladi.",
-      AiAdvicePeriod.week =>
-        "Haftalik tavsiya uchun oxirgi 7 kunga ovqat qo'shing.",
-      AiAdvicePeriod.month =>
-        "Oylik tavsiya uchun oxirgi 30 kunga ovqat qo'shing.",
-    },
-    AppLanguage.uzCyrl => switch (_period) {
-      AiAdvicePeriod.day =>
-        'Бугунги овқатларни қўшинг, кейин ИИ таҳлил қилади.',
-      AiAdvicePeriod.week =>
-        'Ҳафталик тавсия учун охирги 7 кунга овқат қўшинг.',
-      AiAdvicePeriod.month => 'Ойлик тавсия учун охирги 30 кунга овқат қўшинг.',
-    },
-  };
+        AppLanguage.en => switch (_period) {
+            AiAdvicePeriod.day =>
+              'Add foods for today, then AI will analyze them.',
+            AiAdvicePeriod.week =>
+              'Add foods in the last 7 days to get weekly advice.',
+            AiAdvicePeriod.month =>
+              'Add foods in the last 30 days to get monthly advice.',
+          },
+        AppLanguage.ru => switch (_period) {
+            AiAdvicePeriod.day =>
+              'Добавьте еду за сегодня, и ИИ её проанализирует.',
+            AiAdvicePeriod.week =>
+              'Добавьте еду за 7 дней, чтобы получить совет за неделю.',
+            AiAdvicePeriod.month =>
+              'Добавьте еду за 30 дней, чтобы получить совет за месяц.',
+          },
+        AppLanguage.uzLatn => switch (_period) {
+            AiAdvicePeriod.day =>
+              "Bugungi ovqatlarni qo'shing, keyin AI tahlil qiladi.",
+            AiAdvicePeriod.week =>
+              "Haftalik tavsiya uchun oxirgi 7 kunga ovqat qo'shing.",
+            AiAdvicePeriod.month =>
+              "Oylik tavsiya uchun oxirgi 30 kunga ovqat qo'shing.",
+          },
+        AppLanguage.uzCyrl => switch (_period) {
+            AiAdvicePeriod.day =>
+              'Бугунги овқатларни қўшинг, кейин ИИ таҳлил қилади.',
+            AiAdvicePeriod.week =>
+              'Ҳафталик тавсия учун охирги 7 кунга овқат қўшинг.',
+            AiAdvicePeriod.month =>
+              'Ойлик тавсия учун охирги 30 кунга овқат қўшинг.',
+          },
+      };
 
   // ignore: unused_element
   String _moreLabel(AppStrings l) => switch (l.language) {
-    AppLanguage.en => 'Details',
-    AppLanguage.ru => 'Подробнее',
-    AppLanguage.uzLatn => 'Batafsil',
-    AppLanguage.uzCyrl => 'Батафсил',
-  };
+        AppLanguage.en => 'Details',
+        AppLanguage.ru => 'Подробнее',
+        AppLanguage.uzLatn => 'Batafsil',
+        AppLanguage.uzCyrl => 'Батафсил',
+      };
 
   String _closeLabel(AppStrings l) => switch (l.language) {
-    AppLanguage.en => 'Close',
-    AppLanguage.ru => 'Закрыть',
-    AppLanguage.uzLatn => 'Yopish',
-    AppLanguage.uzCyrl => 'Ёпиш',
-  };
+        AppLanguage.en => 'Close',
+        AppLanguage.ru => 'Закрыть',
+        AppLanguage.uzLatn => 'Yopish',
+        AppLanguage.uzCyrl => 'Ёпиш',
+      };
 
   String _aiTitle(AppStrings l) => switch (l.language) {
-    AppLanguage.en => 'AI nutrition advice',
-    AppLanguage.ru => 'ИИ-совет по питанию',
-    AppLanguage.uzLatn => 'AI ovqatlanish tavsiyasi',
-    AppLanguage.uzCyrl => 'ИИ овқатланиш тавсияси',
-  };
+        AppLanguage.en => 'AI nutrition advice',
+        AppLanguage.ru => 'ИИ-совет по питанию',
+        AppLanguage.uzLatn => 'AI ovqatlanish tavsiyasi',
+        AppLanguage.uzCyrl => 'ИИ овқатланиш тавсияси',
+      };
 
   // ignore: unused_element
   String _aiLabel(AppStrings l) => switch (l.language) {
-    AppLanguage.ru || AppLanguage.uzCyrl => 'ИИ',
-    _ => 'AI',
-  };
+        AppLanguage.ru || AppLanguage.uzCyrl => 'ИИ',
+        _ => 'AI',
+      };
 
   // ignore: unused_element
   String _detailsTitle(AppStrings l) =>
@@ -466,8 +523,8 @@ class _AiCardHeader extends StatelessWidget {
           child: Text(
             title,
             style: const TextStyle(
-              fontSize: 19,
-              fontWeight: FontWeight.w800,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
               color: EcoColors.ink,
             ),
           ),
@@ -497,23 +554,51 @@ class _AnimatedAiBadge extends StatelessWidget {
         );
       },
       child: Container(
-        width: 40,
-        height: 40,
+        width: 50,
+        height: 50,
         decoration: BoxDecoration(color: t.pill, shape: BoxShape.circle),
-        child: Stack(
-          alignment: Alignment.center,
+        padding: const EdgeInsets.all(4),
+        child: const CustomPaint(painter: _EcoAiMarkPainter()),
+      ),
+    );
+  }
+}
+
+class _AiAdviceLoading extends StatelessWidget {
+  final EcoTheme t;
+  final String label;
+
+  const _AiAdviceLoading({required this.t, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: label,
+      liveRegion: true,
+      child: SizedBox(
+        width: double.infinity,
+        height: 164,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_awesome, size: 21, color: t.dark),
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                width: 5,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: t.dark,
-                  shape: BoxShape.circle,
-                ),
+            Lottie.asset(
+              'assets/animations/eco_ai_generating.json',
+              width: 112,
+              height: 112,
+              fit: BoxFit.contain,
+              repeat: true,
+              animate: true,
+              frameRate: FrameRate.max,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                height: 1.35,
+                color: t.dark,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -521,6 +606,105 @@ class _AnimatedAiBadge extends StatelessWidget {
       ),
     );
   }
+}
+
+class _EcoAiMarkPainter extends CustomPainter {
+  const _EcoAiMarkPainter();
+
+  static const _forest = Color(0xFF155B3A);
+  static const _lime = Color(0xFF83C95B);
+  static const _teal = Color(0xFF36BFC3);
+  static const _cream = Color(0xFFF9F7E6);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final sx = size.width / 240;
+    final sy = size.height / 240;
+    canvas.save();
+    canvas.scale(sx, sy);
+
+    canvas.drawCircle(const Offset(120, 120), 71, Paint()..color = _forest);
+
+    final outerPaint = Paint()
+      ..color = _lime
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 7
+      ..strokeCap = StrokeCap.round;
+    final middlePaint = Paint()
+      ..color = _teal
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 9
+      ..strokeCap = StrokeCap.round;
+    final innerPaint = Paint()
+      ..color = _lime
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+
+    for (var index = 0; index < 8; index++) {
+      canvas.drawArc(
+        const Rect.fromLTWH(16, 16, 208, 208),
+        index * math.pi / 4 + 0.08,
+        math.pi / 5.4,
+        false,
+        outerPaint..color = index.isEven ? _lime : _teal,
+      );
+    }
+    for (var index = 0; index < 4; index++) {
+      canvas.drawArc(
+        const Rect.fromLTWH(32, 32, 176, 176),
+        index * math.pi / 2 + 0.12,
+        math.pi / 2.7,
+        false,
+        middlePaint,
+      );
+      canvas.drawArc(
+        const Rect.fromLTWH(59, 59, 122, 122),
+        index * math.pi / 2 + 0.16,
+        math.pi / 2.55,
+        false,
+        innerPaint,
+      );
+    }
+
+    final dotCore = Paint()..color = _cream;
+    final dotGlow = Paint()..color = _teal.withValues(alpha: 0.25);
+    for (final position in const [
+      Offset(120, 62),
+      Offset(178, 120),
+      Offset(120, 178),
+      Offset(62, 120),
+    ]) {
+      canvas.drawCircle(position, 7.5, dotGlow);
+      canvas.drawCircle(position, 4, dotCore);
+    }
+
+    final monogramPaint = Paint()
+      ..color = _cream
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 14
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final letterA = Path()
+      ..moveTo(91, 149)
+      ..lineTo(116, 91)
+      ..lineTo(141, 149)
+      ..moveTo(103, 127)
+      ..lineTo(130, 127);
+    canvas.drawPath(letterA, monogramPaint);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: const Offset(158, 120), width: 15, height: 65),
+        const Radius.circular(7.5),
+      ),
+      Paint()..color = _cream,
+    );
+
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _EcoAiMarkPainter oldDelegate) => false;
 }
 
 class _AdviceList extends StatelessWidget {
@@ -559,17 +743,7 @@ class _AdviceList extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
               ),
-              Expanded(
-                child: Text(
-                  items[i],
-                  overflow: TextOverflow.visible,
-                  style: const TextStyle(
-                    fontSize: 13.5,
-                    height: 1.42,
-                    color: EcoColors.sub,
-                  ),
-                ),
-              ),
+              Expanded(child: _AdviceItemText(items[i])),
             ],
           ),
         ],
@@ -582,6 +756,42 @@ class _AdviceList extends StatelessWidget {
         .replaceAll(RegExp('^\\s*(?:[-*]|\\u2022)\\s*'), '')
         .replaceAll(RegExp(r'^\s*\d+[\).]\s*'), '')
         .trim();
+  }
+}
+
+class _AdviceItemText extends StatelessWidget {
+  final String value;
+
+  const _AdviceItemText(this.value);
+
+  @override
+  Widget build(BuildContext context) {
+    const baseStyle = TextStyle(
+      fontSize: 14,
+      height: 1.42,
+      color: EcoColors.sub,
+    );
+    final separator = value.indexOf(':');
+    if (separator <= 0) {
+      return Text(value, overflow: TextOverflow.visible, style: baseStyle);
+    }
+
+    return Text.rich(
+      TextSpan(
+        style: baseStyle,
+        children: [
+          TextSpan(
+            text: value.substring(0, separator + 1),
+            style: const TextStyle(
+              color: EcoColors.ink,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          TextSpan(text: value.substring(separator + 1)),
+        ],
+      ),
+      overflow: TextOverflow.visible,
+    );
   }
 }
 

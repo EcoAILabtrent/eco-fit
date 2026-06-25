@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 0.1.1+2
 
 environment:
-  sdk: ^3.12.0
+  sdk: ^3.5.0
 
 dependencies:
   flutter:
@@ -15,11 +15,12 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   sqflite: ^2.4.3
-  path: ^1.9.1
+  path: ^1.9.0
   firebase_core: ^4.10.0
   firebase_app_check: ^0.4.4+2
   cloud_functions: ^6.3.2
-
+  lottie: ^3.3.3
+  image_picker: ^1.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -33,6 +34,8 @@ flutter:
     - assets/foods.json
     - assets/db/eco_fit.db
     - assets/foods/images/
+    - assets/animations/
+    - assets/branding/
   fonts:
     # Onest variable font (wght 100–900) — bundled so the app is offline-first.
     - family: Onest

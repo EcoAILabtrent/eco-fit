@@ -5,6 +5,11 @@ import 'package:flutter/foundation.dart';
 class FirebaseBackend {
   const FirebaseBackend._();
 
+  static const _useDebugAppCheck = bool.fromEnvironment(
+    'FIREBASE_APP_CHECK_DEBUG',
+    defaultValue: !kReleaseMode,
+  );
+
   static bool _initialized = false;
   static Object? _lastError;
 
@@ -20,12 +25,12 @@ class FirebaseBackend {
       }
 
       await FirebaseAppCheck.instance.activate(
-        providerAndroid: kReleaseMode
-            ? const AndroidPlayIntegrityProvider()
-            : const AndroidDebugProvider(),
-        providerApple: kReleaseMode
-            ? const AppleDeviceCheckProvider()
-            : const AppleDebugProvider(),
+        providerAndroid: _useDebugAppCheck
+            ? const AndroidDebugProvider()
+            : const AndroidPlayIntegrityProvider(),
+        providerApple: _useDebugAppCheck
+            ? const AppleDebugProvider()
+            : const AppleDeviceCheckProvider(),
       );
 
       _initialized = true;

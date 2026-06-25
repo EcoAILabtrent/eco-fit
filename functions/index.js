@@ -1,25 +1,42 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
-const { defineSecret, defineString } = require("firebase-functions/params");
+const { defineInt, defineSecret, defineString } = require("firebase-functions/params");
 const logger = require("firebase-functions/logger");
+const { ADVICE_KEYS, extractAdviceItems } = require("./advice_contract");
 
 const deepseekApiKey = defineSecret("DEEPSEEK_API_KEY");
 const deepseekModel = defineString("DEEPSEEK_MODEL", {
   default: "deepseek-v4-flash",
 });
+const rateLimitWindowSeconds = defineInt("AI_ADVICE_RATE_LIMIT_WINDOW_SECONDS", {
+  default: 60,
+});
+const rateLimitMaxRequests = defineInt("AI_ADVICE_RATE_LIMIT_MAX_REQUESTS", {
+  default: 8,
+});
+
+const rateLimitBuckets = new Map();
+const supportedLanguages = new Map([
+  ["en", "English"],
+  ["ru", "Russian"],
+  ["uz_latn", "Uzbek in Latin script"],
+  ["uz_cyrl", "Uzbek in Cyrillic script"],
+]);
 
 exports.aiAdvice = onCall(
   {
     region: "us-central1",
     enforceAppCheck: true,
+    consumeAppCheckToken: true,
     secrets: [deepseekApiKey],
     timeoutSeconds: 30,
     memory: "256MiB",
-    maxInstances: 20,
+    maxInstances: 10,
   },
   async (request) => {
     if (!request.app) {
       throw new HttpsError("failed-precondition", "App Check required.");
     }
+    enforceRateLimit(request);
 
     const snapshot = request.data && request.data.snapshot;
     validateSnapshot(snapshot);
@@ -52,12 +69,13 @@ exports.aiAdvice = onCall(
     }
 
     const items = extractAdviceItems(decoded);
-    if (items.length < 2) {
-      logger.warn("DeepSeek returned no usable advice items");
-      throw new HttpsError("internal", "AI returned an empty response.");
+    if (items.length < ADVICE_KEYS.length) {
+      logger.warn("DeepSeek returned an incomplete structured response", {
+        receivedKeys: items.map((item) => item.id),
+      });
     }
 
-    return { items: items.slice(0, 4) };
+    return { schemaVersion: 2, items };
   },
 );
 
@@ -75,9 +93,16 @@ function validateSnapshot(snapshot) {
     throw new HttpsError("invalid-argument", "Unsupported advice period.");
   }
 
+  if (!supportedLanguages.has(snapshot.language)) {
+    throw new HttpsError("invalid-argument", "Unsupported advice language.");
+  }
+
   if (!isPlainObject(snapshot.profile) || !isPlainObject(snapshot.daily_targets)) {
     throw new HttpsError("invalid-argument", "Nutrition snapshot is incomplete.");
   }
+
+  validateProfile(snapshot.profile);
+  validateDailyTargets(snapshot.daily_targets);
 }
 
 function buildDeepSeekRequest(snapshot, model) {
@@ -86,7 +111,7 @@ function buildDeepSeekRequest(snapshot, model) {
     messages: [
       {
         role: "system",
-        content: instructionsFor(snapshot.language_name),
+        content: instructionsFor(snapshot.language),
       },
       {
         role: "user",
@@ -95,83 +120,102 @@ function buildDeepSeekRequest(snapshot, model) {
     ],
     response_format: { type: "json_object" },
     thinking: { type: "disabled" },
-    max_tokens: 1200,
+    max_tokens: 2600,
     temperature: 0.2,
     stream: false,
   };
 }
 
-function instructionsFor(languageName) {
-  const lang = typeof languageName === "string" && languageName.trim()
-    ? languageName.trim()
-    : "the user's language";
+function instructionsFor(languageCode) {
+  const lang = supportedLanguages.get(languageCode) || "the user's language";
 
   return `
 You are Eco Fit's nutrition advisor. Answer only in ${lang}.
 Use mainstream public-health nutrition guidance. Be practical and concise.
 Analyze the user's daily food diary, calories, macros, and any micronutrients provided.
 Use daily_target_gaps and micronutrient_reference_gaps for exact numbers.
+Micronutrient references are personalized DRI RDA/AI values selected by age and sex.
+The snapshot includes only micronutrients populated in the app database. Do not invent or discuss unlisted micronutrients.
+Never treat a micronutrient with status insufficient_data as zero intake or as a deficiency.
+Use data_quality and data_coverage_percent when judging confidence. With low coverage, mark the amount as approximate (for example, with ≈) instead of adding a separate caveat sentence.
+For sodium, CDRR is the risk-reduction limit; never recommend eating more sodium merely to reach AI.
+Keep UL separate from the daily target. Respect notes when a UL applies only to supplements or a specific nutrient form.
 If the snapshot period is week or month, focus on repeated patterns and averages, not one meal.
 If logged_days is low for the selected period, say the conclusion is limited by missing diary data.
-Mention likely deficiency or excess patterns only as risks, never as a diagnosis.
-When relevant, explain what health problems may be associated with sustained lack or excess of nutrients or food groups.
-Do not claim certainty from one day of data. If data is incomplete, say so briefly.
-Never call a one-day intake a severe deficiency. Prefer neutral wording like "today is below target" or "if this repeats for weeks".
+Do not diagnose from food-log data. Describe consequences conditionally: "if this shortfall persists" or an equivalent concise phrase.
 Recommend food changes first; supplements or medical care only when appropriate.
 Do not spend an advice item on a generic medical disclaimer; the app shows that separately.
-Each item should include: observed amount vs target, shortage/excess amount, possible long-term risk, and concrete foods to add/reduce when relevant.
-Return exactly 4 advice items. Keep each item concise enough for a mobile card.
+For period=day, is_current_day=true, and is_day_complete=false, only the calories value should briefly say that the numbers are "so far". Do not repeat an intermediate-day caveat in every nutrient.
+For period=day and is_day_complete=true, breakfast, lunch, and dinner are all logged. Evaluate it as the completed food log and never call it intermediate or suggest "later meals".
+Every below-target value must contain: amount versus reference and exact shortfall; one concrete possible consequence if the shortfall persists; and only 2 or 3 food examples.
+Every above-target value must contain: amount versus reference and exact excess; one concrete consequence if the excess persists; and one concise action with no more than 3 examples.
+If the difference is below 5% of the reference, say it is small and has no practical consequence instead of warning about deficiency.
+Use a maximum of two concise sentences per value. Do not repeat stock phrases, generic caveats, or the same consequence across items.
+Never write filler such as "this does not confirm a deficiency", "this is only an estimate", "one day is not enough", or "consult a professional" inside nutrient values.
+The required fields are calories, protein, fat, carbohydrates, iron, magnesium, calcium, phosphorus, potassium, and sodium. Never combine fields and never substitute one field for another.
+If micronutrient status is insufficient_data, state the personalized reference, explain that the logged foods lack usable nutrient data, and give food ideas. Never present the missing amount as zero.
+For low data coverage, use an approximate number without adding a separate explanation.
+For sodium below CDRR, explain that this is below a risk-reduction limit and never recommend adding salt to reach a target.
+Keep every value to at most two short sentences suitable for a mobile card. Avoid repeating one stock template.
 Return only valid JSON with this exact shape:
-{"items":["short advice 1","short advice 2","short advice 3","short advice 4"]}
+{"advice":{"calories":"...","protein":"...","fat":"...","carbohydrates":"...","iron":"...","magnesium":"...","calcium":"...","phosphorus":"...","potassium":"...","sodium":"..."}}
+Every key is mandatory and must appear exactly once. Values must not repeat their key as a heading because the app adds localized headings.
 Do not use Markdown, bold text, headings, asterisks, code fences, or diagnosis labels.
-Each item must be a complete sentence and fit on a mobile card.
+Do not invent foods eaten, symptoms, allergies, laboratory results, or medical history.
 `;
-}
-
-function extractAdviceItems(decoded) {
-  const text = extractText(decoded);
-  if (!text) return [];
-
-  const compact = text.replace(/```(?:json)?|```/gi, "").trim();
-  const start = compact.indexOf("{");
-  const end = compact.lastIndexOf("}");
-  if (start < 0 || end <= start) return [];
-
-  try {
-    const parsed = JSON.parse(compact.slice(start, end + 1));
-    if (!Array.isArray(parsed.items)) return [];
-    return parsed.items
-      .filter((item) => typeof item === "string")
-      .map(cleanAdviceItem)
-      .filter((item) => item.length >= 12);
-  } catch (error) {
-    return [];
-  }
-}
-
-function extractText(decoded) {
-  const choices = decoded && decoded.choices;
-  if (!Array.isArray(choices)) return "";
-
-  const parts = [];
-  for (const choice of choices) {
-    const content = choice && choice.message && choice.message.content;
-    if (typeof content === "string" && content.trim()) {
-      parts.push(content);
-    }
-  }
-  return parts.join("\n");
-}
-
-function cleanAdviceItem(value) {
-  return value
-    .replace(/\*\*|__|`/g, "")
-    .replace(/^\s*(?:[-*]|\u2022)\s*/, "")
-    .replace(/^\s*\d+[\).]\s*/, "")
-    .replace(/\s+/g, " ")
-    .trim();
 }
 
 function isPlainObject(value) {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function enforceRateLimit(request) {
+  const key = request.rawRequest?.ip || request.app?.appId || "unknown";
+  const now = Date.now();
+  const windowMs = Math.max(10, rateLimitWindowSeconds.value()) * 1000;
+  const maxRequests = Math.max(1, rateLimitMaxRequests.value());
+  const bucket = rateLimitBuckets.get(key);
+
+  if (!bucket || now - bucket.startedAt >= windowMs) {
+    rateLimitBuckets.set(key, { startedAt: now, count: 1 });
+    pruneRateLimitBuckets(now, windowMs);
+    return;
+  }
+
+  bucket.count += 1;
+  if (bucket.count > maxRequests) {
+    throw new HttpsError("resource-exhausted", "Too many AI requests. Try again later.");
+  }
+}
+
+function pruneRateLimitBuckets(now, windowMs) {
+  if (rateLimitBuckets.size <= 2000) return;
+  for (const [key, bucket] of rateLimitBuckets) {
+    if (now - bucket.startedAt >= windowMs) {
+      rateLimitBuckets.delete(key);
+    }
+  }
+}
+
+function validateProfile(profile) {
+  if (profile.gender != null && !["m", "f"].includes(profile.gender)) {
+    throw new HttpsError("invalid-argument", "Unsupported profile gender.");
+  }
+  assertOptionalNumber(profile.age, "profile age", 1, 120);
+  assertOptionalNumber(profile.height_cm, "profile height", 40, 250);
+  assertOptionalNumber(profile.weight_kg, "profile weight", 2, 350);
+}
+
+function validateDailyTargets(targets) {
+  assertOptionalNumber(targets.kcal, "calorie target", 500, 10000);
+  assertOptionalNumber(targets.protein_g, "protein target", 0, 500);
+  assertOptionalNumber(targets.fat_g, "fat target", 0, 500);
+  assertOptionalNumber(targets.carbs_g, "carbohydrate target", 0, 1500);
+}
+
+function assertOptionalNumber(value, label, min, max) {
+  if (value == null) return;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max) {
+    throw new HttpsError("invalid-argument", `Invalid ${label}.`);
+  }
 }

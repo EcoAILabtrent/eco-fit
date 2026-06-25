@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +23,12 @@ import 'ui/ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FirebaseBackend.initialize();
+  try {
+    await FirebaseBackend.initialize();
+  } catch (e) {
+    debugPrint(
+        'Warning: Firebase initialization failed: $e. App will run without Firebase.');
+  }
   runApp(const EcoBootstrap());
 }
 
@@ -95,6 +101,7 @@ class _StartupScreen extends StatelessWidget {
     const t = EcoTheme.meadow;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const _EcoScrollBehavior(),
       theme: ThemeData(
         scaffoldBackgroundColor: t.bg,
         colorScheme: ColorScheme.fromSeed(seedColor: t.dark, surface: t.bg),
@@ -116,6 +123,7 @@ class _StartupError extends StatelessWidget {
     const t = EcoTheme.meadow;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const _EcoScrollBehavior(),
       theme: ThemeData(
         scaffoldBackgroundColor: t.bg,
         colorScheme: ColorScheme.fromSeed(seedColor: t.dark, surface: t.bg),
@@ -137,7 +145,7 @@ class _StartupError extends StatelessWidget {
                 Text(
                   '$error',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 13, color: EcoColors.sub),
+                  style: const TextStyle(fontSize: 12, color: EcoColors.sub),
                 ),
                 const SizedBox(height: 16),
                 FilledButton(onPressed: onRetry, child: const Text('Retry')),
@@ -165,6 +173,7 @@ class EcoApp extends StatelessWidget {
           return MaterialApp(
             title: 'Eco',
             debugShowCheckedModeBanner: false,
+            scrollBehavior: const _EcoScrollBehavior(),
             locale: store.language.locale,
             supportedLocales: AppLanguage.supportedLocales,
             localizationsDelegates: const [
@@ -192,24 +201,32 @@ class EcoApp extends StatelessWidget {
               '/': (_) => const HomeScreen(),
               '/dayview': (_) => const DayViewScreen(),
               '/addfood': (ctx) => AddFoodScreen(
-                mealKey:
-                    (ModalRoute.of(ctx)!.settings.arguments as String?) ??
-                    'lunch',
-              ),
+                    mealKey:
+                        (ModalRoute.of(ctx)!.settings.arguments as String?) ??
+                            'lunch',
+                  ),
               '/meallog': (ctx) => MealLogScreen(
-                mealKey:
-                    (ModalRoute.of(ctx)!.settings.arguments as String?) ??
-                    'lunch',
-              ),
+                    mealKey:
+                        (ModalRoute.of(ctx)!.settings.arguments as String?) ??
+                            'lunch',
+                  ),
               '/stats': (_) => const StatsScreen(),
               '/nutrition': (_) => StubScreen(title: l.t('home.nutrition')),
-              '/profile': (_) => const ProfileScreen(),
               '/body': (_) => const BodyScreen(),
               '/bodyEntry': (_) => const BodyEntryScreen(),
               '/water': (_) => const WaterScreen(),
-              '/pressure': (_) => const PressureScreen(),
-              '/sugar': (_) => const SugarScreen(),
               '/onboarding': (_) => const OnboardingScreen(),
+            },
+            onGenerateRoute: (settings) {
+              if (settings.name == '/profile') {
+                return PageRouteBuilder<void>(
+                  settings: settings,
+                  pageBuilder: (_, __, ___) => const ProfileScreen(),
+                  transitionDuration: Duration.zero,
+                  reverseTransitionDuration: Duration.zero,
+                );
+              }
+              return null;
             },
           );
         },
@@ -218,8 +235,112 @@ class EcoApp extends StatelessWidget {
   }
 }
 
+class _EcoScrollBehavior extends MaterialScrollBehavior {
+  const _EcoScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const AlwaysScrollableScrollPhysics(
+      parent: ClampingScrollPhysics(),
+    );
+  }
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return _EcoStretchOverscroll(
+      axisDirection: details.direction,
+      child: child,
+    );
+  }
+}
+
 /// Temporary stub for screens that are ported in upcoming phases — keeps every
 /// button navigable until its real screen lands.
+class _EcoStretchOverscroll extends StatefulWidget {
+  final AxisDirection axisDirection;
+  final Widget child;
+
+  const _EcoStretchOverscroll({
+    required this.axisDirection,
+    required this.child,
+  });
+
+  @override
+  State<_EcoStretchOverscroll> createState() => _EcoStretchOverscrollState();
+}
+
+class _EcoStretchOverscrollState extends State<_EcoStretchOverscroll> {
+  double _overscroll = 0;
+  bool _leading = true;
+
+  bool get _isVertical =>
+      widget.axisDirection == AxisDirection.down ||
+      widget.axisDirection == AxisDirection.up;
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: _handleScrollNotification,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final extent =
+              _isVertical ? constraints.maxHeight : constraints.maxWidth;
+          final stretch =
+              extent <= 0 ? 0.0 : (_overscroll / extent).clamp(0.0, 0.055);
+          return TweenAnimationBuilder<double>(
+            tween: Tween<double>(end: stretch),
+            duration: Duration(milliseconds: _overscroll == 0 ? 220 : 80),
+            curve: Curves.easeOutCubic,
+            child: widget.child,
+            builder: (context, animatedStretch, child) {
+              return Transform.scale(
+                alignment: _alignment,
+                scaleX: _isVertical ? 1.0 : 1.0 + animatedStretch,
+                scaleY: _isVertical ? 1.0 + animatedStretch : 1.0,
+                child: child,
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  bool _handleScrollNotification(ScrollNotification notification) {
+    if (notification is OverscrollNotification) {
+      setState(() {
+        _leading = notification.overscroll < 0;
+        _overscroll =
+            (_overscroll + notification.overscroll.abs()).clamp(0.0, 76.0);
+      });
+    } else if (notification is ScrollEndNotification ||
+        notification is UserScrollNotification &&
+            notification.direction == ScrollDirection.idle) {
+      if (_overscroll != 0) {
+        setState(() => _overscroll = 0);
+      }
+    }
+    return false;
+  }
+
+  Alignment get _alignment {
+    return switch (widget.axisDirection) {
+      AxisDirection.down =>
+        _leading ? Alignment.topCenter : Alignment.bottomCenter,
+      AxisDirection.up =>
+        _leading ? Alignment.bottomCenter : Alignment.topCenter,
+      AxisDirection.right =>
+        _leading ? Alignment.centerLeft : Alignment.centerRight,
+      AxisDirection.left =>
+        _leading ? Alignment.centerRight : Alignment.centerLeft,
+    };
+  }
+}
+
 class StubScreen extends StatelessWidget {
   final String title;
   const StubScreen({super.key, required this.title});
@@ -246,7 +367,7 @@ class StubScreen extends StatelessWidget {
                   t: t,
                   child: Text(
                     l.t('common.stubInProgress'),
-                    style: const TextStyle(fontSize: 15, color: EcoColors.sub),
+                    style: const TextStyle(fontSize: 16, color: EcoColors.sub),
                     textAlign: TextAlign.center,
                   ),
                 ),
