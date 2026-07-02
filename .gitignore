@@ -55,3 +55,7 @@ tooling/.food_review_backups/
 # should use their own Firebase project files.
 .firebaserc
 android/app/google-services.json
+
+# Local key backups and Claude Code session config. Never push these.
+_keys_backup/
+.claude/
