@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -49,6 +48,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   // Раскрываемый («печатающийся») текст — обновляет только список советов.
   final ValueNotifier<String> _revealed = ValueNotifier<String>('');
   Timer? _typingTimer;
+  // Ключ локализации ai.error.* последней ошибки (не сырой серверный текст).
   String? _error;
 
   // Прокрутка результата: во время «потоковой» генерации держим низ в поле
@@ -285,7 +285,8 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   /// Карточка одного критичного нутриента: заголовок (без дублирования имени в
   /// шкале), анимированная шкала [ProgressScale] и печатаемый текст-последствие.
   /// [n] — сколько символов общего сценария уже «напечатано».
-  Widget _criticalCard(_Seg seg, AppStore store, AppStrings l, EcoTheme t, int n) {
+  Widget _criticalCard(
+      _Seg seg, AppStore store, AppStrings l, EcoTheme t, int n) {
     final key = seg.critKey!;
     final crit = seg.crit!;
     final color = micronutrientColor(key);
@@ -478,7 +479,8 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
       final perDay = entry.value / days;
       if (perDay <= 0) continue;
       final mt = targets[key];
-      final target = mt?.target ?? adultMicronutrientTarget(key, female: female);
+      final target =
+          mt?.target ?? adultMicronutrientTarget(key, female: female);
       if (target == null || target <= 0) continue;
       final ratio = perDay / target;
       final ul = mt?.ul;
@@ -623,9 +625,9 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     if (!AiConfig.hasBackend) return l.t('ai.notConfigured');
     if (_checking) return l.t('ai.checking');
     if (_online == false) return l.t('ai.offline');
-    if (_error != null) {
-      return kDebugMode ? '${l.t('ai.error')}\n$_error' : l.t('ai.error');
-    }
+    // _error хранит ключ локализации ai.error.* (см. _loadAdvice), а не сырой
+    // серверный текст — показываем пользователю переведённое сообщение.
+    if (_error != null) return l.t(_error!);
     if (foodCount == 0) return _noFoodText(l);
     return _readyText(l);
   }
@@ -804,13 +806,19 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
       await Future<void>.delayed(const Duration(milliseconds: 280));
       if (!mounted || _advice != advice) return;
       _startTyping(_script);
-    } on Object catch (error) {
+    } on AiAdviceException catch (error) {
+      // Серверные детали — только в лог; пользователю показываем локализованный
+      // ключ ai.error.* по категории ошибки.
       debugPrint('AI advice failed: $error');
       if (!mounted) return;
       setState(() {
-        _error = '$error';
-        if ('$error'.toLowerCase().contains('internet')) _online = false;
+        _error = error.l10nKey;
+        if (error.kind == AiAdviceErrorKind.network) _online = false;
       });
+    } on Object catch (error) {
+      debugPrint('AI advice failed: $error');
+      if (!mounted) return;
+      setState(() => _error = 'ai.error.generic');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -970,7 +978,8 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
 
   String _readyText(AppStrings l) => switch (l.language) {
         AppLanguage.en => switch (_period) {
-            AiAdvicePeriod.day => "AI can review today's meals in a short note.",
+            AiAdvicePeriod.day =>
+              "AI can review today's meals in a short note.",
             AiAdvicePeriod.week => 'AI can review your last 7 days of meals.',
             AiAdvicePeriod.month => 'AI can review your last 30 days of meals.',
           },
@@ -981,13 +990,16 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
           },
         AppLanguage.uzLatn => switch (_period) {
             AiAdvicePeriod.day => 'AI bugungi ratsionni qisqa tahlil qiladi.',
-            AiAdvicePeriod.week => 'AI oxirgi 7 kunlik ratsionni tahlil qiladi.',
-            AiAdvicePeriod.month => 'AI oxirgi 30 kunlik ratsionni tahlil qiladi.',
+            AiAdvicePeriod.week =>
+              'AI oxirgi 7 kunlik ratsionni tahlil qiladi.',
+            AiAdvicePeriod.month =>
+              'AI oxirgi 30 kunlik ratsionni tahlil qiladi.',
           },
         AppLanguage.uzCyrl => switch (_period) {
             AiAdvicePeriod.day => 'ИИ бугунги рационни қисқа таҳлил қилади.',
             AiAdvicePeriod.week => 'ИИ охирги 7 кунлик рационни таҳлил қилади.',
-            AiAdvicePeriod.month => 'ИИ охирги 30 кунлик рационни таҳлил қилади.',
+            AiAdvicePeriod.month =>
+              'ИИ охирги 30 кунлик рационни таҳлил қилади.',
           },
       };
 
@@ -1347,7 +1359,8 @@ class _SavedAdviceCardState extends State<_SavedAdviceCard> {
     ];
     final macroText = [
       for (final tp in macroTopics)
-        if (parsed[tp] != null) '${AiAdviceContract.title(tp, lang)}: ${parsed[tp]}',
+        if (parsed[tp] != null)
+          '${AiAdviceContract.title(tp, lang)}: ${parsed[tp]}',
     ].join('\n');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1377,7 +1390,8 @@ class _SavedAdviceCardState extends State<_SavedAdviceCard> {
   static String _preview(String text) {
     return text
         .split(RegExp(r'\r?\n'))
-        .map((line) => line.replaceAll(RegExp(r'^\s*(?:[-*]|•|\d+[\).])\s*'), '').trim())
+        .map((line) =>
+            line.replaceAll(RegExp(r'^\s*(?:[-*]|•|\d+[\).])\s*'), '').trim())
         .where((line) => line.isNotEmpty)
         .join(' · ');
   }
@@ -1444,7 +1458,8 @@ class _MicrosPeriodCard extends StatelessWidget {
   final AppStrings l;
   final List<Widget> rows;
 
-  const _MicrosPeriodCard({required this.t, required this.l, required this.rows});
+  const _MicrosPeriodCard(
+      {required this.t, required this.l, required this.rows});
 
   @override
   Widget build(BuildContext context) {

@@ -48,11 +48,14 @@ class AiAdviceService {
     String? date,
   }) async {
     if (!AiConfig.hasBackend) {
-      throw const AiAdviceException('AI backend is not configured.');
+      throw const AiAdviceException(
+        AiAdviceErrorKind.generic,
+        'AI backend is not configured.',
+      );
     }
-    if (!await hasInternet()) {
-      throw const AiAdviceException('No internet connection.');
-    }
+    // Предварительную DNS-проверку (hasInternet) здесь не делаем: экран уже
+    // проверил сеть перед показом кнопки, а SocketException при отсутствии сети
+    // и так обрабатывается ниже. Двойная проверка добавляла до 4 лишних секунд.
 
     try {
       final snapshot = _periodSnapshot(store, language, period, date);
@@ -71,19 +74,25 @@ class AiAdviceService {
         language,
       );
       if (normalized.isEmpty) {
-        throw const AiAdviceException('AI returned an empty response.');
+        throw const AiAdviceException(
+          AiAdviceErrorKind.generic,
+          'AI returned an empty response.',
+        );
       }
       return normalized;
     } on AiAdviceException {
       rethrow;
     } on FirebaseFunctionsException catch (error) {
-      throw AiAdviceException(_functionError(error));
-    } on TimeoutException {
-      throw const AiAdviceException('AI request timed out.');
-    } on SocketException {
-      throw const AiAdviceException('No internet connection.');
+      throw AiAdviceException(
+        _functionErrorKind(error),
+        'Firebase function "${error.code}": ${error.message ?? ''}',
+      );
+    } on TimeoutException catch (error) {
+      throw AiAdviceException(AiAdviceErrorKind.timeout, '$error');
+    } on SocketException catch (error) {
+      throw AiAdviceException(AiAdviceErrorKind.network, '$error');
     } on Object catch (error) {
-      throw AiAdviceException('AI request failed: $error');
+      throw AiAdviceException(AiAdviceErrorKind.generic, '$error');
     }
   }
 
@@ -566,7 +575,7 @@ class AiAdviceService {
       (AppLanguage.ru, 'day', true, false) =>
         'Сейчас $amountText $unit при ориентире $referenceText $unit; выше на $gapText $unit.',
       (AppLanguage.uzLatn, 'day', true, false) =>
-        'Hozir $amountText $unit, moʼljal $referenceText $unit; $gapText $unit ortiq.',
+        'Hozir $amountText $unit, moʻljal $referenceText $unit; $gapText $unit ortiq.',
       (AppLanguage.uzCyrl, 'day', true, false) =>
         'Ҳозир $amountText $unit, мўлжал $referenceText $unit; $gapText $unit ортиқ.',
       (AppLanguage.en, 'day', false, true) =>
@@ -582,7 +591,7 @@ class AiAdviceService {
       (AppLanguage.ru, 'day', false, false) =>
         '$amountText $unit при ориентире $referenceText $unit; выше на $gapText $unit.',
       (AppLanguage.uzLatn, 'day', false, false) =>
-        '$amountText $unit, moʼljal $referenceText $unit; $gapText $unit ortiq.',
+        '$amountText $unit, moʻljal $referenceText $unit; $gapText $unit ortiq.',
       (AppLanguage.uzCyrl, 'day', false, false) =>
         '$amountText $unit, мўлжал $referenceText $unit; $gapText $unit ортиқ.',
       (AppLanguage.en, _, _, true) =>
@@ -590,7 +599,7 @@ class AiAdviceService {
       (AppLanguage.ru, _, _, true) =>
         'В среднем $amountText из $referenceText $unit за $loggedDays заполненных дней; не хватает $gapText $unit.',
       (AppLanguage.uzLatn, _, _, true) =>
-        '$loggedDays qayd etilgan kunda oʼrtacha $referenceText $unit dan $amountText; $gapText $unit kam.',
+        '$loggedDays qayd etilgan kunda oʻrtacha $referenceText $unit dan $amountText; $gapText $unit kam.',
       (AppLanguage.uzCyrl, _, _, true) =>
         '$loggedDays қайд этилган кунда ўртача $referenceText $unit дан $amountText; $gapText $unit кам.',
       (AppLanguage.en, _, _, false) =>
@@ -598,7 +607,7 @@ class AiAdviceService {
       (AppLanguage.ru, _, _, false) =>
         'В среднем $amountText $unit за $loggedDays заполненных дней при ориентире $referenceText $unit; выше на $gapText $unit.',
       (AppLanguage.uzLatn, _, _, false) =>
-        '$loggedDays qayd etilgan kunda oʼrtacha $amountText $unit, moʼljal $referenceText $unit; $gapText $unit ortiq.',
+        '$loggedDays qayd etilgan kunda oʻrtacha $amountText $unit, moʻljal $referenceText $unit; $gapText $unit ortiq.',
       (AppLanguage.uzCyrl, _, _, false) =>
         '$loggedDays қайд этилган кунда ўртача $amountText $unit, мўлжал $referenceText $unit; $gapText $unit ортиқ.',
     };
@@ -621,19 +630,19 @@ class AiAdviceService {
       AiAdviceTopic.calories: [
         'A persistent shortfall can cause fatigue and reduced performance; add buckwheat, yogurt, or nuts.',
         'Регулярный недобор может вызывать усталость и снижение работоспособности; добавьте гречку, йогурт или орехи.',
-        'Muntazam kamlik charchoq va ish qobiliyati pasayishiga olib kelishi mumkin; grechka, yogurt yoki yongʼoq qoʼshing.',
+        'Muntazam kamlik charchoq va ish qobiliyati pasayishiga olib kelishi mumkin; grechka, yogurt yoki yongʻoq qoʻshing.',
         'Мунтазам камлик чарчоқ ва иш қобилияти пасайишига олиб келиши мумкин; гречка, йогурт ёки ёнғоқ қўшинг.',
       ],
       AiAdviceTopic.protein: [
         'A sustained shortfall can impair recovery and muscle maintenance; add eggs, fish, or legumes.',
         'Устойчивая нехватка может ухудшать восстановление и сохранение мышц; добавьте яйца, рыбу или бобовые.',
-        'Doimiy kamlik tiklanish va mushaklarni saqlashni yomonlashtirishi mumkin; tuxum, baliq yoki dukkakli qoʼshing.',
+        'Doimiy kamlik tiklanish va mushaklarni saqlashni yomonlashtirishi mumkin; tuxum, baliq yoki dukkakli qoʻshing.',
         'Доимий камлик тикланиш ва мушакларни сақлашни ёмонлаштириши мумкин; тухум, балиқ ёки дуккакли қўшинг.',
       ],
       AiAdviceTopic.fat: [
         'A prolonged marked shortfall can impair absorption of vitamins A, D, E, and K; choose nuts, olive oil, or fish.',
         'Длительный выраженный недобор может ухудшать усвоение витаминов A, D, E и K; выберите орехи, растительное масло или рыбу.',
-        'Uzoq davom etgan katta kamlik A, D, E va K vitaminlari soʼrilishini yomonlashtirishi mumkin; yongʼoq, oʼsimlik yogʼi yoki baliq tanlang.',
+        'Uzoq davom etgan katta kamlik A, D, E va K vitaminlari soʻrilishini yomonlashtirishi mumkin; yongʻoq, oʻsimlik yogʻi yoki baliq tanlang.',
         'Узоқ давом этган катта камлик A, D, E ва K витаминлари сўрилишини ёмонлаштириши мумкин; ёнғоқ, ўсимлик ёғи ёки балиқ танланг.',
       ],
       AiAdviceTopic.carbohydrates: [
@@ -653,13 +662,13 @@ class AiAdviceService {
       AiAdviceTopic.protein: [
         'Exceeding the target brings no extra benefit for most people; keep portions moderate and vary fish, dairy, and legumes.',
         'Превышение ориентира обычно не даёт дополнительной пользы; держите порции умеренными и чередуйте рыбу, кисломолочные продукты и бобовые.',
-        'Moʼljaldan oshish odatda qoʼshimcha foyda bermaydi; porsiyani moʼtadil tutib, baliq, sut mahsuloti va dukkaklini navbatlang.',
+        'Moʻljaldan oshish odatda qoʻshimcha foyda bermaydi; porsiyani moʻtadil tutib, baliq, sut mahsuloti va dukkaklini navbatlang.',
         'Мўлжалдан ошиш одатда қўшимча фойда бермайди; порцияни мўътадил тутиб, балиқ, сут маҳсулоти ва дуккаклини навбатланг.',
       ],
       AiAdviceTopic.fat: [
         'A regular excess raises total calorie intake; reduce fried foods, fatty sauces, or added oil.',
         'Регулярный избыток повышает калорийность рациона; сократите жареное, жирные соусы или добавленное масло.',
-        'Muntazam ortiqcha miqdor ratsion kaloriyasini oshiradi; qovurilgan taom, yogʼli sous yoki qoʼshilgan yogʼni kamaytiring.',
+        'Muntazam ortiqcha miqdor ratsion kaloriyasini oshiradi; qovurilgan taom, yogʻli sous yoki qoʻshilgan yogʻni kamaytiring.',
         'Мунтазам ортиқча миқдор рацион калориясини оширади; қовурилган таом, ёғли соус ёки қўшилган ёғни камайтиринг.',
       ],
       AiAdviceTopic.carbohydrates: [
@@ -674,7 +683,7 @@ class AiAdviceService {
         AiAdviceTopic.calories: [
           'a banana, yogurt, or nuts',
           'банан, йогурт или орехи',
-          'banan, yogurt yoki yongʼoq',
+          'banan, yogurt yoki yongʻoq',
           'банан, йогурт ёки ёнғоқ',
         ],
         AiAdviceTopic.protein: [
@@ -686,7 +695,7 @@ class AiAdviceService {
         AiAdviceTopic.fat: [
           'nuts, olive oil, or fish',
           'орехи, растительное масло или рыба',
-          'yongʼoq, oʼsimlik yogʼi yoki baliq',
+          'yongʻoq, oʻsimlik yogʻi yoki baliq',
           'ёнғоқ, ўсимлик ёғи ёки балиқ',
         ],
         AiAdviceTopic.carbohydrates: [
@@ -703,7 +712,7 @@ class AiAdviceService {
         AppLanguage.ru =>
           'Разница небольшая и практических последствий не имеет; её закроют $examples.',
         AppLanguage.uzLatn =>
-          'Farq kichik va amaliy oqibati yoʼq; uni $examples bilan toʼldirish mumkin.',
+          'Farq kichik va amaliy oqibati yoʻq; uni $examples bilan toʻldirish mumkin.',
         AppLanguage.uzCyrl =>
           'Фарқ кичик ва амалий оқибати йўқ; уни $examples билан тўлдириш мумкин.',
       };
@@ -828,7 +837,7 @@ class AiAdviceService {
         AppLanguage.ru =>
           'Нет данных для расчёта; персональный ориентир — $referenceText $unit. Проверьте рацион по источникам: $sources.',
         AppLanguage.uzLatn =>
-          'Hisoblash uchun maʼlumot yoʼq; shaxsiy moʼljal — $referenceText $unit. Manbalar: $sources.',
+          'Hisoblash uchun maʼlumot yoʻq; shaxsiy moʻljal — $referenceText $unit. Manbalar: $sources.',
         AppLanguage.uzCyrl =>
           'Ҳисоблаш учун маълумот йўқ; шахсий мўлжал — $referenceText $unit. Манбалар: $sources.',
       };
@@ -869,7 +878,7 @@ class AiAdviceService {
       AppLanguage.ru =>
         '$amountText $unit при ориентире $referenceText $unit; нехватки нет. Поддерживайте уровень: $sources.',
       AppLanguage.uzLatn =>
-        '$amountText $unit, moʼljal $referenceText $unit; kamlik yoʼq. Manbalar: $sources.',
+        '$amountText $unit, moʻljal $referenceText $unit; kamlik yoʻq. Manbalar: $sources.',
       AppLanguage.uzCyrl =>
         '$amountText $unit, мўлжал $referenceText $unit; камлик йўқ. Манбалар: $sources.',
     };
@@ -891,7 +900,7 @@ class AiAdviceService {
         AppLanguage.ru =>
           'В среднем $amountText из $referenceText $unit за $loggedDays заполненных дней; не хватает $shortageText $unit.',
         AppLanguage.uzLatn =>
-          '$loggedDays qayd etilgan kunda oʼrtacha $referenceText $unit dan $amountText; $shortageText $unit kam.',
+          '$loggedDays qayd etilgan kunda oʻrtacha $referenceText $unit dan $amountText; $shortageText $unit kam.',
         AppLanguage.uzCyrl =>
           '$loggedDays қайд этилган кунда ўртача $referenceText $unit дан $amountText; $shortageText $unit кам.',
       };
@@ -913,145 +922,145 @@ class AiAdviceService {
       'fe': [
         'A prolonged shortfall can cause weakness, fatigue, and anemia; add meat, legumes, or buckwheat.',
         'Длительная нехватка может вызывать слабость, утомляемость и анемию; добавьте мясо, бобовые или гречку.',
-        'Uzoq davom etgan kamlik holsizlik, charchoq va kamqonlikka olib kelishi mumkin; goʼsht, dukkakli yoki grechka qoʼshing.',
+        'Uzoq davom etgan kamlik holsizlik, charchoq va kamqonlikka olib kelishi mumkin; goʻsht, dukkakli yoki grechka qoʻshing.',
         'Узоқ давом этган камлик ҳолсизлик, чарчоқ ва камқонликка олиб келиши мумкин; гўшт, дуккакли ёки гречка қўшинг.',
       ],
       'mg': [
         'Low intake can contribute to fatigue, muscle weakness, and cramps; choose nuts, beans, or buckwheat.',
         'Нехватка может приводить к утомляемости, мышечной слабости и судорогам; выберите орехи, фасоль или гречку.',
-        'Kamlik charchoq, mushak zaifligi va tirishishga olib kelishi mumkin; yongʼoq, loviya yoki grechka tanlang.',
+        'Kamlik charchoq, mushak zaifligi va tirishishga olib kelishi mumkin; yongʻoq, loviya yoki grechka tanlang.',
         'Камлик чарчоқ, мушак заифлиги ва тиришишга олиб келиши мумкин; ёнғоқ, ловия ёки гречка танланг.',
       ],
       'ca': [
         'A long-term shortfall weakens bones and raises fracture risk; add yogurt, cheese, or sardines.',
         'Длительный недобор ослабляет кости и повышает риск переломов; добавьте йогурт, сыр или сардины.',
-        'Uzoq muddatli kamlik suyaklarni zaiflashtiradi va sinish xavfini oshiradi; yogurt, pishloq yoki sardina qoʼshing.',
+        'Uzoq muddatli kamlik suyaklarni zaiflashtiradi va sinish xavfini oshiradi; yogurt, pishloq yoki sardina qoʻshing.',
         'Узоқ муддатли камлик суякларни заифлаштиради ва синиш хавфини оширади; йогурт, пишлоқ ёки сардина қўшинг.',
       ],
       'p': [
         'A prolonged shortfall can cause weakness and bone pain; choose fish, eggs, or cottage cheese.',
         'Длительная нехватка может вызывать слабость и боли в костях; выберите рыбу, яйца или творог.',
-        'Uzoq davom etgan kamlik holsizlik va suyak ogʼrigʼiga olib kelishi mumkin; baliq, tuxum yoki tvorog tanlang.',
+        'Uzoq davom etgan kamlik holsizlik va suyak ogʻrigʻiga olib kelishi mumkin; baliq, tuxum yoki tvorog tanlang.',
         'Узоқ давом этган камлик ҳолсизлик ва суяк оғриғига олиб келиши мумкин; балиқ, тухум ёки творог танланг.',
       ],
       'k': [
         'A sustained shortfall can cause weakness, cramps, and abnormal heart rhythm; add potatoes, beans, or dried apricots.',
         'Стойкая нехватка может вызывать слабость, судороги и нарушения сердечного ритма; добавьте картофель, фасоль или курагу.',
-        'Doimiy kamlik holsizlik, tirishish va yurak ritmi buzilishiga olib kelishi mumkin; kartoshka, loviya yoki turshak qoʼshing.',
+        'Doimiy kamlik holsizlik, tirishish va yurak ritmi buzilishiga olib kelishi mumkin; kartoshka, loviya yoki turshak qoʻshing.',
         'Доимий камлик ҳолсизлик, тиришиш ва юрак ритми бузилишига олиб келиши мумкин; картошка, ловия ёки туршак қўшинг.',
       ],
       'zn': [
         'A prolonged shortfall can weaken immunity and slow wound healing; add meat, pumpkin seeds, or legumes.',
         'Длительная нехватка может ослаблять иммунитет и замедлять заживление ран; добавьте мясо, тыквенные семечки или бобовые.',
-        'Uzoq davom etgan kamlik immunitetni zaiflashtirishi va yaralar bitishini sekinlashtirishi mumkin; goʼsht, qovoq urugʼi yoki dukkakli qoʼshing.',
+        'Uzoq davom etgan kamlik immunitetni zaiflashtirishi va yaralar bitishini sekinlashtirishi mumkin; goʻsht, qovoq urugʻi yoki dukkakli qoʻshing.',
         'Узоқ давом этган камлик иммунитетни заифлаштириши ва яралар битишини секинлаштириши мумкин; гўшт, қовоқ уруғи ёки дуккакли қўшинг.',
       ],
       'vit_a': [
         'A prolonged shortfall can impair night vision and weaken immunity; add liver, carrots, or eggs.',
         'Длительная нехватка может ухудшать ночное зрение и ослаблять иммунитет; добавьте печень, морковь или яйца.',
-        'Uzoq davom etgan kamlik tungi koʼrishni yomonlashtirishi va immunitetni zaiflashtirishi mumkin; jigar, sabzi yoki tuxum qoʼshing.',
+        'Uzoq davom etgan kamlik tungi koʻrishni yomonlashtirishi va immunitetni zaiflashtirishi mumkin; jigar, sabzi yoki tuxum qoʻshing.',
         'Узоқ давом этган камлик тунги кўришни ёмонлаштириши ва иммунитетни заифлаштириши мумкин; жигар, сабзи ёки тухум қўшинг.',
       ],
       'vit_c': [
         'A prolonged shortfall can weaken immunity and slow wound healing; add citrus, bell pepper, or berries.',
         'Длительная нехватка может ослаблять иммунитет и замедлять заживление ран; добавьте цитрусовые, болгарский перец или ягоды.',
-        'Uzoq davom etgan kamlik immunitetni zaiflashtirishi va yaralar bitishini sekinlashtirishi mumkin; sitrus, qalampir yoki rezavor meva qoʼshing.',
+        'Uzoq davom etgan kamlik immunitetni zaiflashtirishi va yaralar bitishini sekinlashtirishi mumkin; sitrus, qalampir yoki rezavor meva qoʻshing.',
         'Узоқ давом этган камлик иммунитетни заифлаштириши ва яралар битишини секинлаштириши мумкин; ситрус, қалампир ёки резавор мева қўшинг.',
       ],
       'vit_d': [
         'A prolonged shortfall can weaken bones and reduce calcium absorption; add oily fish, eggs, or fortified dairy.',
         'Длительная нехватка может ослаблять кости и снижать усвоение кальция; добавьте жирную рыбу, яйца или обогащённые молочные продукты.',
-        'Uzoq davom etgan kamlik suyaklarni zaiflashtirishi va kalsiy soʼrilishini kamaytirishi mumkin; yogʼli baliq, tuxum yoki vitaminlashtirilgan sut mahsuloti qoʼshing.',
+        'Uzoq davom etgan kamlik suyaklarni zaiflashtirishi va kalsiy soʻrilishini kamaytirishi mumkin; yogʻli baliq, tuxum yoki vitaminlashtirilgan sut mahsuloti qoʻshing.',
         'Узоқ давом этган камлик суякларни заифлаштириши ва кальций сўрилишини камайтириши мумкин; ёғли балиқ, тухум ёки витаминлаштирилган сут маҳсулоти қўшинг.',
       ],
       'vit_e': [
         'A prolonged shortfall can affect nerve and muscle function; choose vegetable oil, nuts, or seeds.',
         'Длительная нехватка может влиять на работу нервов и мышц; выберите растительное масло, орехи или семечки.',
-        'Uzoq davom etgan kamlik asab va mushak faoliyatiga taʼsir qilishi mumkin; oʼsimlik yogʼi, yongʼoq yoki urugʼ tanlang.',
+        'Uzoq davom etgan kamlik asab va mushak faoliyatiga taʼsir qilishi mumkin; oʻsimlik yogʻi, yongʻoq yoki urugʻ tanlang.',
         'Узоқ давом этган камлик асаб ва мушак фаолиятига таъсир қилиши мумкин; ўсимлик ёғи, ёнғоқ ёки уруғ танланг.',
       ],
       'vit_k': [
         'A prolonged shortfall can impair blood clotting; add leafy greens, broccoli, or vegetable oil.',
         'Длительная нехватка может ухудшать свёртываемость крови; добавьте листовую зелень, брокколи или растительное масло.',
-        'Uzoq davom etgan kamlik qon ivishini yomonlashtirishi mumkin; bargli koʼkat, brokkoli yoki oʼsimlik yogʼi qoʼshing.',
+        'Uzoq davom etgan kamlik qon ivishini yomonlashtirishi mumkin; bargli koʻkat, brokkoli yoki oʻsimlik yogʻi qoʻshing.',
         'Узоқ давом этган камлик қон ивишини ёмонлаштириши мумкин; баргли кўкат, брокколи ёки ўсимлик ёғи қўшинг.',
       ],
       'vit_b1': [
         'A prolonged shortfall can cause fatigue and nerve problems; add whole grains, legumes, or sunflower seeds.',
         'Длительная нехватка может вызывать усталость и нарушения работы нервов; добавьте цельные злаки, бобовые или семечки подсолнуха.',
-        'Uzoq davom etgan kamlik charchoq va asab muammolariga olib kelishi mumkin; toʼliq don, dukkakli yoki kungaboqar urugʼi qoʼshing.',
+        'Uzoq davom etgan kamlik charchoq va asab muammolariga olib kelishi mumkin; toʻliq don, dukkakli yoki kungaboqar urugʻi qoʻshing.',
         'Узоқ давом этган камлик чарчоқ ва асаб муаммоларига олиб келиши мумкин; тўлиқ дон, дуккакли ёки кунгабоқар уруғи қўшинг.',
       ],
       'vit_b2': [
         'A prolonged shortfall can cause cracked lips and skin problems; add milk, eggs, or almonds.',
         'Длительная нехватка может вызывать трещины в уголках губ и проблемы с кожей; добавьте молоко, яйца или миндаль.',
-        'Uzoq davom etgan kamlik lab burchaklarida yoriqlar va teri muammolariga olib kelishi mumkin; sut, tuxum yoki bodom qoʼshing.',
+        'Uzoq davom etgan kamlik lab burchaklarida yoriqlar va teri muammolariga olib kelishi mumkin; sut, tuxum yoki bodom qoʻshing.',
         'Узоқ давом этган камлик лаб бурчакларида ёриқлар ва тери муаммоларига олиб келиши мумкин; сут, тухум ёки бодом қўшинг.',
       ],
       'vit_b3': [
         'A prolonged shortfall can cause fatigue and skin problems; add poultry, fish, or peanuts.',
         'Длительная нехватка может вызывать усталость и проблемы с кожей; добавьте птицу, рыбу или арахис.',
-        'Uzoq davom etgan kamlik charchoq va teri muammolariga olib kelishi mumkin; parranda goʼshti, baliq yoki yeryongʼoq qoʼshing.',
+        'Uzoq davom etgan kamlik charchoq va teri muammolariga olib kelishi mumkin; parranda goʻshti, baliq yoki yeryongʻoq qoʻshing.',
         'Узоқ давом этган камлик чарчоқ ва тери муаммоларига олиб келиши мумкин; парранда гўшти, балиқ ёки ерёнғоқ қўшинг.',
       ],
       'vit_b6': [
         'A prolonged shortfall can cause anemia and low mood; add poultry, fish, or potatoes.',
         'Длительная нехватка может вызывать анемию и подавленное настроение; добавьте птицу, рыбу или картофель.',
-        'Uzoq davom etgan kamlik kamqonlik va kayfiyat pasayishiga olib kelishi mumkin; parranda goʼshti, baliq yoki kartoshka qoʼshing.',
+        'Uzoq davom etgan kamlik kamqonlik va kayfiyat pasayishiga olib kelishi mumkin; parranda goʻshti, baliq yoki kartoshka qoʻshing.',
         'Узоқ давом этган камлик камқонлик ва кайфият пасайишига олиб келиши мумкин; парранда гўшти, балиқ ёки картошка қўшинг.',
       ],
       'vit_b9': [
         'A prolonged shortfall can cause anemia and fatigue; add leafy greens, legumes, or liver.',
         'Длительная нехватка может вызывать анемию и утомляемость; добавьте листовую зелень, бобовые или печень.',
-        'Uzoq davom etgan kamlik kamqonlik va charchoqqa olib kelishi mumkin; bargli koʼkat, dukkakli yoki jigar qoʼshing.',
+        'Uzoq davom etgan kamlik kamqonlik va charchoqqa olib kelishi mumkin; bargli koʻkat, dukkakli yoki jigar qoʻshing.',
         'Узоқ давом этган камлик камқонлик ва чарчоққа олиб келиши мумкин; баргли кўкат, дуккакли ёки жигар қўшинг.',
       ],
       'vit_b12': [
         'A prolonged shortfall can cause anemia and nerve problems; add meat, fish, or dairy.',
         'Длительная нехватка может вызывать анемию и нарушения работы нервов; добавьте мясо, рыбу или молочные продукты.',
-        'Uzoq davom etgan kamlik kamqonlik va asab muammolariga olib kelishi mumkin; goʼsht, baliq yoki sut mahsuloti qoʼshing.',
+        'Uzoq davom etgan kamlik kamqonlik va asab muammolariga olib kelishi mumkin; goʻsht, baliq yoki sut mahsuloti qoʻshing.',
         'Узоқ давом этган камлик камқонлик ва асаб муаммоларига олиб келиши мумкин; гўшт, балиқ ёки сут маҳсулоти қўшинг.',
       ],
       'cu': [
         'A prolonged shortfall can cause anemia and weaken immunity; add liver, nuts, or seeds.',
         'Длительная нехватка может вызывать анемию и ослаблять иммунитет; добавьте печень, орехи или семечки.',
-        'Uzoq davom etgan kamlik kamqonlik va immunitet zaifligiga olib kelishi mumkin; jigar, yongʼoq yoki urugʼ qoʼshing.',
+        'Uzoq davom etgan kamlik kamqonlik va immunitet zaifligiga olib kelishi mumkin; jigar, yongʻoq yoki urugʻ qoʻshing.',
         'Узоқ давом этган камлик камқонлик ва иммунитет заифлигига олиб келиши мумкин; жигар, ёнғоқ ёки уруғ қўшинг.',
       ],
       'mn': [
         'A prolonged shortfall can affect bone health and metabolism; add whole grains, nuts, or legumes.',
         'Длительная нехватка может влиять на здоровье костей и обмен веществ; добавьте цельные злаки, орехи или бобовые.',
-        'Uzoq davom etgan kamlik suyak sogʼligʼi va moddalar almashinuviga taʼsir qilishi mumkin; toʼliq don, yongʼoq yoki dukkakli qoʼshing.',
+        'Uzoq davom etgan kamlik suyak sogʻligʻi va moddalar almashinuviga taʼsir qilishi mumkin; toʻliq don, yongʻoq yoki dukkakli qoʻshing.',
         'Узоқ давом этган камлик суяк соғлиғи ва моддалар алмашинувига таъсир қилиши мумкин; тўлиқ дон, ёнғоқ ёки дуккакли қўшинг.',
       ],
       'se': [
         'A prolonged shortfall can weaken immunity and thyroid function; add fish, eggs, or nuts.',
         'Длительная нехватка может ослаблять иммунитет и работу щитовидной железы; добавьте рыбу, яйца или орехи.',
-        'Uzoq davom etgan kamlik immunitet va qalqonsimon bez faoliyatini zaiflashtirishi mumkin; baliq, tuxum yoki yongʼoq qoʼshing.',
+        'Uzoq davom etgan kamlik immunitet va qalqonsimon bez faoliyatini zaiflashtirishi mumkin; baliq, tuxum yoki yongʻoq qoʻshing.',
         'Узоқ давом этган камлик иммунитет ва қалқонсимон без фаолиятини заифлаштириши мумкин; балиқ, тухум ёки ёнғоқ қўшинг.',
       ],
       'i': [
         'A prolonged shortfall can impair thyroid function and cause goiter; add iodized salt, fish, or dairy.',
         'Длительная нехватка может нарушать работу щитовидной железы и вызывать зоб; добавьте йодированную соль, рыбу или молочные продукты.',
-        'Uzoq davom etgan kamlik qalqonsimon bez faoliyatini buzishi va boʼqoqqa olib kelishi mumkin; yodlangan tuz, baliq yoki sut mahsuloti qoʼshing.',
+        'Uzoq davom etgan kamlik qalqonsimon bez faoliyatini buzishi va boʻqoqqa olib kelishi mumkin; yodlangan tuz, baliq yoki sut mahsuloti qoʻshing.',
         'Узоқ давом этган камлик қалқонсимон без фаолиятини бузиши ва бўқоққа олиб келиши мумкин; йодланган туз, балиқ ёки сут маҳсулоти қўшинг.',
       ],
       'mo': [
         'A shortfall is rare, but sustained low intake can affect enzyme function; add legumes, whole grains, or nuts.',
         'Нехватка встречается редко, но стойкий низкий уровень может влиять на работу ферментов; добавьте бобовые, цельные злаки или орехи.',
-        'Kamlik kam uchraydi, ammo doimiy pastlik ferment faoliyatiga taʼsir qilishi mumkin; dukkakli, toʼliq don yoki yongʼoq qoʼshing.',
+        'Kamlik kam uchraydi, ammo doimiy pastlik ferment faoliyatiga taʼsir qilishi mumkin; dukkakli, toʻliq don yoki yongʻoq qoʻshing.',
         'Камлик кам учрайди, аммо доимий пастлик фермент фаолиятига таъсир қилиши мумкин; дуккакли, тўлиқ дон ёки ёнғоқ қўшинг.',
       ],
       'cr': [
         'A dietary shortfall is uncommon and chromium plays only a minor role in carbohydrate metabolism; add whole grains, broccoli, or nuts.',
         'Дефицит в питании встречается нечасто, и хром играет лишь небольшую роль в обмене углеводов; добавьте цельные злаки, брокколи или орехи.',
-        'Ratsiondagi kamlik kam uchraydi va xrom uglevod almashinuvida faqat kichik rol oʼynaydi; toʼliq don, brokkoli yoki yongʼoq qoʼshing.',
+        'Ratsiondagi kamlik kam uchraydi va xrom uglevod almashinuvida faqat kichik rol oʻynaydi; toʻliq don, brokkoli yoki yongʻoq qoʻshing.',
         'Рациондаги камлик кам учрайди ва хром углевод алмашинувида фақат кичик рол ўйнайди; тўлиқ дон, брокколи ёки ёнғоқ қўшинг.',
       ],
       'cl': [
         'A shortfall is uncommon and usually tied to heavy fluid loss; it comes mainly from table salt and vegetables.',
         'Нехватка встречается нечасто и обычно связана с большой потерей жидкости; поступает в основном из поваренной соли и овощей.',
-        'Kamlik kam uchraydi va odatda koʼp suyuqlik yoʼqotish bilan bogʼliq; asosan osh tuzi va sabzavotdan olinadi.',
+        'Kamlik kam uchraydi va odatda koʻp suyuqlik yoʻqotish bilan bogʻliq; asosan osh tuzi va sabzavotdan olinadi.',
         'Камлик кам учрайди ва одатда кўп суюқлик йўқотиш билан боғлиқ; асосан ош тузи ва сабзавотдан олинади.',
       ],
       'f': [
@@ -1063,19 +1072,19 @@ class AiAdviceService {
       'vit_b4': [
         'A prolonged shortfall can affect liver and muscle function; add eggs, meat, or fish.',
         'Длительная нехватка может влиять на работу печени и мышц; добавьте яйца, мясо или рыбу.',
-        'Uzoq davom etgan kamlik jigar va mushak faoliyatiga taʼsir qilishi mumkin; tuxum, goʼsht yoki baliq qoʼshing.',
+        'Uzoq davom etgan kamlik jigar va mushak faoliyatiga taʼsir qilishi mumkin; tuxum, goʻsht yoki baliq qoʻshing.',
         'Узоқ давом этган камлик жигар ва мушак фаолиятига таъсир қилиши мумкин; тухум, гўшт ёки балиқ қўшинг.',
       ],
       'vit_h': [
         'A prolonged shortfall can cause hair thinning and skin problems; add eggs, nuts, or legumes.',
         'Длительная нехватка может вызывать выпадение волос и проблемы с кожей; добавьте яйца, орехи или бобовые.',
-        'Uzoq davom etgan kamlik soch toʼkilishi va teri muammolariga olib kelishi mumkin; tuxum, yongʼoq yoki dukkakli qoʼshing.',
+        'Uzoq davom etgan kamlik soch toʻkilishi va teri muammolariga olib kelishi mumkin; tuxum, yongʻoq yoki dukkakli qoʻshing.',
         'Узоқ давом этган камлик соч тўкилиши ва тери муаммоларига олиб келиши мумкин; тухум, ёнғоқ ёки дуккакли қўшинг.',
       ],
       'vit_b5': [
         'A shortfall is rare, but sustained low intake can cause fatigue; add eggs, whole grains, or legumes.',
         'Нехватка встречается редко, но стойкий низкий уровень может вызывать усталость; добавьте яйца, цельные злаки или бобовые.',
-        'Kamlik kam uchraydi, ammo doimiy pastlik charchoqqa olib kelishi mumkin; tuxum, toʼliq don yoki dukkakli qoʼshing.',
+        'Kamlik kam uchraydi, ammo doimiy pastlik charchoqqa olib kelishi mumkin; tuxum, toʻliq don yoki dukkakli qoʻshing.',
         'Камлик кам учрайди, аммо доимий пастлик чарчоққа олиб келиши мумкин; тухум, тўлиқ дон ёки дуккакли қўшинг.',
       ],
     };
@@ -1087,13 +1096,13 @@ class AiAdviceService {
       'fe': [
         'meat, legumes, or buckwheat',
         'мясо, бобовые или гречка',
-        'goʼsht, dukkakli yoki grechka',
+        'goʻsht, dukkakli yoki grechka',
         'гўшт, дуккакли ёки гречка',
       ],
       'mg': [
         'nuts, beans, or buckwheat',
         'орехи, фасоль или гречка',
-        'yongʼoq, loviya yoki grechka',
+        'yongʻoq, loviya yoki grechka',
         'ёнғоқ, ловия ёки гречка',
       ],
       'ca': [
@@ -1117,13 +1126,13 @@ class AiAdviceService {
       'na': [
         'sausages, chips, or salty sauces',
         'колбасы, чипсы или солёные соусы',
-        'kolbasa, chips yoki shoʼr sous',
+        'kolbasa, chips yoki shoʻr sous',
         'колбаса, чипс ёки шўр соус',
       ],
       'zn': [
         'meat, pumpkin seeds, or legumes',
         'мясо, тыквенные семечки или бобовые',
-        'goʼsht, qovoq urugʼi yoki dukkakli',
+        'goʻsht, qovoq urugʻi yoki dukkakli',
         'гўшт, қовоқ уруғи ёки дуккакли',
       ],
       'vit_a': [
@@ -1141,25 +1150,25 @@ class AiAdviceService {
       'vit_d': [
         'oily fish, eggs, or fortified dairy',
         'жирная рыба, яйца или обогащённые молочные продукты',
-        'yogʼli baliq, tuxum yoki vitaminlashtirilgan sut',
+        'yogʻli baliq, tuxum yoki vitaminlashtirilgan sut',
         'ёғли балиқ, тухум ёки витаминлаштирилган сут',
       ],
       'vit_e': [
         'vegetable oil, nuts, or seeds',
         'растительное масло, орехи или семечки',
-        'oʼsimlik yogʼi, yongʼoq yoki urugʼ',
+        'oʻsimlik yogʻi, yongʻoq yoki urugʻ',
         'ўсимлик ёғи, ёнғоқ ёки уруғ',
       ],
       'vit_k': [
         'leafy greens, broccoli, or vegetable oil',
         'листовая зелень, брокколи или растительное масло',
-        'bargli koʼkat, brokkoli yoki oʼsimlik yogʼi',
+        'bargli koʻkat, brokkoli yoki oʻsimlik yogʻi',
         'баргли кўкат, брокколи ёки ўсимлик ёғи',
       ],
       'vit_b1': [
         'whole grains, legumes, or sunflower seeds',
         'цельные злаки, бобовые или семечки подсолнуха',
-        'toʼliq don, dukkakli yoki kungaboqar urugʼi',
+        'toʻliq don, dukkakli yoki kungaboqar urugʻi',
         'тўлиқ дон, дуккакли ёки кунгабоқар уруғи',
       ],
       'vit_b2': [
@@ -1171,43 +1180,43 @@ class AiAdviceService {
       'vit_b3': [
         'poultry, fish, or peanuts',
         'птица, рыба или арахис',
-        'parranda goʼshti, baliq yoki yeryongʼoq',
+        'parranda goʻshti, baliq yoki yeryongʻoq',
         'парранда гўшти, балиқ ёки ерёнғоқ',
       ],
       'vit_b6': [
         'poultry, fish, or potatoes',
         'птица, рыба или картофель',
-        'parranda goʼshti, baliq yoki kartoshka',
+        'parranda goʻshti, baliq yoki kartoshka',
         'парранда гўшти, балиқ ёки картошка',
       ],
       'vit_b9': [
         'leafy greens, legumes, or liver',
         'листовая зелень, бобовые или печень',
-        'bargli koʼkat, dukkakli yoki jigar',
+        'bargli koʻkat, dukkakli yoki jigar',
         'баргли кўкат, дуккакли ёки жигар',
       ],
       'vit_b12': [
         'meat, fish, or dairy',
         'мясо, рыба или молочные продукты',
-        'goʼsht, baliq yoki sut mahsuloti',
+        'goʻsht, baliq yoki sut mahsuloti',
         'гўшт, балиқ ёки сут маҳсулоти',
       ],
       'cu': [
         'liver, nuts, or seeds',
         'печень, орехи или семечки',
-        'jigar, yongʼoq yoki urugʼ',
+        'jigar, yongʻoq yoki urugʻ',
         'жигар, ёнғоқ ёки уруғ',
       ],
       'mn': [
         'whole grains, nuts, or legumes',
         'цельные злаки, орехи или бобовые',
-        'toʼliq don, yongʼoq yoki dukkakli',
+        'toʻliq don, yongʻoq yoki dukkakli',
         'тўлиқ дон, ёнғоқ ёки дуккакли',
       ],
       'se': [
         'fish, eggs, or nuts',
         'рыба, яйца или орехи',
-        'baliq, tuxum yoki yongʼoq',
+        'baliq, tuxum yoki yongʻoq',
         'балиқ, тухум ёки ёнғоқ',
       ],
       'i': [
@@ -1219,13 +1228,13 @@ class AiAdviceService {
       'mo': [
         'legumes, whole grains, or nuts',
         'бобовые, цельные злаки или орехи',
-        'dukkakli, toʼliq don yoki yongʼoq',
+        'dukkakli, toʻliq don yoki yongʻoq',
         'дуккакли, тўлиқ дон ёки ёнғоқ',
       ],
       'cr': [
         'whole grains, broccoli, or nuts',
         'цельные злаки, брокколи или орехи',
-        'toʼliq don, brokkoli yoki yongʼoq',
+        'toʻliq don, brokkoli yoki yongʻoq',
         'тўлиқ дон, брокколи ёки ёнғоқ',
       ],
       'cl': [
@@ -1243,19 +1252,19 @@ class AiAdviceService {
       'vit_b4': [
         'eggs, meat, or fish',
         'яйца, мясо или рыба',
-        'tuxum, goʼsht yoki baliq',
+        'tuxum, goʻsht yoki baliq',
         'тухум, гўшт ёки балиқ',
       ],
       'vit_h': [
         'eggs, nuts, or legumes',
         'яйца, орехи или бобовые',
-        'tuxum, yongʼoq yoki dukkakli',
+        'tuxum, yongʻoq yoki dukkakli',
         'тухум, ёнғоқ ёки дуккакли',
       ],
       'vit_b5': [
         'eggs, whole grains, or legumes',
         'яйца, цельные злаки или бобовые',
-        'tuxum, toʼliq don yoki dukkakli',
+        'tuxum, toʻliq don yoki dukkakli',
         'тухум, тўлиқ дон ёки дуккакли',
       ],
     };
@@ -1278,7 +1287,7 @@ class AiAdviceService {
       (AppLanguage.ru, true) =>
         '$amountText $unit при лимите $limitText $unit; превышение $gapText $unit. Постоянный избыток повышает риск высокого давления; сократите колбасы, чипсы или солёные соусы.',
       (AppLanguage.uzLatn, true) =>
-        '$amountText $unit, chegara $limitText $unit; $gapText $unit ortiq. Doimiy ortiqcha miqdor yuqori qon bosimi xavfini oshiradi; kolbasa, chips yoki shoʼr sousni kamaytiring.',
+        '$amountText $unit, chegara $limitText $unit; $gapText $unit ortiq. Doimiy ortiqcha miqdor yuqori qon bosimi xavfini oshiradi; kolbasa, chips yoki shoʻr sousni kamaytiring.',
       (AppLanguage.uzCyrl, true) =>
         '$amountText $unit, чегара $limitText $unit; $gapText $unit ортиқ. Доимий ортиқча миқдор юқори қон босими хавфини оширади; колбаса, чипс ёки шўр соусни камайтиринг.',
       (AppLanguage.en, false) =>
@@ -1286,7 +1295,7 @@ class AiAdviceService {
       (AppLanguage.ru, false) =>
         '$amountText $unit при лимите $limitText $unit; превышения нет. Сохраняйте умеренность в колбасах, чипсах и солёных соусах: регулярный избыток повышает давление.',
       (AppLanguage.uzLatn, false) =>
-        '$amountText $unit, chegara $limitText $unit; ortiqcha emas. Kolbasa, chips va shoʼr sousni cheklang: muntazam ortiqcha miqdor qon bosimini oshiradi.',
+        '$amountText $unit, chegara $limitText $unit; ortiqcha emas. Kolbasa, chips va shoʻr sousni cheklang: muntazam ortiqcha miqdor qon bosimini oshiradi.',
       (AppLanguage.uzCyrl, false) =>
         '$amountText $unit, чегара $limitText $unit; ортиқча эмас. Колбаса, чипс ва шўр соусни чекланг: мунтазам ортиқча миқдор қон босимини оширади.',
     };
@@ -1346,24 +1355,16 @@ class AiAdviceService {
     };
   }
 
-  String _functionError(FirebaseFunctionsException error) {
-    final message = error.message?.trim();
-    final normalizedMessage = message?.toLowerCase();
-    if (message != null &&
-        message.isNotEmpty &&
-        normalizedMessage != error.code.toLowerCase()) {
-      return message;
-    }
-
-    return switch (error.code) {
-      'failed-precondition' => 'AI backend rejected this app.',
-      'invalid-argument' => 'AI request data is invalid.',
-      'resource-exhausted' => 'AI advice limit reached. Try again later.',
-      'unauthenticated' => 'AI backend could not verify this app.',
-      'unavailable' => 'AI service is temporarily unavailable.',
-      _ => 'AI backend failed: ${error.code}.',
-    };
-  }
+  // Маппит код серверной ошибки на категорию, понятную UI. Серверный message
+  // намеренно не используется как текст для пользователя — он уходит только в
+  // debugMessage/debugPrint.
+  AiAdviceErrorKind _functionErrorKind(FirebaseFunctionsException error) =>
+      switch (error.code) {
+        'resource-exhausted' => AiAdviceErrorKind.rateLimited,
+        'deadline-exceeded' => AiAdviceErrorKind.timeout,
+        'unavailable' => AiAdviceErrorKind.network,
+        _ => AiAdviceErrorKind.generic,
+      };
 
   static double _round(double value) => double.parse(value.toStringAsFixed(2));
 
@@ -1447,11 +1448,25 @@ class AiAdviceService {
   };
 }
 
-class AiAdviceException implements Exception {
-  final String message;
+/// Категория ошибки ИИ-совета, понятная UI. Имя значения совпадает с суффиксом
+/// ключа локализации `ai.error.*`, поэтому экран берёт текст как
+/// `l.t('ai.error.${kind.name}')` — без англоязычных серверных строк.
+enum AiAdviceErrorKind { rateLimited, network, timeout, generic }
 
-  const AiAdviceException(this.message);
+class AiAdviceException implements Exception {
+  final AiAdviceErrorKind kind;
+
+  /// Технические детали (серверный message, код исключения) — только для
+  /// debugPrint; пользователю не показываются.
+  final String debugMessage;
+
+  const AiAdviceException(this.kind, [this.debugMessage = '']);
+
+  /// Ключ локализации для этой ошибки (`ai.error.rateLimited` и т.п.).
+  String get l10nKey => 'ai.error.${kind.name}';
 
   @override
-  String toString() => message;
+  String toString() => debugMessage.isEmpty
+      ? 'AiAdviceException(${kind.name})'
+      : 'AiAdviceException(${kind.name}): $debugMessage';
 }

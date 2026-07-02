@@ -58,16 +58,27 @@ class NotificationSettingsScreen extends StatelessWidget {
                               ),
                               _Toggle(
                                 on: enabled,
-                                onChanged: (v) {
-                                  context
-                                      .read<AppStore>()
-                                      .setNotifPrefs(enabled: v);
-                                  if (v) {
-                                    // Явное включение — уместный момент для
-                                    // системного диалога разрешения (13+).
-                                    NotificationService.instance
-                                        .requestPermission();
-                                  }
+                                onChanged: (v) async {
+                                  final store = context.read<AppStore>();
+                                  store.setNotifPrefs(enabled: v);
+                                  if (!v) return;
+                                  // Явное включение — уместный момент для
+                                  // системного диалога разрешения (13+). Ждём
+                                  // результат: при отказе возвращаем тумблер в
+                                  // «выкл» и подсказываем разрешить уведомления —
+                                  // иначе он остался бы «вкл», а уведомления
+                                  // всё равно не приходили бы.
+                                  final granted = await NotificationService
+                                      .instance
+                                      .requestPermission();
+                                  if (granted || !context.mounted) return;
+                                  store.setNotifPrefs(enabled: false);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content:
+                                          Text(l.t('notif.settings.master')),
+                                    ),
+                                  );
                                 },
                               ),
                             ],

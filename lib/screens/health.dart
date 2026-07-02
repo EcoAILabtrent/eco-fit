@@ -70,62 +70,6 @@ class DatePill extends StatelessWidget {
   }
 }
 
-/// 3-row number spinner: dim value±step rows (tappable) around the big center.
-class NumberWheel extends StatelessWidget {
-  final int value;
-  final int step;
-  final int min;
-  final int max;
-  final ValueChanged<int> onChanged;
-  final String Function(int)? fmt;
-  final double width;
-
-  const NumberWheel({
-    super.key,
-    required this.value,
-    required this.onChanged,
-    this.step = 1,
-    this.min = -1000000000,
-    this.max = 1000000000,
-    this.fmt,
-    this.width = double.infinity,
-  });
-
-  String _f(int v) => fmt != null ? fmt!(v) : '$v';
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    Widget row(int v, bool dim) => GestureDetector(
-          onTap: dim ? () => onChanged(v.clamp(min, max)) : null,
-          behavior: HitTestBehavior.opaque,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: dim ? 4 : 2),
-            child: Text(
-              _f(v),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: dim ? 26 : 40,
-                fontWeight: FontWeight.w700,
-                color: dim ? const Color(0x52364025) : t.ink,
-              ),
-            ),
-          ),
-        );
-    return SizedBox(
-      width: width == double.infinity ? null : width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          row(value - step, true),
-          row(value, false),
-          row(value + step, true),
-        ],
-      ),
-    );
-  }
-}
-
 /// Field row with optional icon + right widget.
 class FieldRow extends StatelessWidget {
   final String? icon;
@@ -167,108 +111,6 @@ class FieldRow extends StatelessWidget {
             ),
           ),
           right,
-        ],
-      ),
-    );
-  }
-}
-
-/// Underlined numeric input (e.g. "— уд/м").
-class UnderlineInput extends StatelessWidget {
-  final String? suffix;
-  final String? initial;
-  final double width;
-  final ValueChanged<String>? onChanged;
-  const UnderlineInput({
-    super.key,
-    this.suffix,
-    this.initial,
-    this.width = 70,
-    this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        SizedBox(
-          width: width,
-          child: TextField(
-            controller:
-                initial != null ? TextEditingController(text: initial) : null,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textAlign: TextAlign.right,
-            onChanged: onChanged,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: t.ink,
-            ),
-            decoration: InputDecoration(
-              isDense: true,
-              hintText: '—',
-              contentPadding: const EdgeInsets.symmetric(
-                vertical: 2,
-                horizontal: 4,
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: t.olive, width: 1.5),
-              ),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: t.olive, width: 1.5),
-              ),
-            ),
-          ),
-        ),
-        if (suffix != null) ...[
-          const SizedBox(width: 6),
-          Text(
-            suffix!,
-            style: TextStyle(
-              fontSize: 14,
-              color: t.sub,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-/// "Заметки" field.
-class NotesField extends StatelessWidget {
-  const NotesField({super.key});
-  @override
-  Widget build(BuildContext context) {
-    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    final l = context.l10n;
-    return Container(
-      margin: const EdgeInsets.only(top: 14),
-      height: 56,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: t.card,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.edit_outlined, size: 20, color: t.sub),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: l.t('common.notes'),
-                border: InputBorder.none,
-                isDense: true,
-              ),
-              style: TextStyle(fontSize: 16, color: t.ink),
-            ),
-          ),
         ],
       ),
     );
@@ -327,8 +169,14 @@ class _WaterScreenState extends State<WaterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppStore>();
-    final t = s.theme;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    // Точечная подписка вместо watch: экран воды перестраивается только когда
+    // меняется вода (сегодня или выбранный день) либо её норма, а не на каждый
+    // тик шагомера.
+    context.select<AppStore, int>(
+      (s) => Object.hash(s.water, s.waterGoal, s.waterForOffset(_offset)),
+    );
+    final s = context.read<AppStore>();
     final l = context.l10n;
 
     final isToday = _offset == 0;
@@ -496,11 +344,25 @@ class _BodyScreenState extends State<BodyScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppStore>();
-    final t = s.theme;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    // Точечная подписка: экран состава тела перестраивается при изменении
+    // веса/состава/истории или профиля (рост/пол влияют на «нормы»), а не на
+    // каждый тик шагомера/воды.
+    context.select<AppStore, int>(
+      (s) => Object.hash(
+        s.weight,
+        s.weightKg,
+        s.skeletalMuscle,
+        s.bodyFat,
+        s.heightCm,
+        s.gender,
+        s.bodyHistory.length,
+      ),
+    );
+    final s = context.read<AppStore>();
     final l = context.l10n;
     final currentWeight = s.weight > 0 ? s.weight : (s.weightKg ?? 0);
-    final entries = _chartEntries(s, currentWeight);
+    final entries = _chartEntries(s);
     final selectedIndex = entries.isEmpty
         ? 0
         : (_selectedIndex ?? entries.length - 1).clamp(0, entries.length - 1);
@@ -524,6 +386,22 @@ class _BodyScreenState extends State<BodyScreen> {
               : '.';
       return v.toStringAsFixed(1).replaceAll('.', decimal);
     }
+
+    // «Нормы» состава тела считаем от профиля, а не берём фикс-значения одного
+    // человека: вес — по здоровому ИМТ от роста, мышцы/жир — по полу (формулы и
+    // источники в nutrition/energy.dart).
+    final heightCm = (s.heightCm ?? 170).toDouble();
+    final sex = s.gender == 'f' ? 'f' : 'm';
+    final weightRange = healthyWeightRange(heightCm);
+    final muscleRange =
+        healthySkeletalMuscleRange(heightCm: heightCm, sex: sex);
+    final fatRange = healthyFatMassRange(heightCm: heightCm, sex: sex);
+    // Доля заполнения полосы = позиция значения внутри здорового диапазона
+    // [low, high] (в _RangeRow дополнительно клампится к [0.04, 1.0]).
+    double rangeFrac(double value, ({double low, double high}) range) =>
+        (range.high - range.low) <= 0
+            ? 0.0
+            : (value - range.low) / (range.high - range.low);
 
     void openEntry() => Navigator.of(context).pushNamed('/bodyEntry');
 
@@ -674,9 +552,9 @@ class _BodyScreenState extends State<BodyScreen> {
                         label: l.t('profile.weight'),
                         value: fmt(bodyWeight),
                         unit: l.unit('kg'),
-                        lo: fmt(53.5),
-                        hi: fmt(72.3),
-                        frac: ((bodyWeight - 48) / 30),
+                        lo: fmt(weightRange.low),
+                        hi: fmt(weightRange.high),
+                        frac: rangeFrac(bodyWeight, weightRange),
                         onTap: openEntry,
                       ),
                       _RangeRow(
@@ -684,9 +562,9 @@ class _BodyScreenState extends State<BodyScreen> {
                         label: l.t('health.skeletalMuscle'),
                         value: fmt(skeletalMuscle),
                         unit: l.unit('kg'),
-                        lo: fmt(25.8),
-                        hi: fmt(28.9),
-                        frac: ((skeletalMuscle - 22) / 10),
+                        lo: fmt(muscleRange.low),
+                        hi: fmt(muscleRange.high),
+                        frac: rangeFrac(skeletalMuscle, muscleRange),
                         accent: _kMuscleColor,
                         onTap: openEntry,
                       ),
@@ -695,9 +573,9 @@ class _BodyScreenState extends State<BodyScreen> {
                         label: l.t('health.fatMass'),
                         value: fmt(fatMass),
                         unit: l.unit('kg'),
-                        lo: fmt(6.7),
-                        hi: fmt(12.5),
-                        frac: ((fatMass - 4) / 12),
+                        lo: fmt(fatRange.low),
+                        hi: fmt(fatRange.high),
+                        frac: rangeFrac(fatMass, fatRange),
                         accent: _kFatColor,
                         onTap: openEntry,
                       ),
@@ -717,29 +595,32 @@ class _BodyScreenState extends State<BodyScreen> {
                   ),
                 ),
                 // Удаление выбранной записи — иконка-корзинка внизу + диалог
-                // подтверждения.
-                const SizedBox(height: 18),
-                Center(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => _confirmDeleteEntry(selected.date),
-                    child: Container(
-                      width: 52,
-                      height: 52,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: t.card,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: t.glassBorder),
-                      ),
-                      child: Icon(
-                        Icons.delete_outline_rounded,
-                        size: 26,
-                        color: t.ink,
+                // подтверждения. Показываем только когда есть реальные записи:
+                // синтетических точек больше нет, удалять «пустоту» нечего.
+                if (entries.isNotEmpty) ...[
+                  const SizedBox(height: 18),
+                  Center(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => _confirmDeleteEntry(selected.date),
+                      child: Container(
+                        width: 52,
+                        height: 52,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: t.card,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: t.glassBorder),
+                        ),
+                        child: Icon(
+                          Icons.delete_outline_rounded,
+                          size: 26,
+                          color: t.ink,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
@@ -852,50 +733,20 @@ class _BodyScreenState extends State<BodyScreen> {
       ),
     );
     if (confirmed == true && mounted) {
-      store.deleteBodyEntry(date);
-      setState(() => _selectedIndex = null);
+      // deleteBodyEntry возвращает false, если по этой дате не было реальной
+      // записи. Сбрасываем выбор только при фактическом удалении; иначе просто
+      // ничего не делаем (с реальными-только точками до этой ветки не доходит).
+      final removed = store.deleteBodyEntry(date);
+      if (removed && mounted) setState(() => _selectedIndex = null);
     }
   }
 
-  List<BodyMetricEntry> _chartEntries(AppStore s, double currentWeight) {
-    final saved = s.bodyHistory.where((entry) => entry.weightKg > 0).toList()
+  /// Реальные записи состава тела (по возрастанию даты). Никаких синтетических
+  /// точек: график показывает ровно столько, сколько ввёл пользователь — иначе
+  /// выдуманные точки нельзя ни удалить, ни отличить от настоящих.
+  List<BodyMetricEntry> _chartEntries(AppStore s) {
+    return s.bodyHistory.where((entry) => entry.weightKg > 0).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
-    if (saved.length >= 7) {
-      // Все сохранённые записи — горизонтальный скролл покажет ранние.
-      return saved;
-    }
-    if (saved.isNotEmpty) {
-      final first = saved.first;
-      final missing = 7 - saved.length;
-      final generated = [
-        for (var i = missing; i >= 1; i--)
-          BodyMetricEntry(
-            date: first.date.subtract(Duration(days: i)),
-            weightKg: double.parse(
-              (first.weightKg - i * 0.28).clamp(30.0, 200.0).toStringAsFixed(1),
-            ),
-            skeletalMuscle: double.parse(
-              (first.skeletalMuscle - i * 0.04)
-                  .clamp(10.0, 80.0)
-                  .toStringAsFixed(1),
-            ),
-            bodyFat: double.parse(
-              (first.bodyFat + i * 0.08).clamp(3.0, 60.0).toStringAsFixed(1),
-            ),
-          ),
-      ];
-      return [...generated, ...saved];
-    }
-    final base = currentWeight > 0 ? currentWeight : 66.0;
-    return [
-      for (var i = 6; i >= 0; i--)
-        BodyMetricEntry(
-          date: DateTime.now().subtract(Duration(days: i)),
-          weightKg: double.parse((base - i * 0.55).toStringAsFixed(1)),
-          skeletalMuscle: s.skeletalMuscle,
-          bodyFat: s.bodyFat,
-        ),
-    ];
   }
 }
 
@@ -1213,7 +1064,12 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
       t: t,
       title: l.t('health.entryDate'),
       doneLabel: l.t('common.save'),
-      onDone: () => setState(() => _date = draft),
+      // Дата не может быть в будущем: пикер ограничивает только год, поэтому
+      // клампим выбранный день к «сегодня» перед сохранением.
+      onDone: () => setState(() {
+        final today = DateTime.now();
+        _date = draft.isAfter(today) ? today : draft;
+      }),
       body: SizedBox(
         height: 200,
         child: EcoDatePicker(
@@ -1241,6 +1097,10 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
     final t = context.read<AppStore>().theme;
     var whole = value.floor().clamp(min, max).toInt();
     var tenth = ((value - value.floor()) * 10).round().clamp(0, 9).toInt();
+    // Контроллеры создаём до показа шита и dispose'им по его закрытию: иначе
+    // FixedExtentScrollController течёт на каждый показ пикера (как в T5).
+    final wholeCtrl = FixedExtentScrollController(initialItem: whole - min);
+    final tenthCtrl = FixedExtentScrollController(initialItem: tenth);
     return showEcoSheet(
       context: context,
       t: t,
@@ -1261,9 +1121,7 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
                   children: [
                     Expanded(
                       child: CupertinoPicker.builder(
-                        scrollController: FixedExtentScrollController(
-                          initialItem: whole - min,
-                        ),
+                        scrollController: wholeCtrl,
                         itemExtent: 44,
                         selectionOverlay: EcoPickerSelectionOverlay(
                           t: t,
@@ -1298,9 +1156,7 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
                     ),
                     Expanded(
                       child: CupertinoPicker.builder(
-                        scrollController: FixedExtentScrollController(
-                          initialItem: tenth,
-                        ),
+                        scrollController: tenthCtrl,
                         itemExtent: 44,
                         selectionOverlay: EcoPickerSelectionOverlay(
                           t: t,
@@ -1342,7 +1198,10 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
           ],
         ),
       ),
-    );
+    ).whenComplete(() {
+      wholeCtrl.dispose();
+      tenthCtrl.dispose();
+    });
   }
 
   @override
@@ -1454,7 +1313,6 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
               ),
             ),
           ),
-          const NotesField(),
           const SizedBox(height: 90),
         ],
       ),

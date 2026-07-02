@@ -43,6 +43,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.read<AppStore>().setAvatarPath(picked.path);
   }
 
+  // Мастер-тумблер уведомлений. При включении дожидаемся ответа системного
+  // диалога разрешения: при отказе возвращаем тумблер в «выкл» (иначе он остался
+  // бы включён, а уведомления всё равно не приходили бы) и подсказываем
+  // разрешить их. Без await состояние стора и системы расходились.
+  Future<void> _toggleNotifications(bool enabled) async {
+    final store = context.read<AppStore>();
+    store.setNotifPrefs(enabled: enabled);
+    if (!enabled) return;
+    final granted = await NotificationService.instance.requestPermission();
+    if (granted || !mounted) return;
+    store.setNotifPrefs(enabled: false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10nRead.t('notif.settings.master'))),
+    );
+  }
+
   // Сброс данных: спрашиваем подтверждение (действие необратимо), затем
   // очищаем хранилище и уводим в онбординг, как при первом запуске.
   Future<void> _confirmResetData() async {
@@ -186,6 +202,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           s.heightCm,
           s.avatarPath,
           s.darkMode,
+          // Чтобы тумблер уведомлений отражал и отказ в системном диалоге
+          // (мастер-тумблер откатывается в выкл — см. _toggleNotifications).
+          s.notifEnabled,
         ));
     final s = context.read<AppStore>();
     final l = context.l10n;
@@ -361,12 +380,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.of(context).pushNamed('/notifications'),
                     control: _Toggle(
                       on: s.notifEnabled,
-                      onChanged: (v) {
-                        context.read<AppStore>().setNotifPrefs(enabled: v);
-                        if (v) {
-                          NotificationService.instance.requestPermission();
-                        }
-                      },
+                      onChanged: _toggleNotifications,
                     ),
                   ),
                   _row(
@@ -375,8 +389,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     '',
                     control: _Toggle(
                       on: s.darkMode,
-                      onChanged: (v) =>
-                          context.read<AppStore>().setDarkMode(v),
+                      onChanged: (v) => context.read<AppStore>().setDarkMode(v),
                     ),
                   ),
                   // Ползунок прозрачности карточек (вправо = прозрачнее).
@@ -387,65 +400,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     builder: (context) {
                       final cardOpacity = context
                           .select<AppStore, double>((x) => x.cardOpacity);
+                      // Последняя строка карточки настроек (мёртвый пункт
+                      // «Конфиденциальность» удалён) — без нижней разделительной
+                      // линии.
                       return Container(
-                    padding: const EdgeInsets.only(top: 14, bottom: 8),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: t.bandSoft, width: 1.5),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                        padding: const EdgeInsets.only(top: 14, bottom: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text(
-                                l.t('common.cardTransparency'),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l.t('common.cardTransparency'),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Text(
+                                  '${(((0.95 - cardOpacity) / (0.95 - 0.08)) * 100).round()}%',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: t.ink.withValues(alpha: 0.55),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${(((0.95 - cardOpacity) / (0.95 - 0.08)) * 100).round()}%',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: t.ink.withValues(alpha: 0.55),
+                            SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                trackHeight: 6,
+                                activeTrackColor: t.olive,
+                                // Полоса обрывается на бегунке — справа от него трека
+                                // нет (inactive прозрачный).
+                                inactiveTrackColor: Colors.transparent,
+                                trackShape: const RoundedRectSliderTrackShape(),
+                                thumbShape: _GlassSliderThumb(accent: t.olive),
+                                overlayShape: const RoundSliderOverlayShape(
+                                  overlayRadius: 20,
+                                ),
+                                overlayColor: t.olive.withValues(alpha: 0.12),
+                              ),
+                              child: Slider(
+                                value: ((0.95 - cardOpacity) / (0.95 - 0.08))
+                                    .clamp(0.0, 1.0),
+                                onChanged: (v) => context
+                                    .read<AppStore>()
+                                    .setCardOpacity(0.95 - v * (0.95 - 0.08)),
                               ),
                             ),
                           ],
                         ),
-                        SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            trackHeight: 6,
-                            activeTrackColor: t.olive,
-                            // Полоса обрывается на бегунке — справа от него трека
-                            // нет (inactive прозрачный).
-                            inactiveTrackColor: Colors.transparent,
-                            trackShape: const RoundedRectSliderTrackShape(),
-                            thumbShape: _GlassSliderThumb(accent: t.olive),
-                            overlayShape: const RoundSliderOverlayShape(
-                              overlayRadius: 20,
-                            ),
-                            overlayColor: t.olive.withValues(alpha: 0.12),
-                          ),
-                          child: Slider(
-                            value: ((0.95 - cardOpacity) / (0.95 - 0.08))
-                                .clamp(0.0, 1.0),
-                            onChanged: (v) => context
-                                .read<AppStore>()
-                                .setCardOpacity(0.95 - v * (0.95 - 0.08)),
-                          ),
-                        ),
-                      ],
-                    ),
                       );
                     },
                   ),
-                  _row(t, l.t('common.privacy'), '', onTap: () {}, last: true),
                 ],
               ),
             ),
@@ -593,7 +603,8 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
       imageQuality: 85,
     );
     if (picked == null || !mounted) return;
-    context.read<AppStore>().setAvatarPath(picked.path);
+    // Аватар держим в локальном состоянии до «Сохранить»: «Отмена» должна
+    // откатывать выбор, а не оставлять новый аватар в сторе.
     setState(() => _avatarPath = picked.path);
   }
 
@@ -650,6 +661,11 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
   }) async {
     final t = context.read<AppStore>().theme;
     var draft = value;
+    // Контроллер создаём заранее и dispose'им после закрытия шита, иначе
+    // FixedExtentScrollController течёт на каждый показ пикера.
+    final ctrl = FixedExtentScrollController(
+      initialItem: (value - min).clamp(0, max - min).toInt(),
+    );
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
@@ -682,9 +698,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                 SizedBox(
                   height: 156,
                   child: CupertinoPicker.builder(
-                    scrollController: FixedExtentScrollController(
-                      initialItem: (value - min).clamp(0, max - min).toInt(),
-                    ),
+                    scrollController: ctrl,
                     itemExtent: 42,
                     selectionOverlay: EcoPickerSelectionOverlay(
                       t: t,
@@ -741,12 +755,15 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
         ),
       ),
     );
+    ctrl.dispose();
   }
 
   void _save() {
     final store = context.read<AppStore>();
     final savedWeight = store.weightKg ??
         (store.weight > 0 ? store.weight : _weight.toDouble());
+    // Аватар пишем в стор только сейчас (в _pickAvatar он был локальным).
+    store.setAvatarPath(_avatarPath);
     store.completeOnboarding(
       profileName: _nameCtrl.text,
       gender: _gender,

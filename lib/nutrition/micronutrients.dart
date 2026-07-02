@@ -48,7 +48,6 @@ class NutritionProfile {
   final ProfileSex sex;
   final double weightKg;
   final double heightCm;
-  final bool smoker;
 
   const NutritionProfile({
     required this.ageYears,
@@ -56,7 +55,6 @@ class NutritionProfile {
     required this.sex,
     required this.weightKg,
     required this.heightCm,
-    this.smoker = false,
   });
 
   double get bmi {
@@ -481,33 +479,22 @@ List<MicroTarget> calculateMicroTargets(
       .toSet();
   return [
     for (final entry in row.entries)
-      if (availableKeys.contains(entry.key))
-        _targetFor(
-          entry.key,
-          entry.value,
-          smoker: profile.smoker && entry.key == 'vit_c',
-        ),
+      if (availableKeys.contains(entry.key)) _targetFor(entry.key, entry.value),
   ];
 }
 
-MicroTarget _targetFor(String key, DriValue value, {required bool smoker}) {
+MicroTarget _targetFor(String key, DriValue value) {
   final basis = value.rda != null ? DriBasis.rda : DriBasis.ai;
   final baseTarget = value.rda ?? value.ai!;
-  final notes = [...?_nutrientNotes[key]];
-  if (smoker) {
-    notes.add(
-      'Vitamin C target includes the additional 35 mg/day for smokers.',
-    );
-  }
   return MicroTarget(
     key: key,
-    target: baseTarget + (smoker ? 35 : 0),
+    target: baseTarget,
     unit: value.unit,
     basis: basis,
     ear: value.ear,
     ul: value.ul,
     cdrr: value.cdrr,
-    notes: notes,
+    notes: [...?_nutrientNotes[key]],
   );
 }
 
@@ -531,10 +518,12 @@ const _mcgDfe = MicroUnit.mcgDfe;
 const _mgNe = MicroUnit.mgNe;
 const _g = MicroUnit.g;
 
-DriValue _r(MicroUnit unit, double target, {double? ear, double? ul, double? cdrr}) =>
+DriValue _r(MicroUnit unit, double target,
+        {double? ear, double? ul, double? cdrr}) =>
     DriValue(unit: unit, rda: target, ear: ear, ul: ul, cdrr: cdrr);
 
-DriValue _a(MicroUnit unit, double target, {double? ear, double? ul, double? cdrr}) =>
+DriValue _a(MicroUnit unit, double target,
+        {double? ear, double? ul, double? cdrr}) =>
     DriValue(unit: unit, ai: target, ear: ear, ul: ul, cdrr: cdrr);
 
 /// Personalized DRI table: every populated micronutrient that has an official

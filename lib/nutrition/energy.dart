@@ -136,8 +136,50 @@ int waterGoalFor({
 
 /// Estimated body-water as a percentage of body mass, from body-fat percentage.
 /// Fat-free mass is ~73% water, so TBW% = (100 − bodyFat%) × 0.73.
-double bodyWaterPercent(double bodyFatPercent) =>
-    (100 - bodyFatPercent) * 0.73;
+double bodyWaterPercent(double bodyFatPercent) => (100 - bodyFatPercent) * 0.73;
+
+/// Healthy body-weight range (kg) for a given [heightCm], derived from the WHO
+/// healthy-BMI band of 18.5–25 kg/m² (BMI = kg / m²). Returns the low/high
+/// endpoints — e.g. at 170 cm → ~53.5–72.3 kg. Used as the personalised "norm"
+/// on the body-composition screen instead of a value hard-coded for one person.
+({double low, double high}) healthyWeightRange(double heightCm) {
+  final heightM = heightCm / 100;
+  final area = heightM * heightM;
+  return (low: 18.5 * area, high: 25.0 * area);
+}
+
+/// Healthy body-fat percentage band by [sex] ('m' | 'f'). Uses the widely cited
+/// ACE / ACSM "fitness–acceptable" ranges: ~8–20% for men, ~21–33% for women.
+({double low, double high}) healthyBodyFatRange(String sex) =>
+    sex == 'f' ? (low: 21, high: 33) : (low: 8, high: 20);
+
+/// Healthy skeletal-muscle mass band (kg) for a given [heightCm] and [sex].
+/// Skeletal muscle is estimated as a sex-specific share of the healthy-weight
+/// range — ~42% of body mass for men, ~34% for women — matching the whole-body
+/// skeletal-muscle-mass proportions reported for healthy adults by Janssen et
+/// al., "Skeletal muscle mass and distribution" (J Appl Physiol, 2000).
+({double low, double high}) healthySkeletalMuscleRange({
+  required double heightCm,
+  required String sex,
+}) {
+  final weight = healthyWeightRange(heightCm);
+  final share = sex == 'f' ? 0.34 : 0.42;
+  return (low: weight.low * share, high: weight.high * share);
+}
+
+/// Healthy fat-mass band (kg) for a given [heightCm] and [sex]. Applies the
+/// [healthyBodyFatRange] percentages to the midpoint of the healthy-weight
+/// range, so the band reflects the acceptable body-fat spread rather than the
+/// weight spread.
+({double low, double high}) healthyFatMassRange({
+  required double heightCm,
+  required String sex,
+}) {
+  final weight = healthyWeightRange(heightCm);
+  final refWeight = (weight.low + weight.high) / 2;
+  final fat = healthyBodyFatRange(sex);
+  return (low: refWeight * fat.low / 100, high: refWeight * fat.high / 100);
+}
 
 /// Active calories (kcal) burned from a step count at a given body weight.
 /// ~0.00065 kcal per step per kg ≈ 0.045 kcal/step at 70 kg (~4 METs, matching

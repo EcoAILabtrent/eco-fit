@@ -10,46 +10,35 @@ import '../theme/tokens.dart';
 import '../ui/ui.dart';
 
 /// Сон / аналитика — port of logscreens.jsx::Stats (SleepBars + SleepCircle).
-class StatsScreen extends StatefulWidget {
+///
+/// Реальных данных сна в приложении пока нет: график, средние и круг —
+/// статичный макет. Поэтому экран честно помечен как демонстрационный
+/// (бейдж `common.stubInProgress`), иллюстрация приглушена, а сегмент-контрол
+/// «7/31/12» и кнопка «Сохранить» (обе ничего не меняли) убраны — остаётся
+/// только «Назад».
+class StatsScreen extends StatelessWidget {
   const StatsScreen({super.key});
-
-  @override
-  State<StatsScreen> createState() => _StatsScreenState();
-}
-
-class _StatsScreenState extends State<StatsScreen> {
-  int seg = 1;
 
   @override
   Widget build(BuildContext context) {
     final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
+    // Демо-диапазон: последняя неделя до сегодня — только чтобы шаблон
+    // averageSleepRange не показывал сырые плейсхолдеры {from}/{to}.
+    final now = DateTime.now();
+    final from = now.subtract(const Duration(days: 6));
     return EcoScreen(
       t: t,
       footer: Positioned(
         left: 16,
         right: 16,
         bottom: 18 + MediaQuery.of(context).padding.bottom,
-        child: Row(
-          children: [
-            Expanded(
-              child: EcoBtn(
-                t: t,
-                bg: t.band,
-                fg: t.ink,
-                onTap: () => Navigator.of(context).pop(),
-                child: Text(l.t('common.cancel')),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: EcoBtn(
-                t: t,
-                onTap: () => Navigator.of(context).pop(),
-                child: Text(l.t('common.save')),
-              ),
-            ),
-          ],
+        child: EcoBtn(
+          t: t,
+          bg: t.band,
+          fg: t.ink,
+          onTap: () => Navigator.of(context).pop(),
+          child: Text(l.t('common.cancel')),
         ),
       ),
       child: Column(
@@ -60,134 +49,157 @@ class _StatsScreenState extends State<StatsScreen> {
             title: l.t('home.sleep'),
             onBack: () => Navigator.of(context).pop(),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 110),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // Бейдж «раздел в разработке» — прямо сообщаем, что данные ниже
+          // демонстрационные.
+          Container(
+            margin: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: t.bandSoft,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
               children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 16),
-                  child: RepaintBoundary(child: _SleepBars()),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
-                  child: EcoSegmented(
-                    t: t,
-                    options: [
-                      l.t('stats.period7'),
-                      l.t('stats.period31'),
-                      l.t('stats.period12'),
-                    ],
-                    value: seg,
-                    onChanged: (i) => setState(() => seg = i),
-                  ),
-                ),
-                EcoCard(
-                  t: t,
-                  margin: const EdgeInsets.only(bottom: 14),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.t('stats.averageSleepRange'),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: t.sub,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l.t('stats.averageSleepDaily'),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 18),
-                      IntrinsicHeight(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l.t('stats.averageBedtime'),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: t.sub,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '23:15',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w700,
-                                      color: t.sub,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              width: 2,
-                              decoration: BoxDecoration(
-                                color: t.olive,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                            const SizedBox(width: 18),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l.t('stats.averageWakeup'),
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: t.sub,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '07:13',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w700,
-                                      color: t.sub,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                EcoCard(
-                  t: t,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l.t('stats.sleepDurationSample'),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Center(child: RepaintBoundary(child: _SleepCircle())),
-                    ],
+                Icon(Icons.construction_rounded, size: 18, color: t.sub),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l.t('common.stubInProgress'),
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.3,
+                      fontWeight: FontWeight.w600,
+                      color: t.sub,
+                    ),
                   ),
                 ),
               ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 110),
+            // Иллюстрация макета приглушена (0.5), чтобы визуально отличаться от
+            // реальных данных на других экранах.
+            child: Opacity(
+              opacity: 0.5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: RepaintBoundary(child: _SleepBars()),
+                  ),
+                  EcoCard(
+                    t: t,
+                    margin: const EdgeInsets.only(bottom: 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.format('stats.averageSleepRange', {
+                            'from': l.dayMonth(from),
+                            'to': l.dayMonth(now),
+                          }),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: t.sub,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          l.t('stats.averageSleepDaily'),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        IntrinsicHeight(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l.t('stats.averageBedtime'),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: t.sub,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '23:15',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                        color: t.sub,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: 2,
+                                decoration: BoxDecoration(
+                                  color: t.olive,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 18),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l.t('stats.averageWakeup'),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: t.sub,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '07:13',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.w700,
+                                        color: t.sub,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  EcoCard(
+                    t: t,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l.t('stats.sleepDurationSample'),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Center(
+                            child: RepaintBoundary(child: _SleepCircle())),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
