@@ -9,8 +9,17 @@ class AppStrings {
 
   const AppStrings(this.language);
 
-  String t(String key) =>
-      _strings[language]?[key] ?? _strings[AppLanguage.ru]?[key] ?? key;
+  String t(String key) {
+    final value = _strings[language]?[key];
+    if (value != null) return value;
+    assert(() {
+      debugPrint('[l10n] Missing key "$key" for ${language.code}');
+      return true;
+    }());
+    // Фолбэк на en, а не на ru: раньше пропущенный ключ показывал русский текст
+    // всем, включая англоязычных пользователей, и прятал дыру в переводе.
+    return _strings[AppLanguage.en]?[key] ?? key;
+  }
 
   String format(String key, Map<String, Object?> values) {
     var out = t(key);
@@ -18,6 +27,51 @@ class AppStrings {
       out = out.replaceAll('{${entry.key}}', '${entry.value}');
     }
     return out;
+  }
+
+  /// Плюрализация по числу [n]: выбирает `keyBase.one/.few/.many` и подставляет
+  /// `{n}`. Для узбекского (обе письменности) все формы совпадают — числительное
+  /// требует единственного числа существительного.
+  String plural(String keyBase, int n) =>
+      format('$keyBase.${_pluralForm(n)}', {'n': n});
+
+  String _pluralForm(int n) => switch (language) {
+        AppLanguage.en => n == 1 ? 'one' : 'many',
+        AppLanguage.ru => _ruPluralForm(n),
+        AppLanguage.uzLatn || AppLanguage.uzCyrl => 'one',
+      };
+
+  static String _ruPluralForm(int n) {
+    final mod10 = n % 10;
+    final mod100 = n % 100;
+    if (mod10 == 1 && mod100 != 11) return 'one';
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'few';
+    return 'many';
+  }
+
+  /// Десятичный разделитель: запятая для ru/uzLatn/uzCyrl, точка для en.
+  String decimalSep() => language == AppLanguage.en ? '.' : ',';
+
+  /// Число с одним знаком после запятой; целые — без дробного хвоста
+  /// (66 → «66», 66.5 → «66,5»).
+  String num1(double v) {
+    final rounded = (v * 10).roundToDouble() / 10;
+    final text = rounded == rounded.truncateToDouble()
+        ? rounded.toStringAsFixed(0)
+        : rounded.toStringAsFixed(1);
+    return text.replaceAll('.', decimalSep());
+  }
+
+  /// Целое с разделением тысяч: «10 000» для ru/uz, «10,000» для en.
+  String thousands(int v) {
+    final digits = v.abs().toString();
+    final sep = language == AppLanguage.en ? ',' : ' ';
+    final buffer = StringBuffer();
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) buffer.write(sep);
+      buffer.write(digits[i]);
+    }
+    return '${v < 0 ? '-' : ''}$buffer';
   }
 
   String meal(String key) => t('meal.$key');
@@ -154,18 +208,18 @@ class AppStrings {
       'Dekabr',
     ],
     AppLanguage.uzCyrl: [
-      'Январ',
-      'Феврал',
+      'Январь',
+      'Февраль',
       'Март',
-      'Апрел',
+      'Апрель',
       'Май',
-      'Июн',
-      'Июл',
+      'Июнь',
+      'Июль',
       'Август',
-      'Сентабр',
-      'Октабр',
-      'Ноябр',
-      'Декабр',
+      'Сентябрь',
+      'Октябрь',
+      'Ноябрь',
+      'Декабрь',
     ],
   };
 
@@ -459,7 +513,7 @@ class AppStrings {
       'stats.period7': '7 days',
       'stats.period31': '31 days',
       'stats.period12': '12 mo.',
-      'stats.averageSleepRange': 'Average sleep time · 09.03 - 10.04',
+      'stats.averageSleepRange': 'Average sleep time · {from} – {to}',
       'stats.averageSleepDaily': '8 h 12 min per day',
       'stats.averageBedtime': 'Average bedtime',
       'stats.averageWakeup': 'Average wake-up',
@@ -467,6 +521,35 @@ class AppStrings {
       'stats.eightHours': '8 h',
       'stats.sleepTime': 'sleep time',
       'stats.sleepCircleValue': '8 h 43 m',
+      // --- Новые ключи для волны 2 (задача T4) ---
+      'common.totalAmount': 'Total',
+      'common.all': 'All',
+      'startup.error': 'Could not start Eco Fit.',
+      'startup.retry': 'Retry',
+      'ai.error.rateLimited':
+          'Too many requests. Please wait a moment and try again.',
+      'ai.error.network':
+          'No internet connection. Check your network and try again.',
+      'ai.error.timeout': 'The request took too long. Please try again.',
+      'ai.error.generic': 'Could not get AI advice. Please try again.',
+      'food.category.dishes': 'Dishes',
+      'food.category.drinks': 'Drinks',
+      'food.category.produce': 'Fruits & vegetables',
+      'food.category.protein': 'Protein foods',
+      'food.category.grains': 'Grains & bread',
+      'food.category.other': 'Sweets & other',
+      'dish.portionSmall': 'small',
+      'dish.portionMedium': 'medium',
+      'dish.portionLarge': 'large',
+      'profile.age.one': '{n} year',
+      'profile.age.few': '{n} years',
+      'profile.age.many': '{n} years',
+      'notif.steps.goal.body.one': '{n} step today. Great job!',
+      'notif.steps.goal.body.few': '{n} steps today. Great job!',
+      'notif.steps.goal.body.many': '{n} steps today. Great job!',
+      'notif.steps.nudge.body.one': '{n} step to your daily goal',
+      'notif.steps.nudge.body.few': '{n} steps to your daily goal',
+      'notif.steps.nudge.body.many': '{n} steps to your daily goal',
     },
     AppLanguage.ru: {
       'common.cancel': 'Отмена',
@@ -502,8 +585,8 @@ class AppStrings {
       'notif.settings.summaryDesc': 'Вечерняя сводка по калориям в 21:00.',
       'notif.settings.steps': 'Шаги',
       'notif.settings.stepsDesc':
-          'Праздник при достижении цели и вечерний зов на прогулку. Работает '
-              'даже при закрытом приложении.',
+          'Поздравление при достижении цели и вечернее напоминание о прогулке. '
+              'Работает даже при закрытом приложении.',
       'notif.settings.weight': 'Взвешивание',
       'notif.settings.weightDesc':
           'Раз в неделю утреннее напоминание обновить вес.',
@@ -553,13 +636,12 @@ class AppStrings {
       'common.today': 'Сегодня',
       'common.normal': 'норма',
       'common.average': 'Средняя',
-      'bodyStatus.low': 'Низкое',
-      'bodyStatus.average': 'Средняя',
-      'bodyStatus.high': 'Высокое',
-      'common.targetRange': 'Целевой промежуток',
+      'bodyStatus.low': 'Низкий',
+      'bodyStatus.average': 'Средний',
+      'bodyStatus.high': 'Высокий',
+      'common.targetRange': 'Целевой диапазон',
       'common.setTime': 'Установить время',
-      'common.stubInProgress':
-          'Этот экран в работе — появится в следующей фазе порта.',
+      'common.stubInProgress': 'Раздел в разработке — скоро появится',
       'unit.cal': 'кал',
       'unit.kcal': 'ккал',
       'unit.g': 'г',
@@ -569,7 +651,7 @@ class AppStrings {
       'unit.l': 'л',
       'unit.mg': 'мг',
       'unit.mcg': 'мкг',
-      'unit.bpm': 'уд/м',
+      'unit.bpm': 'уд/мин',
       'unit.unit': 'ед.',
       'unit.kcalPerDay': 'ккал/день',
       'unit.years': 'лет',
@@ -623,7 +705,7 @@ class AppStrings {
       'ai.ready':
           'ИИ может разобрать сегодняшний рацион: возможные дефициты, избытки и простые шаги на день.',
       'ai.generate': 'Получить ИИ-совет',
-      'ai.pageTitle': 'ИИ ассистент',
+      'ai.pageTitle': 'ИИ-ассистент',
       'ai.cardSubtitle': 'Анализируйте свой рацион с помощью искусственного интеллекта',
       'ai.robotHint': 'Привет! Я ИИ-помощник в Eco Health',
       'ai.savedCount': 'Сохранённых',
@@ -638,17 +720,17 @@ class AppStrings {
       'ai.refresh': 'Обновить',
       'ai.retry': 'Проверить снова',
       'ai.loading': 'Генерируем ИИ-совет по питанию...',
-      'ai.checking': 'Проверяю подключение к интернету...',
-      'ai.offline': 'Для AI-советов по питанию подключитесь к интернету.',
+      'ai.checking': 'Проверяем подключение к интернету...',
+      'ai.offline': 'Для ИИ-советов по питанию подключитесь к интернету.',
       'ai.notConfigured':
-          'ИИ-сервер еще не подключен. Настройте Firebase, чтобы включить онлайн-советы.',
+          'ИИ-сервер ещё не подключён. Настройте Firebase, чтобы включить онлайн-советы.',
       'ai.noFood': 'Добавьте еду за сегодня, и ИИ проанализирует ваш рацион.',
       'ai.error':
-          'Не удалось получить AI-совет. Проверьте интернет и попробуйте снова.',
+          'Не удалось получить ИИ-совет. Проверьте интернет и попробуйте снова.',
       'ai.disclaimer':
           'Совет основан на внесённых данных и не заменяет консультацию врача или результаты анализов.',
       'home.food': 'Еда',
-      'home.nutrition': 'Питательность',
+      'home.nutrition': 'Питание',
       'home.bodyParams': 'Параметры тела',
       'home.steps': 'Шаги',
       'home.sleep': 'Сон',
@@ -672,7 +754,8 @@ class AppStrings {
       'food.resetFilters': 'Сбросить',
       'food.showProducts': 'Показать · {count}',
       'food.allProducts': 'Все продукты',
-      'food.favoritesEmpty': 'Сохраняйте продукты звездой в карточке продукта',
+      'food.favoritesEmpty':
+          'Отмечайте продукты звёздочкой на карточке — они появятся здесь',
       'food.emptyMeal': 'Пока пусто — добавьте продукт',
       'food.noResults': 'Ничего не найдено',
       'food.inMeal': 'В приёме: {count} · {kcal} ккал',
@@ -685,7 +768,7 @@ class AppStrings {
       'food.mass': 'Масса',
       'food.size': 'Размер',
       'food.macronutrients': 'Макронутриенты',
-      'food.nutritionSummary': 'Сведение о питании',
+      'food.nutritionSummary': 'Пищевая ценность',
       'profile.profile': 'Профиль',
       'profile.myProfile': 'Мой профиль',
       'profile.name': 'Имя профиля',
@@ -735,7 +818,7 @@ class AppStrings {
       'health.bodyComposition': 'Состав тела',
       'health.bodyMass': 'Масса тела',
       'health.yourBodyComposition': 'Ваш состав тела',
-      'health.skeletalMuscle': 'Скелетн. мускулат.',
+      'health.skeletalMuscle': 'Скелетные мышцы',
       'health.fatMass': 'Масса жировой ткани',
       'health.bodyWater': 'Вода в организме',
       'health.weightAlsoProfile':
@@ -745,7 +828,7 @@ class AppStrings {
       'health.pulse': 'Пульс',
       'health.medication': 'Лекарство',
       'health.currentStatus': 'Выбор текущего статуса',
-      'health.fasting': 'Голодание',
+      'health.fasting': 'Натощак',
       'health.beforeMeal': 'До еды',
       'health.afterMeal': 'После еды',
       'health.general': 'Общие',
@@ -754,7 +837,7 @@ class AppStrings {
       'stats.period7': '7 дней',
       'stats.period31': '31 день',
       'stats.period12': '12 мес.',
-      'stats.averageSleepRange': 'Среднее время сна · 09.03 – 10.04',
+      'stats.averageSleepRange': 'Среднее время сна · {from} – {to}',
       'stats.averageSleepDaily': '8 ч 12 мин в день',
       'stats.averageBedtime': 'Среднее засыпание',
       'stats.averageWakeup': 'Среднее пробуждение',
@@ -762,21 +845,50 @@ class AppStrings {
       'stats.eightHours': '8 ч',
       'stats.sleepTime': 'время сна',
       'stats.sleepCircleValue': '8 ч 43 м',
+      // --- Новые ключи для волны 2 (задача T4) ---
+      'common.totalAmount': 'Общее количество',
+      'common.all': 'Все',
+      'startup.error': 'Не удалось запустить Eco Fit.',
+      'startup.retry': 'Повторить',
+      'ai.error.rateLimited':
+          'Слишком много запросов. Подождите немного и попробуйте снова.',
+      'ai.error.network':
+          'Нет подключения к интернету. Проверьте сеть и попробуйте снова.',
+      'ai.error.timeout': 'Превышено время ожидания. Попробуйте снова.',
+      'ai.error.generic': 'Не удалось получить ИИ-совет. Попробуйте снова.',
+      'food.category.dishes': 'Блюда',
+      'food.category.drinks': 'Напитки',
+      'food.category.produce': 'Фрукты и овощи',
+      'food.category.protein': 'Белковые продукты',
+      'food.category.grains': 'Крупы и хлеб',
+      'food.category.other': 'Сладости и прочее',
+      'dish.portionSmall': 'маленький',
+      'dish.portionMedium': 'средний',
+      'dish.portionLarge': 'большой',
+      'profile.age.one': '{n} год',
+      'profile.age.few': '{n} года',
+      'profile.age.many': '{n} лет',
+      'notif.steps.goal.body.one': '{n} шаг за сегодня. Отличная работа!',
+      'notif.steps.goal.body.few': '{n} шага за сегодня. Отличная работа!',
+      'notif.steps.goal.body.many': '{n} шагов за сегодня. Отличная работа!',
+      'notif.steps.nudge.body.one': 'До дневной цели остался {n} шаг',
+      'notif.steps.nudge.body.few': 'До дневной цели осталось {n} шага',
+      'notif.steps.nudge.body.many': 'До дневной цели осталось {n} шагов',
     },
     AppLanguage.uzLatn: {
       'common.cancel': 'Bekor qilish',
-      'common.delete': "O'chirish",
+      'common.delete': 'Oʻchirish',
       'common.yes': 'Ha',
-      'health.deleteEntryConfirm': "Ushbu yozuvni o'chirilsinmi?",
+      'health.deleteEntryConfirm': 'Ushbu yozuv oʻchirilsinmi?',
       'common.save': 'Saqlash',
       'common.done': 'Tayyor',
       'common.doneCount': 'Tayyor · {count}',
-      'common.add': "Qo'shish",
-      'common.addCount': "Qo'shish · {count}",
-      'common.edit': "O'zgartirish",
+      'common.add': 'Qoʻshish',
+      'common.addCount': 'Qoʻshish · {count}',
+      'common.edit': 'Oʻzgartirish',
       'common.logout': 'Chiqish',
       'common.input': 'Kiritish',
-      'common.none': "Yo'q",
+      'common.none': 'Yoʻq',
       'common.notes': 'Izohlar',
       'common.language': 'Til',
       'language.choose': 'Tilingizni tanlang',
@@ -784,58 +896,58 @@ class AppStrings {
       'common.notifications': 'Bildirishnomalar',
       'notif.settings.master': 'Bildirishnomalarga ruxsat',
       'notif.settings.masterDesc':
-          "Ovqatni yozish, suv ichish, yurish, kun yakuni va haftalik "
-              "tortilish eslatmalari. Hammasi qurilmaning o'zida hisoblanadi.",
+          'Ovqatni yozish, suv ichish, yurish, kun yakuni va haftalik '
+              'tortilish eslatmalari. Hammasi qurilmaning oʻzida hisoblanadi.',
       'notif.settings.meals': 'Ovqat eslatmalari',
       'notif.settings.mealsDesc':
-          "Nonushta, tushlik va kechki ovqat — vaqtidan keyin yozishni "
-              "eslatamiz. Ovqat yozilgan bo'lsa, bildirishnoma kelmaydi.",
+          'Nonushta, tushlik va kechki ovqat — vaqtidan keyin yozishni '
+              'eslatamiz. Ovqat yozilgan boʻlsa, bildirishnoma kelmaydi.',
       'notif.settings.water': 'Suv',
       'notif.settings.waterDesc':
-          "Kun davomida yumshoq eslatmalar; maqsad bajarilsa, to'xtaydi.",
+          'Kun davomida yumshoq eslatmalar; maqsad bajarilsa, toʻxtaydi.',
       'notif.settings.summary': 'Kun yakuni',
       'notif.settings.summaryDesc':
-          "Soat 21:00 da kaloriyalar bo'yicha kechki xulosa.",
+          'Soat 21:00 da kaloriyalar boʻyicha kechki xulosa.',
       'notif.settings.steps': 'Qadamlar',
       'notif.settings.stepsDesc':
-          "Maqsadga yetganda tabrik va kechki sayrga chorlov. Ilova yopiq "
-              "bo'lsa ham ishlaydi.",
+          'Maqsadga yetganda tabrik va kechki sayrga chorlov. Ilova yopiq '
+              'boʻlsa ham ishlaydi.',
       'notif.settings.weight': 'Tortilish',
       'notif.settings.weightDesc':
           'Haftada bir marta ertalab vaznni yangilash eslatmasi.',
       'notif.channel.reminders': 'Eslatmalar',
       'notif.channel.remindersDesc': 'Ovqat, suv, kun yakuni va tortilish',
       'notif.channel.steps': 'Faollik',
-      'notif.channel.stepsDesc': "Qadam maqsadi bo'yicha progress",
-      'notif.meal.breakfast.title': "Nonushta qanday o'tdi?",
+      'notif.channel.stepsDesc': 'Qadam maqsadi boʻyicha progress',
+      'notif.meal.breakfast.title': 'Nonushta qanday oʻtdi?',
       'notif.meal.breakfast.body':
-          "Nima yeganingizni yozib qo'ying — bir daqiqa kifoya, kun esa aniq "
-              "qoladi",
+          'Nima yeganingizni yozib qoʻying — bir daqiqa kifoya, kun esa aniq '
+              'qoladi',
       'notif.meal.lunch.title': 'Tushlik yozildimi?',
-      'notif.meal.lunch.body': "Tushlikni unutmasdan kundalikka qo'shing",
+      'notif.meal.lunch.body': 'Tushlikni unutmasdan kundalikka qoʻshing',
       'notif.meal.dinner.title': 'Kechki ovqat yozildimi?',
       'notif.meal.dinner.body':
-          "Kechki ovqatni yozing — kun yakuni aniq bo'ladi",
+          'Kechki ovqatni yozing — kun yakuni aniq boʻladi',
       'notif.water.title': 'Suv ichish vaqti 💧',
       'notif.water.body':
           'Hozircha {goal} ml dan {current} ml — bir stakan suv ichib oling',
       'notif.water.bodyGeneric': 'Suv ichishni unutmang — maqsad {goal} ml',
       'notif.summary.title': 'Kun yakuni',
       'notif.summary.bodyEmpty':
-          "Bugun hech narsa yozilmadi. Ovqatlaringizni qo'shing — kun hali "
-              "yo'qolgani yo'q!",
+          'Bugun hech narsa yozilmadi. Ovqatlaringizni qoʻshing — kun hali '
+              'yoʻqolgani yoʻq!',
       'notif.summary.bodyLeft':
-          "{goal} kkal dan {left} kkal qoldi. Kechki ovqat ham sig'adi!",
+          '{goal} kkal dan {left} kkal qoldi. Kechki ovqat ham sigʻadi!',
       'notif.summary.bodyOver':
-          "Bugun {consumed} kkal — maqsaddan {over} kkal ko'p. Ertaga yangi "
-              "kun!",
+          'Bugun {consumed} kkal — maqsaddan {over} kkal koʻp. Ertaga yangi '
+              'kun!',
       'notif.summary.bodyGreen':
           'Ajoyib kun: {consumed} kkal — yashil zonada!',
-      'notif.summary.bodyGeneric': "Kun qanday o'tganini ko'rib chiqing",
+      'notif.summary.bodyGeneric': 'Kun qanday oʻtganini koʻrib chiqing',
       'notif.weight.title': 'Tortilish vaqti keldi',
       'notif.weight.body':
-          "Oxirgi o'lchovdan bir hafta o'tdi. Grafik aniq bo'lishi uchun "
-              "vaznni yangilang",
+          'Oxirgi oʻlchovdan bir hafta oʻtdi. Grafik aniq boʻlishi uchun '
+              'vaznni yangilang',
       'notif.steps.goal.title': '🎉 Qadam maqsadi bajarildi!',
       'notif.steps.goal.body': 'Bugun {goal} qadam. Barakalla!',
       'notif.steps.nudge.title': 'Kechki sayr-chi?',
@@ -850,15 +962,15 @@ class AppStrings {
       'common.cardTransparency': 'Kartochkalar shaffofligi',
       'common.darkTheme': 'Mavzu',
       'common.today': 'Bugun',
-      'common.normal': "me'yor",
-      'common.average': "O'rtacha",
+      'common.normal': 'meʼyor',
+      'common.average': 'Oʻrtacha',
       'bodyStatus.low': 'Past',
-      'bodyStatus.average': "O'rtacha",
+      'bodyStatus.average': 'Oʻrtacha',
       'bodyStatus.high': 'Yuqori',
-      'common.targetRange': "Maqsad oralig'i",
+      'common.targetRange': 'Maqsad oraligʻi',
       'common.setTime': 'Vaqtni belgilash',
       'common.stubInProgress':
-          'Bu ekran tayyorlanmoqda va keyingi port bosqichida paydo bo‘ladi.',
+          'Bu ekran tayyorlanmoqda va keyingi port bosqichida paydo boʻladi.',
       'unit.cal': 'kal',
       'unit.kcal': 'kkal',
       'unit.g': 'g',
@@ -881,9 +993,9 @@ class AppStrings {
       'meal.snackD': 'Kunduzgi tamaddi',
       'meal.snackE': 'Kechki tamaddi',
       'nutrient.protein': 'Oqsil',
-      'nutrient.fat': "Yog'lar",
+      'nutrient.fat': 'Yogʻlar',
       'nutrient.carbs': 'Uglevodlar',
-      'nutrient.fiber': 'Kletchatka',
+      'nutrient.fiber': 'Tola',
       'nutrient.fe': 'Temir',
       'nutrient.mg': 'Magniy',
       'nutrient.ca': 'Kalsiy',
@@ -918,22 +1030,22 @@ class AppStrings {
       'nutrient.vit_b12': 'B12 vitamini',
       'home.recommendations': 'Tavsiyalar',
       'home.recommendationBody':
-          "Muntazam faollik sog'liq uchun foydali. Qancha ko'p harakat qilsangiz, o'zingizni shuncha yaxshi his qilasiz.",
+          'Muntazam faollik sogʻliq uchun foydali. Qancha koʻp harakat qilsangiz, oʻzingizni shuncha yaxshi his qilasiz.',
       'ai.ready':
-          "AI bugungi ratsionni ko'rib chiqadi: yetishmovchilik, ortiqcha iste'mol va amaliy qadamlar.",
+          'AI bugungi ratsionni koʻrib chiqadi: yetishmovchilik, ortiqcha isteʼmol va amaliy qadamlar.',
       'ai.generate': 'AI tavsiya',
       'ai.pageTitle': 'AI assistent',
-      'ai.cardSubtitle': "Ratsioningizni sun'iy intellekt yordamida tahlil qiling",
-      'ai.robotHint': "Salom! Men Eco Health'dagi AI yordamchingizman",
+      'ai.cardSubtitle': 'Ratsioningizni sunʼiy intellekt yordamida tahlil qiling',
+      'ai.robotHint': 'Salom! Men Eco Health ilovasidagi AI yordamchingizman',
       'ai.savedCount': 'Saqlangan',
       'ai.tabNew': 'Yangi tavsiya',
       'ai.tabSaved': 'Saqlangan',
       'ai.save': 'Saqlash',
       'ai.saved': 'Saqlandi',
-      'ai.emptySaved': "Hozircha saqlangan tavsiya yo'q",
+      'ai.emptySaved': 'Hozircha saqlangan tavsiya yoʻq',
       'ai.microsTitle': 'Davr uchun mikronutrientlar',
-      'ai.microsEmpty': "Mikronutrientlarni ko'rish uchun ovqat qo'shing",
-      'ai.microsAvgNote': "Kunlik o'rtacha — kunlik me'yorga nisbatan",
+      'ai.microsEmpty': 'Mikronutrientlarni koʻrish uchun ovqat qoʻshing',
+      'ai.microsAvgNote': 'Kunlik oʻrtacha — kunlik meʼyorga nisbatan',
       'ai.refresh': 'Yangilash',
       'ai.retry': 'Qayta tekshirish',
       'ai.loading': 'AI ovqatlanish tavsiyasi yaratilmoqda...',
@@ -942,49 +1054,49 @@ class AppStrings {
       'ai.notConfigured':
           'AI backend hali ulanmagan. Onlayn tavsiyalar uchun Firebase sozlang.',
       'ai.noFood':
-          "Bugungi ovqatlarni qo'shing, keyin AI ratsionni tahlil qiladi.",
+          'Bugungi ovqatlarni qoʻshing, keyin AI ratsionni tahlil qiladi.',
       'ai.error':
-          "AI tavsiya olinmadi. Internetni tekshirib qayta urinib ko'ring.",
+          'AI tavsiya olinmadi. Internetni tekshirib qayta urinib koʻring.',
       'ai.disclaimer':
-          "Tavsiya kiritilgan ma'lumotlarga asoslangan va shifokor maslahati yoki tahlil natijalarini almashtirmaydi.",
+          'Tavsiya kiritilgan maʼlumotlarga asoslangan va shifokor maslahati yoki tahlil natijalarini almashtirmaydi.',
       'home.food': 'Ovqat',
       'home.nutrition': 'Ovqatlanish',
-      'home.bodyParams': "Tana ko'rsatkichlari",
+      'home.bodyParams': 'Tana koʻrsatkichlari',
       'home.steps': 'Qadamlar',
       'home.sleep': 'Uyqu',
       'steps.burned': 'Yoqilgan kaloriya',
       'steps.activeTime': 'Faollik vaqti',
       'unit.min': 'daq',
       'home.water': 'Suv',
-      'home.mealPicker': 'Ovqatlanish',
+      'home.mealPicker': 'Ovqat qabuli',
       'food.diary': 'Ovqatlanish jurnali',
       'food.products': 'Mahsulotlar',
       'food.dishes': 'Taomlar',
       'food.search': 'Mahsulotni topish',
-      'food.addCaloriesManual': "Kaloriyani qo'lda qo'shish",
-      'food.addCalories': "Kaloriya qo'shish",
-      'food.quickAdd': "Tezkor qo'shish",
+      'food.addCaloriesManual': 'Kaloriyani qoʻlda qoʻshish',
+      'food.addCalories': 'Kaloriya qoʻshish',
+      'food.quickAdd': 'Tezkor qoʻshish',
       'food.favorites': 'Sevimlilar',
-      'food.addFavorite': "Sevimlilarga qo'shish",
-      'food.removeFavorite': "Sevimlilardan olib tashlash",
+      'food.addFavorite': 'Sevimlilarga qoʻshish',
+      'food.removeFavorite': 'Sevimlilardan olib tashlash',
       'food.browseProducts': 'Mahsulotlarni topish',
       'food.filters': 'Filtrlar',
       'food.resetFilters': 'Tozalash',
-      'food.showProducts': "Ko'rsatish · {count}",
+      'food.showProducts': 'Koʻrsatish · {count}',
       'food.allProducts': 'Barcha mahsulotlar',
       'food.favoritesEmpty':
-          "Mahsulot kartasidagi yulduzcha bilan sevimlilarga saqlang",
-      'food.emptyMeal': "Hozircha bo'sh — mahsulot qo'shing",
+          'Mahsulot kartasidagi yulduzcha bilan sevimlilarga saqlang',
+      'food.emptyMeal': 'Hozircha boʻsh — mahsulot qoʻshing',
       'food.noResults': 'Hech narsa topilmadi',
-      'food.inMeal': 'Qabulda: {count} · {kcal} kkal',
+      'food.inMeal': 'Taomda: {count} · {kcal} kkal',
       'food.selectedFoods': 'Tanlandi: {count} · {kcal} kkal',
-      'food.addedCount': "Qo'shildi: {count}",
-      'food.addedKcal': "Qo'shildi: {kcal} kkal",
-      'food.addedName': '“{name}” qo‘shildi',
-      'food.addToMeal': '“{meal}”ga qo‘shish',
+      'food.addedCount': 'Qoʻshildi: {count}',
+      'food.addedKcal': 'Qoʻshildi: {kcal} kkal',
+      'food.addedName': '“{name}” qoʻshildi',
+      'food.addToMeal': '“{meal}”ga qoʻshish',
       'food.portionSize': 'Porsiya hajmi',
       'food.mass': 'Massa',
-      'food.size': 'O‘lcham',
+      'food.size': 'Oʻlcham',
       'food.macronutrients': 'Makronutriyentlar',
       'food.nutritionSummary': 'Ovqatlanish xulosasi',
       'profile.profile': 'Profil',
@@ -995,55 +1107,55 @@ class AppStrings {
       'profile.gallery': 'Galereya',
       'profile.camera': 'Kamera',
       'profile.goalLose': 'Vazn kamaytirish',
-      'profile.goalGain': "Massa yig'ish",
+      'profile.goalGain': 'Massa orttirish',
       'profile.goalKeep': 'Vaznni saqlash',
       'profile.goalNotSelected': 'Maqsad tanlanmagan',
       'profile.ageValue': '{age} yosh',
       'profile.weight': 'Vazn',
-      'profile.height': "Bo'y",
-      'profile.age': 'Tug‘ilgan sana',
+      'profile.height': 'Boʻy',
+      'profile.age': 'Tugʻilgan sana',
       'profile.sex': 'Jins',
       'profile.male': 'Erkak',
       'profile.female': 'Ayol',
       'onboarding.start': 'Boshlash',
-      'onboarding.enterApp': "Ilovaga o'tish",
+      'onboarding.enterApp': 'Ilovaga oʻtish',
       'onboarding.next': 'Keyingi',
       'onboarding.intro':
           'Ovqatlanish, faollik va salomatlik — bir joyda. Sozlash bir daqiqa vaqt oladi.',
       'onboarding.nameTitle': 'Profil nomi',
-      'onboarding.nameSub': "Bu nom profilingizda ko'rsatiladi",
+      'onboarding.nameSub': 'Bu nom profilingizda koʻrsatiladi',
       'onboarding.genderTitle': 'Jinsingiz',
       'onboarding.genderSub': 'Normani aniqroq hisoblashga yordam beradi',
-      'onboarding.ageTitle': 'Tug‘ilgan sana',
-      'onboarding.heightTitle': "Bo'yingiz",
+      'onboarding.ageTitle': 'Tugʻilgan sana',
+      'onboarding.heightTitle': 'Boʻyingiz',
       'onboarding.weightTitle': 'Vazningiz',
-      'onboarding.weightSub': "Joriy vazn hisob-kitob uchun boshlang'ich nuqta",
+      'onboarding.weightSub': 'Joriy vazn hisob-kitob uchun boshlangʻich nuqta',
       'onboarding.activityTitle': 'Faollik darajasi',
       'onboarding.activityLow': 'Past',
-      'onboarding.activityLowSub': "O'troq turmush tarzi",
-      'onboarding.activityMid': "O'rtacha",
-      'onboarding.activityMidSub': 'Haftasiga 2-3 mashg‘ulot',
+      'onboarding.activityLowSub': 'Oʻtroq turmush tarzi',
+      'onboarding.activityMid': 'Oʻrtacha',
+      'onboarding.activityMidSub': 'Haftasiga 2-3 mashgʻulot',
       'onboarding.activityHigh': 'Yuqori',
       'onboarding.activityHighSub': 'Deyarli har kuni sport',
       'onboarding.goalTitle': 'Maqsadingiz qanday?',
       'onboarding.goalLose': 'Vazn kamaytirish',
       'onboarding.goalKeep': 'Vaznni saqlash',
-      'onboarding.goalGain': "Massa yig'ish",
+      'onboarding.goalGain': 'Massa yigʻish',
       'onboarding.dailyNorm': 'Kundalik normangiz',
       'onboarding.dailyNormSub':
-          "Mifflin-St Jeor formulasi bo'yicha hisoblandi",
-      'health.enterData': 'Ma’lumot kiritish',
+          'Mifflin-St Jeor formulasi boʻyicha hisoblandi',
+      'health.enterData': 'Maʼlumot kiritish',
       'health.entryDate': 'Yozuv sanasi',
       'health.bodyComposition': 'Tana tarkibi',
       'health.bodyMass': 'Tana vazni',
       'health.yourBodyComposition': 'Tana tarkibingiz',
       'health.skeletalMuscle': 'Skelet mushaklari',
-      'health.fatMass': "Yog' massasi",
+      'health.fatMass': 'Yogʻ massasi',
       'health.bodyWater': 'Tanadagi suv',
       'health.weightAlsoProfile':
-          "Ko'rsatilgan vazn foydalanuvchi profilida ham ko'rsatiladi.",
+          'Koʻrsatilgan vazn foydalanuvchi profilida ham koʻrsatiladi.',
       'health.bodyCompositionNote':
-          "Tanadagi suv darajasi yog' foiziga qarab baholanadi (yog'siz massa taxminan 73% suvdan iborat). Bazal metabolizm (BMR) vazn, bo'y, yosh va jins asosida hisoblanadi.",
+          'Tanadagi suv darajasi yogʻ foiziga qarab baholanadi (yogʻsiz massa taxminan 73% suvdan iborat). Bazal metabolizm (BMR) vazn, boʻy, yosh va jins asosida hisoblanadi.',
       'health.pulse': 'Puls',
       'health.medication': 'Dori',
       'health.currentStatus': 'Joriy holatni tanlash',
@@ -1052,24 +1164,53 @@ class AppStrings {
       'health.afterMeal': 'Ovqatdan keyin',
       'health.general': 'Umumiy',
       'health.insulin': 'Insulin',
-      'health.bodyFat': 'Tana yog‘i',
+      'health.bodyFat': 'Tana yogʻi',
       'stats.period7': '7 kun',
       'stats.period31': '31 kun',
       'stats.period12': '12 oy',
-      'stats.averageSleepRange': 'O‘rtacha uyqu vaqti · 09.03 – 10.04',
+      'stats.averageSleepRange': 'Oʻrtacha uyqu vaqti · {from} – {to}',
       'stats.averageSleepDaily': 'Kuniga 8 s 12 daq',
-      'stats.averageBedtime': 'O‘rtacha uxlash',
-      'stats.averageWakeup': 'O‘rtacha uyg‘onish',
+      'stats.averageBedtime': 'Oʻrtacha uxlash',
+      'stats.averageWakeup': 'Oʻrtacha uygʻonish',
       'stats.sleepDurationSample': 'Uyqu davomiyligi · Sha, 10 aprel',
       'stats.eightHours': '8 s',
       'stats.sleepTime': 'uyqu vaqti',
       'stats.sleepCircleValue': '8 s 43 d',
+      // --- Новые ключи для волны 2 (задача T4) ---
+      'common.totalAmount': 'Umumiy',
+      'common.all': 'Hammasi',
+      'startup.error': 'Eco Fit ishga tushmadi.',
+      'startup.retry': 'Qayta urinish',
+      'ai.error.rateLimited':
+          'Soʻrovlar juda koʻp. Bir ozdan soʻng qayta urining.',
+      'ai.error.network':
+          'Internet aloqasi yoʻq. Tarmoqni tekshirib, qayta urining.',
+      'ai.error.timeout': 'Soʻrov juda uzoq davom etdi. Qayta urining.',
+      'ai.error.generic': 'AI tavsiya olinmadi. Qayta urinib koʻring.',
+      'food.category.dishes': 'Taomlar',
+      'food.category.drinks': 'Ichimliklar',
+      'food.category.produce': 'Meva-sabzavot',
+      'food.category.protein': 'Oqsilli mahsulotlar',
+      'food.category.grains': 'Don va non',
+      'food.category.other': 'Shirinlik/boshqa',
+      'dish.portionSmall': 'kichik',
+      'dish.portionMedium': 'oʻrtacha',
+      'dish.portionLarge': 'katta',
+      'profile.age.one': '{n} yosh',
+      'profile.age.few': '{n} yosh',
+      'profile.age.many': '{n} yosh',
+      'notif.steps.goal.body.one': 'Bugun {n} qadam. Barakalla!',
+      'notif.steps.goal.body.few': 'Bugun {n} qadam. Barakalla!',
+      'notif.steps.goal.body.many': 'Bugun {n} qadam. Barakalla!',
+      'notif.steps.nudge.body.one': 'Kunlik maqsadgacha {n} qadam qoldi',
+      'notif.steps.nudge.body.few': 'Kunlik maqsadgacha {n} qadam qoldi',
+      'notif.steps.nudge.body.many': 'Kunlik maqsadgacha {n} qadam qoldi',
     },
     AppLanguage.uzCyrl: {
       'common.cancel': 'Бекор қилиш',
       'common.delete': 'Ўчириш',
       'common.yes': 'Ҳа',
-      'health.deleteEntryConfirm': 'Ушбу ёзувни ўчирилсинми?',
+      'health.deleteEntryConfirm': 'Ушбу ёзув ўчирилсинми?',
       'common.save': 'Сақлаш',
       'common.done': 'Тайёр',
       'common.doneCount': 'Тайёр · {count}',
@@ -1183,7 +1324,7 @@ class AppStrings {
       'nutrient.protein': 'Оқсил',
       'nutrient.fat': 'Ёғлар',
       'nutrient.carbs': 'Углеводлар',
-      'nutrient.fiber': 'Клетчатка',
+      'nutrient.fiber': 'Тола',
       'nutrient.fe': 'Темир',
       'nutrient.mg': 'Магний',
       'nutrient.ca': 'Кальций',
@@ -1220,11 +1361,11 @@ class AppStrings {
       'home.recommendationBody':
           'Мунтазам фаоллик соғлиқ учун фойдали. Қанча кўп ҳаракат қилсангиз, ўзингизни шунча яхши ҳис қиласиз.',
       'ai.ready':
-          'ИИ бугунги рационни кўриб чиқади: етишмовчилик, ортиқча истеъмол ва амалий қадамлар.',
-      'ai.generate': 'ИИ тавсия',
-      'ai.pageTitle': 'ИИ ассистент',
+          'AI бугунги рационни кўриб чиқади: етишмовчилик, ортиқча истеъмол ва амалий қадамлар.',
+      'ai.generate': 'AI тавсия',
+      'ai.pageTitle': 'AI ассистент',
       'ai.cardSubtitle': 'Рационингизни сунъий интеллект ёрдамида таҳлил қилинг',
-      'ai.robotHint': 'Салом! Мен Eco Health‘даги ИИ-ёрдамчингизман',
+      'ai.robotHint': 'Салом! Мен Eco Health иловасидаги AI-ёрдамчингизман',
       'ai.savedCount': 'Сақланган',
       'ai.tabNew': 'Янги тавсия',
       'ai.tabSaved': 'Сақланган',
@@ -1236,13 +1377,13 @@ class AppStrings {
       'ai.microsAvgNote': 'Кунлик ўртача — кунлик меъёрга нисбатан',
       'ai.refresh': 'Янгилаш',
       'ai.retry': 'Қайта текшириш',
-      'ai.loading': 'ИИ овқатланиш тавсияси яратилмоқда...',
+      'ai.loading': 'AI овқатланиш тавсияси яратилмоқда...',
       'ai.checking': 'Интернет уланиши текширилмоқда...',
-      'ai.offline': 'ИИ тавсиялар учун интернетга уланинг.',
+      'ai.offline': 'AI тавсиялар учун интернетга уланинг.',
       'ai.notConfigured':
           'AI backend ҳали уланмаган. Онлайн тавсиялар учун Firebase созланг.',
       'ai.noFood':
-          'Бугунги овқатларни қўшинг, кейин ИИ рационни таҳлил қилади.',
+          'Бугунги овқатларни қўшинг, кейин AI рационни таҳлил қилади.',
       'ai.error':
           'AI тавсия олинмади. Интернетни текшириб қайта уриниб кўринг.',
       'ai.disclaimer':
@@ -1256,7 +1397,7 @@ class AppStrings {
       'steps.activeTime': 'Фаоллик вақти',
       'unit.min': 'дақ',
       'home.water': 'Сув',
-      'home.mealPicker': 'Овқатланиш',
+      'home.mealPicker': 'Овқат қабули',
       'food.diary': 'Овқатланиш журнали',
       'food.products': 'Маҳсулотлар',
       'food.dishes': 'Таомлар',
@@ -1268,7 +1409,7 @@ class AppStrings {
       'food.addFavorite': 'Севимлиларга қўшиш',
       'food.removeFavorite': 'Севимлилардан олиб ташлаш',
       'food.browseProducts': 'Маҳсулотларни топиш',
-      'food.filters': 'Филтрлар',
+      'food.filters': 'Фильтрлар',
       'food.resetFilters': 'Тозалаш',
       'food.showProducts': 'Кўрсатиш · {count}',
       'food.allProducts': 'Барча маҳсулотлар',
@@ -1276,7 +1417,7 @@ class AppStrings {
           'Маҳсулот карточкасидаги юлдузча билан севимлиларга сақланг',
       'food.emptyMeal': 'Ҳозирча бўш — маҳсулот қўшинг',
       'food.noResults': 'Ҳеч нарса топилмади',
-      'food.inMeal': 'Қабулда: {count} · {kcal} ккал',
+      'food.inMeal': 'Таомда: {count} · {kcal} ккал',
       'food.selectedFoods': 'Танланди: {count} · {kcal} ккал',
       'food.addedCount': 'Қўшилди: {count}',
       'food.addedKcal': 'Қўшилди: {kcal} ккал',
@@ -1295,7 +1436,7 @@ class AppStrings {
       'profile.gallery': 'Галерея',
       'profile.camera': 'Камера',
       'profile.goalLose': 'Вазн камайтириш',
-      'profile.goalGain': 'Масса йиғиш',
+      'profile.goalGain': 'Масса орттириш',
       'profile.goalKeep': 'Вазнни сақлаш',
       'profile.goalNotSelected': 'Мақсад танланмаган',
       'profile.ageValue': '{age} ёш',
@@ -1355,7 +1496,7 @@ class AppStrings {
       'stats.period7': '7 кун',
       'stats.period31': '31 кун',
       'stats.period12': '12 ой',
-      'stats.averageSleepRange': 'Ўртача уйқу вақти · 09.03 – 10.04',
+      'stats.averageSleepRange': 'Ўртача уйқу вақти · {from} – {to}',
       'stats.averageSleepDaily': 'Кунига 8 с 12 дақ',
       'stats.averageBedtime': 'Ўртача ухлаш',
       'stats.averageWakeup': 'Ўртача уйғониш',
@@ -1363,6 +1504,35 @@ class AppStrings {
       'stats.eightHours': '8 с',
       'stats.sleepTime': 'уйқу вақти',
       'stats.sleepCircleValue': '8 с 43 д',
+      // --- Новые ключи для волны 2 (задача T4) ---
+      'common.totalAmount': 'Умумий',
+      'common.all': 'Ҳаммаси',
+      'startup.error': 'Eco Fit ишга тушмади.',
+      'startup.retry': 'Қайта уриниш',
+      'ai.error.rateLimited':
+          'Сўровлар жуда кўп. Бир оздан сўнг қайта уриниб кўринг.',
+      'ai.error.network':
+          'Интернет алоқаси йўқ. Тармоқни текшириб, қайта уриниб кўринг.',
+      'ai.error.timeout': 'Сўров жуда узоқ давом этди. Қайта уриниб кўринг.',
+      'ai.error.generic': 'AI тавсия олинмади. Қайта уриниб кўринг.',
+      'food.category.dishes': 'Таомлар',
+      'food.category.drinks': 'Ичимликлар',
+      'food.category.produce': 'Мева-сабзавот',
+      'food.category.protein': 'Оқсилли маҳсулотлар',
+      'food.category.grains': 'Дон ва нон',
+      'food.category.other': 'Ширинлик/бошқа',
+      'dish.portionSmall': 'кичик',
+      'dish.portionMedium': 'ўртача',
+      'dish.portionLarge': 'катта',
+      'profile.age.one': '{n} ёш',
+      'profile.age.few': '{n} ёш',
+      'profile.age.many': '{n} ёш',
+      'notif.steps.goal.body.one': 'Бугун {n} қадам. Баракалла!',
+      'notif.steps.goal.body.few': 'Бугун {n} қадам. Баракалла!',
+      'notif.steps.goal.body.many': 'Бугун {n} қадам. Баракалла!',
+      'notif.steps.nudge.body.one': 'Кунлик мақсадгача {n} қадам қолди',
+      'notif.steps.nudge.body.few': 'Кунлик мақсадгача {n} қадам қолди',
+      'notif.steps.nudge.body.many': 'Кунлик мақсадгача {n} қадам қолди',
     },
   };
 }
