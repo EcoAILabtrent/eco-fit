@@ -40,7 +40,8 @@ class _MealLogScreenState extends State<MealLogScreen> {
           product: product,
           mealKey: mealKey,
           date: date,
-          initialGrams: item.grams ?? 100,
+          initialGrams: item.grams ??
+              (product.isPieceUnit ? product.gramsPerUnit.round() : 100),
         ),
       ),
     );
@@ -56,6 +57,13 @@ class _MealLogScreenState extends State<MealLogScreen> {
     final product = item.productSlug == null
         ? null
         : FoodDb.instance.bySlug(item.productSlug!);
+    // Штучные показываем как «N шт»: берём сохранённое число штук (совпадает с
+    // выбором при любом размере), иначе оцениваем из массы.
+    if (product != null && product.isPieceUnit) {
+      final pieces = item.pieces ?? product.piecesForGrams(grams);
+      return '${formatPieceCount(pieces, l.language)}'
+          ' ${product.displayUnit(l.language)}';
+    }
     final unit = product?.displayUnit(l.language) ?? l.unit('g');
     return '$grams $unit';
   }
