@@ -2,7 +2,10 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import '../l10n/app_strings.dart';
+import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 
@@ -15,11 +18,11 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
-  static const t = EcoTheme.meadow;
   int seg = 1;
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     return EcoScreen(
       t: t,
@@ -33,7 +36,7 @@ class _StatsScreenState extends State<StatsScreen> {
               child: EcoBtn(
                 t: t,
                 bg: t.band,
-                fg: t.dark,
+                fg: t.ink,
                 onTap: () => Navigator.of(context).pop(),
                 child: Text(l.t('common.cancel')),
               ),
@@ -64,7 +67,7 @@ class _StatsScreenState extends State<StatsScreen> {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(bottom: 16),
-                  child: _SleepBars(),
+                  child: RepaintBoundary(child: _SleepBars()),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 14),
@@ -87,10 +90,10 @@ class _StatsScreenState extends State<StatsScreen> {
                     children: [
                       Text(
                         l.t('stats.averageSleepRange'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: EcoColors.sub,
+                          color: t.sub,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -111,19 +114,19 @@ class _StatsScreenState extends State<StatsScreen> {
                                 children: [
                                   Text(
                                     l.t('stats.averageBedtime'),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: EcoColors.sub,
+                                      color: t.sub,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
+                                  Text(
                                     '23:15',
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w700,
-                                      color: EcoColors.sub,
+                                      color: t.sub,
                                     ),
                                   ),
                                 ],
@@ -143,19 +146,19 @@ class _StatsScreenState extends State<StatsScreen> {
                                 children: [
                                   Text(
                                     l.t('stats.averageWakeup'),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: EcoColors.sub,
+                                      color: t.sub,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
+                                  Text(
                                     '07:13',
                                     style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w700,
-                                      color: EcoColors.sub,
+                                      color: t.sub,
                                     ),
                                   ),
                                 ],
@@ -180,7 +183,7 @@ class _StatsScreenState extends State<StatsScreen> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Center(child: _SleepCircle()),
+                      const Center(child: RepaintBoundary(child: _SleepCircle())),
                     ],
                   ),
                 ),
@@ -209,7 +212,7 @@ class _SleepBars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const t = EcoTheme.meadow;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     const maxH = 9.0;
     return SizedBox(
@@ -247,10 +250,10 @@ class _SleepBars extends StatelessWidget {
                       children: [
                         Text(
                           l.weekdayShort(i + 1),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: EcoColors.sub,
+                            color: t.sub,
                           ),
                         ),
                         const Spacer(),
@@ -321,7 +324,7 @@ class _SleepCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const t = EcoTheme.meadow;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     return SizedBox(
       width: 230,
@@ -355,9 +358,9 @@ class _SleepCircle extends StatelessWidget {
                 children: [
                   Text(
                     l.t('stats.sleepTime'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: EcoColors.sub,
+                      color: t.sub,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -376,21 +379,20 @@ class _SleepCircle extends StatelessWidget {
             top: 6,
             left: 0,
             right: 0,
-            child: Center(child: _marker(Icons.bedtime_outlined)),
+            child: Center(child: _marker(t, Icons.bedtime_outlined)),
           ),
-          Positioned(bottom: 22, right: 6, child: _marker(Icons.alarm)),
+          Positioned(bottom: 22, right: 6, child: _marker(t, Icons.alarm)),
         ],
       ),
     );
   }
 
-  Widget _marker(IconData icon) {
-    const t = EcoTheme.meadow;
+  Widget _marker(EcoTheme t, IconData icon) {
     return Container(
       width: 38,
       height: 38,
       decoration: BoxDecoration(color: t.dark, shape: BoxShape.circle),
-      child: Icon(icon, size: 20, color: t.pill),
+      child: Icon(icon, size: 20, color: t.onDark),
     );
   }
 }

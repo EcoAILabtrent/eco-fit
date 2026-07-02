@@ -1,11 +1,11 @@
 {
-    "name": "eco_mobile",
-    "short_name": "eco_mobile",
+    "name": "Eco health",
+    "short_name": "Eco health",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#3D806A",
+    "description": "Eco health — nutrition, activity and wellbeing tracker.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

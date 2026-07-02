@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'ai/ai_advice_screen.dart';
 import 'data/products.dart';
 import 'firebase/firebase_backend.dart';
 import 'l10n/app_language.dart';
@@ -17,6 +19,7 @@ import 'screens/meallog.dart';
 import 'screens/onboarding.dart';
 import 'screens/profile.dart';
 import 'screens/stats.dart';
+import 'screens/steps.dart';
 import 'state/store.dart';
 import 'theme/tokens.dart';
 import 'ui/ui.dart';
@@ -40,13 +43,41 @@ class EcoBootstrap extends StatefulWidget {
 }
 
 class _EcoBootstrapState extends State<EcoBootstrap> {
-  late Future<AppStore> _storeFuture;
+  // null до первого кадра: пока заставка-щит не отрисована, загрузку не
+  // запускаем — это принципиально для тайминга (см. initState).
+  Future<AppStore>? _bootFuture;
   AppLifecycleListener? _lifecycleListener;
 
   @override
   void initState() {
     super.initState();
-    _storeFuture = _loadStore();
+    // ВАЖНО: и тяжёлую загрузку базы, и отсчёт 2 секунд запускаем только ПОСЛЕ
+    // первого кадра, когда щит Эко-комитета уже виден на экране. Если стартовать
+    // прямо в initState (как было), 2 секунды тикают ещё во время нативной
+    // заставки-яблока, пока загрузка базы блокирует первый кадр, — и щит в
+    // итоге мелькает меньше секунды. Отсчёт от первого кадра гарантирует, что
+    // щит виден полные 2 секунды.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _bootFuture == null) {
+        // Блочный body обязателен: стрелочный `() => _bootFuture = _bootstrap()`
+        // возвращает значение присваивания (Future), из-за чего debug-ассерт
+        // прерывает setState ещё до markNeedsBuild — и FutureBuilder навсегда
+        // остаётся на заставке.
+        final bootFuture = _bootstrap();
+        setState(() {
+          _bootFuture = bootFuture;
+        });
+      }
+    });
+  }
+
+  // Грузим стор и одновременно держим заставку минимум 2 секунды (отсчёт от
+  // первого кадра); что дольше — то и определяет длительность заставки.
+  Future<AppStore> _bootstrap() async {
+    final minSplash = Future<void>.delayed(const Duration(milliseconds: 2000));
+    final store = await _loadStore();
+    await minSplash;
+    return store;
   }
 
   Future<AppStore> _loadStore() async {
@@ -70,7 +101,7 @@ class _EcoBootstrapState extends State<EcoBootstrap> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<AppStore>(
-      future: _storeFuture,
+      future: _bootFuture,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return EcoApp(store: snapshot.data!);
@@ -82,7 +113,7 @@ class _EcoBootstrapState extends State<EcoBootstrap> {
               setState(() {
                 _lifecycleListener?.dispose();
                 _lifecycleListener = null;
-                _storeFuture = _loadStore();
+                _bootFuture = _bootstrap();
               });
             },
           );
@@ -103,11 +134,82 @@ class _StartupScreen extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       scrollBehavior: const _EcoScrollBehavior(),
       theme: ThemeData(
-        scaffoldBackgroundColor: t.bg,
-        colorScheme: ColorScheme.fromSeed(seedColor: t.dark, surface: t.bg),
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: t.dark, surface: Colors.white),
         useMaterial3: true,
       ),
-      home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+      home: const _SplashContent(),
+    );
+  }
+}
+
+class _SplashContent extends StatefulWidget {
+  const _SplashContent();
+
+  @override
+  State<_SplashContent> createState() => _SplashContentState();
+}
+
+class _SplashContentState extends State<_SplashContent>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
+    _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
+    _ctrl.forward();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: FadeTransition(
+        opacity: _fade,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/branding/ecology_logo.png',
+                  width: 160,
+                  fit: BoxFit.contain,
+                  // Логотип Эко-комитета (щит с деревом, прозрачный фон).
+                  // Фолбэк нейтральный — если ассет вдруг не найдётся, под
+                  // текстом просто не будет картинки, без посторонней графики.
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+                const SizedBox(height: 28),
+                const Text(
+                  'O‘zbekiston Respublikasi\nEkologiya va iqlim o‘zgarishi\nmilliy qo‘mitasi',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Onest',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1B3A6B),
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -164,14 +266,14 @@ class EcoApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const t = EcoTheme.meadow;
     return ChangeNotifierProvider.value(
       value: store,
       child: Consumer<AppStore>(
         builder: (context, store, _) {
+          final t = store.theme;
           final l = AppStrings(store.language);
           return MaterialApp(
-            title: 'Eco',
+            title: 'Eco health',
             debugShowCheckedModeBanner: false,
             scrollBehavior: const _EcoScrollBehavior(),
             locale: store.language.locale,
@@ -182,55 +284,114 @@ class EcoApp extends StatelessWidget {
               GlobalCupertinoLocalizations.delegate,
             ],
             theme: ThemeData(
+              brightness: t.isDark ? Brightness.dark : Brightness.light,
               scaffoldBackgroundColor: t.bg,
               colorScheme: ColorScheme.fromSeed(
-                seedColor: t.dark,
+                seedColor: t.olive,
+                brightness: t.isDark ? Brightness.dark : Brightness.light,
                 surface: t.bg,
+              ),
+              // Анимация перехода между экранами по всему приложению —
+              // стандартный горизонтальный пуш: нижний экран уезжает влево с
+              // параллаксом, новый приезжает справа; на закрытии зеркально.
+              // Штатный Cupertino-билдер на всех платформах (двигает и нижний
+              // экран, и верхний).
+              pageTransitionsTheme: const PageTransitionsTheme(
+                builders: {
+                  TargetPlatform.android: _CupertinoSlide(),
+                  TargetPlatform.iOS: _CupertinoSlide(),
+                  TargetPlatform.fuchsia: _CupertinoSlide(),
+                  TargetPlatform.windows: _CupertinoSlide(),
+                  TargetPlatform.macOS: _CupertinoSlide(),
+                  TargetPlatform.linux: _CupertinoSlide(),
+                },
               ),
               // Bundled Onest (assets/fonts) — works fully offline.
               fontFamily: 'Onest',
-              textTheme: Typography.blackMountainView.apply(
+              // Базовая типографика по яркости темы (светлый текст в тёмной),
+              // плюс явные ink-цвета. Чинит дефолтный цвет TextField/текста.
+              textTheme: (t.isDark
+                      ? Typography.whiteMountainView
+                      : Typography.blackMountainView)
+                  .apply(
                 fontFamily: 'Onest',
-                bodyColor: EcoColors.ink,
-                displayColor: EcoColors.ink,
+                bodyColor: t.ink,
+                displayColor: t.ink,
               ),
               useMaterial3: true,
             ),
+            // Язык теперь выбирается первым шагом онбординга, поэтому
+            // непройденный онбординг ведёт сразу в его flow.
             initialRoute: store.onboarded ? '/' : '/onboarding',
-            routes: {
-              '/': (_) => const HomeScreen(),
-              '/dayview': (_) => const DayViewScreen(),
-              '/addfood': (ctx) => AddFoodScreen(
-                    mealKey:
-                        (ModalRoute.of(ctx)!.settings.arguments as String?) ??
-                            'lunch',
-                  ),
-              '/meallog': (ctx) => MealLogScreen(
-                    mealKey:
-                        (ModalRoute.of(ctx)!.settings.arguments as String?) ??
-                            'lunch',
-                  ),
-              '/stats': (_) => const StatsScreen(),
-              '/nutrition': (_) => StubScreen(title: l.t('home.nutrition')),
-              '/body': (_) => const BodyScreen(),
-              '/bodyEntry': (_) => const BodyEntryScreen(),
-              '/water': (_) => const WaterScreen(),
-              '/onboarding': (_) => const OnboardingScreen(),
-            },
+            // Все маршруты идут через единый EcoPageRoute — одинаковый быстрый
+            // слайд открытия/закрытия ([kEcoMotionDuration]) для каждого экрана
+            // (включая профиль, который раньше открывался мгновенно).
             onGenerateRoute: (settings) {
+              // Главная ↔ профиль — мгновенно, без анимации (поведение вкладок).
               if (settings.name == '/profile') {
-                return PageRouteBuilder<void>(
+                return EcoInstantRoute<void>(
                   settings: settings,
-                  pageBuilder: (_, __, ___) => const ProfileScreen(),
-                  transitionDuration: Duration.zero,
-                  reverseTransitionDuration: Duration.zero,
+                  builder: (_) => const ProfileScreen(),
                 );
               }
-              return null;
+              final mealKey = (settings.arguments as String?) ?? 'lunch';
+              final WidgetBuilder builder;
+              switch (settings.name) {
+                case '/':
+                  builder = (_) => const HomeScreen();
+                case '/dayview':
+                  builder = (_) => const DayViewScreen();
+                case '/addfood':
+                  builder = (_) => AddFoodScreen(mealKey: mealKey);
+                case '/meallog':
+                  builder = (_) => MealLogScreen(mealKey: mealKey);
+                case '/stats':
+                  builder = (_) => const StatsScreen();
+                case '/aiAdvice':
+                  builder = (_) => const AiAdviceScreen();
+                case '/nutrition':
+                  builder = (_) => StubScreen(title: l.t('home.nutrition'));
+                case '/body':
+                  builder = (_) => const BodyScreen();
+                case '/bodyEntry':
+                  builder = (_) => const BodyEntryScreen();
+                case '/water':
+                  builder = (_) => const WaterScreen();
+                case '/steps':
+                  builder = (_) => const StepsScreen();
+                case '/onboarding':
+                  builder = (_) => const OnboardingScreen();
+                default:
+                  return null;
+              }
+              return EcoPageRoute<void>(settings: settings, builder: builder);
             },
           );
         },
       ),
+    );
+  }
+}
+
+/// Стандартный горизонтальный пуш (как в iOS): новый экран приезжает справа,
+/// нижний уезжает влево с параллаксом; на возврате — зеркально. Делегирует
+/// штатному [CupertinoPageTransition], который двигает оба экрана сразу.
+class _CupertinoSlide extends PageTransitionsBuilder {
+  const _CupertinoSlide();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return CupertinoPageTransition(
+      primaryRouteAnimation: animation,
+      secondaryRouteAnimation: secondaryAnimation,
+      linearTransition: false,
+      child: child,
     );
   }
 }
@@ -293,15 +454,22 @@ class _EcoStretchOverscrollState extends State<_EcoStretchOverscroll> {
               extent <= 0 ? 0.0 : (_overscroll / extent).clamp(0.0, 0.055);
           return TweenAnimationBuilder<double>(
             tween: Tween<double>(end: stretch),
-            duration: Duration(milliseconds: _overscroll == 0 ? 220 : 80),
+            duration: Duration(milliseconds: _overscroll == 0 ? 110 : 40),
             curve: Curves.easeOutCubic,
             child: widget.child,
             builder: (context, animatedStretch, child) {
+              // Без оттяга (stretch==0) отдаём контент как есть — ни Transform,
+              // ни лишнего слоя. Во время «резинки» оборачиваем в
+              // RepaintBoundary: весь скролл-контент масштабируется из кэша
+              // (композит), а не перерисовывается покадрово. Это и был главный
+              // источник лагов скролла на коротких экранах (каждый свайп бьёт
+              // в край → постоянный оверскролл → полная перерисовка).
+              if (animatedStretch == 0) return child!;
               return Transform.scale(
                 alignment: _alignment,
                 scaleX: _isVertical ? 1.0 : 1.0 + animatedStretch,
                 scaleY: _isVertical ? 1.0 + animatedStretch : 1.0,
-                child: child,
+                child: RepaintBoundary(child: child),
               );
             },
           );
@@ -347,7 +515,7 @@ class StubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const t = EcoTheme.meadow;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     return Scaffold(
       backgroundColor: t.bg,
@@ -367,7 +535,7 @@ class StubScreen extends StatelessWidget {
                   t: t,
                   child: Text(
                     l.t('common.stubInProgress'),
-                    style: const TextStyle(fontSize: 16, color: EcoColors.sub),
+                    style: TextStyle(fontSize: 16, color: t.sub),
                     textAlign: TextAlign.center,
                   ),
                 ),

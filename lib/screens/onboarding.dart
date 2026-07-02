@@ -2,14 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/products.dart';
+import '../l10n/app_language.dart';
 import '../l10n/app_strings.dart';
+import '../nutrition/energy.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
-import '../ui/language_selector.dart';
 import '../ui/ui.dart';
 
-/// Onboarding — 8-step port of Eco design profile.jsx::Onboarding.
-/// welcome → пол → возраст → рост → вес → активность → цель → норма.
+/// Onboarding — Eco design profile.jsx::Onboarding port.
+/// welcome+язык (одна страница) → имя → пол → возраст → рост → вес →
+/// активность → цель → норма.
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -18,7 +21,6 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  static const t = EcoTheme.meadow;
   static const total = 8;
 
   int step = 0;
@@ -54,26 +56,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  // Mifflin–St Jeor daily norm (as in the design).
-  int get _bmr {
-    final age = AppStore.ageFromBirth(birthDate);
-    return (10 * weight + 6.25 * height - 5 * age + (sex == 'm' ? 5 : -161))
-        .round();
-  }
-
-  double get _actMul => switch (activity) {
-        'low' => 1.2,
-        'high' => 1.7,
-        _ => 1.45,
-      };
-  int get _norm {
-    final tdee = (_bmr * _actMul).round();
-    return goal == 'lose'
-        ? tdee - 400
-        : goal == 'gain'
-            ? tdee + 350
-            : tdee;
-  }
+  // Daily calorie goal: BMR (Schofield under 18, else Mifflin–St Jeor) → TDEE →
+  // goal adjustment, clamped to a safe minimum. See nutrition/energy.dart.
+  int get _norm => calorieGoalFor(
+        ageYears: AppStore.ageFromBirth(birthDate),
+        sex: sex,
+        weightKg: weight.toDouble(),
+        heightCm: height.toDouble(),
+        activity: activity,
+        goal: goal,
+      );
 
   void _next() {
     if (step < total) {
@@ -98,9 +90,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (step > 0) setState(() => step--);
   }
 
+  // Шаг выбора языка: переключаем язык приложения и перезагружаем базу продуктов
+  // под новую локаль. Активный чип берётся из store (context.select в build),
+  // поэтому setState здесь не нужен — setLanguage сам триггерит notifyListeners.
+  Future<void> _selectLanguage(AppLanguage language) async {
+    final store = context.read<AppStore>();
+    if (language == store.language) return;
+    await FoodDb.instance.load(localeCode: language.productLocale, force: true);
+    if (!mounted) return;
+    await store.setLanguage(language);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
+    final lang = context.select<AppStore, AppLanguage>((s) => s.language);
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return Scaffold(
       backgroundColor: t.bg,
@@ -139,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     padding: const EdgeInsets.symmetric(
                                       vertical: 18,
                                     ),
-                                    child: _buildStep(),
+                                    child: _buildStep(t, l, lang),
                                   ),
                                 ),
                               ),
@@ -178,47 +183,82 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildStep() {
-    final l = context.l10n;
+  // t и l приходят из build(): context.select нельзя вызывать здесь, потому что
+  // _buildStep исполняется внутри builder у LayoutBuilder (фаза layout, а не
+  // build), и provider бросает ассерт «context.select outside of build».
+  Widget _buildStep(EcoTheme t, AppStrings l, AppLanguage lang) {
     switch (step) {
       case 0:
+        // welcome + выбор языка на одной странице: лого и подписи подняты
+        // вверх, под ними — переключатель языка (кнопка «Boshlash» остаётся
+        // внизу, в общем footer-е build()).
         return SizedBox(
           width: double.infinity,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 96,
-                height: 96,
-                decoration: BoxDecoration(
-                  color: t.dark,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Icon(Icons.restaurant, size: 48, color: t.pill),
+              Image.asset(
+                'assets/branding/eco_logo.png',
+                height: 180,
+                fit: BoxFit.contain,
               ),
-              const SizedBox(height: 28),
-              const Text(
-                'Eco',
-                style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0,
+              const SizedBox(height: 20),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Eco',
+                      style: TextStyle(
+                        color: t.ink,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' health',
+                      style: TextStyle(
+                        color: t.olive,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                style: const TextStyle(
+                  fontSize: 38,
+                  letterSpacing: -0.5,
+                  height: 1,
                 ),
               ),
               const SizedBox(height: 12),
+              // Подзаголовок занимает разное число строк в зависимости от языка
+              // (англ. — 2, рус./узб. — 3), из-за чего «прыгало» лого. Резервируем
+              // высоту под 3 строки и центрируем текст — раскладка одинаковая на
+              // всех языках. Масштабируем по textScaler, чтобы не обрезалось при
+              // увеличенном системном шрифте.
               SizedBox(
                 width: 280,
-                child: Text(
-                  l.t('onboarding.intro'),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: EcoColors.sub,
-                    height: 1.5,
+                height: MediaQuery.textScalerOf(context).scale(16 * 1.5 * 3),
+                child: Center(
+                  child: Text(
+                    l.t('onboarding.intro'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: t.sub,
+                      height: 1.5,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 36),
+              SizedBox(
+                width: 280,
+                child: _LangSegmented(
+                  t: t,
+                  languages: AppLanguage.values,
+                  value: lang,
+                  onChanged: _selectLanguage,
+                ),
+              ),
             ],
           ),
         );
@@ -238,10 +278,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   border: InputBorder.none,
                   isDense: true,
                 ),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: EcoColors.ink,
+                  color: t.ink,
                 ),
               ),
             ),
@@ -271,15 +311,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             EcoCard(
               t: t,
+              blur: 60,
               child: SizedBox(
                 height: 200,
                 child: EcoDatePicker(
                   t: t,
                   initialDate: birthDate,
                   minYear: DateTime.now().year - 100,
-                  maxYear: DateTime.now().year - 12,
+                  maxYear: DateTime.now().year - 5,
                   monthNames: [for (var m = 1; m <= 12; m++) l.monthName(m)],
-                  onChanged: (d) => setState(() => birthDate = d),
+                  // Без setState: значение пишем в поле, но НЕ перестраиваем весь
+                  // Stack на каждый щелчок колеса (пикер сам держит позицию, а
+                  // больше нигде значение не отображается до шага-итога).
+                  onChanged: (d) => birthDate = d,
                 ),
               ),
             ),
@@ -291,12 +335,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             EcoCard(
               t: t,
+              blur: 60,
               child: _WheelValuePicker(
                 value: height,
                 min: 120,
                 max: 220,
                 unit: l.unit('cm'),
-                onChanged: (v) => setState(() => height = v),
+                onChanged: (v) => height = v, // без перестройки всего экрана
               ),
             ),
           ],
@@ -307,12 +352,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             EcoCard(
               t: t,
+              blur: 60,
               child: _WheelValuePicker(
                 value: weight,
                 min: 30,
                 max: 200,
                 unit: l.unit('kg'),
-                onChanged: (v) => setState(() => weight = v),
+                onChanged: (v) => weight = v, // без перестройки всего экрана
               ),
             ),
           ],
@@ -389,7 +435,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const MacroRings(
+                          MacroRings(
+                            t: t,
                             size: 138,
                             data: [
                               MacroRingData(
@@ -427,9 +474,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           Text(
                             l.unit('kcalPerDay'),
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: EcoColors.sub,
+                              color: t.sub,
                               fontWeight: FontWeight.w700,
                               height: 1.05,
                             ),
@@ -443,18 +490,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _macroLine(
+                            t,
                             l.nutrient('carbs'),
                             '$carbs ${l.unit('g')}',
                             EcoColors.carb,
                           ),
                           const SizedBox(height: 20),
                           _macroLine(
+                            t,
                             l.nutrient('fat'),
                             '$fat ${l.unit('g')}',
                             EcoColors.fat,
                           ),
                           const SizedBox(height: 20),
                           _macroLine(
+                            t,
                             l.nutrient('protein'),
                             '$protein ${l.unit('g')}',
                             EcoColors.prot,
@@ -471,7 +521,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  Widget _macroLine(String label, String value, Color color) {
+  Widget _macroLine(EcoTheme t, String label, String value, Color color) {
     return Row(
       children: [
         Container(
@@ -499,9 +549,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: EcoColors.sub,
+                  color: t.sub,
                   fontWeight: FontWeight.w700,
                   height: 1.05,
                 ),
@@ -536,7 +586,7 @@ class _ProgressHeader extends StatelessWidget {
           child: Icon(
             Icons.chevron_left,
             size: 26,
-            color: step > 0 ? EcoColors.ink : EcoColors.faint,
+            color: step > 0 ? t.ink : t.faint,
           ),
         ),
         const SizedBox(width: 8),
@@ -549,7 +599,7 @@ class _ProgressHeader extends StatelessWidget {
                 children: [
                   Container(color: t.card),
                   AnimatedFractionallySizedBox(
-                    duration: const Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 150),
                     widthFactor: (step + 1) / (total + 1),
                     child: Container(
                       decoration: BoxDecoration(
@@ -566,14 +616,12 @@ class _ProgressHeader extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           '${step + 1}/${total + 1}',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w700,
-            color: EcoColors.sub,
+            color: t.sub,
           ),
         ),
-        const SizedBox(width: 8),
-        const LanguageSelector(t: EcoTheme.meadow, compact: true),
       ],
     );
   }
@@ -589,27 +637,34 @@ class _Step extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return SizedBox(
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0,
+          Center(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0,
+              ),
             ),
           ),
           if (sub != null) ...[
             const SizedBox(height: 6),
-            Text(
-              sub!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: EcoColors.sub,
-                height: 1.4,
+            Center(
+              child: Text(
+                sub!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: t.sub,
+                  height: 1.4,
+                ),
               ),
             ),
           ],
@@ -626,7 +681,6 @@ class _Step extends StatelessWidget {
 
 /// Selectable option row: icon badge + title/sub + radio check.
 class _OptionCard extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final String icon;
   final String title;
   final String? sub;
@@ -643,10 +697,11 @@ class _OptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 150),
+        duration: const Duration(milliseconds: 75),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: active ? t.dark : t.card,
@@ -664,7 +719,7 @@ class _OptionCard extends StatelessWidget {
               child: Icon(
                 ecoIcon(icon),
                 size: 30,
-                color: active ? t.pill : t.dark,
+                color: active ? t.onDark : t.ink,
               ),
             ),
             const SizedBox(width: 14),
@@ -677,7 +732,7 @@ class _OptionCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: active ? t.pill : EcoColors.ink,
+                      color: active ? t.onDark : t.ink,
                     ),
                   ),
                   if (sub != null)
@@ -688,8 +743,8 @@ class _OptionCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           color: active
-                              ? Colors.white.withValues(alpha: 0.65)
-                              : EcoColors.sub,
+                              ? t.onDark.withValues(alpha: 0.65)
+                              : t.sub,
                         ),
                       ),
                     ),
@@ -700,7 +755,7 @@ class _OptionCard extends StatelessWidget {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: active ? t.pill : Colors.transparent,
+                color: active ? t.onDark : Colors.transparent,
                 shape: BoxShape.circle,
                 border: active ? null : Border.all(color: t.bandSoft, width: 2),
               ),
@@ -767,14 +822,15 @@ class _WheelValuePickerState extends State<_WheelValuePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return SizedBox(
       height: 216,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          const EcoPickerSelectionOverlay(
-            t: EcoTheme.meadow,
-            margin: EdgeInsets.symmetric(horizontal: 28, vertical: 79),
+          EcoPickerSelectionOverlay(
+            t: t,
+            margin: const EdgeInsets.symmetric(horizontal: 28, vertical: 79),
             radius: 22,
           ),
           CupertinoPicker.builder(
@@ -796,18 +852,18 @@ class _WheelValuePickerState extends State<_WheelValuePicker> {
                     children: [
                       TextSpan(
                         text: '$value',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 40,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0,
-                          color: EcoColors.ink,
+                          color: t.ink,
                         ),
                       ),
                       TextSpan(
                         text: ' ${widget.unit}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
-                          color: EcoColors.sub,
+                          color: t.sub,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -826,7 +882,6 @@ class _WheelValuePickerState extends State<_WheelValuePicker> {
 
 // ignore: unused_element
 class _BigStepper extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final int value;
   final String unit;
   final ValueChanged<int> onChanged;
@@ -839,12 +894,13 @@ class _BigStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _round(Icons.remove, () => onChanged(value - 1)),
+          _round(t, Icons.remove, () => onChanged(value - 1)),
           SizedBox(
             width: 170,
             child: Text.rich(
@@ -860,9 +916,9 @@ class _BigStepper extends StatelessWidget {
                   ),
                   TextSpan(
                     text: ' $unit',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
-                      color: EcoColors.sub,
+                      color: t.sub,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -871,21 +927,135 @@ class _BigStepper extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ),
-          _round(Icons.add, () => onChanged(value + 1)),
+          _round(t, Icons.add, () => onChanged(value + 1)),
         ],
       ),
     );
   }
 
-  Widget _round(IconData icon, VoidCallback onTap) {
+  Widget _round(EcoTheme t, IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         width: 52,
         height: 52,
         decoration: BoxDecoration(color: t.dark, shape: BoxShape.circle),
-        child: Icon(icon, size: 24, color: t.pill),
+        child: Icon(icon, size: 24, color: t.onDark),
       ),
     );
+  }
+}
+
+/// Language picker: one shared backing holding every option, with a sliding
+/// liquid-glass highlight on the active row (vertical take on [EcoSegmented]).
+class _LangSegmented extends StatelessWidget {
+  final EcoTheme t;
+  final List<AppLanguage> languages;
+  final AppLanguage value;
+  final ValueChanged<AppLanguage> onChanged;
+
+  const _LangSegmented({
+    required this.t,
+    required this.languages,
+    required this.value,
+    required this.onChanged,
+  });
+
+  static const _rowHeight = 52.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final index = languages.indexOf(value).clamp(0, languages.length - 1);
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: t.cardAlt,
+        borderRadius: BorderRadius.circular(26),
+      ),
+      child: Stack(
+        children: [
+          // Скользящее выделение — liquid-glass: тёмная заливка, яркий кант,
+          // мягкая тень и верхний блик (как у выделения в пикере/сегменте).
+          Positioned.fill(
+            child: AnimatedAlign(
+              duration: const Duration(milliseconds: 160),
+              curve: Curves.easeOutCubic,
+              alignment: _alignmentFor(index),
+              child: FractionallySizedBox(
+                widthFactor: 1,
+                heightFactor: 1 / languages.length,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: t.dark,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.55),
+                      width: 1.1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.14),
+                        blurRadius: 14,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: FractionallySizedBox(
+                      widthFactor: 0.96,
+                      heightFactor: 0.5,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.30),
+                              Colors.white.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Column(
+            children: [
+              for (final language in languages)
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onChanged(language),
+                  child: SizedBox(
+                    height: _rowHeight,
+                    child: Center(
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 85),
+                        curve: Curves.easeOutCubic,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: language == value ? t.onDark : t.ink,
+                        ),
+                        child: Text(language.nativeName),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Alignment _alignmentFor(int index) {
+    if (languages.length <= 1) return Alignment.center;
+    final y = -1 + 2 * (index / (languages.length - 1));
+    return Alignment(0, y);
   }
 }

@@ -4,43 +4,64 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_language.dart';
 import '../l10n/app_strings.dart';
+import '../nutrition/energy.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 
-const _t = EcoTheme.meadow;
+// Единые акценты состава тела: иконка и полоса прогресса одного цвета.
+// Вес остаётся тёмным (t.dark) и здесь не задаётся.
+const _kMuscleColor = EcoColors.prot; // скелетная мускулатура — зелёный
+const _kFatColor = Color(0xFFE8B53A); // жировая ткань и % жира — жёлтый
+const _kWaterColor = EcoColors.water; // вода — голубой
 
 // ── Shared helpers ────────────────────────────────────────────
 
-String localizedDate(AppStrings l, [DateTime? date]) {
-  final d = date ?? DateTime.now();
-  return l.weekdayDayMonth(d);
-}
-
 /// Centered date pill (header of entry screens).
 class DatePill extends StatelessWidget {
-  final String? time;
-  const DatePill({super.key, this.time});
+  final DateTime? date;
+  final VoidCallback? onTap;
+  const DatePill({super.key, this.date, this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     final topInset = MediaQuery.of(context).padding.top;
+    final d = date ?? DateTime.now();
     return Padding(
       padding: EdgeInsets.only(top: topInset + 24, bottom: 18),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
-          decoration: BoxDecoration(
-            color: _t.band,
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: Text(
-            time != null ? '${localizedDate(l)} $time' : localizedDate(l),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: _t.dark,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 13),
+            decoration: BoxDecoration(
+              color: t.band,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Только дата, без дня недели и времени.
+                Text(
+                  '${l.dayMonth(d)} ${d.year}',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: t.ink,
+                  ),
+                ),
+                if (onTap != null) ...[
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.edit_calendar_outlined,
+                    size: 18,
+                    color: t.ink,
+                  ),
+                ],
+              ],
             ),
           ),
         ),
@@ -74,6 +95,7 @@ class NumberWheel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     Widget row(int v, bool dim) => GestureDetector(
           onTap: dim ? () => onChanged(v.clamp(min, max)) : null,
           behavior: HitTestBehavior.opaque,
@@ -85,7 +107,7 @@ class NumberWheel extends StatelessWidget {
               style: TextStyle(
                 fontSize: dim ? 26 : 40,
                 fontWeight: FontWeight.w700,
-                color: dim ? const Color(0x52364025) : _t.dark,
+                color: dim ? const Color(0x52364025) : t.ink,
               ),
             ),
           ),
@@ -120,26 +142,27 @@ class FieldRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 2),
       decoration: BoxDecoration(
         border: last
             ? null
-            : Border(bottom: BorderSide(color: _t.bandSoft, width: 1.5)),
+            : Border(bottom: BorderSide(color: t.bandSoft, width: 1.5)),
       ),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(ecoIcon(icon!), size: 30, color: _t.dark),
+            Icon(ecoIcon(icon!), size: 30, color: t.ink),
             const SizedBox(width: 12),
           ],
           Expanded(
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: EcoColors.sub,
+                color: t.sub,
               ),
             ),
           ),
@@ -166,6 +189,7 @@ class UnderlineInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -179,10 +203,10 @@ class UnderlineInput extends StatelessWidget {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textAlign: TextAlign.right,
             onChanged: onChanged,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: EcoColors.ink,
+              color: t.ink,
             ),
             decoration: InputDecoration(
               isDense: true,
@@ -192,10 +216,10 @@ class UnderlineInput extends StatelessWidget {
                 horizontal: 4,
               ),
               enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: _t.olive, width: 1.5),
+                borderSide: BorderSide(color: t.olive, width: 1.5),
               ),
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: _t.olive, width: 1.5),
+                borderSide: BorderSide(color: t.olive, width: 1.5),
               ),
             ),
           ),
@@ -204,9 +228,9 @@ class UnderlineInput extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             suffix!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: EcoColors.sub,
+              color: t.sub,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -221,18 +245,19 @@ class NotesField extends StatelessWidget {
   const NotesField({super.key});
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     return Container(
       margin: const EdgeInsets.only(top: 14),
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: _t.card,
+        color: t.card,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         children: [
-          Icon(Icons.edit_outlined, size: 20, color: EcoColors.sub),
+          Icon(Icons.edit_outlined, size: 20, color: t.sub),
           const SizedBox(width: 12),
           Expanded(
             child: TextField(
@@ -241,7 +266,7 @@ class NotesField extends StatelessWidget {
                 border: InputBorder.none,
                 isDense: true,
               ),
-              style: const TextStyle(fontSize: 16, color: EcoColors.ink),
+              style: TextStyle(fontSize: 16, color: t.ink),
             ),
           ),
         ],
@@ -257,6 +282,7 @@ Widget actionFooter(
   String? save,
   required VoidCallback onSave,
 }) {
+  final t = context.select<AppStore, EcoTheme>((s) => s.theme);
   final l = context.l10nRead;
   return Positioned(
     left: 16,
@@ -266,9 +292,9 @@ Widget actionFooter(
       children: [
         Expanded(
           child: EcoBtn(
-            t: _t,
-            bg: _t.band,
-            fg: _t.dark,
+            t: t,
+            bg: t.band,
+            fg: t.ink,
             onTap: () => Navigator.of(context).pop(),
             child: Text(cancel ?? l.t('common.cancel')),
           ),
@@ -276,7 +302,7 @@ Widget actionFooter(
         const SizedBox(width: 12),
         Expanded(
           child: EcoBtn(
-            t: _t,
+            t: t,
             onTap: onSave,
             child: Text(save ?? l.t('common.save')),
           ),
@@ -288,56 +314,69 @@ Widget actionFooter(
 
 // ── Вода ──────────────────────────────────────────────────────
 
-class WaterScreen extends StatelessWidget {
+class WaterScreen extends StatefulWidget {
   const WaterScreen({super.key});
+
+  @override
+  State<WaterScreen> createState() => _WaterScreenState();
+}
+
+class _WaterScreenState extends State<WaterScreen> {
+  // Выбранный день — смещение в днях назад от сегодня (0 = сегодня).
+  int _offset = 0;
 
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppStore>();
+    final t = s.theme;
     final l = context.l10n;
-    final pct = s.waterGoal > 0 ? s.water / s.waterGoal : 0.0;
-    final now = DateTime.now();
+
+    final isToday = _offset == 0;
+    final selDate = DateTime.now().subtract(Duration(days: _offset));
+    final selWater = s.waterForOffset(_offset);
+    final pct = s.waterGoal > 0 ? selWater / s.waterGoal : 0.0;
+
     return EcoScreen(
-      t: _t,
+      t: t,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           EcoTopBar(
-            t: _t,
+            t: t,
             title: l.t('home.water'),
             onBack: () => Navigator.of(context).pop(),
-            right: Icon(ecoIcon('chart'), size: 33, color: _t.dark),
           ),
-          // last 7 days row with goal dotted line
+          // ── График воды за 30 дней: горизонтальная прокрутка, подложка за
+          // выбранным днём (как на экране «Шаги») ──
           Padding(
-            padding: const EdgeInsets.only(bottom: 16, top: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (var i = 6; i >= 0; i--)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: i == 0 ? _t.bandSoft : Colors.transparent,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '${now.subtract(Duration(days: i)).day}',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: i == 0 ? EcoColors.ink : EcoColors.sub,
-                      ),
-                    ),
-                  ),
+            padding: const EdgeInsets.only(top: 4),
+            child: EcoDayBarStrip(
+              data: [
+                for (final e in s.waterMonth()) (date: e.date, value: e.water),
               ],
+              goal: s.waterGoal,
+              minTop: (s.waterGoal * 1.3).round(),
+              barColor: EcoColors.water,
+              goalColor: EcoColors.waterDeep,
+              offset: _offset,
+              onSelect: (o) => setState(() => _offset = o),
             ),
           ),
+          const SizedBox(height: 8),
+          // Подпись выбранного дня: «Сегодня» или дата.
+          Center(
+            child: Text(
+              isToday ? l.t('common.today') : l.dayMonth(selDate),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: t.sub,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
           EcoCard(
-            t: _t,
+            t: t,
             child: Column(
               children: [
                 SizedBox(
@@ -347,7 +386,7 @@ class WaterScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  '${s.water}',
+                  '$selWater',
                   style: const TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w700,
@@ -355,34 +394,39 @@ class WaterScreen extends StatelessWidget {
                 ),
                 Text(
                   '/ ${s.waterGoal} ${l.unit('ml')}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
-                    color: EcoColors.sub,
+                    color: t.sub,
                   ),
                 ),
+                // ± меняют воду ВЫБРАННОГО дня (в т.ч. прошлого).
                 const SizedBox(height: 22),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: () => context.read<AppStore>().stepWater(-250),
+                      onTap: () => context
+                          .read<AppStore>()
+                          .stepWaterForOffset(_offset, -250),
                       child: Container(
                         width: 52,
                         height: 52,
                         decoration: BoxDecoration(
-                          color: _t.bandSoft,
+                          color: t.bandSoft,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.remove, size: 24, color: _t.dark),
+                        child: Icon(Icons.remove, size: 24, color: t.ink),
                       ),
                     ),
                     const SizedBox(width: 12),
                     EcoBtn(
-                      t: _t,
+                      t: t,
                       height: 52,
                       padding: const EdgeInsets.symmetric(horizontal: 30),
-                      onTap: () => context.read<AppStore>().stepWater(250),
+                      onTap: () => context
+                          .read<AppStore>()
+                          .stepWaterForOffset(_offset, 250),
                       child: Text('+ 250 ${l.unit('ml')}'),
                     ),
                   ],
@@ -453,6 +497,7 @@ class _BodyScreenState extends State<BodyScreen> {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppStore>();
+    final t = s.theme;
     final l = context.l10n;
     final currentWeight = s.weight > 0 ? s.weight : (s.weightKg ?? 0);
     final entries = _chartEntries(s, currentWeight);
@@ -483,13 +528,13 @@ class _BodyScreenState extends State<BodyScreen> {
     void openEntry() => Navigator.of(context).pushNamed('/bodyEntry');
 
     return EcoScreen(
-      t: _t,
+      t: t,
       footer: Positioned(
         left: 16,
         right: 16,
         bottom: 18 + MediaQuery.of(context).padding.bottom,
         child: EcoBtn(
-          t: _t,
+          t: t,
           onTap: () => Navigator.of(context).pushNamed('/bodyEntry'),
           child: Text(l.t('health.enterData')),
         ),
@@ -498,43 +543,86 @@ class _BodyScreenState extends State<BodyScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           EcoTopBar(
-            t: _t,
+            t: t,
             title: l.t('health.bodyComposition'),
             onBack: () => Navigator.of(context).pop(),
-            right: Icon(ecoIcon('chart'), size: 33, color: _t.dark),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 90),
+            // Снизу плавающая кнопка «Ввести данные» (footer, высота 56 + нижний
+            // отступ 18 + системная зона жестов) — даём контенту достаточный
+            // отступ, чтобы корзинка не пряталась под кнопкой.
+            padding: EdgeInsets.only(
+              bottom: 18 + MediaQuery.of(context).padding.bottom + 56 + 24,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 LayoutBuilder(
                   builder: (context, box) {
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTapDown: (details) => _selectChartPoint(
-                        details.localPosition,
-                        box.maxWidth,
-                        entries.length,
-                      ),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 102,
-                            child: CustomPaint(
-                              size: Size(box.maxWidth, 102),
-                              painter: _BodyChartPainter(
-                                chartPoints,
-                                selectedIndex: selectedIndex,
+                    // Full-bleed до краёв телефона: через OverflowBox отменяем
+                    // боковые отступы экрана (16px), чтобы график доходил до
+                    // самого края, как день-полоса в «Еде». Видимая часть —
+                    // всегда ровно 7 колонок; лишние записи уходят влево под
+                    // горизонтальный скролл (reverse: true).
+                    const visibleCount = 7;
+                    final screenWidth = MediaQuery.sizeOf(context).width;
+                    final colW = screenWidth / visibleCount;
+                    final scrollable = entries.length > visibleCount;
+                    final contentW =
+                        scrollable ? entries.length * colW : screenWidth;
+                    const stripHeight = 102.0 + 4 + 30;
+                    return SizedBox(
+                      height: stripHeight,
+                      child: OverflowBox(
+                        minWidth: screenWidth,
+                        maxWidth: screenWidth,
+                        minHeight: stripHeight,
+                        maxHeight: stripHeight,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          reverse: true,
+                          physics: const BouncingScrollPhysics(),
+                          child: SizedBox(
+                            width: contentW,
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTapDown: (details) => _selectChartPoint(
+                                details.localPosition,
+                                contentW,
+                                entries.length,
+                              ),
+                              child: Column(
+                                children: [
+                                  SizedBox(
+                                    height: 102,
+                                    // RepaintBoundary: линия+точки графика
+                                    // кэшируются, и горизонтальный фл­инг 7-дневной
+                                    // полоски лишь композитит слой, а не
+                                    // перерисовывает график каждый кадр.
+                                    child: RepaintBoundary(
+                                      child: CustomPaint(
+                                        size: Size(contentW, 102),
+                                        painter: _BodyChartPainter(
+                                          chartPoints,
+                                          selectedIndex: selectedIndex,
+                                          t: t,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  _BodyDateTicks(
+                                    dates: [
+                                      for (final entry in entries) entry.date,
+                                    ],
+                                    selectedIndex: selectedIndex,
+                                    t: t,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          const SizedBox(height: 4),
-                          _BodyDateTicks(
-                            dates: [for (final entry in entries) entry.date],
-                            selectedIndex: selectedIndex,
-                          ),
-                        ],
+                        ),
                       ),
                     );
                   },
@@ -546,47 +634,43 @@ class _BodyScreenState extends State<BodyScreen> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: _t.dark,
+                      color: t.ink,
                     ),
                   ),
                 ),
                 const SizedBox(height: 14),
                 EcoCard(
-                  t: _t,
+                  t: t,
                   margin: const EdgeInsets.only(bottom: 14),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _stat('scale', fmt(bodyWeight), l.unit('kg'), _t.dark),
+                      _stat('scale', fmt(bodyWeight), l.unit('kg'), t.dark, t),
                       _stat(
                         'gauge',
                         fmt(skeletalMuscle),
                         l.unit('kg'),
-                        EcoColors.carb,
+                        _kMuscleColor,
+                        t,
                       ),
-                      _stat('flame', fmt(bodyFat), '%', EcoColors.fat),
+                      _stat('flame', fmt(bodyFat), '%', _kFatColor, t),
                     ],
                   ),
                 ),
                 EcoCard(
-                  t: _t,
+                  t: t,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            l.t('health.yourBodyComposition'),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Icon(ecoIcon('bulb'), size: 30, color: EcoColors.sub),
-                        ],
+                      Text(
+                        l.t('health.yourBodyComposition'),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       _RangeRow(
+                        t: t,
                         label: l.t('profile.weight'),
                         value: fmt(bodyWeight),
                         unit: l.unit('kg'),
@@ -596,34 +680,64 @@ class _BodyScreenState extends State<BodyScreen> {
                         onTap: openEntry,
                       ),
                       _RangeRow(
+                        t: t,
                         label: l.t('health.skeletalMuscle'),
                         value: fmt(skeletalMuscle),
                         unit: l.unit('kg'),
                         lo: fmt(25.8),
                         hi: fmt(28.9),
                         frac: ((skeletalMuscle - 22) / 10),
-                        over: true,
+                        accent: _kMuscleColor,
                         onTap: openEntry,
                       ),
                       _RangeRow(
+                        t: t,
                         label: l.t('health.fatMass'),
                         value: fmt(fatMass),
                         unit: l.unit('kg'),
                         lo: fmt(6.7),
                         hi: fmt(12.5),
                         frac: ((fatMass - 4) / 12),
+                        accent: _kFatColor,
                         onTap: openEntry,
                       ),
                       _RangeRow(
+                        t: t,
                         label: l.t('health.bodyWater'),
-                        value: fmt(55.2),
+                        value: fmt(bodyWaterPercent(bodyFat)),
                         unit: '%',
                         lo: '50',
                         hi: '65',
-                        frac: 0.5,
+                        frac: ((bodyWaterPercent(bodyFat) - 50) / 15)
+                            .clamp(0.0, 1.0),
+                        accent: _kWaterColor,
                         last: true,
                       ),
                     ],
+                  ),
+                ),
+                // Удаление выбранной записи — иконка-корзинка внизу + диалог
+                // подтверждения.
+                const SizedBox(height: 18),
+                Center(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () => _confirmDeleteEntry(selected.date),
+                    child: Container(
+                      width: 52,
+                      height: 52,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: t.card,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: t.glassBorder),
+                      ),
+                      child: Icon(
+                        Icons.delete_outline_rounded,
+                        size: 26,
+                        color: t.ink,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -634,13 +748,13 @@ class _BodyScreenState extends State<BodyScreen> {
     );
   }
 
-  Widget _stat(String icon, String v, String u, Color c) => Column(
+  Widget _stat(String icon, String v, String u, Color c, EcoTheme t) => Column(
         children: [
           Container(
             width: 40,
             height: 40,
             decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-            child: Icon(ecoIcon(icon), size: 30, color: Colors.white),
+            child: Icon(ecoIcon(icon), size: 30, color: t.onDark),
           ),
           const SizedBox(height: 10),
           Text.rich(
@@ -653,7 +767,7 @@ class _BodyScreenState extends State<BodyScreen> {
                 ),
                 TextSpan(
                   text: ' $u',
-                  style: const TextStyle(fontSize: 12, color: EcoColors.sub),
+                  style: TextStyle(fontSize: 12, color: t.sub),
                 ),
               ],
             ),
@@ -662,18 +776,93 @@ class _BodyScreenState extends State<BodyScreen> {
       );
 
   void _selectChartPoint(Offset local, double width, int count) {
-    if (count <= 0) return;
-    final index = count == 1
-        ? 0
-        : ((local.dx - 10) / ((width - 20) / (count - 1))).round();
+    if (count <= 0 || width <= 0) return;
+    final index = (local.dx * count / width).floor();
     setState(() => _selectedIndex = index.clamp(0, count - 1));
+  }
+
+  Future<void> _confirmDeleteEntry(DateTime date) async {
+    final l = context.l10nRead;
+    final store = context.read<AppStore>();
+    final t = store.theme;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierColor: const Color(0x4714180C),
+      builder: (ctx) => Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          // Material-предок нужен заголовку, иначе текст рисуется с отладочным
+          // жёлтым подчёркиванием (нет DefaultTextStyle).
+          child: Material(
+            type: MaterialType.transparency,
+            child: EcoGlassSurface(
+              t: t,
+              blur: 60,
+              padding: const EdgeInsets.fromLTRB(24, 22, 24, 22),
+              borderRadius: BorderRadius.circular(26),
+              shadows: const [
+                BoxShadow(
+                  color: Color(0x28FFFFFF),
+                  blurRadius: 24,
+                  offset: Offset(-2, -2),
+                ),
+              ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l.t('health.deleteEntryConfirm'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Onest',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: t.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: EcoBtn(
+                          t: t,
+                          bg: t.band,
+                          fg: t.ink,
+                          height: 46,
+                          onTap: () => Navigator.of(ctx).pop(false),
+                          child: Text(l.t('common.cancel')),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: EcoBtn(
+                          t: t,
+                          height: 46,
+                          onTap: () => Navigator.of(ctx).pop(true),
+                          child: Text(l.t('common.yes')),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (confirmed == true && mounted) {
+      store.deleteBodyEntry(date);
+      setState(() => _selectedIndex = null);
+    }
   }
 
   List<BodyMetricEntry> _chartEntries(AppStore s, double currentWeight) {
     final saved = s.bodyHistory.where((entry) => entry.weightKg > 0).toList()
       ..sort((a, b) => a.date.compareTo(b.date));
     if (saved.length >= 7) {
-      return saved.sublist(saved.length - 7);
+      // Все сохранённые записи — горизонтальный скролл покажет ранние.
+      return saved;
     }
     if (saved.isNotEmpty) {
       final first = saved.first;
@@ -713,28 +902,50 @@ class _BodyScreenState extends State<BodyScreen> {
 class _BodyDateTicks extends StatelessWidget {
   final List<DateTime> dates;
   final int selectedIndex;
+  final EcoTheme t;
 
-  const _BodyDateTicks({required this.dates, required this.selectedIndex});
+  const _BodyDateTicks({
+    required this.dates,
+    required this.selectedIndex,
+    required this.t,
+  });
 
   @override
   Widget build(BuildContext context) {
-    if (dates.isEmpty) return const SizedBox(height: 18);
+    if (dates.isEmpty) return const SizedBox(height: 30);
+    final currentYear = DateTime.now().year;
+    // Год показываем только когда он отличается от текущего; место под него
+    // резервируем для всех делений, чтобы числа стояли на одной линии.
+    final anyOtherYear = dates.any((d) => d.year != currentYear);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         for (var i = 0; i < dates.length; i++)
           Expanded(
-            child: Center(
-              child: AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 150),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight:
-                      i == selectedIndex ? FontWeight.w900 : FontWeight.w700,
-                  color: i == selectedIndex ? _t.dark : EcoColors.sub,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 75),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight:
+                        i == selectedIndex ? FontWeight.w900 : FontWeight.w700,
+                    color: i == selectedIndex ? t.ink : t.sub,
+                  ),
+                  // День/месяц через «/» (напр. 26/6).
+                  child: Text('${dates[i].day}/${dates[i].month}'),
                 ),
-                child: Text('${dates[i].day}'),
-              ),
+                if (anyOtherYear)
+                  Text(
+                    dates[i].year != currentYear ? '${dates[i].year}' : '',
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w600,
+                      color: i == selectedIndex ? t.ink : t.faint,
+                    ),
+                  ),
+              ],
             ),
           ),
       ],
@@ -746,8 +957,12 @@ class _RangeRow extends StatelessWidget {
   final String label, value, unit, lo, hi;
   final double frac;
   final VoidCallback? onTap;
-  final bool over, last;
+  final bool last;
+  // Цвет полосы: null → сплошная тёмная (как у веса), иначе градиент dark→accent.
+  final Color? accent;
+  final EcoTheme t;
   const _RangeRow({
+    required this.t,
     required this.label,
     required this.value,
     required this.unit,
@@ -755,7 +970,7 @@ class _RangeRow extends StatelessWidget {
     required this.hi,
     required this.frac,
     this.onTap,
-    this.over = false,
+    this.accent,
     this.last = false,
   });
 
@@ -767,7 +982,7 @@ class _RangeRow extends StatelessWidget {
       decoration: BoxDecoration(
         border: last
             ? null
-            : Border(bottom: BorderSide(color: _t.bandSoft, width: 1.5)),
+            : Border(bottom: BorderSide(color: t.bandSoft, width: 1.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -782,7 +997,7 @@ class _RangeRow extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              const Icon(Icons.chevron_right, size: 14, color: EcoColors.faint),
+              Icon(Icons.chevron_right, size: 14, color: t.faint),
             ],
           ),
           const SizedBox(height: 8),
@@ -798,9 +1013,9 @@ class _RangeRow extends StatelessWidget {
                 ),
                 TextSpan(
                   text: ' $unit',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: EcoColors.sub,
+                    color: t.sub,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -814,16 +1029,15 @@ class _RangeRow extends StatelessWidget {
               height: 12,
               child: Stack(
                 children: [
-                  Container(color: _t.bandSoft),
+                  Container(color: t.bandSoft),
                   FractionallySizedBox(
                     widthFactor: p,
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(999),
-                        gradient: over
-                            ? LinearGradient(colors: [_t.dark, EcoColors.fat])
-                            : null,
-                        color: over ? null : _t.dark,
+                        // Сплошной цвет без градиента: вес — тёмный, остальные —
+                        // свой акцент.
+                        color: accent ?? t.dark,
                       ),
                     ),
                   ),
@@ -852,18 +1066,18 @@ class _RangeRow extends StatelessWidget {
             children: [
               Text(
                 lo,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: EcoColors.sub,
+                  color: t.sub,
                 ),
               ),
               Text(
                 hi,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: EcoColors.sub,
+                  color: t.sub,
                 ),
               ),
             ],
@@ -883,8 +1097,10 @@ class _RangeRow extends StatelessWidget {
 class _BodyChartPainter extends CustomPainter {
   final List<double> points;
   final int selectedIndex;
+  final EcoTheme t;
 
-  _BodyChartPainter(this.points, {required this.selectedIndex});
+  _BodyChartPainter(this.points,
+      {required this.selectedIndex, required this.t});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -904,9 +1120,9 @@ class _BodyChartPainter extends CustomPainter {
       min -= pad;
       max += pad;
     }
-    double x(int i) => points.length == 1
-        ? size.width / 2
-        : 10 + i * ((size.width - 20) / (points.length - 1));
+    // Каждая точка — по центру своей «колонки» даты (i+0.5)/N, чтобы маркер
+    // стоял ровно над числом в _BodyDateTicks (Row из Expanded-ячеек).
+    double x(int i) => (i + 0.5) * (size.width / points.length);
     double y(double v) => size.height - ((v - min) / (max - min)) * size.height;
     final path = Path();
     for (var i = 0; i < points.length; i++) {
@@ -920,17 +1136,19 @@ class _BodyChartPainter extends CustomPainter {
       path,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5
+        ..strokeWidth = 4
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round
-        ..color = _t.dark,
+        ..color = t.ink,
     );
     final selected = selectedIndex.clamp(0, points.length - 1);
     for (var i = 0; i < points.length; i++) {
+      final isSelected = i == selected;
+      // Обычные точки — чёрные (как линия), выбранная — зелёная и крупнее.
       canvas.drawCircle(
         Offset(x(i), y(points[i])),
-        i == selected ? 5 : 3.5,
-        Paint()..color = i == selected ? _t.dark : _t.olive,
+        isSelected ? 8 : 4.5,
+        Paint()..color = isSelected ? EcoColors.prot : t.ink,
       );
     }
   }
@@ -938,6 +1156,7 @@ class _BodyChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(_BodyChartPainter old) {
     if (old.selectedIndex != selectedIndex) return true;
+    if (old.t != t) return true;
     if (old.points.length != points.length) return true;
     for (var i = 0; i < points.length; i++) {
       if (old.points[i] != points[i]) return true;
@@ -962,6 +1181,7 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
   late int decv;
   late double skeletal = context.read<AppStore>().skeletalMuscle;
   late double fat = context.read<AppStore>().bodyFat;
+  DateTime _date = DateTime.now();
 
   @override
   void initState() {
@@ -983,6 +1203,33 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
   double get _weightValue =>
       double.parse((intv + decv / 10).toStringAsFixed(1));
 
+  Future<void> _pickDate() {
+    final t = context.read<AppStore>().theme;
+    final l = context.l10nRead;
+    final now = DateTime.now();
+    var draft = _date;
+    return showEcoSheet(
+      context: context,
+      t: t,
+      title: l.t('health.entryDate'),
+      doneLabel: l.t('common.save'),
+      onDone: () => setState(() => _date = draft),
+      body: SizedBox(
+        height: 200,
+        child: EcoDatePicker(
+          t: t,
+          initialDate: _date,
+          minYear: now.year - 5,
+          maxYear: now.year,
+          monthNames: [
+            for (var m = 1; m <= 12; m++) l.monthName(m),
+          ],
+          onChanged: (d) => draft = d,
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickMetric({
     required String title,
     required String unit,
@@ -991,11 +1238,12 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
     required int max,
     required ValueChanged<double> onSave,
   }) {
+    final t = context.read<AppStore>().theme;
     var whole = value.floor().clamp(min, max).toInt();
     var tenth = ((value - value.floor()) * 10).round().clamp(0, 9).toInt();
     return showEcoSheet(
       context: context,
-      t: _t,
+      t: t,
       title: title,
       doneLabel: context.l10nRead.t('common.save'),
       onDone: () => setState(
@@ -1017,8 +1265,8 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
                           initialItem: whole - min,
                         ),
                         itemExtent: 44,
-                        selectionOverlay: const EcoPickerSelectionOverlay(
-                          t: _t,
+                        selectionOverlay: EcoPickerSelectionOverlay(
+                          t: t,
                         ),
                         onSelectedItemChanged: (index) => whole = min + index,
                         childCount: max - min + 1,
@@ -1054,8 +1302,8 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
                           initialItem: tenth,
                         ),
                         itemExtent: 44,
-                        selectionOverlay: const EcoPickerSelectionOverlay(
-                          t: _t,
+                        selectionOverlay: EcoPickerSelectionOverlay(
+                          t: t,
                         ),
                         onSelectedItemChanged: (index) => tenth = index,
                         childCount: 10,
@@ -1083,9 +1331,9 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
               child: Center(
                 child: Text(
                   unit,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: EcoColors.sub,
+                    color: t.sub,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -1099,9 +1347,10 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     return EcoScreen(
-      t: _t,
+      t: t,
       footer: actionFooter(
         context,
         onSave: () {
@@ -1110,6 +1359,7 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
             weightKg: _weightValue,
             skeletalMuscle: skeletal,
             bodyFat: fat,
+            date: _date,
           );
           Navigator.of(context).pop();
         },
@@ -1117,9 +1367,9 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const DatePill(time: '20:25'),
+          DatePill(date: _date, onTap: _pickDate),
           EcoCard(
-            t: _t,
+            t: t,
             pad: 16,
             margin: const EdgeInsets.only(bottom: 14),
             child: FieldRow(
@@ -1146,16 +1396,16 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
               l.t('health.weightAlsoProfile'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: EcoColors.sub,
+                color: t.sub,
                 height: 1.45,
               ),
             ),
           ),
           const SizedBox(height: 14),
           EcoCard(
-            t: _t,
+            t: t,
             pad: 16,
             child: Column(
               children: [
@@ -1197,9 +1447,9 @@ class _BodyEntryScreenState extends State<BodyEntryScreen> {
             padding: const EdgeInsets.only(top: 14, left: 4, right: 4),
             child: Text(
               l.t('health.bodyCompositionNote'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: EcoColors.sub,
+                color: t.sub,
                 height: 1.45,
               ),
             ),
@@ -1225,31 +1475,32 @@ class _MetricValueButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.only(left: 8, right: 2, bottom: 3),
         decoration: BoxDecoration(
-          border: Border(bottom: BorderSide(color: _t.olive, width: 1.5)),
+          border: Border(bottom: BorderSide(color: t.olive, width: 1.5)),
         ),
         child: Text.rich(
           TextSpan(
             children: [
               TextSpan(
                 text: value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: EcoColors.ink,
+                  color: t.ink,
                 ),
               ),
               TextSpan(
                 text: ' $unit',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: EcoColors.sub,
+                  color: t.sub,
                 ),
               ),
             ],

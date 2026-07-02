@@ -22,7 +22,6 @@ class MealLogScreen extends StatefulWidget {
 }
 
 class _MealLogScreenState extends State<MealLogScreen> {
-  static const t = EcoTheme.meadow;
   final _mealTitleKey = GlobalKey();
   late String mealKey = widget.mealKey;
   String? get date => widget.date;
@@ -36,7 +35,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
     final product = FoodDb.instance.bySlug(slug);
     if (product == null) return;
     final result = await Navigator.of(context).push<DishSelectionResult>(
-      MaterialPageRoute(
+      EcoPageRoute(
         builder: (_) => DishScreen(
           product: product,
           mealKey: mealKey,
@@ -63,7 +62,13 @@ class _MealLogScreenState extends State<MealLogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppStore>();
+    // Только тема + изменения дневника + время приёма; тики шагомера/воды этот
+    // экран не перестраивают.
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    context.select<AppStore, int>(
+      (s) => Object.hash(s.diaryRevision, s.mealTime(mealKey)),
+    );
+    final s = context.read<AppStore>();
     final l = context.l10n;
     final items = s.itemsFor(mealKey, date: date);
     final time = s.mealTime(mealKey);
@@ -80,7 +85,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
               child: EcoBtn(
                 t: t,
                 onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
+                  EcoPageRoute(
                     builder: (_) => AddFoodScreen(mealKey: mealKey, date: date),
                   ),
                 ),
@@ -183,9 +188,9 @@ class _MealLogScreenState extends State<MealLogScreen> {
                                 child: Center(
                                   child: Text(
                                     l.t('food.emptyMeal'),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
-                                      color: EcoColors.sub,
+                                      color: t.sub,
                                     ),
                                   ),
                                 ),
@@ -235,11 +240,11 @@ class _MealLogScreenState extends State<MealLogScreen> {
                                                               top: 2),
                                                       child: Text(
                                                         _portionLabel(it, l)!,
-                                                        style: const TextStyle(
+                                                        style: TextStyle(
                                                           fontSize: 12,
                                                           fontWeight:
                                                               FontWeight.w600,
-                                                          color: EcoColors.sub,
+                                                          color: t.sub,
                                                         ),
                                                       ),
                                                     ),
@@ -264,7 +269,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
                                         child: Icon(
                                           Icons.remove,
                                           size: 20,
-                                          color: t.dark,
+                                          color: t.ink,
                                         ),
                                       ),
                                     ),
@@ -309,6 +314,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
   }
 
   void _quickKcal() {
+    final t = context.read<AppStore>().theme;
     final l = context.l10nRead;
     var v = 210;
     final values = [for (var i = 10; i <= 1500; i += 10) i];
@@ -330,7 +336,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
             initialItem: values.indexOf(210),
           ),
           itemExtent: 44,
-          selectionOverlay: const EcoPickerSelectionOverlay(t: t),
+          selectionOverlay: EcoPickerSelectionOverlay(t: t),
           onSelectedItemChanged: (i) => v = values[i],
           children: [
             for (final n in values)
@@ -363,6 +369,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
   }
 
   Future<void> _pickMeal(BuildContext context) {
+    final t = context.read<AppStore>().theme;
     final l = context.l10nRead;
     final screen = MediaQuery.of(context);
     final anchorContext = _mealTitleKey.currentContext;
@@ -370,7 +377,16 @@ class _MealLogScreenState extends State<MealLogScreen> {
     final anchorOffset =
         anchorBox?.localToGlobal(Offset.zero) ?? const Offset(0, 210);
     final anchorBottom = anchorOffset.dy + (anchorBox?.size.height ?? 44);
-    final popupWidth = screen.size.width < 306 ? screen.size.width - 32 : 262.0;
+    // Ширина подгоняется под самую длинную надпись приёма пищи — без лишних
+    // зазоров и без обрезки, корректно при смене языка. Хром: паддинг подложки
+    // (12*2) + поля вокруг текста в пилюле (~20*2) + запас (6).
+    final popupWidth = ecoPopupContentWidth(
+      context: context,
+      labels: [for (final m in kMealsByTime) l.meal(m.key)],
+      chrome: 12 * 2 + 20 * 2 + 6,
+      minWidth: 160,
+      maxWidth: screen.size.width - 32,
+    );
     final estimatedHeight = 286.0;
     var selectedMealKey = mealKey;
     final popupTop = (anchorBottom + 10)
@@ -384,13 +400,14 @@ class _MealLogScreenState extends State<MealLogScreen> {
       context: context,
       barrierDismissible: true,
       barrierLabel: l.t('common.cancel'),
-      barrierColor: const Color(0x4714180C),
-      transitionDuration: const Duration(milliseconds: 180),
+      // Без затемнения фона — единое поведение со всеми меню.
+      barrierColor: Colors.transparent,
+      transitionDuration: kEcoMotionDuration,
       pageBuilder: (_, __, ___) => const SizedBox.shrink(),
       transitionBuilder: (dialogCtx, animation, _, __) {
         final curved = CurvedAnimation(
           parent: animation,
-          curve: Curves.easeOutCubic,
+          curve: kEcoMotionCurve,
           reverseCurve: Curves.easeInCubic,
         );
         return Stack(
@@ -414,14 +431,21 @@ class _MealLogScreenState extends State<MealLogScreen> {
                             horizontal: 12,
                             vertical: 12,
                           ),
-                          bg: t.band,
-                          blur: 18,
-                          borderRadius: BorderRadius.circular(24),
-                          shadows: const [
+                          // Подложка как у окон ввода («Размер порции»):
+                          // полупрозрачное стекло по теме + сильное размытие.
+                          blur: 60,
+                          borderRadius: BorderRadius.circular(22),
+                          // Единые тени для всех меню: тёмная + верхний блик.
+                          shadows: [
                             BoxShadow(
-                              color: Color(0x52121A08),
-                              blurRadius: 34,
-                              offset: Offset(0, 14),
+                              color: Colors.black.withValues(alpha: 0.12),
+                              blurRadius: 26,
+                              offset: const Offset(0, 12),
+                            ),
+                            BoxShadow(
+                              color: Colors.white.withValues(alpha: 0.30),
+                              blurRadius: 16,
+                              offset: const Offset(-2, -2),
                             ),
                           ],
                           child: Column(
@@ -430,6 +454,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
                             children: [
                               for (final m in kMealsByTime)
                                 _MealChoiceButton(
+                                  t: t,
                                   label: l.meal(m.key),
                                   selected: m.key == selectedMealKey,
                                   onTap: () {
@@ -458,6 +483,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
   }
 
   void _pickTime(BuildContext context, String current) {
+    final t = context.read<AppStore>().theme;
     final l = context.l10nRead;
     final parts = current.split(':');
     var h = int.tryParse(parts[0]) ?? 8;
@@ -478,7 +504,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
               child: CupertinoPicker(
                 scrollController: FixedExtentScrollController(initialItem: h),
                 itemExtent: 36,
-                selectionOverlay: const EcoPickerSelectionOverlay(
+                selectionOverlay: EcoPickerSelectionOverlay(
                   t: t,
                   radius: 14,
                 ),
@@ -502,14 +528,14 @@ class _MealLogScreenState extends State<MealLogScreen> {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
-                color: t.dark,
+                color: t.ink,
               ),
             ),
             Expanded(
               child: CupertinoPicker(
                 scrollController: FixedExtentScrollController(initialItem: mi),
                 itemExtent: 36,
-                selectionOverlay: const EcoPickerSelectionOverlay(
+                selectionOverlay: EcoPickerSelectionOverlay(
                   t: t,
                   radius: 14,
                 ),
@@ -543,6 +569,7 @@ class _MealMacroCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     final totalKcal = items.fold<int>(0, (sum, item) => sum + item.kcal);
     final sections = [
@@ -573,7 +600,7 @@ class _MealMacroCard extends StatelessWidget {
     ].where((section) => section.total > 0).toList();
 
     return EcoCard(
-      t: _MealLogScreenState.t,
+      t: t,
       margin: const EdgeInsets.only(bottom: 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,7 +659,9 @@ class _TotalCaloriesSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return ProgressScale(
+      t: t,
       value: total.toDouble(),
       target: target,
       color: EcoColors.cal,
@@ -675,10 +704,12 @@ class _MealMacroSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ProgressScale(
+          t: t,
           value: section.total,
           target: section.target,
           color: section.color,
@@ -720,6 +751,7 @@ class _MealMacroContributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return Column(
       children: [
         SizedBox(
@@ -731,11 +763,11 @@ class _MealMacroContributionRow extends StatelessWidget {
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     height: 1,
                     fontWeight: FontWeight.w700,
-                    color: EcoColors.sub,
+                    color: t.sub,
                   ),
                 ),
               ),
@@ -746,10 +778,10 @@ class _MealMacroContributionRow extends StatelessWidget {
                   value,
                   maxLines: 1,
                   textAlign: TextAlign.right,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: EcoColors.ink,
+                    color: t.ink,
                     height: 1,
                   ),
                 ),
@@ -772,12 +804,13 @@ class _MealMacroContributionRow extends StatelessWidget {
 }
 
 class _MealChoiceButton extends StatelessWidget {
-  static const t = EcoTheme.meadow;
+  final EcoTheme t;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
   const _MealChoiceButton({
+    required this.t,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -789,9 +822,9 @@ class _MealChoiceButton extends StatelessWidget {
       label,
       textAlign: TextAlign.center,
       style: TextStyle(
-        fontSize: selected ? 17 : 16,
+        fontSize: 16,
         fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
-        color: t.dark,
+        color: t.ink,
         decoration: TextDecoration.none,
       ),
     );
@@ -805,15 +838,15 @@ class _MealChoiceButton extends StatelessWidget {
           width: double.infinity,
           child: Center(
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 150),
+              duration: kEcoMotionDuration,
               child: selected
                   ? SizedBox(
                       key: ValueKey('selected-$label'),
-                      width: 238,
-                      height: 42,
+                      width: double.infinity,
+                      height: 44,
                       child: Stack(
                         children: [
-                          const EcoPickerSelectionOverlay(
+                          EcoPickerSelectionOverlay(
                             t: t,
                             radius: 999,
                             margin: EdgeInsets.zero,
@@ -824,8 +857,8 @@ class _MealChoiceButton extends StatelessWidget {
                     )
                   : SizedBox(
                       key: ValueKey('plain-$label'),
-                      width: 238,
-                      height: 42,
+                      width: double.infinity,
+                      height: 44,
                       child: Center(child: text),
                     ),
             ),

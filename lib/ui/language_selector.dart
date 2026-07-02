@@ -32,7 +32,6 @@ class LanguageSelector extends StatelessWidget {
           context: context,
           t: t,
           anchorKey: anchorKey,
-          width: 226,
           selected: store.language,
           options: [
             for (final language in AppLanguage.values)
@@ -70,14 +69,14 @@ class LanguageSelector extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.language, size: compact ? 16 : 18, color: t.dark),
+            Icon(Icons.language, size: compact ? 16 : 18, color: t.ink),
             SizedBox(width: compact ? 6 : 8),
             Text(
               store.language.shortName,
               style: TextStyle(
                 fontSize: compact ? 12 : 13,
                 fontWeight: FontWeight.w800,
-                color: t.dark,
+                color: t.ink,
               ),
             ),
           ],

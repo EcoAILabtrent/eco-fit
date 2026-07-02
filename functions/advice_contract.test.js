@@ -15,7 +15,7 @@ test("extracts the complete named advice contract in canonical order", () => {
   const items = extractAdviceItems(response(JSON.stringify({ advice })));
 
   assert.deepEqual(items.map((item) => item.id), ADVICE_KEYS);
-  assert.equal(items.length, 10);
+  assert.equal(items.length, ADVICE_KEYS.length);
 });
 
 test("keeps valid named fields and ignores missing or unknown fields", () => {

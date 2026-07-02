@@ -1,12 +1,59 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../l10n/app_strings.dart';
+import '../state/store.dart';
 import '../theme/tokens.dart';
 
 const _enableAmbientMotion = bool.fromEnvironment('ECO_ENABLE_AMBIENT_MOTION');
+
+/// Единый переход открытия/закрытия экрана: горизонтальный iOS-слайд (нижний
+/// экран уезжает с параллаксом, новый приезжает справа), одинаковая длительность
+/// в обе стороны ([kEcoMotionDuration]). Используется ВЕЗДЕ вместо
+/// MaterialPageRoute, чтобы все переходы были идентичными и быстрыми.
+class EcoPageRoute<T> extends PageRouteBuilder<T> {
+  EcoPageRoute({
+    required WidgetBuilder builder,
+    super.settings,
+    super.fullscreenDialog,
+  }) : super(
+          pageBuilder: (context, _, __) => builder(context),
+          transitionDuration: kEcoMotionDuration,
+          reverseTransitionDuration: kEcoMotionDuration,
+          transitionsBuilder: _ecoSlideTransition,
+        );
+}
+
+Widget _ecoSlideTransition(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+  Widget child,
+) {
+  return CupertinoPageTransition(
+    primaryRouteAnimation: animation,
+    secondaryRouteAnimation: secondaryAnimation,
+    linearTransition: false,
+    child: child,
+  );
+}
+
+/// Маршрут БЕЗ анимации перехода (мгновенно). Только для пары главная ↔ профиль:
+/// она ведёт себя как переключение вкладок, а не как открытие нового экрана.
+class EcoInstantRoute<T> extends PageRouteBuilder<T> {
+  EcoInstantRoute({
+    required WidgetBuilder builder,
+    super.settings,
+  }) : super(
+          pageBuilder: (context, _, __) => builder(context),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+        );
+}
 
 /// Icon name → Material icon mapping (Phase 1; the bespoke Eco icon set from
 /// icons.jsx can replace this later without touching call sites).
@@ -41,17 +88,17 @@ IconData ecoIcon(String name) {
     case 'pulse':
       return Icons.monitor_heart_outlined;
     case 'plus':
-      return Icons.add;
+      return Icons.add_rounded;
     case 'close':
-      return Icons.close;
+      return Icons.close_rounded;
     case 'home':
       return Icons.home_outlined;
     case 'homeFill':
-      return Icons.home;
+      return Icons.home_rounded;
     case 'user':
-      return Icons.person_outline;
+      return Icons.person_outline_rounded;
     case 'userFill':
-      return Icons.person;
+      return Icons.person_rounded;
     case 'chevL':
       return Icons.chevron_left;
     case 'chevR':
@@ -111,7 +158,7 @@ class _EcoGlassBackgroundState extends State<EcoGlassBackground>
     super.initState();
     _motion = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 26),
+      duration: const Duration(seconds: 13),
     );
     if (_enableAmbientMotion) _motion.repeat();
   }
@@ -245,7 +292,10 @@ class EcoScreen extends StatelessWidget {
     // yellow-underline debug style) and SafeArea keeps content off the status
     // bar. The footer stays outside SafeArea so the nav band hugs the bottom.
     return Scaffold(
-      backgroundColor: t.bg,
+      // Прозрачный фон: EcoGlassBackground ниже заливает весь экран непрозрачным
+      // градиентом, поэтому заливка Scaffold была лишним полноэкранным overdraw
+      // на каждый кадр на КАЖДОМ экране.
+      backgroundColor: Colors.transparent,
       body: BackdropGroup(
         child: Stack(
           children: [
@@ -294,7 +344,7 @@ class EcoTopBar extends StatelessWidget {
           if (onBack != null)
             GestureDetector(
               onTap: onBack,
-              child: Icon(Icons.chevron_left, size: 30, color: EcoColors.ink),
+              child: Icon(Icons.chevron_left, size: 30, color: t.ink),
             ),
           Expanded(
             child: Text(
@@ -313,11 +363,6 @@ class EcoTopBar extends StatelessWidget {
   }
 }
 
-/// Без живого backdrop-блюра тонкая (≈20%) заливка читалась бы прозрачной.
-/// Поднимаем непрозрачность до матового уровня — карточка остаётся «стеклом»,
-/// но без покадрового размытия фона при скролле.
-Color _frostFill(Color c) => c.a >= 0.5 ? c : c.withValues(alpha: 0.5);
-
 /// Card surface.
 class EcoGlassSurface extends StatelessWidget {
   final EcoTheme t;
@@ -331,6 +376,10 @@ class EcoGlassSurface extends StatelessWidget {
   final double? width;
   final double? height;
 
+  /// Окна ввода/модальные пикеры: фон берётся из [bg] как есть (непрозрачный)
+  /// и НЕ зависит от ползунка прозрачности карточек — чтобы оставались читаемыми.
+  final bool solid;
+
   const EcoGlassSurface({
     super.key,
     required this.t,
@@ -343,15 +392,36 @@ class EcoGlassSurface extends StatelessWidget {
     this.blur,
     this.width,
     this.height,
+    this.solid = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final radius = borderRadius ?? BorderRadius.circular(t.r);
-    // Раньше «матовость» давал BackdropFilter (живое размытие фона) — он
-    // пересчитывался каждый кадр при скролле и был главным источником лагов.
-    // Заменяем на статичную плотную заливку + RepaintBoundary, чтобы карточка
-    // кэшировалась как готовый слой и не перерисовывалась при прокрутке.
+    // Прозрачность ОБЫЧНЫХ карточек регулируется ползунком (AppStore.cardOpacity).
+    // solid=true (модальные окна ввода) используют свой bg как есть, без слайдера,
+    // чтобы пикеры оставались непрозрачными и читаемыми.
+    final Color fill;
+    if (solid) {
+      // Окна ввода (модальные пикеры): матовое стекло, зависящее от темы —
+      // светлое в светлой теме, ТЁМНОЕ в тёмной. Явный bg уважается.
+      fill =
+          bg ?? (t.isDark ? const Color(0xE61E2126) : const Color(0x8CFFFFFF));
+    } else {
+      final opacity = context.select<AppStore, double>((s) => s.cardOpacity);
+      fill = (bg ?? t.card).withValues(alpha: opacity);
+    }
+    final r = radius;
+    final rimRadius = r is BorderRadius ? r.topLeft.x : t.r;
+    final inner = Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: radius,
+        border: Border.all(color: t.glassBorder),
+      ),
+      child: child,
+    );
     return RepaintBoundary(
       child: Container(
         width: width,
@@ -370,15 +440,35 @@ class EcoGlassSurface extends StatelessWidget {
         ),
         child: ClipRRect(
           borderRadius: radius,
-          child: Container(
-            padding: padding,
-            decoration: BoxDecoration(
-              color: _frostFill(bg ?? t.card),
-              borderRadius: radius,
-              border: Border.all(color: t.glassBorder),
-            ),
-            child: child,
-          ),
+          // Окна ввода/модалки: размытие фона (frosted) — позади мягкая дымка,
+          // чтобы фон не мешал содержимому. Включается для solid ИЛИ когда явно
+          // задан [blur] (полупрозрачные пикер-окна). solid дополнительно рисует
+          // liquid-glass блики по краям. BackdropFilter только здесь (эти окна
+          // не скроллятся), чтобы не возвращать покадровые лаги на экранах.
+          child: (solid || blur != null)
+              ? BackdropFilter(
+                  filter: ui.ImageFilter.blur(
+                    sigmaX: blur ?? 40,
+                    sigmaY: blur ?? 40,
+                  ),
+                  child: solid
+                      ? Stack(
+                          children: [
+                            inner,
+                            Positioned.fill(
+                              child: IgnorePointer(
+                                child: CustomPaint(
+                                  painter: _RoundedGlassChromePainter(
+                                    radius: rimRadius,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : inner,
+                )
+              : inner,
         ),
       ),
     );
@@ -393,6 +483,13 @@ class EcoCard extends StatelessWidget {
   final double pad;
   final EdgeInsets? margin;
 
+  /// true для карточек ввода: непрозрачный фон, не зависит от ползунка.
+  final bool solid;
+
+  /// Размытие фона (frosted) под карточкой — для полупрозрачных окон ввода,
+  /// чтобы фон не мешал. null = без размытия.
+  final double? blur;
+
   const EcoCard({
     super.key,
     required this.t,
@@ -401,6 +498,8 @@ class EcoCard extends StatelessWidget {
     this.bg,
     this.pad = 20,
     this.margin,
+    this.solid = false,
+    this.blur,
   });
 
   @override
@@ -410,6 +509,8 @@ class EcoCard extends StatelessWidget {
       margin: margin,
       padding: EdgeInsets.all(pad),
       bg: bg,
+      solid: solid,
+      blur: blur,
       child: child,
     );
     if (onTap == null) return card;
@@ -440,46 +541,20 @@ class EcoIconBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Liquid-glass (frosted) badge — same treatment as the dish "favorite"
-    // button: blurred backdrop + translucent white tint, rim highlight, shadow.
-    return DecoratedBox(
+    // Максимально простая подложка иконки: плоский круг цвета темы. Без тени,
+    // градиента, каймы и ClipOval — никаких лишних эффектов (и дешевле в отрисовке).
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.16),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: t.pill,
       ),
-      // Бейдж и так на 60–92% непрозрачно-белый, сквозь него почти ничего не
-      // видно — убираем дорогой BackdropFilter и чуть поднимаем заливку, вид
-      // практически не меняется.
-      child: ClipOval(
-        child: Container(
-          width: size,
-          height: size,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.78),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.72)),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.92),
-                Colors.white.withValues(alpha: 0.55),
-              ],
-            ),
-          ),
-          child: Icon(
-            iconData ?? ecoIcon(name ?? ''),
-            size: icon,
-            color: t.dark,
-          ),
-        ),
+      child: Icon(
+        iconData ?? ecoIcon(name ?? ''),
+        size: icon,
+        color: t.ink,
       ),
     );
   }
@@ -555,7 +630,7 @@ class EcoBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedOpacity(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 125),
       opacity: disabled ? 0.5 : 1,
       child: Material(
         color: bg ?? t.dark,
@@ -569,7 +644,10 @@ class EcoBtn extends StatelessWidget {
             alignment: Alignment.center,
             child: DefaultTextStyle(
               style: TextStyle(
-                color: fg ?? t.pill,
+                // Кнопка по умолчанию тёмная (bg t.dark) -> текст светлый в обеих
+                // темах (t.onDark). Раньше t.pill в тёмной теме был тёмным и текст
+                // сливался с кнопкой.
+                color: fg ?? t.onDark,
                 fontSize: fontSize,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0,
@@ -613,7 +691,9 @@ class EcoPill extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          color: color ?? t.dark,
+          // По умолчанию текст адаптивный: тёмный в светлой теме, светлый в
+          // тёмной (на тёмной пилюле надпись остаётся читаемой).
+          color: color ?? t.ink,
           fontSize: fontSize,
           fontWeight: FontWeight.w600,
           height: 1,
@@ -656,7 +736,7 @@ class CalBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: t.dark,
+              color: t.ink,
               height: 1,
             ),
           ),
@@ -666,7 +746,7 @@ class CalBadge extends StatelessWidget {
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
-              color: t.dark.withValues(alpha: 0.75),
+              color: t.ink.withValues(alpha: 0.75),
               height: 1,
             ),
           ),
@@ -687,24 +767,47 @@ class MacroRingData {
     required this.color,
     required this.soft,
   });
+
+  // Равенство по значению, чтобы _RingsPainter.shouldRepaint мог сравнивать
+  // данные содержательно. Иначе главный экран на каждый тик шагомера отдаёт
+  // НОВЫЙ список (новая ссылка) и кольца перерисовываются (3 MaskFilter.blur),
+  // хотя БЖУ не менялись.
+  @override
+  bool operator ==(Object other) =>
+      other is MacroRingData &&
+      other.value == value &&
+      other.goal == goal &&
+      other.color == color &&
+      other.soft == soft;
+
+  @override
+  int get hashCode => Object.hash(value, goal, color, soft);
 }
 
 /// Concentric macro progress rings (carbs outer, fats middle, protein inner).
 class MacroRings extends StatelessWidget {
+  final EcoTheme t;
   final double size;
   final List<MacroRingData> data;
 
-  const MacroRings({super.key, required this.size, required this.data});
+  const MacroRings({
+    super.key,
+    required this.t,
+    required this.size,
+    required this.data,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(size: Size.square(size), painter: _RingsPainter(data));
+    return CustomPaint(
+        size: Size.square(size), painter: _RingsPainter(data, t));
   }
 }
 
 class _RingsPainter extends CustomPainter {
   final List<MacroRingData> data;
-  _RingsPainter(this.data);
+  final EcoTheme t;
+  _RingsPainter(this.data, this.t);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -714,7 +817,9 @@ class _RingsPainter extends CustomPainter {
         sw * 0.66; // colour arc thickness (narrower → grey shows around it)
     final gap = w * 0.048;
     final c = Offset(w / 2, w / 2);
-    const trackBase = Color(0x4A686868);
+    // Канавка колец = трек темы (как у полос прогресса): в светлой теме тот же
+    // серый, в тёмной — светлая полупрозрачная канавка.
+    final trackBase = t.track;
     for (var i = 0; i < data.length; i++) {
       final r = w / 2 - sw / 2 - 4 - i * (sw + gap);
       if (r <= 0) continue;
@@ -730,26 +835,24 @@ class _RingsPainter extends CustomPainter {
           ..strokeWidth = sw
           ..color = trackBase,
       );
-      final outerR = r + sw / 2;
       final innerR = math.max(0.0, r - sw / 2);
-      final ringPath = Path()
-        ..fillType = PathFillType.evenOdd
-        ..addOval(Rect.fromCircle(center: c, radius: outerR))
-        ..addOval(Rect.fromCircle(center: c, radius: innerR));
-      canvas.save();
-      canvas.clipPath(ringPath);
-      canvas.drawArc(
-        rect.shift(const Offset(0, -3)),
-        0,
-        math.pi * 2,
-        false,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = sw
-          ..color = const Color(0x26000000)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
-      );
-      canvas.restore();
+      // Намёк на утопленность канавки — тонкая чёткая кромка у внутреннего края,
+      // без MaskFilter.blur и clipPath. Раньше тут было 3 offscreen-прохода на
+      // 3 кольца главной (а в дейвью — на 30 ячейках полоски дней: главная
+      // стоимость растра колец и фриза открытия Dayview). Чёткая кромка почти
+      // неотличима на 168px и невидима на 48px, но рисуется практически даром.
+      if (innerR > 0) {
+        canvas.drawArc(
+          Rect.fromCircle(center: c, radius: innerR + 0.75),
+          0,
+          math.pi * 2,
+          false,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.5
+            ..color = const Color(0x22000000),
+        );
+      }
       // Colour progress arc — narrower, rounded caps, riding in the groove.
       final pct = (m.goal > 0 ? m.value / m.goal : 0).clamp(0.0, 1.0);
       if (pct > 0) {
@@ -769,7 +872,13 @@ class _RingsPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RingsPainter old) => old.data != data;
+  bool shouldRepaint(_RingsPainter old) {
+    if (old.t != t || old.data.length != data.length) return true;
+    for (var i = 0; i < data.length; i++) {
+      if (old.data[i] != data[i]) return true; // MacroRingData == по значению
+    }
+    return false;
+  }
 }
 
 /// Legend next to the rings (dot on the left, text left-aligned).
@@ -819,17 +928,17 @@ class MacroLegend extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: '${m.value}',
-                            style: const TextStyle(
-                              color: EcoColors.ink,
+                            style: TextStyle(
+                              color: t.ink,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
                           TextSpan(text: ' /${m.goal} ${l.unit('cal')}'),
                         ],
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: EcoColors.sub,
+                        color: t.sub,
                       ),
                     ),
                   ],
@@ -910,6 +1019,7 @@ class ValueBar extends StatelessWidget {
 /// • Overflow (value > target): they swap — real on top-right, green target
 ///   moves down to its (left-shifted) marker.
 class ProgressScale extends StatelessWidget {
+  final EcoTheme t;
   final double value;
   final double target;
   final Color color;
@@ -920,6 +1030,7 @@ class ProgressScale extends StatelessWidget {
 
   const ProgressScale({
     super.key,
+    required this.t,
     required this.value,
     required this.target,
     required this.color,
@@ -941,7 +1052,7 @@ class ProgressScale extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: animateFromZero ? 0 : value, end: value),
-      duration: const Duration(milliseconds: 520),
+      duration: const Duration(milliseconds: 260),
       curve: Curves.easeOutCubic,
       builder: (context, animatedValue, _) {
         final over = animatedValue > target;
@@ -963,10 +1074,9 @@ class ProgressScale extends StatelessWidget {
                 height: 1,
               ),
             );
-        Widget realLbl() => Opacity(
-              opacity: realOpacity,
-              child: lbl(realTxt, EcoColors.ink),
-            );
+        // Прозрачность вшита в цвет одиночного Text — пиксельно идентично
+        // Opacity, но без offscreen saveLayer на каждый кадр анимации полосы.
+        Widget realLbl() => lbl(realTxt, t.ink.withValues(alpha: realOpacity));
 
         return LayoutBuilder(
           builder: (context, box) {
@@ -994,10 +1104,10 @@ class ProgressScale extends StatelessWidget {
                             : Text(
                                 label,
                                 maxLines: 1,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
-                                  color: EcoColors.ink,
+                                  color: t.ink,
                                   height: 1,
                                 ),
                               ),
@@ -1121,6 +1231,7 @@ class CalorieTrack extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return ProgressScale(
+      t: t,
       value: value.toDouble(),
       target: goal.toDouble(),
       color: _brown,
@@ -1155,7 +1266,7 @@ class FolderTabs extends StatelessWidget {
             child: GestureDetector(
               onTap: () => onChanged(i),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
+                duration: const Duration(milliseconds: 75),
                 padding: EdgeInsets.fromLTRB(
                   8,
                   i == active ? 14 : 10,
@@ -1177,7 +1288,7 @@ class FolderTabs extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: i == active ? FontWeight.w700 : FontWeight.w600,
-                    color: i == active ? EcoColors.ink : EcoColors.sub,
+                    color: i == active ? t.ink : t.sub,
                   ),
                 ),
               ),
@@ -1207,8 +1318,11 @@ Future<void> showEcoSheet({
       t: t,
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.fromLTRB(24, 18, 24, 22),
-      bg: t.band,
-      blur: 18,
+      // Окно ввода: полупрозрачная стеклянная подложка как у пикеров онбординга
+      // («Ваш рост»). solid:false → фон просвечивает, + сильное размытие, чтобы
+      // фон не мешал содержимому.
+      solid: false,
+      blur: 60,
       borderRadius: BorderRadius.circular(26),
       shadows: const [
         BoxShadow(
@@ -1226,7 +1340,7 @@ Future<void> showEcoSheet({
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: t.dark,
+              color: t.ink,
             ),
           ),
           const SizedBox(height: 8),
@@ -1387,20 +1501,31 @@ class _EcoDatePickerState extends State<EcoDatePicker> {
 
   void _emit() => widget.onChanged(DateTime(_year, _month, _day));
 
-  void _clampDayAndEmit() {
+  /// Ближайший к [current] индекс бесконечного барабана, дающий по модулю
+  /// [base] значение [target]. Нужен, чтобы перевыровнять день без прыжка через
+  /// весь барабан, когда у месяца меняется число дней.
+  int _nearestCyclicItem(int current, int base, int target) {
+    final k = ((current - target) / base).round();
+    return k * base + target;
+  }
+
+  /// Барабан дня бесконечный, а число дней зависит от месяца/года. После смены
+  /// месяца или года подрезаем день под новый максимум и перевыравниваем позицию
+  /// барабана, иначе показанный день «уплывёт» (модуль-то поменялся).
+  void _syncDayAndEmit() {
     final maxD = _daysInMonth;
-    if (_day > maxD) {
-      _day = maxD;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _dayCtrl.hasClients) _dayCtrl.jumpToItem(_day - 1);
-      });
-    }
+    if (_day > maxD) _day = maxD;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_dayCtrl.hasClients) return;
+      final target = _nearestCyclicItem(_dayCtrl.selectedItem, maxD, _day - 1);
+      if (_dayCtrl.selectedItem != target) _dayCtrl.jumpToItem(target);
+    });
     _emit();
   }
 
   Widget _wheel({
     required FixedExtentScrollController controller,
-    required int childCount,
+    int? childCount,
     required ValueChanged<int> onSelected,
     required String Function(int) label,
   }) {
@@ -1416,10 +1541,10 @@ class _EcoDatePickerState extends State<EcoDatePicker> {
           maxLines: 1,
           softWrap: false,
           overflow: TextOverflow.clip,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: EcoColors.ink,
+            color: widget.t.ink,
           ),
         ),
       ),
@@ -1434,24 +1559,24 @@ class _EcoDatePickerState extends State<EcoDatePicker> {
           flex: 3,
           child: _wheel(
             controller: _dayCtrl,
-            childCount: _daysInMonth,
+            childCount: null, // бесконечный барабан: до 1 — последнее число
             onSelected: (i) => setState(() {
-              _day = i + 1;
+              _day = i % _daysInMonth + 1;
               _emit();
             }),
-            label: (i) => '${i + 1}',
+            label: (i) => '${i % _daysInMonth + 1}',
           ),
         ),
         Expanded(
           flex: 5,
           child: _wheel(
             controller: _monthCtrl,
-            childCount: 12,
+            childCount: null, // бесконечный барабан: до января — декабрь
             onSelected: (i) => setState(() {
-              _month = i + 1;
-              _clampDayAndEmit();
+              _month = i % 12 + 1;
+              _syncDayAndEmit();
             }),
-            label: (i) => widget.monthNames[i],
+            label: (i) => widget.monthNames[i % 12],
           ),
         ),
         Expanded(
@@ -1461,7 +1586,7 @@ class _EcoDatePickerState extends State<EcoDatePicker> {
             childCount: widget.maxYear - widget.minYear + 1,
             onSelected: (i) => setState(() {
               _year = widget.minYear + i;
-              _clampDayAndEmit();
+              _syncDayAndEmit();
             }),
             label: (i) => '${widget.minYear + i}',
           ),
@@ -1483,13 +1608,54 @@ class EcoChoiceOption<T> {
   });
 }
 
+/// Ширина всплывающего меню подгоняется под самую длинную надпись: без лишних
+/// зазоров по краям и без обрезки текста.
+///
+/// Важно для смены языка — длина строк меняется, поэтому ширину нельзя
+/// фиксировать. Измеряем самым жирным (выбранным) начертанием и обязательно тем
+/// же шрифтом, что и в UI (Onest), с учётом системного масштаба текста — иначе
+/// расчётная ширина окажется меньше реальной и надпись «съест» многоточие.
+///
+/// [chrome] — всё, что добавляется к ширине текста (паддинги подложки и строки,
+/// блок префикса и т. п.). [minWidth]/[maxWidth] ограничивают результат.
+double ecoPopupContentWidth({
+  required BuildContext context,
+  required List<String> labels,
+  double fontSize = 16,
+  double chrome = 0,
+  double minWidth = 0,
+  double? maxWidth,
+}) {
+  final media = MediaQuery.of(context);
+  final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
+  var labelMax = 0.0;
+  for (final label in labels) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: TextStyle(
+          fontFamily: 'Onest',
+          fontSize: fontSize,
+          fontWeight: FontWeight.w800,
+          height: 1,
+        ),
+      ),
+      textDirection: direction,
+      textScaler: media.textScaler,
+      maxLines: 1,
+    )..layout();
+    if (painter.width > labelMax) labelMax = painter.width;
+  }
+  final hardMax = maxWidth ?? (media.size.width - 24);
+  return (labelMax + chrome).clamp(minWidth, hardMax).toDouble();
+}
+
 Future<T?> showEcoChoicePopup<T>({
   required BuildContext context,
   required EcoTheme t,
   required GlobalKey anchorKey,
   required List<EcoChoiceOption<T>> options,
   required T selected,
-  double width = 218,
 }) {
   final l = context.l10nRead;
   final media = MediaQuery.of(context);
@@ -1497,7 +1663,17 @@ Future<T?> showEcoChoicePopup<T>({
   final anchorOffset =
       anchorBox?.localToGlobal(Offset.zero) ?? Offset(media.size.width - 24, 0);
   final anchorSize = anchorBox?.size ?? const Size(44, 44);
-  final popupWidth = width.clamp(170.0, media.size.width - 24);
+  // Ширина подгоняется под самую длинную надпись (не фиксируется), чтобы меню
+  // не было шире текста и не обрезало его. Хром: паддинг подложки (12*2) +
+  // паддинг строки (14*2) + блок префикса (34) + запас (6).
+  final hasPrefix = options.any((option) => option.prefix != null);
+  final popupWidth = ecoPopupContentWidth(
+    context: context,
+    labels: [for (final option in options) option.label],
+    chrome: 12 * 2 + 14 * 2 + (hasPrefix ? 34.0 : 0.0) + 6,
+    minWidth: 84,
+    maxWidth: media.size.width - 24,
+  );
   final popupHeight = 18.0 + options.length * 46.0;
   final left = (anchorOffset.dx + anchorSize.width - popupWidth)
       .clamp(12.0, media.size.width - popupWidth - 12.0);
@@ -1512,13 +1688,14 @@ Future<T?> showEcoChoicePopup<T>({
     context: context,
     barrierDismissible: true,
     barrierLabel: l.t('common.cancel'),
-    barrierColor: const Color(0x2F14180C),
-    transitionDuration: const Duration(milliseconds: 180),
+    // Без затемнения фона — как у меню категорий (единое поведение).
+    barrierColor: Colors.transparent,
+    transitionDuration: kEcoMotionDuration,
     pageBuilder: (_, __, ___) => const SizedBox.shrink(),
     transitionBuilder: (dialogCtx, animation, _, __) {
       final curved = CurvedAnimation(
         parent: animation,
-        curve: Curves.easeOutCubic,
+        curve: kEcoMotionCurve,
         reverseCurve: Curves.easeInCubic,
       );
       return Stack(
@@ -1536,20 +1713,25 @@ Future<T?> showEcoChoicePopup<T>({
                   color: Colors.transparent,
                   child: EcoGlassSurface(
                     t: t,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
-                    bg: t.band.withValues(alpha: 0.88),
-                    blur: 20,
-                    borderRadius: BorderRadius.circular(20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    // Меню выбора: полупрозрачная стеклянная подложка как у окон
+                    // ввода («Размер порции») — solid:false + сильное размытие.
+                    solid: false,
+                    blur: 60,
+                    borderRadius: BorderRadius.circular(22),
+                    // Единые тени для всех меню: мягкая тёмная + верхний блик.
                     shadows: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.14),
-                        blurRadius: 28,
-                        offset: const Offset(0, 14),
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 26,
+                        offset: const Offset(0, 12),
                       ),
                       BoxShadow(
-                        color: Colors.white.withValues(alpha: 0.28),
-                        blurRadius: 18,
+                        color: Colors.white.withValues(alpha: 0.30),
+                        blurRadius: 16,
                         offset: const Offset(-2, -2),
                       ),
                     ],
@@ -1597,65 +1779,54 @@ class _EcoChoicePopupRow<T> extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          height: 42,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          decoration: BoxDecoration(
-            color: selected
-                ? Colors.white.withValues(alpha: 0.20)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(999),
-            border: selected
-                ? Border.all(color: Colors.white.withValues(alpha: 0.62))
-                : null,
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
+        child: SizedBox(
+          height: 44,
+          child: Stack(
+            alignment: Alignment.center,
             children: [
-              if (option.prefix != null) ...[
-                SizedBox(
-                  width: 34,
-                  child: Text(
-                    option.prefix!,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w900,
-                      color: t.dark,
-                    ),
+              // Единое выделение выбранного — стеклянная пилюля как у пикеров
+              // («173 см», фото 5).
+              if (selected)
+                Positioned.fill(
+                  child: EcoPickerSelectionOverlay(
+                    t: t,
+                    radius: 999,
+                    margin: EdgeInsets.zero,
                   ),
                 ),
-              ],
-              Expanded(
-                child: Text(
-                  option.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
-                    color: t.dark,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Row(
+                  children: [
+                    if (option.prefix != null) ...[
+                      SizedBox(
+                        width: 34,
+                        child: Text(
+                          option.prefix!,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w900,
+                            color: t.ink,
+                          ),
+                        ),
+                      ),
+                    ],
+                    Expanded(
+                      child: Text(
+                        option.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight:
+                              selected ? FontWeight.w800 : FontWeight.w700,
+                          color: t.ink,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              if (selected)
-                Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    color: t.dark.withValues(alpha: 0.86),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.check, size: 16, color: t.pill),
-                ),
             ],
           ),
         ),
@@ -1691,7 +1862,7 @@ class EcoSegmented extends StatelessWidget {
         children: [
           Positioned.fill(
             child: AnimatedAlign(
-              duration: const Duration(milliseconds: 230),
+              duration: const Duration(milliseconds: 115),
               curve: Curves.easeOutCubic,
               alignment: _alignmentFor(value),
               child: FractionallySizedBox(
@@ -1701,6 +1872,11 @@ class EcoSegmented extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: t.dark,
                     borderRadius: BorderRadius.circular(999),
+                    // Liquid-glass: яркий кант + мягкая тень (как у выделения пикера).
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.55),
+                      width: 1.1,
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.14),
@@ -1708,6 +1884,27 @@ class EcoSegmented extends StatelessWidget {
                         offset: const Offset(0, 6),
                       ),
                     ],
+                  ),
+                  // Верхний блик-сияние.
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: FractionallySizedBox(
+                      widthFactor: 0.92,
+                      heightFactor: 0.5,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.white.withValues(alpha: 0.30),
+                              Colors.white.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -1724,12 +1921,12 @@ class EcoSegmented extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 9),
                       child: Center(
                         child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 170),
+                          duration: const Duration(milliseconds: 85),
                           curve: Curves.easeOutCubic,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: i == value ? t.pill : t.dark,
+                            color: i == value ? t.onDark : t.ink,
                           ),
                           child: Text(
                             options[i],
@@ -1849,7 +2046,7 @@ class _EcoBottomNavState extends State<EcoBottomNav> {
   }
 
   void _settlePill() {
-    Future<void>.delayed(const Duration(milliseconds: 230), () {
+    Future<void>.delayed(const Duration(milliseconds: 115), () {
       if (!mounted) return;
       setState(() => _pillStretch = false);
     });
@@ -1873,12 +2070,12 @@ class _EcoBottomNavState extends State<EcoBottomNav> {
         ignoring: widget.hidden,
         child: AnimatedSlide(
           offset: widget.hidden ? const Offset(0, 1.05) : Offset.zero,
-          duration: const Duration(milliseconds: 560),
-          curve: Curves.easeInOutCubic,
+          duration: kEcoMotionDuration,
+          curve: kEcoMotionCurve,
           child: AnimatedOpacity(
             opacity: widget.hidden ? 0 : 1,
-            duration: const Duration(milliseconds: 360),
-            curve: Curves.easeOutCubic,
+            duration: kEcoMotionDuration,
+            curve: kEcoMotionCurve,
             child: Stack(
               clipBehavior: Clip.none,
               alignment: Alignment.bottomCenter,
@@ -1898,18 +2095,26 @@ class _EcoBottomNavState extends State<EcoBottomNav> {
                             fabIcon: widget.fabIcon,
                             fabTurns: widget.fabTurns,
                             darkGlass: widget.darkGlass,
+                            dark: widget.t.isDark,
                           ),
                           AnimatedPositioned(
-                            duration: const Duration(milliseconds: 520),
+                            duration: const Duration(milliseconds: 260),
                             curve: Curves.easeOutCubic,
                             left: _pillLeft,
                             top: 43,
                             width: 80,
                             height: 55,
-                            child: _LiquidNavPill(
-                              stretch: _pillStretch,
-                              movingRight: _movingRight,
-                              darkGlass: widget.darkGlass,
+                            // RepaintBoundary кэширует растр пилюли (4× blur
+                            // bevel) — за весь 260мс слайд переключения вкладок
+                            // она лишь композитится со сдвигом, а не
+                            // перерисовывает blur-проходы каждый кадр.
+                            child: RepaintBoundary(
+                              child: _LiquidNavPill(
+                                stretch: _pillStretch,
+                                movingRight: _movingRight,
+                                darkGlass: widget.darkGlass,
+                                dark: widget.t.isDark,
+                              ),
                             ),
                           ),
                           Positioned(
@@ -1923,6 +2128,7 @@ class _EcoBottomNavState extends State<EcoBottomNav> {
                               active: widget.active == 'home',
                               size: 30.8,
                               darkGlass: widget.darkGlass,
+                              dark: widget.t.isDark,
                             ),
                           ),
                           Positioned(
@@ -1937,6 +2143,7 @@ class _EcoBottomNavState extends State<EcoBottomNav> {
                               active: widget.active == 'profile',
                               size: 29.7,
                               darkGlass: widget.darkGlass,
+                              dark: widget.t.isDark,
                             ),
                           ),
                           Positioned(
@@ -1987,11 +2194,13 @@ class _LiquidNavStaticLayer extends StatelessWidget {
   final String fabIcon;
   final double fabTurns;
   final bool darkGlass;
+  final bool dark;
 
   const _LiquidNavStaticLayer({
     required this.fabIcon,
     required this.fabTurns,
     required this.darkGlass,
+    required this.dark,
   });
 
   @override
@@ -2011,9 +2220,14 @@ class _LiquidNavStaticLayer extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.white.withValues(alpha: 0.42),
+                      // Тёмная тема: тёмное свечение вместо белого ореола.
+                      // Светлая тема: мягкая тёмная тень — белый ореол на светлом
+                      // фоне был не виден, кнопка «висела» без опоры.
+                      color: dark
+                          ? Colors.black.withValues(alpha: 0.38)
+                          : Colors.black.withValues(alpha: 0.18),
                       blurRadius: 28,
-                      spreadRadius: 5,
+                      spreadRadius: dark ? 5 : 2,
                     ),
                   ],
                 ),
@@ -2025,14 +2239,14 @@ class _LiquidNavStaticLayer extends StatelessWidget {
             top: 35,
             width: 310,
             height: 71,
-            child: CustomPaint(painter: _LiquidNavShadowPainter()),
+            child: CustomPaint(painter: _LiquidNavShadowPainter(dark: dark)),
           ),
           Positioned(
             left: 0,
             top: 35,
             width: 310,
             height: 71,
-            child: _LiquidNavBand(darkGlass: darkGlass),
+            child: _LiquidNavBand(darkGlass: darkGlass, dark: dark),
           ),
           Positioned(
             left: 120,
@@ -2043,6 +2257,7 @@ class _LiquidNavStaticLayer extends StatelessWidget {
               icon: fabIcon,
               turns: fabTurns,
               darkGlass: darkGlass,
+              dark: dark,
             ),
           ),
         ],
@@ -2053,11 +2268,17 @@ class _LiquidNavStaticLayer extends StatelessWidget {
 
 class _LiquidNavBand extends StatelessWidget {
   final bool darkGlass;
+  final bool dark;
 
-  const _LiquidNavBand({required this.darkGlass});
+  const _LiquidNavBand({required this.darkGlass, required this.dark});
 
   @override
   Widget build(BuildContext context) {
+    // Прозрачность бара теперь следует за ползунком «прозрачность карточек»
+    // (cardOpacity) — как у обычных карточек. Базовый тон тот же, alpha из
+    // слайдера. clamp снизу держит бар читаемым даже на минимуме ползунка.
+    final op =
+        context.select<AppStore, double>((s) => s.cardOpacity).clamp(0.45, 0.97);
     return Stack(
       children: [
         ClipPath(
@@ -2066,8 +2287,12 @@ class _LiquidNavBand extends StatelessWidget {
           // пересчитывался каждый кадр. Статичный плотный тон убирает покадровый
           // блюр; форму и блик дают clipper + chrome-painter поверх.
           child: Container(
-            color:
-                darkGlass ? const Color(0xC2F7FAF9) : const Color(0x88F7FAF9),
+            color: (dark
+                    ? const Color(0xFF1F2227)
+                    : (darkGlass
+                        ? const Color(0xFFF7FAF9)
+                        : const Color(0xFFF4F7F5)))
+                .withValues(alpha: op),
           ),
         ),
         Positioned.fill(child: CustomPaint(painter: _LiquidNavChromePainter())),
@@ -2080,17 +2305,19 @@ class _LiquidNavPill extends StatelessWidget {
   final bool stretch;
   final bool movingRight;
   final bool darkGlass;
+  final bool dark;
 
   const _LiquidNavPill({
     required this.stretch,
     required this.movingRight,
     required this.darkGlass,
+    required this.dark,
   });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 190),
+      duration: const Duration(milliseconds: 95),
       curve: Curves.easeOutCubic,
       transformAlignment:
           movingRight ? Alignment.centerLeft : Alignment.centerRight,
@@ -2103,78 +2330,29 @@ class _LiquidNavPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(27.5),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color:
-                darkGlass ? const Color(0x9EFFFFFF) : const Color(0x82AFB6B6),
+            // Тёмная тема: светлое полупрозрачное выделение на тёмном баре.
+            color: dark
+                ? const Color(0x33FFFFFF)
+                : (darkGlass
+                    ? const Color(0x9EFFFFFF)
+                    : const Color(0x82AFB6B6)),
             borderRadius: BorderRadius.circular(27.5),
           ),
           child: Stack(
-              children: [
-                Positioned(
-                  left: 10.4,
-                  right: 10.4,
-                  top: 2.5,
-                  height: 24.2,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: 0.46),
-                          Colors.white.withValues(alpha: 0),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const Positioned.fill(
-                  child: CustomPaint(
-                    painter: _RoundedGlassChromePainter(radius: 27.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-    );
-  }
-}
-
-class _LiquidFabVisual extends StatelessWidget {
-  final String icon;
-  final double turns;
-  final bool darkGlass;
-
-  const _LiquidFabVisual({
-    required this.icon,
-    required this.turns,
-    required this.darkGlass,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipOval(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color:
-              darkGlass ? const Color(0xC8F2F6F2) : const Color(0x8AAEB6B6),
-          shape: BoxShape.circle,
-        ),
-        child: Stack(
-            alignment: Alignment.center,
             children: [
               Positioned(
-                left: 11,
-                top: 5,
-                width: 48,
-                height: 26,
+                left: 10.4,
+                right: 10.4,
+                top: 2.5,
+                height: 24.2,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(999),
-                    gradient: RadialGradient(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
                       colors: [
-                        Colors.white.withValues(alpha: 0.50),
+                        Colors.white.withValues(alpha: 0.46),
                         Colors.white.withValues(alpha: 0),
                       ],
                     ),
@@ -2183,22 +2361,94 @@ class _LiquidFabVisual extends StatelessWidget {
               ),
               const Positioned.fill(
                 child: CustomPaint(
-                  painter: _RoundedGlassChromePainter(circle: true),
-                ),
-              ),
-              Transform.rotate(
-                angle: turns * math.pi * 2,
-                child: Icon(
-                  ecoIcon(icon),
-                  size: 42,
-                  color: darkGlass
-                      ? const Color(0xEEF4F8EB)
-                      : const Color(0xFFFBFBFC),
+                  painter: _RoundedGlassChromePainter(radius: 27.5),
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _LiquidFabVisual extends StatelessWidget {
+  final String icon;
+  final double turns;
+  final bool darkGlass;
+  final bool dark;
+
+  const _LiquidFabVisual({
+    required this.icon,
+    required this.turns,
+    required this.darkGlass,
+    required this.dark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Диск «+» тоже следует за ползунком прозрачности карточек (с тем же
+    // читаемым нижним порогом, что и бар).
+    final op =
+        context.select<AppStore, double>((s) => s.cardOpacity).clamp(0.45, 0.97);
+    return ClipOval(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: (dark
+                  ? const Color(0xFF3A3E46)
+                  : (darkGlass
+                      ? const Color(0xFFF2F6F2)
+                      : const Color(0xFFF4F7F5)))
+              .withValues(alpha: op),
+          shape: BoxShape.circle,
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              left: 11,
+              top: 5,
+              width: 48,
+              height: 26,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  gradient: RadialGradient(
+                    colors: [
+                      Colors.white.withValues(alpha: 0.50),
+                      Colors.white.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const Positioned.fill(
+              child: CustomPaint(
+                painter: _RoundedGlassChromePainter(circle: true),
+              ),
+            ),
+            // Вращение «+»→«×» меняется каждый кадр при открытии/закрытии
+            // пикера. Изолируем ТОЛЬКО иконку в свой слой, иначе её поворот
+            // инвалидировал бы кешированный растр стеклянного диска и каймы
+            // (_paintGlassBevel с 4× MaskFilter.blur) на каждом кадре.
+            RepaintBoundary(
+              child: Transform.rotate(
+                angle: turns * math.pi * 2,
+                child: Icon(
+                  ecoIcon(icon),
+                  size: 42,
+                  // Светлая тема: тёмный «+/×» — белый на светлом диске не виден.
+                  color: dark
+                      ? const Color(0xFFF1F1F4)
+                      : (darkGlass
+                          ? const Color(0xEEF4F8EB)
+                          : const Color(0xFF2A2A2C)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -2208,21 +2458,146 @@ class _LiquidNavIcon extends StatelessWidget {
   final bool active;
   final double size;
   final bool darkGlass;
+  final bool dark;
 
   const _LiquidNavIcon({
     required this.icon,
     required this.active,
     required this.size,
     required this.darkGlass,
+    required this.dark,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = darkGlass
-        ? const Color(0xFFF8F8F8)
-        : (active ? const Color(0xFFFBFBFC) : const Color(0xD1FBFBFC));
+    final Color color;
+    if (dark) {
+      // Тёмная тема: светлые иконки, активная — ярче.
+      color = active ? const Color(0xFFF1F1F4) : const Color(0xA6F1F1F4);
+    } else if (darkGlass) {
+      color = const Color(0xFFF8F8F8);
+    } else {
+      // Светлая тема: тёмные иконки — на светлом стекле белые были не видны.
+      color = active ? const Color(0xFF2A2A2C) : const Color(0x8C2A2A2C);
+    }
+    // «Домик» рисуем своим painter'ом — у Material даже у _rounded углы крыши и
+    // выреза недостаточно мягкие. Кастомная форма со скруглёнными вершинами.
+    if (icon == 'home' || icon == 'homeFill') {
+      return CustomPaint(
+        size: Size.square(size),
+        painter: _HomeIconPainter(color: color, filled: icon == 'homeFill'),
+      );
+    }
     return Icon(ecoIcon(icon), size: size, color: color);
   }
+}
+
+/// Строит замкнутый путь по вершинам [pts] со скруглением каждого угла. Радиус
+/// общий [r] либо индивидуальный на вершину через [radii]; ужимается до
+/// половины короткой смежной стороны.
+Path _roundedPolygonPath(List<Offset> pts, double r, {List<double>? radii}) {
+  final path = Path();
+  final n = pts.length;
+  for (var i = 0; i < n; i++) {
+    final p0 = pts[(i - 1 + n) % n];
+    final p1 = pts[i];
+    final p2 = pts[(i + 1) % n];
+    final v1 = p0 - p1;
+    final v2 = p2 - p1;
+    final l1 = v1.distance;
+    final l2 = v2.distance;
+    final rr = math.min(radii != null ? radii[i] : r, math.min(l1, l2) / 2);
+    final a = p1 + v1 / l1 * rr;
+    final b = p1 + v2 / l2 * rr;
+    if (i == 0) {
+      path.moveTo(a.dx, a.dy);
+    } else {
+      path.lineTo(a.dx, a.dy);
+    }
+    path.quadraticBezierTo(p1.dx, p1.dy, b.dx, b.dy);
+  }
+  path.close();
+  return path;
+}
+
+/// «Домик» 1:1 по референсу: острая крыша-треугольник со скруглённым коньком и
+/// маленькими «лапками»-карнизами, под ней корпус (уже крыши) с аркой-дверью.
+/// Пропорции исходной картинки 450×396 сохранены (вписан по ширине, центр по Y).
+/// [filled] — сплошная заливка (активная вкладка) или контур (неактивная).
+class _HomeIconPainter extends CustomPainter {
+  final Color color;
+  final bool filled;
+
+  const _HomeIconPainter({required this.color, required this.filled});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const aspect = 450 / 396; // w/h исходной иконки
+    final dw = size.width;
+    final dh = size.width / aspect;
+    final oy = (size.height - dh) / 2; // вертикальное центрирование
+    Offset p(double x, double y) => Offset(x * dw, oy + y * dh);
+    double ry(double y) => oy + y * dh;
+
+    // Крыша — скруглённый треугольник: мягкий конёк сверху, маленькие
+    // скруглённые «лапки» на карнизах.
+    final roof = _roundedPolygonPath(
+      [
+        p(0.50, 0.04), // конёк
+        p(0.95, 0.52), // правый карниз («лапка»)
+        p(0.05, 0.52), // левый карниз («лапка»)
+      ],
+      0,
+      radii: [0.10 * dw, 0.05 * dw, 0.05 * dw],
+    );
+    // Корпус — скруглённый прямоугольник, уже крыши: карнизы выступают «лапками».
+    final body = Path()
+      ..addRRect(
+        RRect.fromLTRBAndCorners(
+          0.16 * dw,
+          ry(0.44),
+          0.84 * dw,
+          ry(0.965),
+          topLeft: Radius.circular(0.04 * dw),
+          topRight: Radius.circular(0.04 * dw),
+          bottomLeft: Radius.circular(0.05 * dw),
+          bottomRight: Radius.circular(0.05 * dw),
+        ),
+      );
+    // Дверь-арка по центру снизу: выходит за нижний край (вырез открыт снизу).
+    final door = Path()
+      ..addRRect(
+        RRect.fromLTRBAndCorners(
+          0.39 * dw,
+          ry(0.62),
+          0.61 * dw,
+          ry(1.05),
+          topLeft: Radius.circular(0.065 * dw),
+          topRight: Radius.circular(0.065 * dw),
+        ),
+      );
+
+    var shape = Path.combine(PathOperation.union, roof, body);
+    shape = Path.combine(PathOperation.difference, shape, door);
+
+    final paint = Paint()
+      ..color = color
+      ..isAntiAlias = true;
+    if (filled) {
+      canvas.drawPath(shape, paint);
+    } else {
+      paint
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.07 * dw
+        ..strokeJoin = StrokeJoin.round
+        ..strokeCap = StrokeCap.round;
+      canvas.drawPath(shape, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_HomeIconPainter old) =>
+      old.color != color || old.filled != filled;
 }
 
 class _LiquidNavClipper extends CustomClipper<Path> {
@@ -2234,19 +2609,36 @@ class _LiquidNavClipper extends CustomClipper<Path> {
 }
 
 class _LiquidNavShadowPainter extends CustomPainter {
+  final bool dark;
+
+  const _LiquidNavShadowPainter({required this.dark});
+
   @override
   void paint(Canvas canvas, Size size) {
     final path = _liquidNavPath(size);
-    canvas.drawPath(
-      path.shift(const Offset(-1, -2)),
-      Paint()
-        ..color = const Color(0x2BFFFFFF)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
-    );
+    if (dark) {
+      // Тёмная тема: мягкий светлый блик-контур (бар тёмный на тёмном фоне).
+      canvas.drawPath(
+        path.shift(const Offset(-1, -2)),
+        Paint()
+          ..color = const Color(0x2BFFFFFF)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
+      );
+    } else {
+      // Светлая тема: тёмная мягкая тень очерчивает бар на светлом фоне, иначе
+      // белое стекло сливается с фоном и панель не видно.
+      canvas.drawPath(
+        path.shift(const Offset(0, 3)),
+        Paint()
+          ..color = const Color(0x22000000)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16),
+      );
+    }
   }
 
   @override
-  bool shouldRepaint(_LiquidNavShadowPainter oldDelegate) => false;
+  bool shouldRepaint(_LiquidNavShadowPainter oldDelegate) =>
+      oldDelegate.dark != dark;
 }
 
 class _LiquidNavChromePainter extends CustomPainter {
@@ -2306,9 +2698,9 @@ void _paintGlassBevel(Canvas canvas, Path path, Size size) {
     path,
     Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 30
-      ..color = const Color(0x5CFFFFFF)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18),
+      ..strokeWidth = 18
+      ..color = const Color(0x40FFFFFF)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 13),
   );
   canvas.drawPath(
     path,
@@ -2354,57 +2746,60 @@ Path _liquidNavPath(Size size) {
     ..lineTo(35.5 * sx, 71 * sy)
     ..cubicTo(15.894 * sx, 71 * sy, 0, 55.106 * sy, 0, 35.5 * sy)
     ..cubicTo(0, 15.894 * sy, 15.894 * sx, 0, 35.5 * sx, 0)
-    ..lineTo(75.2 * sx, 0)
-    ..cubicTo(81.197 * sx, 0, 84.196 * sx, 0, 85.93 * sx, 0.308 * sy)
+    // Вырез под FAB сдвинут на +3, чтобы его центр был на 155 (= центр бара и
+    // центр кнопки «+»). В исходном Figma-пути вырез был на 152 — кнопка сидела
+    // на ~3 ед. правее своей «колыбели».
+    ..lineTo(78.2 * sx, 0)
+    ..cubicTo(84.197 * sx, 0, 87.196 * sx, 0, 88.93 * sx, 0.308 * sy)
     ..cubicTo(
-      92.892 * sx,
+      95.892 * sx,
       1.544 * sy,
-      92.943 * sx,
+      95.943 * sx,
       1.573 * sy,
-      97.566 * sx,
+      100.566 * sx,
       6.923 * sy,
     )
     ..cubicTo(
-      98.718 * sx,
+      101.718 * sx,
       8.256 * sy,
-      102.147 * sx,
+      105.147 * sx,
       14.017 * sy,
-      109.005 * sx,
+      112.005 * sx,
       25.538 * sy,
     )
     ..cubicTo(
-      117.724 * sx,
+      120.724 * sx,
       40.186 * sy,
-      133.716 * sx,
+      136.716 * sx,
       50 * sy,
-      152 * sx,
+      155 * sx,
       50 * sy,
     )
     ..cubicTo(
-      170.284 * sx,
+      173.284 * sx,
       50 * sy,
-      186.276 * sx,
+      189.276 * sx,
       40.186 * sy,
-      194.995 * sx,
+      197.995 * sx,
       25.538 * sy,
     )
     ..cubicTo(
-      201.853 * sx,
+      204.853 * sx,
       14.017 * sy,
-      205.282 * sx,
+      208.282 * sx,
       8.256 * sy,
-      206.434 * sx,
+      209.434 * sx,
       6.923 * sy,
     )
     ..cubicTo(
-      211.057 * sx,
+      214.057 * sx,
       1.573 * sy,
-      211.108 * sx,
+      214.108 * sx,
       1.544 * sy,
-      218.07 * sx,
+      221.07 * sx,
       0.308 * sy,
     )
-    ..cubicTo(219.805 * sx, 0, 222.803 * sx, 0, 228.8 * sx, 0)
+    ..cubicTo(222.805 * sx, 0, 225.803 * sx, 0, 231.8 * sx, 0)
     ..lineTo(274.5 * sx, 0)
     ..close();
 }
@@ -2485,7 +2880,7 @@ class _OldEcoBottomNav extends StatelessWidget {
                     child: Icon(
                       ecoIcon(active == 'home' ? 'homeFill' : 'home'),
                       size: 42,
-                      color: t.dark,
+                      color: t.ink,
                     ),
                   ),
                 ),
@@ -2497,7 +2892,7 @@ class _OldEcoBottomNav extends StatelessWidget {
                     child: Icon(
                       ecoIcon(active == 'profile' ? 'userFill' : 'user'),
                       size: 39,
-                      color: t.dark,
+                      color: t.ink,
                     ),
                   ),
                 ),
@@ -2527,7 +2922,7 @@ class _OldEcoBottomNav extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: Icon(ecoIcon(fabIcon), size: 30, color: t.pill),
+                  child: Icon(ecoIcon(fabIcon), size: 30, color: t.onDark),
                 ),
               ),
             ),
@@ -2586,4 +2981,472 @@ class _BandPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_BandPainter old) => old.color != color;
+}
+
+/// Горизонтальная полоса дневных столбиков (шаги / вода и т.п.) — сегодня
+/// справа. Подложка-капсула ([EcoTheme.band]) едет к выбранному дню; полоса
+/// прокручивается и выравнивает выбранный день по правому краю видимой области
+/// (ровно [_visibleCount] столбиков влезают целиком). Пунктирная линия цели и
+/// её подпись — фиксированный оверлей в правом жёлобе. Высота подстраивается под
+/// ВИДИМОЕ окно (потолок не ниже [minTop]) и плавно анимируется ПОСЛЕ окончания
+/// горизонтальной прокрутки.
+class EcoDayBarStrip extends StatefulWidget {
+  /// Значения по дням (старые слева, сегодня справа).
+  final List<({DateTime date, int value})> data;
+  final int goal;
+
+  /// Нижний потолок шкалы: пока в видимом окне нет значений выше — верх графика
+  /// зафиксирован (столбики не растягиваются на всю высоту).
+  final int minTop;
+  final Color barColor;
+  final Color goalColor;
+  final int offset;
+  final ValueChanged<int> onSelect;
+
+  const EcoDayBarStrip({
+    super.key,
+    required this.data,
+    required this.goal,
+    required this.minTop,
+    required this.barColor,
+    required this.goalColor,
+    required this.offset,
+    required this.onSelect,
+  });
+
+  @override
+  State<EcoDayBarStrip> createState() => _EcoDayBarStripState();
+}
+
+class _EcoDayBarStripState extends State<EcoDayBarStrip> {
+  static const _barAreaH = 120.0;
+  static const _weekdayGap = 4.0; // зазор между подписью дня и столбиком
+  static const _weekdayH =
+      16.0 + _weekdayGap; // секция подписи дня (текст+зазор)
+  static const _belowH = 6.0 + 18.0 + 10.0; // отступ + число + точка «сегодня»
+  // Подложка-капсула не доходит до краёв полосы: отступ сверху/снизу + зазор.
+  static const _pillPadV = 8.0;
+  static const _innerGap = 4.0;
+  static const _contentTop = _pillPadV + _innerGap;
+  static const _stripH =
+      _contentTop + _weekdayH + _barAreaH + _belowH + _contentTop;
+  // Правый жёлоб под подпись цели: столбики до него не доходят, выбранный день
+  // выравнивается по его левому краю.
+  static const _rightGutter = 46.0;
+  static const _visibleCount = 7;
+  // Запас над самым высоким столбиком (он не упирается в подпись дня).
+  static const _scaleFactor = 1.10;
+
+  final ScrollController _controller = ScrollController();
+  double _viewportWidth = 0;
+  double _itemExtent = 56;
+  int _targetTop = 0;
+  bool _topInitialized = false;
+
+  int get _dayCount => widget.data.length;
+
+  int get _selectedIndex =>
+      _dayCount - 1 - widget.offset.clamp(0, _dayCount - 1);
+
+  int _visibleStart() {
+    final maxStart = math.max(0, _dayCount - _visibleCount);
+    if (_controller.hasClients && _itemExtent > 0) {
+      return (_controller.offset / _itemExtent).round().clamp(0, maxStart);
+    }
+    return (_selectedIndex - (_visibleCount - 1)).clamp(0, maxStart);
+  }
+
+  /// Потолок шкалы по ВИДИМЫМ значениям: максимум видимого окна, но не ниже
+  /// [minTop] и не ниже цели.
+  int _scaleTop() {
+    final start = _visibleStart();
+    var windowMax = 0;
+    for (var i = start; i < start + _visibleCount && i < _dayCount; i++) {
+      windowMax = math.max(windowMax, widget.data[i].value);
+    }
+    return math.max(widget.minTop, math.max(widget.goal, windowMax));
+  }
+
+  // После окончания горизонтальной прокрутки пересчитываем потолок по видимому
+  // окну и (если изменился) запускаем плавную анимацию высоты.
+  void _onScrollEnd() {
+    final t = _scaleTop();
+    if (t != _targetTop) setState(() => _targetTop = t);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _jumpToSelected());
+  }
+
+  @override
+  void didUpdateWidget(covariant EcoDayBarStrip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.offset != widget.offset) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _animateToSelected());
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    final l = context.l10n;
+    final todayKey = AppStore.ymd();
+
+    return LayoutBuilder(
+      builder: (context, box) {
+        final screenWidth = MediaQuery.sizeOf(context).width;
+        _viewportWidth = screenWidth - _rightGutter;
+        _itemExtent = _viewportWidth / _visibleCount;
+
+        if (!_topInitialized) {
+          _targetTop = _scaleTop();
+          _topInitialized = true;
+        }
+
+        return TweenAnimationBuilder<double>(
+          tween: Tween<double>(
+            begin: _targetTop * _scaleFactor,
+            end: _targetTop * _scaleFactor,
+          ),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+          builder: (context, scale, _) {
+            final goalY =
+                _barAreaH * (1 - (widget.goal / scale).clamp(0.0, 1.0));
+            return SizedBox(
+              height: _stripH,
+              child: OverflowBox(
+                minWidth: screenWidth,
+                maxWidth: screenWidth,
+                minHeight: _stripH,
+                maxHeight: _stripH,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      right: _rightGutter,
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (n) {
+                          if (n is ScrollEndNotification) _onScrollEnd();
+                          return true;
+                        },
+                        child: SingleChildScrollView(
+                          controller: _controller,
+                          scrollDirection: Axis.horizontal,
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: ClampingScrollPhysics(),
+                          ),
+                          child: SizedBox(
+                            width: _dayCount * _itemExtent,
+                            height: _stripH,
+                            child: Stack(
+                              children: [
+                                AnimatedPositioned(
+                                  duration: kEcoMotionDuration,
+                                  curve: kEcoMotionCurve,
+                                  left: _selectedIndex * _itemExtent + 3,
+                                  top: _pillPadV,
+                                  bottom: _pillPadV,
+                                  width: _itemExtent - 6,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      color: t.band,
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  // RepaintBoundary: ячейки-кольца растеризуются
+                                  // в один кэш-слой, и плашка выбора
+                                  // (AnimatedPositioned) лишь композитится поверх,
+                                  // а не перерисовывает все ячейки каждый кадр.
+                                  child: RepaintBoundary(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        for (var i = 0; i < _dayCount; i++)
+                                          SizedBox(
+                                            width: _itemExtent,
+                                            child: _cell(
+                                              i,
+                                              scale: scale,
+                                              todayKey: todayKey,
+                                              l: l,
+                                              t: t,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      left: 16,
+                      right: _rightGutter,
+                      top: _contentTop + _weekdayH + goalY,
+                      child: CustomPaint(
+                        size: const Size(double.infinity, 2),
+                        painter: _DayBarDashPainter(widget.goalColor),
+                      ),
+                    ),
+                    Positioned(
+                      right: 8,
+                      top: _contentTop + _weekdayH + goalY - 8,
+                      child: Text(
+                        ecoFmtThousands(widget.goal),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: widget.goalColor,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _cell(
+    int index, {
+    required double scale,
+    required String todayKey,
+    required AppStrings l,
+    required EcoTheme t,
+  }) {
+    final e = widget.data[index];
+    final cellOffset = _dayCount - 1 - index; // дней назад
+    final selected = index == _selectedIndex;
+    final isToday = AppStore.ymd(e.date) == todayKey;
+    final barH = e.value <= 0
+        ? 0.0
+        : (e.value / scale * _barAreaH).clamp(4.0, _barAreaH);
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => widget.onSelect(cellOffset),
+      child: Padding(
+        padding: const EdgeInsets.only(top: _contentTop),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l.weekdayShort(e.date.weekday),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: selected ? t.ink : t.sub,
+              ),
+            ),
+            const SizedBox(height: _weekdayGap),
+            SizedBox(
+              height: _barAreaH,
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  if (barH > 0)
+                    Container(
+                      width: 12,
+                      height: barH,
+                      decoration: BoxDecoration(
+                        color: widget.barColor,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${e.date.day}',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: selected ? t.ink : t.sub,
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(top: 3),
+              width: 4,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isToday
+                    ? (selected ? t.dark : widget.barColor)
+                    : Colors.transparent,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _jumpToSelected() {
+    if (!_controller.hasClients) return;
+    _controller.jumpTo(_targetScrollFor(widget.offset));
+  }
+
+  void _animateToSelected() {
+    if (!_controller.hasClients) return;
+    _controller.animateTo(
+      _targetScrollFor(widget.offset),
+      duration: const Duration(milliseconds: 210),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  double _targetScrollFor(int offset) {
+    final safeOffset = offset.clamp(0, _dayCount - 1);
+    final index = _dayCount - 1 - safeOffset;
+    final aligned = (index + 1) * _itemExtent - _viewportWidth;
+    final max =
+        _controller.hasClients ? _controller.position.maxScrollExtent : 0.0;
+    return aligned.clamp(0.0, max);
+  }
+}
+
+/// Число с разделением тысяч пробелом: 10000 → «10 000».
+String ecoFmtThousands(int n) {
+  final s = n.toString();
+  final b = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) b.write(' ');
+    b.write(s[i]);
+  }
+  return b.toString();
+}
+
+class _DayBarDashPainter extends CustomPainter {
+  final Color color;
+  const _DayBarDashPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color.withValues(alpha: 0.6)
+      ..strokeWidth = 1.5;
+    for (double x = 0; x < size.width; x += 9) {
+      canvas.drawLine(Offset(x, 0), Offset(x + 5, 0), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DayBarDashPainter old) => old.color != color;
+}
+
+/// Lightweight six-dot wave loader — solid fills, no borders. Drives one
+/// [CustomPaint] from a single controller (no extra packages, cheap on the
+/// battery). Dots travel right then back on a 3s loop, staggered like the
+/// original CSS keyframes.
+class EcoDotsLoader extends StatefulWidget {
+  final double width;
+  final double dotSize;
+
+  const EcoDotsLoader({super.key, this.width = 220, this.dotSize = 18});
+
+  @override
+  State<EcoDotsLoader> createState() => _EcoDotsLoaderState();
+}
+
+class _EcoDotsLoaderState extends State<EcoDotsLoader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _motion;
+
+  // (fill colour, start delay in seconds) — last entry is drawn on top.
+  static const List<(Color, double)> _dots = [
+    (Color(0xFF8CC759), 0.5),
+    (Color(0xFF8C6DAF), 0.4),
+    (Color(0xFFEF5D74), 0.3),
+    (Color(0xFFF9A74B), 0.2),
+    (Color(0xFF60BEEB), 0.1),
+    (Color(0xFFFBEF5A), 0.0),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _motion = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _motion.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RepaintBoundary(
+      child: SizedBox(
+        width: widget.width,
+        height: widget.dotSize,
+        child: AnimatedBuilder(
+          animation: _motion,
+          builder: (context, _) => CustomPaint(
+            size: Size(widget.width, widget.dotSize),
+            painter: _DotsLoaderPainter(_motion.value, _dots),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DotsLoaderPainter extends CustomPainter {
+  final double progress;
+  final List<(Color, double)> dots;
+
+  _DotsLoaderPainter(this.progress, this.dots);
+
+  static double _easeInOut(double x) => 0.5 * (1 - math.cos(math.pi * x));
+
+  // Hold → out → hold → back, matching the original @keyframes profile.
+  static double _offset(double t, double travel) {
+    if (t < 0.15) return 0;
+    if (t < 0.45) return travel * _easeInOut((t - 0.15) / 0.30);
+    if (t < 0.65) return travel;
+    if (t < 0.95) return travel * (1 - _easeInOut((t - 0.65) / 0.30));
+    return 0;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final radius = size.height / 2;
+    final travel = size.width - size.height;
+    final cy = size.height / 2;
+    final paint = Paint()..isAntiAlias = true;
+    for (final (color, delay) in dots) {
+      var t = (progress - delay / 3) % 1.0;
+      if (t < 0) t += 1;
+      final cx = radius + _offset(t, travel);
+      canvas.drawCircle(Offset(cx, cy), radius, paint..color = color);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DotsLoaderPainter old) => old.progress != progress;
 }

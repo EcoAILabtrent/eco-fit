@@ -192,6 +192,9 @@ class FoodDb {
   String _locale = AppLanguage.ru.productLocale;
 
   final List<Product> all = [];
+  // Индекс slug -> Product: bySlug() раньше был линейным проходом по ~1122
+  // продуктам и вызывался по нескольку раз на КАЖДУЮ строку журнала питания.
+  final Map<String, Product> _bySlug = {};
   Database? _db;
   bool _loaded = false;
 
@@ -285,6 +288,9 @@ class FoodDb {
             return Product.fromDbRow(row, microsByFoodId[id] ?? const {});
           }),
         );
+      _bySlug
+        ..clear()
+        ..addEntries(all.map((product) => MapEntry(product.slug, product)));
       _loaded = true;
     } catch (e) {
       debugPrint('Error loading food database: $e');
@@ -404,12 +410,7 @@ class FoodDb {
     return categories;
   }
 
-  Product? bySlug(String slug) {
-    for (final product in all) {
-      if (product.slug == slug) return product;
-    }
-    return null;
-  }
+  Product? bySlug(String slug) => _bySlug[slug];
 
   Future<void> close() async {
     await _db?.close();

@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../data/products.dart';
 import '../l10n/app_language.dart';
 import '../l10n/app_strings.dart';
+import '../nutrition/micronutrients.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
@@ -52,27 +52,17 @@ class DishSelectionResult {
   }
 }
 
-/// Micronutrient key → unit key. Labels are localized through AppStrings.
-const _microUnits = {
+/// Display unit code for the macro rows shown above the micronutrient list.
+/// Micronutrient units are resolved from the DB-backed [microUnitCode] helper.
+const _macroUnits = {
   'protein': 'g',
   'fat': 'g',
   'carbs': 'g',
-  'fe': 'mg',
-  'mg': 'mg',
-  'ca': 'mg',
-  'p': 'mg',
-  'k': 'mg',
-  'na': 'mg',
-  'zn': 'mg',
-  'vit_c': 'mg',
-  'vit_a': 'mcg',
-  'vit_d': 'mcg',
 };
 
 const _heroPillHeight = 42.0;
 
 class _DishScreenState extends State<DishScreen> {
-  static const t = EcoTheme.meadow;
   late int grams = 100;
   late final int _initialGrams;
 
@@ -110,9 +100,13 @@ class _DishScreenState extends State<DishScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
-    final store = context.watch<AppStore>();
-    final isFavorite = store.isFavoriteProduct(p.slug);
+    // Подписываемся только на «избранность» этого продукта, а не на весь стор —
+    // тик шагомера/воды больше не перестраивает экран блюда.
+    final isFavorite =
+        context.select<AppStore, bool>((s) => s.isFavoriteProduct(p.slug));
+    final store = context.read<AppStore>();
     // Macro split for the bar (by calories of the scaled portion).
     final pKcal = _scaled(p.protein) * 4;
     final cKcal = _scaled(p.carbs) * 4;
@@ -174,7 +168,7 @@ class _DishScreenState extends State<DishScreen> {
         (
           key: e.key,
           label: l.nutrient(e.key),
-          unit: l.unit(_microUnits[e.key] ?? 'mg'),
+          unit: l.unit(_macroUnits[e.key] ?? microUnitCode(e.key)),
           value: _scaled(e.value),
           pct: null,
           color: _nutrientColor(e.key),
@@ -193,7 +187,7 @@ class _DishScreenState extends State<DishScreen> {
               child: EcoBtn(
                 t: t,
                 bg: t.dark,
-                fg: t.pill,
+                fg: t.onDark,
                 onTap: _cancelOrResetPortion,
                 child: Text(
                   l.t('common.cancel'),
@@ -225,18 +219,12 @@ class _DishScreenState extends State<DishScreen> {
           ),
           Padding(
             padding: const EdgeInsets.only(bottom: 106),
+            // Подложка блюда — СТАНДАРТНАЯ карточка: фон t.card, радиус t.r и
+            // мягкая светлая тень-ореол, как у всех карточек (например «Еда»).
+            // Без своих borderRadius/shadows, чтобы вид совпадал в обеих темах.
             child: EcoGlassSurface(
               t: t,
               padding: EdgeInsets.zero,
-              bg: Colors.white.withValues(alpha: 0.20),
-              borderRadius: BorderRadius.circular(26),
-              shadows: const [
-                BoxShadow(
-                  color: Color(0x3A000000),
-                  blurRadius: 24,
-                  offset: Offset(6, 12),
-                ),
-              ],
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -280,7 +268,7 @@ class _DishScreenState extends State<DishScreen> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w800,
-                                          color: t.dark,
+                                          color: t.ink,
                                         ),
                                       ),
                                     ),
@@ -291,7 +279,7 @@ class _DishScreenState extends State<DishScreen> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w800,
-                                          color: t.dark,
+                                          color: t.ink,
                                         ),
                                       ),
                                     ),
@@ -305,9 +293,9 @@ class _DishScreenState extends State<DishScreen> {
                         Center(
                           child: Text(
                             l.t('food.portionSize'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: EcoColors.sub,
+                              color: t.sub,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -344,7 +332,7 @@ class _DishScreenState extends State<DishScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        _MacroPercentLabels(segments: activeSegs),
+                        _MacroPercentLabels(t: t, segments: activeSegs),
                         const SizedBox(height: 14),
                         for (final (i, n) in rows.indexed) ...[
                           if (i > 0)
@@ -411,6 +399,9 @@ class _DishScreenState extends State<DishScreen> {
         'protein' => 'P',
         'fat' => 'F',
         'carbs' => 'C',
+        'fiber' => 'Fib',
+        'sugar' => 'Sug',
+        // Minerals — element symbols.
         'fe' => 'Fe',
         'mg' => 'Mg',
         'ca' => 'Ca',
@@ -418,13 +409,38 @@ class _DishScreenState extends State<DishScreen> {
         'k' => 'K',
         'na' => 'Na',
         'zn' => 'Zn',
+        'cl' => 'Cl',
+        's' => 'S',
+        'mn' => 'Mn',
+        'cu' => 'Cu',
+        'se' => 'Se',
+        'i' => 'I',
+        'f' => 'F',
+        'cr' => 'Cr',
+        'mo' => 'Mo',
+        'co' => 'Co',
+        // Vitamins.
         'vit_c' => 'C',
         'vit_a' => 'A',
         'vit_d' => 'D',
+        'vit_e' => 'E',
+        'vit_k' => 'K',
+        'vit_h' => 'B7',
+        'vit_b1' => 'B1',
+        'vit_b2' => 'B2',
+        'vit_b3' => 'B3',
+        'vit_b4' => 'B4',
+        'vit_b5' => 'B5',
+        'vit_b6' => 'B6',
+        'vit_b9' => 'B9',
+        'vit_b12' => 'B12',
         _ => key.isEmpty ? '' : key.substring(0, 1).toUpperCase(),
       };
 
   static Color _nutrientColor(String key) => switch (key) {
+        'fiber' => const Color(0xFF86A85A),
+        'sugar' => const Color(0xFFC98BB0),
+        // Minerals.
         'fe' => const Color(0xFFB85B3C),
         'mg' => const Color(0xFF4F8F7A),
         'ca' => const Color(0xFF5E86B8),
@@ -432,13 +448,36 @@ class _DishScreenState extends State<DishScreen> {
         'k' => const Color(0xFF54A866),
         'na' => const Color(0xFFB59349),
         'zn' => const Color(0xFF6A8A90),
+        'cu' => const Color(0xFFB87333),
+        'mn' => const Color(0xFF9C7BB0),
+        'se' => const Color(0xFF7E9AA6),
+        'i' => const Color(0xFF5B6FB0),
+        'cl' => const Color(0xFF7FB0A8),
+        's' => const Color(0xFFC7B24A),
+        'f' => const Color(0xFF6FA0C0),
+        'cr' => const Color(0xFF8FA05B),
+        'mo' => const Color(0xFF9A8A5B),
+        'co' => const Color(0xFF5B8AA0),
+        // Vitamins.
         'vit_c' => const Color(0xFF3F9E74),
         'vit_a' => const Color(0xFFE08B3E),
         'vit_d' => const Color(0xFF7A77C8),
+        'vit_e' => const Color(0xFFC08A3E),
+        'vit_k' => const Color(0xFF4F8F5B),
+        'vit_h' => const Color(0xFFB0885B),
+        'vit_b1' => const Color(0xFFD98A6A),
+        'vit_b2' => const Color(0xFFD9A24A),
+        'vit_b3' => const Color(0xFFC7A057),
+        'vit_b4' => const Color(0xFFA88FBF),
+        'vit_b5' => const Color(0xFF8FB07A),
+        'vit_b6' => const Color(0xFF6FA890),
+        'vit_b9' => const Color(0xFF5FA06A),
+        'vit_b12' => const Color(0xFFB06A8F),
         _ => const Color(0xFF6D8B7B),
       };
 
   void _pickPortion() {
+    final t = context.read<AppStore>().theme;
     final l = context.l10nRead;
     final gramsValues = [for (var g = 10; g <= 1000; g += 5) g];
     final standardValues =
@@ -502,8 +541,7 @@ class _DishScreenState extends State<DishScreen> {
                         child: CupertinoPicker(
                           scrollController: kcalCtrl,
                           itemExtent: 44,
-                          selectionOverlay:
-                              const EcoPickerSelectionOverlay(t: t),
+                          selectionOverlay: EcoPickerSelectionOverlay(t: t),
                           onSelectedItemChanged: (i) =>
                               sync(gramsCtrl, i, setSheetState),
                           children: [
@@ -524,8 +562,7 @@ class _DishScreenState extends State<DishScreen> {
                         child: CupertinoPicker(
                           scrollController: gramsCtrl,
                           itemExtent: 44,
-                          selectionOverlay:
-                              const EcoPickerSelectionOverlay(t: t),
+                          selectionOverlay: EcoPickerSelectionOverlay(t: t),
                           onSelectedItemChanged: (i) =>
                               sync(kcalCtrl, i, setSheetState),
                           children: [
@@ -602,11 +639,11 @@ class _PortionStandardTabs extends StatelessWidget {
         children: [
           Positioned.fill(
             child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 160),
+              duration: const Duration(milliseconds: 80),
               curve: Curves.easeOutCubic,
               opacity: value == null ? 0 : 1,
               child: AnimatedAlign(
-                duration: const Duration(milliseconds: 230),
+                duration: const Duration(milliseconds: 115),
                 curve: Curves.easeOutCubic,
                 alignment: _alignmentFor(value ?? 0),
                 child: FractionallySizedBox(
@@ -616,8 +653,10 @@ class _PortionStandardTabs extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: t.dark.withValues(alpha: 0.92),
                       borderRadius: BorderRadius.circular(999),
+                      // Liquid-glass: яркий кант (как у выделения пикера).
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.24),
+                        color: Colors.white.withValues(alpha: 0.55),
+                        width: 1.1,
                       ),
                       boxShadow: [
                         BoxShadow(
@@ -626,6 +665,26 @@ class _PortionStandardTabs extends StatelessWidget {
                           offset: const Offset(0, 6),
                         ),
                       ],
+                    ),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: FractionallySizedBox(
+                        widthFactor: 0.92,
+                        heightFactor: 0.5,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withValues(alpha: 0.30),
+                                Colors.white.withValues(alpha: 0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -641,12 +700,12 @@ class _PortionStandardTabs extends StatelessWidget {
                     onTap: () => onChanged(i),
                     child: Center(
                       child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 170),
+                        duration: const Duration(milliseconds: 85),
                         curve: Curves.easeOutCubic,
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
-                          color: i == value ? t.pill : t.dark,
+                          color: i == value ? t.onDark : t.ink,
                         ),
                         child: Text(
                           labels[i],
@@ -672,9 +731,10 @@ class _PortionStandardTabs extends StatelessWidget {
 }
 
 class _MacroPercentLabels extends StatelessWidget {
+  final EcoTheme t;
   final List<({int pct, Color color, String label})> segments;
 
-  const _MacroPercentLabels({required this.segments});
+  const _MacroPercentLabels({required this.t, required this.segments});
 
   @override
   Widget build(BuildContext context) {
@@ -728,10 +788,10 @@ class _MacroPercentLabels extends StatelessWidget {
                     '${segments[i].pct}%',
                     textAlign: TextAlign.center,
                     maxLines: 1,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: EcoColors.sub,
+                      color: t.sub,
                     ),
                   ),
                 ),
@@ -823,8 +883,10 @@ class _DishHero extends StatelessWidget {
         return SizedBox(
           height: heroHeight,
           child: ClipRRect(
+            // Верхние углы = радиус стандартной карточки (t.r = 20), чтобы
+            // картинка точно вписывалась в подложку.
             borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(26),
+              top: Radius.circular(20),
               bottom: Radius.circular(22),
             ),
             child: Stack(
@@ -941,27 +1003,29 @@ class _HeroGlassSurface extends StatelessWidget {
           ),
         ],
       ),
+      // Раньше здесь был BackdropFilter(blur 8): экран блюда скроллится внутри
+      // SingleChildScrollView, поэтому размытие пересэмплировало кадр-буфер на
+      // КАЖДОМ кадре прокрутки. Над фото-героем матовый эффект практически не
+      // отличим от статичной полупрозрачной заливки + градиент + кайма, поэтому
+      // убираем дорогой backdrop-проход (тот же приём уже применён к нав-бару).
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: fillColor ?? Colors.white.withValues(alpha: 0.06),
-              borderRadius: borderRadius,
-              border: Border.all(color: Colors.white.withValues(alpha: 0.50)),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: gradientColors ??
-                    [
-                      Colors.white.withValues(alpha: 0.18),
-                      Colors.white.withValues(alpha: 0.02),
-                    ],
-              ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: fillColor ?? Colors.white.withValues(alpha: 0.16),
+            borderRadius: borderRadius,
+            border: Border.all(color: Colors.white.withValues(alpha: 0.50)),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: gradientColors ??
+                  [
+                    Colors.white.withValues(alpha: 0.18),
+                    Colors.white.withValues(alpha: 0.02),
+                  ],
             ),
-            child: child,
           ),
+          child: child,
         ),
       ),
     );
@@ -1018,13 +1082,13 @@ class _FavoriteButton extends StatelessWidget {
 }
 
 class _DishHeroImage extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final Product product;
 
   const _DishHeroImage({required this.product});
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final imagePath = product.imageAssetPath;
     if (imagePath != null) {
       final media = MediaQuery.of(context);
@@ -1034,13 +1098,13 @@ class _DishHeroImage extends StatelessWidget {
         fit: BoxFit.cover,
         cacheWidth: cacheWidth,
         filterQuality: FilterQuality.medium,
-        errorBuilder: (_, __, ___) => _fallback(),
+        errorBuilder: (_, __, ___) => _fallback(t),
       );
     }
-    return _fallback();
+    return _fallback(t);
   }
 
-  Widget _fallback() {
+  Widget _fallback(EcoTheme t) {
     final emoji = product.emoji;
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -1058,7 +1122,7 @@ class _DishHeroImage extends StatelessWidget {
                     ? Icons.local_drink_outlined
                     : Icons.restaurant_menu,
                 size: 72,
-                color: t.dark,
+                color: t.ink,
               ),
       ),
     );

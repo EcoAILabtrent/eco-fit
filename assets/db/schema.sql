@@ -1,3 +1,6 @@
+-- Eco Fit offline DB schema (reconstructed from eco_fit.db).
+-- The FTS5 table food_search_fts is created by build_offline_db.py, not here.
+
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE metadata (
@@ -57,8 +60,6 @@ CREATE TABLE categories (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_categories_parent_id ON categories(parent_id);
-
 CREATE TABLE category_translations (
   category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
   locale_code TEXT NOT NULL REFERENCES locales(code) ON DELETE CASCADE,
@@ -69,9 +70,6 @@ CREATE TABLE category_translations (
     CHECK (translation_status IN ('source', 'human', 'machine', 'missing')),
   PRIMARY KEY (category_id, locale_code)
 );
-
-CREATE INDEX idx_category_translations_locale_name
-  ON category_translations(locale_code, name);
 
 CREATE TABLE foods (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,10 +93,6 @@ CREATE TABLE foods (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_foods_category_id ON foods(primary_category_id);
-CREATE INDEX idx_foods_type_code ON foods(type_code);
-CREATE INDEX idx_foods_default_unit_id ON foods(default_unit_id);
-
 CREATE TABLE food_translations (
   food_id INTEGER NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
   locale_code TEXT NOT NULL REFERENCES locales(code) ON DELETE CASCADE,
@@ -112,9 +106,6 @@ CREATE TABLE food_translations (
   PRIMARY KEY (food_id, locale_code)
 );
 
-CREATE INDEX idx_food_translations_locale_name
-  ON food_translations(locale_code, name);
-
 CREATE TABLE food_aliases (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   food_id INTEGER NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
@@ -124,9 +115,6 @@ CREATE TABLE food_aliases (
   source TEXT NOT NULL DEFAULT 'manual',
   UNIQUE (food_id, locale_code, normalized_alias)
 );
-
-CREATE INDEX idx_food_aliases_locale_alias
-  ON food_aliases(locale_code, normalized_alias);
 
 CREATE TABLE food_category_links (
   food_id INTEGER NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
@@ -176,8 +164,6 @@ CREATE TABLE food_nutrients (
   PRIMARY KEY (food_id, nutrient_id)
 );
 
-CREATE INDEX idx_food_nutrients_nutrient_id ON food_nutrients(nutrient_id);
-
 CREATE TABLE food_serving_units (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   food_id INTEGER NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
@@ -193,8 +179,6 @@ CREATE TABLE food_serving_units (
   sort_order INTEGER NOT NULL DEFAULT 0,
   UNIQUE (food_id, unit_id, default_quantity)
 );
-
-CREATE INDEX idx_food_serving_units_food_id ON food_serving_units(food_id);
 
 CREATE TABLE food_serving_translations (
   serving_id INTEGER NOT NULL REFERENCES food_serving_units(id) ON DELETE CASCADE,
@@ -228,8 +212,6 @@ CREATE TABLE food_images (
     OR file_name IS NOT NULL
   )
 );
-
-CREATE INDEX idx_food_images_food_id ON food_images(food_id);
 
 CREATE TABLE food_barcodes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -289,9 +271,6 @@ CREATE TABLE user_goal_profiles (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_user_goal_profiles_user_active
-  ON user_goal_profiles(user_id, is_active);
-
 CREATE TABLE body_measurements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -304,9 +283,6 @@ CREATE TABLE body_measurements (
   note TEXT
 );
 
-CREATE INDEX idx_body_measurements_user_time
-  ON body_measurements(user_id, measured_at);
-
 CREATE TABLE blood_pressure_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -317,9 +293,6 @@ CREATE TABLE blood_pressure_logs (
   note TEXT
 );
 
-CREATE INDEX idx_blood_pressure_logs_user_time
-  ON blood_pressure_logs(user_id, measured_at);
-
 CREATE TABLE blood_sugar_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -329,9 +302,6 @@ CREATE TABLE blood_sugar_logs (
   note TEXT
 );
 
-CREATE INDEX idx_blood_sugar_logs_user_time
-  ON blood_sugar_logs(user_id, measured_at);
-
 CREATE TABLE water_logs (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -339,8 +309,6 @@ CREATE TABLE water_logs (
   amount_ml INTEGER NOT NULL,
   source TEXT NOT NULL DEFAULT 'manual'
 );
-
-CREATE INDEX idx_water_logs_user_time ON water_logs(user_id, logged_at);
 
 CREATE TABLE step_daily_logs (
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -357,8 +325,6 @@ CREATE TABLE step_samples (
   sampled_at TEXT NOT NULL,
   raw_counter INTEGER NOT NULL
 );
-
-CREATE INDEX idx_step_samples_user_time ON step_samples(user_id, sampled_at);
 
 CREATE TABLE meal_types (
   code TEXT PRIMARY KEY,
@@ -392,8 +358,6 @@ CREATE TABLE meal_logs (
   UNIQUE (user_id, log_date, meal_type_code)
 );
 
-CREATE INDEX idx_meal_logs_user_date ON meal_logs(user_id, log_date);
-
 CREATE TABLE meal_log_items (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   meal_log_id INTEGER NOT NULL REFERENCES meal_logs(id) ON DELETE CASCADE,
@@ -412,9 +376,6 @@ CREATE TABLE meal_log_items (
   sort_order INTEGER NOT NULL DEFAULT 0,
   CHECK (food_id IS NOT NULL OR custom_name IS NOT NULL)
 );
-
-CREATE INDEX idx_meal_log_items_meal_log_id ON meal_log_items(meal_log_id);
-CREATE INDEX idx_meal_log_items_food_id ON meal_log_items(food_id);
 
 CREATE TABLE favorite_foods (
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -438,6 +399,51 @@ CREATE TABLE change_log (
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   synced_at TEXT
 );
+
+CREATE INDEX idx_categories_parent_id ON categories(parent_id);
+
+CREATE INDEX idx_category_translations_locale_name
+  ON category_translations(locale_code, name);
+
+CREATE INDEX idx_foods_category_id ON foods(primary_category_id);
+
+CREATE INDEX idx_foods_type_code ON foods(type_code);
+
+CREATE INDEX idx_foods_default_unit_id ON foods(default_unit_id);
+
+CREATE INDEX idx_food_translations_locale_name
+  ON food_translations(locale_code, name);
+
+CREATE INDEX idx_food_aliases_locale_alias
+  ON food_aliases(locale_code, normalized_alias);
+
+CREATE INDEX idx_food_nutrients_nutrient_id ON food_nutrients(nutrient_id);
+
+CREATE INDEX idx_food_serving_units_food_id ON food_serving_units(food_id);
+
+CREATE INDEX idx_food_images_food_id ON food_images(food_id);
+
+CREATE INDEX idx_user_goal_profiles_user_active
+  ON user_goal_profiles(user_id, is_active);
+
+CREATE INDEX idx_body_measurements_user_time
+  ON body_measurements(user_id, measured_at);
+
+CREATE INDEX idx_blood_pressure_logs_user_time
+  ON blood_pressure_logs(user_id, measured_at);
+
+CREATE INDEX idx_blood_sugar_logs_user_time
+  ON blood_sugar_logs(user_id, measured_at);
+
+CREATE INDEX idx_water_logs_user_time ON water_logs(user_id, logged_at);
+
+CREATE INDEX idx_step_samples_user_time ON step_samples(user_id, sampled_at);
+
+CREATE INDEX idx_meal_logs_user_date ON meal_logs(user_id, log_date);
+
+CREATE INDEX idx_meal_log_items_meal_log_id ON meal_log_items(meal_log_id);
+
+CREATE INDEX idx_meal_log_items_food_id ON meal_log_items(food_id);
 
 CREATE VIEW v_foods_for_app AS
 SELECT

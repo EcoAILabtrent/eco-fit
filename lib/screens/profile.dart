@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
+import '../data/products.dart';
 import '../l10n/app_strings.dart';
+import '../nutrition/energy.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/language_selector.dart';
 import '../ui/ui.dart';
-import 'home.dart' show HomeScreen, showMealPicker;
+import 'home.dart' show HomeScreen, MealPickerHost;
 
 /// Профиль — port of profile.jsx::Profile. Identity + goals + body params +
 /// settings, fed by the real onboarding data from the store.
@@ -22,12 +24,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  static const t = EcoTheme.meadow;
   bool notif = true;
 
   void _editProfile() {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(
+      EcoPageRoute<void>(
         builder: (_) => const _ProfileEditScreen(),
       ),
     );
@@ -43,8 +44,104 @@ class _ProfileScreenState extends State<ProfileScreen> {
     context.read<AppStore>().setAvatarPath(picked.path);
   }
 
+  // Сброс данных: спрашиваем подтверждение (действие необратимо), затем
+  // очищаем хранилище и уводим в онбординг, как при первом запуске.
+  Future<void> _confirmResetData() async {
+    final l = context.l10nRead;
+    final store = context.read<AppStore>();
+    final t = store.theme;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierColor: const Color(0x4714180C),
+      builder: (ctx) => Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          // Material-предок нужен тексту, иначе он рисуется с отладочным
+          // жёлтым подчёркиванием (нет DefaultTextStyle).
+          child: Material(
+            type: MaterialType.transparency,
+            child: EcoGlassSurface(
+              t: t,
+              blur: 60,
+              padding: const EdgeInsets.fromLTRB(24, 22, 24, 22),
+              borderRadius: BorderRadius.circular(26),
+              shadows: const [
+                BoxShadow(
+                  color: Color(0x28FFFFFF),
+                  blurRadius: 24,
+                  offset: Offset(-2, -2),
+                ),
+              ],
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    l.t('common.resetData'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Onest',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: t.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    l.t('common.resetDataConfirm'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'Onest',
+                      fontSize: 14,
+                      height: 1.3,
+                      fontWeight: FontWeight.w500,
+                      color: t.sub,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: EcoBtn(
+                          t: t,
+                          bg: t.band,
+                          fg: t.ink,
+                          height: 46,
+                          onTap: () => Navigator.of(ctx).pop(false),
+                          child: Text(l.t('common.cancel')),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: EcoBtn(
+                          t: t,
+                          height: 46,
+                          onTap: () => Navigator.of(ctx).pop(true),
+                          child: Text(l.t('common.yes')),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    await store.resetUserData();
+    if (!mounted) return;
+    // База продуктов под язык по умолчанию (reset вернул язык к дефолту), как
+    // при чистом запуске; язык всё равно переспрашивается на 1-м шаге онбординга.
+    await FoodDb.instance.load(localeCode: store.language.productLocale);
+    if (!mounted) return;
+    // Чистый старт: вычищаем стек навигации и ведём в онбординг.
+    Navigator.of(context).pushNamedAndRemoveUntil('/onboarding', (_) => false);
+  }
+
   // Read-only label/value row (same look as the editor, without the chevron).
-  Widget _paramRow(String label, String value, {bool last = false}) {
+  Widget _paramRow(EcoTheme t, String label, String value,
+      {bool last = false}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
@@ -79,26 +176,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppStore>();
+    // Подписываемся только на ПОКАЗАННЫЕ поля профиля (без cardOpacity — он
+    // обновляется в ползунке/карточках через свой select; иначе перетаскивание
+    // перестраивало бы весь экран каждый кадр) и без тиков шагомера/воды.
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    context.select<AppStore, int>((s) => Object.hash(
+          s.profileName,
+          s.gender,
+          s.birthDate,
+          s.heightCm,
+          s.avatarPath,
+          s.darkMode,
+        ));
+    final s = context.read<AppStore>();
     final l = context.l10n;
     final profileName = s.profileName ?? l.t('profile.myProfile');
 
     return EcoScreen(
       t: t,
-      footer: EcoBottomNav(
+      footer: MealPickerHost(
         t: t,
         active: 'profile',
         onHome: () => Navigator.of(context).pushAndRemoveUntil(
-          PageRouteBuilder<void>(
+          // Профиль → главная мгновенно (без анимации), как переключение вкладок.
+          EcoInstantRoute<void>(
             settings: const RouteSettings(name: '/'),
-            pageBuilder: (_, __, ___) => const HomeScreen(),
-            transitionDuration: Duration.zero,
-            reverseTransitionDuration: Duration.zero,
+            builder: (_) => const HomeScreen(),
           ),
           (_) => false,
         ),
         onProfile: () {},
-        onPlus: () => showMealPicker(context, active: 'profile'),
       ),
       child: Padding(
         padding: EdgeInsets.only(
@@ -157,6 +264,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 12),
                         _paramRow(
+                          t,
                           l.t('profile.sex'),
                           s.gender == 'f'
                               ? l.t('profile.female')
@@ -165,18 +273,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   : '—',
                         ),
                         _paramRow(
+                          t,
                           l.t('profile.age'),
                           s.birthDate != null
                               ? l.birthValue(s.birthDate!)
                               : '—',
                         ),
                         _paramRow(
+                          t,
                           l.t('profile.height'),
                           s.heightCm != null
                               ? '${s.heightCm} ${l.unit('cm')}'
                               : '—',
                         ),
                         _paramRow(
+                          t,
                           l.t('profile.weight'),
                           _weightStr(s, l),
                           last: true,
@@ -209,7 +320,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: t.bandSoft,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.edit_outlined, size: 19, color: t.dark),
+                      child: Icon(Icons.edit_outlined, size: 19, color: t.ink),
                     ),
                   ),
                 ),
@@ -230,9 +341,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     mb: 4,
                   ),
                   _row(
+                    t,
                     l.t('common.language'),
                     '',
-                    control: const LanguageSelector(
+                    control: LanguageSelector(
                       t: t,
                       compact: true,
                       width: 58,
@@ -240,6 +352,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   _row(
+                    t,
                     l.t('common.notifications'),
                     '',
                     control: _Toggle(
@@ -247,7 +360,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onChanged: (v) => setState(() => notif = v),
                     ),
                   ),
-                  _row(l.t('common.privacy'), '', onTap: () {}, last: true),
+                  _row(
+                    t,
+                    l.t('common.darkTheme'),
+                    '',
+                    control: _Toggle(
+                      on: s.darkMode,
+                      onChanged: (v) =>
+                          context.read<AppStore>().setDarkMode(v),
+                    ),
+                  ),
+                  // Ползунок прозрачности карточек (вправо = прозрачнее).
+                  // Свой Builder со select(cardOpacity): перетаскивание
+                  // перестраивает только эту строку (и стеклянные карточки — у них
+                  // свой select), а не весь экран профиля каждый кадр.
+                  Builder(
+                    builder: (context) {
+                      final cardOpacity = context
+                          .select<AppStore, double>((x) => x.cardOpacity);
+                      return Container(
+                    padding: const EdgeInsets.only(top: 14, bottom: 8),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: t.bandSoft, width: 1.5),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                l.t('common.cardTransparency'),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '${(((0.95 - cardOpacity) / (0.95 - 0.08)) * 100).round()}%',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: t.ink.withValues(alpha: 0.55),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 6,
+                            activeTrackColor: t.olive,
+                            // Полоса обрывается на бегунке — справа от него трека
+                            // нет (inactive прозрачный).
+                            inactiveTrackColor: Colors.transparent,
+                            trackShape: const RoundedRectSliderTrackShape(),
+                            thumbShape: _GlassSliderThumb(accent: t.olive),
+                            overlayShape: const RoundSliderOverlayShape(
+                              overlayRadius: 20,
+                            ),
+                            overlayColor: t.olive.withValues(alpha: 0.12),
+                          ),
+                          child: Slider(
+                            value: ((0.95 - cardOpacity) / (0.95 - 0.08))
+                                .clamp(0.0, 1.0),
+                            onChanged: (v) => context
+                                .read<AppStore>()
+                                .setCardOpacity(0.95 - v * (0.95 - 0.08)),
+                          ),
+                        ),
+                      ],
+                    ),
+                      );
+                    },
+                  ),
+                  _row(t, l.t('common.privacy'), '', onTap: () {}, last: true),
                 ],
               ),
             ),
@@ -257,14 +446,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: EcoBtn(
                 t: t,
                 bg: t.bandSoft,
-                fg: t.dark,
-                onTap: () => Navigator.of(context).pushNamed('/onboarding'),
+                fg: t.ink,
+                // Сброс данных — стирает профиль и весь прогресс, после чего
+                // приложение ведёт в онбординг, как при первом запуске.
+                onTap: _confirmResetData,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.logout, size: 20),
+                    const Icon(Icons.delete_outline, size: 20),
                     const SizedBox(width: 8),
-                    Text(l.t('common.logout')),
+                    Text(l.t('common.resetData')),
                   ],
                 ),
               ),
@@ -276,6 +467,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _row(
+    EcoTheme t,
     String label,
     String value, {
     Widget? control,
@@ -308,17 +500,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             else ...[
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: EcoColors.sub,
+                  color: t.sub,
                 ),
               ),
               if (onTap != null)
-                const Icon(
+                Icon(
                   Icons.chevron_right,
                   size: 18,
-                  color: EcoColors.faint,
+                  color: t.faint,
                 ),
             ],
           ],
@@ -329,8 +521,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 }
 
 class _ProfileEditScreen extends StatefulWidget {
-  static const t = EcoTheme.meadow;
-
   const _ProfileEditScreen();
 
   @override
@@ -372,23 +562,14 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
     super.dispose();
   }
 
-  int get _norm {
-    final age = AppStore.ageFromBirth(_birthDate);
-    final bmr =
-        (10 * _weight + 6.25 * _height - 5 * age + (_gender == 'm' ? 5 : -161))
-            .round();
-    final activityFactor = switch (_activity) {
-      'low' => 1.2,
-      'high' => 1.7,
-      _ => 1.45,
-    };
-    final tdee = (bmr * activityFactor).round();
-    return _goal == 'lose'
-        ? tdee - 400
-        : _goal == 'gain'
-            ? tdee + 350
-            : tdee;
-  }
+  int get _norm => calorieGoalFor(
+        ageYears: AppStore.ageFromBirth(_birthDate),
+        sex: _gender,
+        weightKg: _weight,
+        heightCm: _height.toDouble(),
+        activity: _activity,
+        goal: _goal,
+      );
 
   String _formatWeight(AppStrings l) {
     final decimal =
@@ -408,20 +589,21 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
   }
 
   Future<void> _pickBirthDate() {
+    final t = context.read<AppStore>().theme;
     var draft = _birthDate;
     return showEcoSheet(
       context: context,
-      t: _ProfileEditScreen.t,
+      t: t,
       title: context.l10nRead.t('profile.age'),
       doneLabel: context.l10nRead.t('common.save'),
       onDone: () => setState(() => _birthDate = draft),
       body: SizedBox(
         height: 200,
         child: EcoDatePicker(
-          t: _ProfileEditScreen.t,
+          t: t,
           initialDate: _birthDate,
           minYear: DateTime.now().year - 100,
-          maxYear: DateTime.now().year - 12,
+          maxYear: DateTime.now().year - 5,
           monthNames: [
             for (var m = 1; m <= 12; m++) context.l10nRead.monthName(m),
           ],
@@ -433,11 +615,11 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
 
   Future<void> _pickGender() async {
     final l = context.l10nRead;
+    final t = context.read<AppStore>().theme;
     final next = await showEcoChoicePopup<String>(
       context: context,
-      t: _ProfileEditScreen.t,
+      t: t,
       anchorKey: _genderRowKey,
-      width: 176,
       selected: _gender,
       options: [
         EcoChoiceOption(value: 'm', label: l.t('profile.male')),
@@ -457,17 +639,21 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
     required String unit,
     required ValueChanged<int> onSave,
   }) async {
+    final t = context.read<AppStore>().theme;
     var draft = value;
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       barrierColor: const Color(0x4714180C),
       builder: (sheetCtx) => EcoGlassSurface(
-        t: _ProfileEditScreen.t,
+        t: t,
         margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         padding: const EdgeInsets.fromLTRB(24, 18, 24, 22),
-        bg: _ProfileEditScreen.t.band,
-        blur: 18,
+        // Окно ввода: полупрозрачная стеклянная подложка как у пикеров
+        // онбординга («Ваш рост»). solid:false → фон просвечивает, + сильное
+        // размытие, чтобы фон не мешал.
+        solid: false,
+        blur: 60,
         borderRadius: BorderRadius.circular(26),
         child: StatefulBuilder(
           builder: (context, setSheetState) {
@@ -480,7 +666,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: _ProfileEditScreen.t.dark,
+                    color: t.ink,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -491,8 +677,8 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                       initialItem: (value - min).clamp(0, max - min).toInt(),
                     ),
                     itemExtent: 42,
-                    selectionOverlay: const EcoPickerSelectionOverlay(
-                      t: _ProfileEditScreen.t,
+                    selectionOverlay: EcoPickerSelectionOverlay(
+                      t: t,
                     ),
                     onSelectedItemChanged: (index) =>
                         setSheetState(() => draft = min + index),
@@ -516,11 +702,11 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                   children: [
                     Expanded(
                       child: EcoBtn(
-                        t: _ProfileEditScreen.t,
+                        t: t,
                         height: 46,
                         fontSize: 16,
-                        bg: _ProfileEditScreen.t.pill,
-                        fg: _ProfileEditScreen.t.dark,
+                        bg: t.pill,
+                        fg: t.ink,
                         onTap: () => Navigator.of(sheetCtx).pop(),
                         child: Text(context.l10nRead.t('common.cancel')),
                       ),
@@ -528,7 +714,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: EcoBtn(
-                        t: _ProfileEditScreen.t,
+                        t: t,
                         height: 46,
                         fontSize: 16,
                         onTap: () {
@@ -567,15 +753,16 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     final bottomInset = MediaQuery.of(context).padding.bottom;
     return Scaffold(
-      backgroundColor: _ProfileEditScreen.t.bg,
+      backgroundColor: t.bg,
       body: BackdropGroup(
         child: Stack(
           children: [
-            const Positioned.fill(
-              child: EcoGlassBackground(t: _ProfileEditScreen.t),
+            Positioned.fill(
+              child: EcoGlassBackground(t: t),
             ),
             SafeArea(
               bottom: false,
@@ -589,13 +776,13 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () => Navigator.of(context).pop(),
-                          child: const SizedBox(
+                          child: SizedBox(
                             width: 28,
                             height: 34,
                             child: Icon(
                               Icons.chevron_left,
                               size: 30,
-                              color: EcoColors.ink,
+                              color: t.ink,
                             ),
                           ),
                         ),
@@ -622,7 +809,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                           width: double.infinity,
                           margin: const EdgeInsets.only(top: 80, bottom: 12),
                           child: EcoGlassSurface(
-                            t: _ProfileEditScreen.t,
+                            t: t,
                             padding: const EdgeInsets.fromLTRB(18, 96, 18, 16),
                             child: Center(
                               child: Container(
@@ -631,7 +818,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                                   vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: _ProfileEditScreen.t.bandSoft,
+                                  color: t.bandSoft,
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: ConstrainedBox(
@@ -649,10 +836,10 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                                         isDense: true,
                                         contentPadding: EdgeInsets.zero,
                                       ),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w700,
-                                        color: EcoColors.ink,
+                                        color: t.ink,
                                       ),
                                     ),
                                   ),
@@ -676,7 +863,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                       ],
                     ),
                     EcoGlassSurface(
-                      t: _ProfileEditScreen.t,
+                      t: t,
                       padding: const EdgeInsets.fromLTRB(14, 16, 14, 0),
                       margin: const EdgeInsets.only(bottom: 14),
                       child: Column(
@@ -692,7 +879,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                             decoration: BoxDecoration(
                               border: Border(
                                 bottom: BorderSide(
-                                  color: _ProfileEditScreen.t.bandSoft,
+                                  color: t.bandSoft,
                                   width: 1.3,
                                 ),
                               ),
@@ -718,7 +905,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                                       vertical: 7,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: _ProfileEditScreen.t.bandSoft,
+                                      color: t.bandSoft,
                                       borderRadius: BorderRadius.circular(999),
                                     ),
                                     child: Text(
@@ -728,7 +915,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                                       style: TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w800,
-                                        color: _ProfileEditScreen.t.dark,
+                                        color: t.ink,
                                       ),
                                     ),
                                   ),
@@ -842,9 +1029,9 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                 children: [
                   Expanded(
                     child: EcoBtn(
-                      t: _ProfileEditScreen.t,
-                      bg: _ProfileEditScreen.t.pill,
-                      fg: _ProfileEditScreen.t.dark,
+                      t: t,
+                      bg: t.pill,
+                      fg: t.ink,
                       onTap: () => Navigator.of(context).pop(),
                       child: Text(l.t('common.cancel')),
                     ),
@@ -852,7 +1039,7 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: EcoBtn(
-                      t: _ProfileEditScreen.t,
+                      t: t,
                       onTap: _save,
                       child: Text(l.t('common.save')),
                     ),
@@ -868,7 +1055,6 @@ class _ProfileEditScreenState extends State<_ProfileEditScreen> {
 }
 
 class _EditCardHeader extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final IconData icon;
   final String title;
 
@@ -876,6 +1062,7 @@ class _EditCardHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return Row(
       children: [
         EcoIconBadge(t: t, iconData: icon),
@@ -885,10 +1072,10 @@ class _EditCardHeader extends StatelessWidget {
             title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: EcoColors.ink,
+              color: t.ink,
             ),
           ),
         ),
@@ -898,7 +1085,6 @@ class _EditCardHeader extends StatelessWidget {
 }
 
 class _ProfileEditRow extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final String label;
   final String value;
   final VoidCallback? onTap;
@@ -913,6 +1099,7 @@ class _ProfileEditRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final row = Container(
       padding: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
@@ -934,7 +1121,7 @@ class _ProfileEditRow extends StatelessWidget {
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.chevron_right, size: 17, color: EcoColors.faint),
+          Icon(Icons.chevron_right, size: 17, color: t.faint),
         ],
       ),
     );
@@ -948,7 +1135,6 @@ class _ProfileEditRow extends StatelessWidget {
 }
 
 class _ProfileAvatar extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final String? path;
   final double size;
   final VoidCallback? onTap;
@@ -957,6 +1143,7 @@ class _ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final hasImage =
         path != null && path!.isNotEmpty && File(path!).existsSync();
     return GestureDetector(
@@ -985,7 +1172,7 @@ class _ProfileAvatar extends StatelessWidget {
         ),
         child: hasImage
             ? null
-            : Icon(Icons.person, size: size * 0.46, color: t.pill),
+            : Icon(Icons.person, size: size * 0.46, color: t.onDark),
       ),
     );
   }
@@ -1008,7 +1195,6 @@ class _ChoiceValue {
 }
 
 class _ChoicePanel extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final String title;
   final List<_ChoiceValue> values;
   final String selected;
@@ -1023,6 +1209,7 @@ class _ChoicePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final selectedValue = values.firstWhere(
       (item) => item.key == selected,
       orElse: () => values.first,
@@ -1037,10 +1224,10 @@ class _ChoicePanel extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: EcoColors.ink,
+                color: t.ink,
               ),
             ),
           ),
@@ -1064,7 +1251,7 @@ class _ChoicePanel extends StatelessWidget {
                                 child: Icon(
                                   item.icon,
                                   size: 22,
-                                  color: t.pill,
+                                  color: t.onDark,
                                 ),
                               )
                             : EcoIconBadge(
@@ -1076,10 +1263,10 @@ class _ChoicePanel extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           item.label,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: EcoColors.sub,
+                            color: t.sub,
                           ),
                         ),
                       ],
@@ -1102,10 +1289,10 @@ class _ChoicePanel extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 height: 1.25,
-                color: EcoColors.sub,
+                color: t.sub,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1117,7 +1304,6 @@ class _ChoicePanel extends StatelessWidget {
 }
 
 class _Toggle extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final bool on;
   final ValueChanged<bool> onChanged;
 
@@ -1125,10 +1311,11 @@ class _Toggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return GestureDetector(
       onTap: () => onChanged(!on),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 100),
         width: 58,
         height: 32,
         padding: const EdgeInsets.all(3),
@@ -1153,6 +1340,104 @@ class _Toggle extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Бегунок слайдера в стиле «liquid glass»: матовое стекло с радиальным
+/// градиентом + светящиеся канты и верхний specular-блик. Без BackdropFilter —
+/// эффект рисуется на канве (без размытия фона), чтобы не нагружать растеризацию.
+class _GlassSliderThumb extends SliderComponentShape {
+  static const double radius = 13;
+  final Color accent;
+  const _GlassSliderThumb({required this.accent});
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) =>
+      Size.fromRadius(radius);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final canvas = context.canvas;
+    final r = radius;
+    final rect = Rect.fromCircle(center: center, radius: r);
+
+    // Мягкая тень под бегунком.
+    canvas.drawCircle(
+      center.translate(0, 1.6),
+      r,
+      Paint()
+        ..color = const Color(0x33000000)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+
+    // Матовое стекло: светлее сверху-слева, к низу — лёгкий оттенок акцента.
+    canvas.drawCircle(
+      center,
+      r,
+      Paint()
+        ..shader = RadialGradient(
+          center: const Alignment(-0.4, -0.5),
+          radius: 1.1,
+          colors: [
+            const Color(0xF7FFFFFF),
+            const Color(0xCCFFFFFF),
+            accent.withValues(alpha: 0.22),
+          ],
+          stops: const [0.0, 0.55, 1.0],
+        ).createShader(rect),
+    );
+
+    // Канты (liquid-glass блики) — внутри круга.
+    canvas.save();
+    canvas.clipPath(Path()..addOval(rect));
+    canvas.drawPath(
+      Path()..addOval(rect.deflate(0.7)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.2
+        ..color = const Color(0xC8FFFFFF)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.3),
+    );
+    canvas.drawPath(
+      (Path()..addOval(rect.deflate(0.5))).shift(const Offset(0.7, 0.8)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.0
+        ..color = const Color(0x55FFFFFF),
+    );
+    canvas.restore();
+
+    // Чёткая внешняя обводка.
+    canvas.drawCircle(
+      center,
+      r,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0x26000000),
+    );
+
+    // Верхний specular-блик.
+    canvas.drawCircle(
+      center.translate(-r * 0.32, -r * 0.42),
+      r * 0.26,
+      Paint()
+        ..color = const Color(0xF0FFFFFF)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.6),
     );
   }
 }

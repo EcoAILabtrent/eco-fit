@@ -23,7 +23,6 @@ class AddFoodScreen extends StatefulWidget {
 }
 
 class _AddFoodScreenState extends State<AddFoodScreen> {
-  static const t = EcoTheme.meadow;
   final _selected = <String, _SelectedProduct>{};
   String query = '';
   bool catalogMode = true;
@@ -106,7 +105,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
     if (_selected.isEmpty) return;
     _commitSelected();
     Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
+      EcoPageRoute(
         builder: (_) =>
             MealLogScreen(mealKey: widget.mealKey, date: widget.date),
       ),
@@ -181,6 +180,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     final categories = _categoriesFor(l);
     final bottomInset = MediaQuery.of(context).padding.bottom;
@@ -213,7 +213,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            const Positioned.fill(child: EcoGlassBackground(t: t)),
+            Positioned.fill(child: EcoGlassBackground(t: t)),
             SafeArea(
               bottom: false,
               child: Padding(
@@ -227,12 +227,12 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                       onBack: () => Navigator.of(context).pop(),
                     ),
                     AnimatedSize(
-                      duration: const Duration(milliseconds: 220),
-                      curve: Curves.easeOutCubic,
+                      duration: kEcoMotionDuration,
+                      curve: kEcoMotionCurve,
                       alignment: Alignment.topLeft,
                       child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 180),
-                        switchInCurve: Curves.easeOutCubic,
+                        duration: kEcoMotionDuration,
+                        switchInCurve: kEcoMotionCurve,
                         switchOutCurve: Curves.easeInCubic,
                         child: selectedCount > 0
                             ? Padding(
@@ -244,7 +244,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                     Icon(
                                       Icons.check_circle,
                                       size: 16,
-                                      color: t.dark,
+                                      color: t.ink,
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
@@ -255,7 +255,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w700,
-                                        color: t.dark,
+                                        color: t.ink,
                                       ),
                                     ),
                                   ],
@@ -269,7 +269,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                     ),
                     Expanded(
                       child: AnimatedPadding(
-                        duration: const Duration(milliseconds: 220),
+                        duration: const Duration(milliseconds: 110),
                         curve: Curves.easeOutCubic,
                         padding: EdgeInsets.only(
                           top: 16,
@@ -289,10 +289,10 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                   activeFilterLabel,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
-                                    color: EcoColors.ink,
+                                    color: t.ink,
                                   ),
                                 ),
                               ),
@@ -306,6 +306,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                     ? !catalogMode &&
                                             store.favoriteProductSlugs.isEmpty
                                         ? _EmptyFavorites(
+                                            t: t,
                                             text: l.t('food.favoritesEmpty'),
                                             buttonLabel:
                                                 l.t('food.browseProducts'),
@@ -315,9 +316,9 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                         : Center(
                                             child: Text(
                                               l.t('food.noResults'),
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 14,
-                                                color: EcoColors.sub,
+                                                color: t.sub,
                                               ),
                                             ),
                                           )
@@ -343,6 +344,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                           final p = items[i];
                                           final selected = _selected[p.slug];
                                           return _ProductRow(
+                                            t: t,
                                             p: p,
                                             selected: selected != null,
                                             grams: selected?.grams ?? 100,
@@ -357,7 +359,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                               final result = await Navigator.of(
                                                       context)
                                                   .push<DishSelectionResult>(
-                                                MaterialPageRoute(
+                                                EcoPageRoute(
                                                   builder: (_) => DishScreen(
                                                     product: p,
                                                     mealKey: widget.mealKey,
@@ -392,7 +394,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
             ),
 
             AnimatedPositioned(
-              duration: const Duration(milliseconds: 220),
+              duration: const Duration(milliseconds: 110),
               curve: Curves.easeOutCubic,
               left: 16,
               right: 16,
@@ -410,7 +412,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                         Icon(
                           ecoIcon('search'),
                           size: 30,
-                          color: EcoColors.sub,
+                          color: t.sub,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -453,7 +455,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                               });
                               _searchFocus.requestFocus();
                             },
-                            child: Icon(Icons.close, size: 18, color: t.dark),
+                            child: Icon(Icons.close, size: 18, color: t.ink),
                           ),
                         SizedBox(
                           width: 38,
@@ -465,7 +467,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                             icon: Icon(
                               Icons.tune_rounded,
                               size: 20,
-                              color: t.dark,
+                              color: t.ink,
                             ),
                           ),
                         ),
@@ -492,6 +494,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                 offset: const Offset(0, -10),
                 showWhenUnlinked: false,
                 child: _FilterMenuPopup(
+                  t: t,
                   allLabel: _allFilterLabel(l),
                   favoritesLabel: l.t('food.favorites'),
                   categories: categories,
@@ -534,7 +537,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                     child: EcoBtn(
                       t: t,
                       bg: t.dark,
-                      fg: t.pill,
+                      fg: t.onDark,
                       onTap: () {
                         if (_selected.isNotEmpty) {
                           setState(_selected.clear);
@@ -555,7 +558,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                       bg: _selected.isEmpty
                           ? t.dark.withValues(alpha: 0.30)
                           : t.dark,
-                      fg: t.pill,
+                      fg: t.onDark,
                       onTap: _selected.isEmpty ? null : _finish,
                       child: Row(
                         children: [
@@ -611,11 +614,12 @@ class _SelectedProduct {
 }
 
 class _AddFoodTopBar extends StatelessWidget {
+  final EcoTheme t;
   final String title;
   final VoidCallback onBack;
 
   const _AddFoodTopBar({
-    required EcoTheme t,
+    required this.t,
     required this.title,
     required this.onBack,
   });
@@ -629,10 +633,10 @@ class _AddFoodTopBar extends StatelessWidget {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: onBack,
-            child: const SizedBox(
+            child: SizedBox(
               width: 28,
               height: 28,
-              child: Icon(Icons.chevron_left, size: 28, color: EcoColors.ink),
+              child: Icon(Icons.chevron_left, size: 28, color: t.ink),
             ),
           ),
           const SizedBox(width: 2),
@@ -641,10 +645,10 @@ class _AddFoodTopBar extends StatelessWidget {
               title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: EcoColors.ink,
+                color: t.ink,
               ),
             ),
           ),
@@ -655,7 +659,7 @@ class _AddFoodTopBar extends StatelessWidget {
 }
 
 class _FilterMenuPopup extends StatelessWidget {
-  static const t = EcoTheme.meadow;
+  final EcoTheme t;
   final String allLabel;
   final String favoritesLabel;
   final List<ProductCategory> categories;
@@ -667,6 +671,7 @@ class _FilterMenuPopup extends StatelessWidget {
   final ValueChanged<ProductCategory> onCategory;
 
   const _FilterMenuPopup({
+    required this.t,
     required this.allLabel,
     required this.favoritesLabel,
     required this.categories,
@@ -680,26 +685,41 @@ class _FilterMenuPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = (MediaQuery.sizeOf(context).width - 96).clamp(220.0, 244.0);
+    // Ширина подгоняется под самую длинную надпись (включая категории) — без
+    // лишних зазоров и без обрезки, корректно при смене языка. Хром: паддинг
+    // подложки (12*2) + паддинг строки (14*2) + запас (6).
+    final width = ecoPopupContentWidth(
+      context: context,
+      labels: [
+        allLabel,
+        favoritesLabel,
+        for (final category in categories) category.name,
+      ],
+      chrome: 12 * 2 + 14 * 2 + 6,
+      minWidth: 160,
+      maxWidth: MediaQuery.sizeOf(context).width - 32,
+    );
     return Material(
       color: Colors.transparent,
       child: SizedBox(
         width: width,
         child: EcoGlassSurface(
           t: t,
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-          bg: Colors.white.withValues(alpha: 0.46),
-          blur: 22,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          // Подложка как у окон ввода («Размер порции»): полупрозрачное стекло
+          // по теме + сильное размытие.
+          blur: 60,
           borderRadius: BorderRadius.circular(22),
+          // Единые тени для всех меню: мягкая тёмная + верхний блик.
           shadows: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.10),
-              blurRadius: 24,
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 26,
               offset: const Offset(0, 12),
             ),
             BoxShadow(
-              color: Colors.white.withValues(alpha: 0.34),
-              blurRadius: 18,
+              color: Colors.white.withValues(alpha: 0.30),
+              blurRadius: 16,
               offset: const Offset(-2, -2),
             ),
           ],
@@ -707,17 +727,20 @@ class _FilterMenuPopup extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               _FilterMenuItem(
+                t: t,
                 label: allLabel,
                 selected: catalogMode && selectedIds.isEmpty,
                 onTap: onAll,
               ),
               _FilterMenuItem(
+                t: t,
                 label: favoritesLabel,
                 selected: !catalogMode,
                 onTap: onFavorites,
               ),
               for (final category in categories)
                 _FilterMenuItem(
+                  t: t,
                   label: category.name,
                   selected: activeLabel == category.name,
                   onTap: () => onCategory(category),
@@ -731,12 +754,13 @@ class _FilterMenuPopup extends StatelessWidget {
 }
 
 class _FilterMenuItem extends StatelessWidget {
-  static const t = EcoTheme.meadow;
+  final EcoTheme t;
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
   const _FilterMenuItem({
+    required this.t,
     required this.label,
     required this.selected,
     required this.onTap,
@@ -749,36 +773,40 @@ class _FilterMenuItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(999),
-        child: Container(
-          height: 41,
-          alignment: Alignment.centerRight,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            height: selected ? 36 : 41,
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            decoration: BoxDecoration(
-              color: selected
-                  ? Colors.white.withValues(alpha: 0.18)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(999),
-              border: selected
-                  ? Border.all(color: Colors.white.withValues(alpha: 0.58))
-                  : null,
-            ),
-            alignment: Alignment.centerRight,
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.right,
-              style: TextStyle(
-                fontSize: 16,
-                height: 1.05,
-                fontWeight: FontWeight.w800,
-                color: t.dark.withValues(alpha: selected ? 0.95 : 0.88),
+        child: SizedBox(
+          height: 44,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Единое выделение выбранного — стеклянная пилюля как у пикеров
+              // («173 см», фото 5). Выравнивание справа сохраняем.
+              if (selected)
+                Positioned.fill(
+                  child: EcoPickerSelectionOverlay(
+                    t: t,
+                    radius: 999,
+                    margin: EdgeInsets.zero,
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.05,
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+                      color: t.ink.withValues(alpha: selected ? 0.95 : 0.88),
+                    ),
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -787,12 +815,13 @@ class _FilterMenuItem extends StatelessWidget {
 }
 
 class _EmptyFavorites extends StatelessWidget {
-  static const t = EcoTheme.meadow;
+  final EcoTheme t;
   final String text;
   final String buttonLabel;
   final VoidCallback onBrowse;
 
   const _EmptyFavorites({
+    required this.t,
     required this.text,
     required this.buttonLabel,
     required this.onBrowse,
@@ -814,7 +843,7 @@ class _EmptyFavorites extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 height: 1.35,
-                color: EcoColors.sub,
+                color: t.sub,
               ),
             ),
             const SizedBox(height: 14),
@@ -836,7 +865,7 @@ class _EmptyFavorites extends StatelessWidget {
 }
 
 class _ProductRow extends StatelessWidget {
-  static const t = EcoTheme.meadow;
+  final EcoTheme t;
   final Product p;
   final bool selected;
   final int grams;
@@ -844,6 +873,7 @@ class _ProductRow extends StatelessWidget {
   final VoidCallback onOpen;
 
   const _ProductRow({
+    required this.t,
     required this.p,
     required this.selected,
     required this.grams,
@@ -865,7 +895,7 @@ class _ProductRow extends StatelessWidget {
           GestureDetector(
             onTap: onToggle,
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
+              duration: const Duration(milliseconds: 75),
               width: 22,
               height: 22,
               decoration: BoxDecoration(
@@ -877,7 +907,7 @@ class _ProductRow extends StatelessWidget {
                 ),
               ),
               child:
-                  selected ? Icon(Icons.check, size: 14, color: t.pill) : null,
+                  selected ? Icon(Icons.check, size: 14, color: t.onDark) : null,
             ),
           ),
           const SizedBox(width: 12),
@@ -887,7 +917,7 @@ class _ProductRow extends StatelessWidget {
               onTap: onOpen,
               child: Row(
                 children: [
-                  _ProductVisual(product: p),
+                  _ProductVisual(t: t, product: p),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -905,9 +935,9 @@ class _ProductRow extends StatelessWidget {
                         const SizedBox(height: 1),
                         Text(
                           p.category,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: EcoColors.sub,
+                            color: t.sub,
                           ),
                         ),
                       ],
@@ -924,7 +954,7 @@ class _ProductRow extends StatelessWidget {
                       style: TextStyle(
                         fontSize: selected ? 12 : 12.5,
                         fontWeight: FontWeight.w800,
-                        color: selected ? t.dark : EcoColors.ink,
+                        color: t.ink,
                       ),
                     ),
                   ),
@@ -939,10 +969,10 @@ class _ProductRow extends StatelessWidget {
 }
 
 class _ProductVisual extends StatelessWidget {
-  static const t = EcoTheme.meadow;
+  final EcoTheme t;
   final Product product;
 
-  const _ProductVisual({required this.product});
+  const _ProductVisual({required this.t, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -980,7 +1010,7 @@ class _ProductVisual extends StatelessWidget {
     return Icon(
       product.isDrink ? Icons.local_drink_outlined : Icons.restaurant_menu,
       size: 19,
-      color: t.dark,
+      color: t.ink,
     );
   }
 }

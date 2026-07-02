@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
 
+/// Единая «скорость» приложения для всех анимаций открытия/закрытия — переходы
+/// между экранами, выезд панели приёма пищи, всплывающие меню, смена контента
+/// карточки ИИ. Один источник правды: меняешь здесь — меняется везде.
+const Duration kEcoMotionDuration = Duration(milliseconds: 100);
+const Curve kEcoMotionCurve = Curves.easeOutCubic;
+
 class EcoColors {
   EcoColors._();
 
-  static const carb = Color(0xFF4B99FF);
-  static const carbSoft = Color(0xFFA9CCFF);
-  static const fat = Color(0xFFD97332);
-  static const fatSoft = Color(0xFFECC1A3);
-  static const prot = Color(0xFF32D94B);
-  static const protSoft = Color(0xFFA9E6B5);
+  // Акцентные цвета нутриентов/статусов — одинаковы в обеих темах.
+  // Палитра колец Apple Fitness (Activity rings):
+  //   carb  -> Stand    (cyan)  #1BE8EF
+  //   fat   -> Move     (red)   #FA114F
+  //   prot  -> Exercise (green) #92E82A
+  static const carb = Color(0xFF1BE8EF);
+  static const carbSoft = Color(0xFFA6F4F8);
+  static const fat = Color(0xFFFA114F);
+  static const fatSoft = Color(0xFFFCAEC0);
+  static const prot = Color(0xFF92E82A);
+  static const protSoft = Color(0xFFCDF59C);
+  // Акцент «Шаги»: тёмно-зелёный; превышение цели отмечается ещё темнее.
+  static const stepAccent = Color(0xFF2E7D52);
+  static const stepAccentDeep = Color(0xFF14532D);
 
   static const water = Color(0xFF6BD2FB);
   static const waterDeep = Color(0xFF6B99FB);
@@ -19,6 +33,8 @@ class EcoColors {
   static const statusGood = Color(0xFF3D806A);
   static const statusWarn = Color(0xFFA96666);
 
+  // Базовые текстовые цвета (СВЕТЛАЯ тема). Для тёмной темы используйте
+  // токены t.ink / t.sub / t.faint из EcoTheme — они инвертируются.
   static const ink = Color(0xFF010103);
   static const sub = Color(0xFF3C3C3C);
   static const faint = Color(0xFF686868);
@@ -40,6 +56,14 @@ class EcoTheme {
   final Color card;
   final Color cardAlt;
   final Color glassBorder;
+
+  // Текстовые/контентные токены (инвертируются между темами).
+  final Color ink; // основной текст
+  final Color sub; // вторичный текст
+  final Color faint; // приглушённый текст/иконки
+  final Color onDark; // текст/иконки на тёмных пилюлях и кнопках
+
+  final bool isDark;
   final double blur;
   final double r;
 
@@ -58,6 +82,11 @@ class EcoTheme {
     required this.card,
     required this.cardAlt,
     required this.glassBorder,
+    required this.ink,
+    required this.sub,
+    required this.faint,
+    required this.onDark,
+    this.isDark = false,
     this.blur = 16,
     this.r = 20,
   });
@@ -77,6 +106,41 @@ class EcoTheme {
     card: Color(0x33FFFFFF),
     cardAlt: Color(0x57FFFFFF),
     glassBorder: Color(0x66FFFFFF),
+    ink: Color(0xFF010103),
+    sub: Color(0xFF3C3C3C),
+    faint: Color(0xFF686868),
+    onDark: Color(0xFFFFFFFF),
+    isDark: false,
+    blur: 16,
+    r: 20,
+  );
+
+  // Тёмная тема — для всех элементов (фон, карточки, пилюли, текст).
+  static const night = EcoTheme(
+    bgTop: Color(0xFF202327),
+    bgBottom: Color(0xFF0E0F11),
+    dark: Color(
+        0xFF34343A), // поверхность тёмных пилюль/кнопок (с onDark-текстом)
+    darkPill: Color(0xE60A0A0C),
+    band: Color(0x1FFFFFFF), // матовое стекло на тёмном
+    bandSoft: Color(0x12FFFFFF),
+    track: Color(0x33FFFFFF),
+    pill: Color(0xFF2A2A30),
+    olive: Color(0xFF54A98C),
+    ring: Color(0xFF4B99FF),
+    bg: Color(0xFF151619),
+    // Базовый цвет карточки — ТЁМНО-СЕРЫЙ (а не белый). Ползунок задаёт альфу:
+    // плотнее -> сплошная тёмно-серая карточка (светлый текст читается);
+    // прозрачнее -> тёмное стекло, сквозь которое виден фон. RGB важен, альфа
+    // переопределяется cardOpacity в EcoGlassSurface.
+    card: Color(0xFF30333A),
+    cardAlt: Color(0xFF3A3E46),
+    glassBorder: Color(0x33FFFFFF),
+    ink: Color(0xFFF1F1F4),
+    sub: Color(0xFFB6B8BE),
+    faint: Color(0xFF85878F),
+    onDark: Color(0xFFF1F1F4),
+    isDark: true,
     blur: 16,
     r: 20,
   );

@@ -11,7 +11,7 @@ import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 import 'addfood.dart';
-import 'home.dart' show showMealPicker;
+import 'home.dart' show MealPickerHost;
 import 'meallog.dart';
 
 /// Дневник «Еда» — real per-date food diary with a day strip on top (last 7
@@ -25,7 +25,6 @@ class DayViewScreen extends StatefulWidget {
 }
 
 class _DayViewScreenState extends State<DayViewScreen> {
-  static const t = EcoTheme.meadow;
   int offset = 0; // days back from today (0 = today)
   bool _hideBottomNav = false;
 
@@ -44,7 +43,17 @@ class _DayViewScreenState extends State<DayViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final s = context.watch<AppStore>();
+    // Подписываемся только на тему, изменения дневника (diaryRevision) и цели —
+    // тики шагомера/воды этот экран больше не перестраивают.
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    context.select<AppStore, int>((s) => Object.hash(
+          s.diaryRevision,
+          s.goalKcal,
+          s.carbGoal,
+          s.fatGoal,
+          s.protGoal,
+        ));
+    final s = context.read<AppStore>();
     final l = context.l10n;
     final consumed = s.consumedOn(_dateKey);
     final m = s.macrosOn(_dateKey);
@@ -98,7 +107,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
 
     return EcoScreen(
       t: t,
-      footer: EcoBottomNav(
+      footer: MealPickerHost(
         t: t,
         active: 'home',
         hidden: _hideBottomNav,
@@ -107,7 +116,6 @@ class _DayViewScreenState extends State<DayViewScreen> {
           Navigator.of(context).popUntil((r) => r.isFirst);
           Navigator.of(context).pushNamed('/profile');
         },
-        onPlus: () => showMealPicker(context),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,10 +142,10 @@ class _DayViewScreenState extends State<DayViewScreen> {
                 Center(
                   child: Text(
                     _isToday ? l.t('common.today') : l.dayMonth(_selectedDate),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: EcoColors.sub,
+                      color: t.sub,
                     ),
                   ),
                 ),
@@ -147,7 +155,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                 GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(
+                    EcoPageRoute(
                       builder: (_) => NutritionDetailScreen(date: _dateKey),
                     ),
                   ),
@@ -173,11 +181,15 @@ class _DayViewScreenState extends State<DayViewScreen> {
                               bottom: i < bars.length - 1 ? 18 : 0,
                             ),
                             child: ProgressScale(
+                              t: t,
                               value: b.value.toDouble(),
                               target: b.goal.toDouble(),
                               color: b.color,
                               unit: b.head ? l.unit('kcal') : l.unit('g'),
-                              animateFromZero: true,
+                              // Полоски появляются сразу заполненными, без роста
+                              // из нуля: иначе 4 анимации 260мс конкурируют с
+                              // слайдом перехода и утяжеляют первый кадр Dayview.
+                              animateFromZero: false,
                               label: b.head ? 'Общее количество' : b.label,
                             ),
                           ),
@@ -210,7 +222,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
+                            EcoPageRoute(
                               builder: (_) => MealLogScreen(
                                 mealKey: meal.key,
                                 date: _isToday ? null : _dateKey,
@@ -239,7 +251,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                                 GestureDetector(
                                   behavior: HitTestBehavior.opaque,
                                   onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute(
+                                    EcoPageRoute(
                                       builder: (_) => AddFoodScreen(
                                         mealKey: meal.key,
                                         date: _isToday ? null : _dateKey,
@@ -270,7 +282,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                                         Icon(
                                           Icons.add,
                                           size: 22,
-                                          color: t.dark,
+                                          color: t.ink,
                                         ),
                                       ],
                                     ),
@@ -294,14 +306,15 @@ class _DayViewScreenState extends State<DayViewScreen> {
 }
 
 class NutritionDetailScreen extends StatelessWidget {
-  static const t = EcoTheme.meadow;
   final String date;
 
   const NutritionDetailScreen({super.key, required this.date});
 
   @override
   Widget build(BuildContext context) {
-    final store = context.watch<AppStore>();
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    context.select<AppStore, int>((s) => s.diaryRevision);
+    final store = context.read<AppStore>();
     final l = context.l10n;
     final items = _itemsForDate(store);
     final totalKcal = _totalKcal(items);
@@ -327,7 +340,7 @@ class NutritionDetailScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: t.dark,
+                    color: t.ink,
                   ),
                 ),
               ),
@@ -341,10 +354,10 @@ class NutritionDetailScreen extends StatelessWidget {
                   child: Text(
                     l.t('food.emptyMeal'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: EcoColors.sub,
+                      color: t.sub,
                     ),
                   ),
                 ),
@@ -442,19 +455,7 @@ class NutritionDetailScreen extends StatelessWidget {
     final microTargets = {
       for (final target in _microTargetsFor(store)) target.key: target,
     };
-    final priority = [
-      'fiber',
-      'vit_a',
-      'vit_c',
-      'vit_d',
-      'k',
-      'mg',
-      'ca',
-      'p',
-      'fe',
-      'zn',
-      'na',
-    ];
+    const priority = kMicronutrientDisplayOrder;
     final orderedMicroKeys = [
       ...priority,
       for (final key in microTotals.keys)
@@ -548,37 +549,40 @@ class NutritionDetailScreen extends StatelessWidget {
     String key,
     AppStore store,
   ) {
-    final female = store.gender == 'f';
-    return switch (key) {
-      'fiber' => const _FallbackMicroTarget(38, MicroUnit.mg),
-      'vit_a' => _FallbackMicroTarget(female ? 700 : 900, MicroUnit.mcg),
-      'vit_c' => _FallbackMicroTarget(female ? 75 : 90, MicroUnit.mg),
-      'vit_d' => const _FallbackMicroTarget(15, MicroUnit.mcg),
-      'k' => _FallbackMicroTarget(female ? 2600 : 3400, MicroUnit.mg),
-      'mg' => _FallbackMicroTarget(female ? 310 : 400, MicroUnit.mg),
-      'ca' => const _FallbackMicroTarget(1000, MicroUnit.mg),
-      'p' => const _FallbackMicroTarget(700, MicroUnit.mg),
-      'fe' => _FallbackMicroTarget(female ? 18 : 8, MicroUnit.mg),
-      'zn' => _FallbackMicroTarget(female ? 8 : 11, MicroUnit.mg),
-      'na' => const _FallbackMicroTarget(2300, MicroUnit.mg),
-      _ => null,
-    };
+    final target = adultMicronutrientTarget(key, female: store.gender == 'f');
+    if (target == null) return null;
+    return _FallbackMicroTarget(target, microDefaultUnit(key));
   }
 
   static String _microUnitLabel(MicroUnit? unit, AppStrings l, String key) {
-    if (key == 'fiber') return l.unit('g');
+    if (key == 'fiber' || key == 'sugar') return l.unit('g');
     return switch (unit) {
       MicroUnit.mcg || MicroUnit.mcgRae || MicroUnit.mcgDfe => l.unit('mcg'),
       MicroUnit.mg || MicroUnit.mgNe => l.unit('mg'),
-      null => l.unit('mg'),
+      MicroUnit.g => l.unit('g'),
+      null => l.unit(microUnitCode(key)),
     };
   }
 
   static Color _microColor(String key) => switch (key) {
         'fiber' => const Color(0xFF86A85A),
+        'sugar' => const Color(0xFFC98BB0),
+        // Vitamins.
         'vit_a' => const Color(0xFFE08B3E),
         'vit_c' => const Color(0xFFE6C430),
         'vit_d' => const Color(0xFF7A77C8),
+        'vit_e' => const Color(0xFFC08A3E),
+        'vit_k' => const Color(0xFF4F8F5B),
+        'vit_h' => const Color(0xFFB0885B),
+        'vit_b1' => const Color(0xFFD98A6A),
+        'vit_b2' => const Color(0xFFD9A24A),
+        'vit_b3' => const Color(0xFFC7A057),
+        'vit_b4' => const Color(0xFFA88FBF),
+        'vit_b5' => const Color(0xFF8FB07A),
+        'vit_b6' => const Color(0xFF6FA890),
+        'vit_b9' => const Color(0xFF5FA06A),
+        'vit_b12' => const Color(0xFFB06A8F),
+        // Minerals.
         'k' => const Color(0xFF54A866),
         'mg' => const Color(0xFF4F8F7A),
         'ca' => const Color(0xFF5E86B8),
@@ -586,6 +590,16 @@ class NutritionDetailScreen extends StatelessWidget {
         'fe' => const Color(0xFFB85B3C),
         'zn' => const Color(0xFF6A8A90),
         'na' => const Color(0xFFB59349),
+        'cu' => const Color(0xFFB87333),
+        'mn' => const Color(0xFF9C7BB0),
+        'se' => const Color(0xFF7E9AA6),
+        'i' => const Color(0xFF5B6FB0),
+        'cl' => const Color(0xFF7FB0A8),
+        's' => const Color(0xFFC7B24A),
+        'f' => const Color(0xFF6FA0C0),
+        'cr' => const Color(0xFF8FA05B),
+        'mo' => const Color(0xFF9A8A5B),
+        'co' => const Color(0xFF5B8AA0),
         _ => EcoTheme.meadow.olive,
       };
 }
@@ -612,7 +626,9 @@ class _TotalCaloriesSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return ProgressScale(
+      t: t,
       value: total.toDouble(),
       target: target,
       color: EcoColors.cal,
@@ -656,6 +672,7 @@ class _NutritionDetailSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     final visible = section.contributions.take(6).toList();
     final target = section.target;
@@ -663,7 +680,7 @@ class _NutritionDetailSection extends StatelessWidget {
     final overTarget = hasTarget && section.total > target;
     final headlineValue = hasTarget && !overTarget ? target : section.total;
     final headlineColor =
-        hasTarget && !overTarget ? EcoColors.statusGood : EcoColors.ink;
+        hasTarget && !overTarget ? EcoColors.statusGood : t.ink;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -673,10 +690,10 @@ class _NutritionDetailSection extends StatelessWidget {
             Expanded(
               child: Text(
                 section.label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
-                  color: EcoColors.ink,
+                  color: t.ink,
                   height: 1,
                 ),
               ),
@@ -737,6 +754,7 @@ class _NutritionDetailBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     final safeTarget = target == null || target! <= 0 ? null : target;
     final over = safeTarget != null && value > safeTarget;
@@ -839,7 +857,7 @@ class _NutritionDetailBar extends StatelessWidget {
                         if (!over)
                           Align(
                             alignment: atTop(valueX),
-                            child: valueLabel(realText, EcoColors.ink),
+                            child: valueLabel(realText, t.ink),
                           ),
                         if (over && targetX != null)
                           Align(
@@ -857,7 +875,7 @@ class _NutritionDetailBar extends StatelessWidget {
                 height: 12,
                 child: Align(
                   alignment: atTop(valueX),
-                  child: valueLabel(realText, EcoColors.ink),
+                  child: valueLabel(realText, t.ink),
                 ),
               ),
           ],
@@ -880,6 +898,7 @@ class _ContributionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return Column(
       children: [
         SizedBox(
@@ -892,11 +911,11 @@ class _ContributionRow extends StatelessWidget {
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     height: 1,
                     fontWeight: FontWeight.w700,
-                    color: EcoColors.sub,
+                    color: t.sub,
                   ),
                 ),
               ),
@@ -907,10 +926,10 @@ class _ContributionRow extends StatelessWidget {
                   value,
                   maxLines: 1,
                   textAlign: TextAlign.right,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: EcoColors.ink,
+                    color: t.ink,
                     height: 1,
                   ),
                 ),
@@ -950,7 +969,6 @@ class _DayStrip extends StatefulWidget {
 }
 
 class _DayStripState extends State<_DayStrip> {
-  static const t = EcoTheme.meadow;
   static const _dayCount = 30;
   static const _itemExtent = 56.0;
   static const _itemHeight = 120.0;
@@ -981,6 +999,7 @@ class _DayStripState extends State<_DayStrip> {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final l = context.l10n;
     return LayoutBuilder(
       builder: (context, box) {
@@ -1013,8 +1032,8 @@ class _DayStripState extends State<_DayStrip> {
                   child: Stack(
                     children: [
                       AnimatedPositioned(
-                        duration: const Duration(milliseconds: 520),
-                        curve: Curves.easeOutCubic,
+                        duration: kEcoMotionDuration,
+                        curve: kEcoMotionCurve,
                         left: _selectedIndex * _itemExtent + 3,
                         top: 0,
                         bottom: 0,
@@ -1033,7 +1052,7 @@ class _DayStripState extends State<_DayStrip> {
                               SizedBox(
                                 width: _itemExtent,
                                 child: _cell(
-                                    now.subtract(Duration(days: o)), o, l),
+                                    now.subtract(Duration(days: o)), o, l, t),
                               ),
                           ],
                         ),
@@ -1052,7 +1071,7 @@ class _DayStripState extends State<_DayStrip> {
   int get _selectedIndex =>
       _dayCount - 1 - widget.offset.clamp(0, _dayCount - 1);
 
-  Widget _cell(DateTime date, int o, AppStrings l) {
+  Widget _cell(DateTime date, int o, AppStrings l, EcoTheme t) {
     final active = o == widget.offset;
     final key = AppStore.ymd(date);
     final m = widget.store.macrosOn(key);
@@ -1072,32 +1091,38 @@ class _DayStripState extends State<_DayStrip> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: active ? t.dark : EcoColors.sub,
+                color: active ? t.ink : t.sub,
               ),
             ),
             const SizedBox(height: 6),
-            MacroRings(
-              size: 48,
-              data: [
-                MacroRingData(
-                  value: m.carbs,
-                  goal: widget.store.carbGoal.toDouble(),
-                  color: EcoColors.carb,
-                  soft: EcoColors.carbSoft,
-                ),
-                MacroRingData(
-                  value: m.fat,
-                  goal: widget.store.fatGoal.toDouble(),
-                  color: EcoColors.fat,
-                  soft: EcoColors.fatSoft,
-                ),
-                MacroRingData(
-                  value: m.protein,
-                  goal: widget.store.protGoal.toDouble(),
-                  color: EcoColors.prot,
-                  soft: EcoColors.protSoft,
-                ),
-              ],
+            // Каждая ячейка-кольца кешируется в свой слой: движение выделения
+            // (AnimatedPositioned) и перестройки экрана больше не перерисовывают
+            // все 30 painter'ов с MaskFilter.blur разом.
+            RepaintBoundary(
+              child: MacroRings(
+                t: t,
+                size: 48,
+                data: [
+                  MacroRingData(
+                    value: m.carbs,
+                    goal: widget.store.carbGoal.toDouble(),
+                    color: EcoColors.carb,
+                    soft: EcoColors.carbSoft,
+                  ),
+                  MacroRingData(
+                    value: m.fat,
+                    goal: widget.store.fatGoal.toDouble(),
+                    color: EcoColors.fat,
+                    soft: EcoColors.fatSoft,
+                  ),
+                  MacroRingData(
+                    value: m.protein,
+                    goal: widget.store.protGoal.toDouble(),
+                    color: EcoColors.prot,
+                    soft: EcoColors.protSoft,
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -1105,7 +1130,7 @@ class _DayStripState extends State<_DayStrip> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: active ? t.dark : EcoColors.ink,
+                color: active ? t.ink : t.ink,
               ),
             ),
             // "today" marker dot
@@ -1134,7 +1159,7 @@ class _DayStripState extends State<_DayStrip> {
     if (!_controller.hasClients) return;
     _controller.animateTo(
       _targetScrollFor(widget.offset),
-      duration: const Duration(milliseconds: 420),
+      duration: const Duration(milliseconds: 210),
       curve: Curves.easeOutCubic,
     );
   }

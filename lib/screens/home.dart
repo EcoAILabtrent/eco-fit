@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -14,10 +13,9 @@ import '../ui/ui.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  static const t = EcoTheme.meadow;
-
   @override
   Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final s = context.read<AppStore>();
     // Пересобираем главный экран только когда меняется одно из ПОКАЗАННЫХ
     // значений, а не на любой notify стора (тоггл избранного, смена времени
@@ -48,12 +46,11 @@ class HomeScreen extends StatelessWidget {
 
     return EcoScreen(
       t: t,
-      footer: EcoBottomNav(
+      footer: MealPickerHost(
         t: t,
         active: 'home',
         onHome: () {},
         onProfile: () => Navigator.of(context).pushNamed('/profile'),
-        onPlus: () => showMealPicker(context),
       ),
       child: Padding(
         // SafeArea handles the status bar. Bottom clears the fixed nav band
@@ -67,17 +64,44 @@ class HomeScreen extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 2, bottom: 18, top: 4),
-              child: Text(
-                l.t('common.today'),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0,
-                ),
+              child: Row(
+                children: [
+                  Image.asset(
+                    'assets/branding/eco_logo.png',
+                    height: 34,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(width: 10),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Eco',
+                          style: TextStyle(
+                            color: t.ink,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' health',
+                          style: TextStyle(
+                            color: t.olive,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      letterSpacing: -0.5,
+                      height: 1,
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            const AiAdviceCard(t: t),
+            AiAdviceCard(t: t),
 
             // Еда
             EcoCard(
@@ -98,28 +122,35 @@ class HomeScreen extends StatelessWidget {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        MacroRings(
-                          size: 168,
-                          data: [
-                            MacroRingData(
-                              value: s.macros.carbs,
-                              goal: s.carbGoal.toDouble(),
-                              color: EcoColors.carb,
-                              soft: EcoColors.carbSoft,
-                            ),
-                            MacroRingData(
-                              value: s.macros.fat,
-                              goal: s.fatGoal.toDouble(),
-                              color: EcoColors.fat,
-                              soft: EcoColors.fatSoft,
-                            ),
-                            MacroRingData(
-                              value: s.macros.protein,
-                              goal: s.protGoal.toDouble(),
-                              color: EcoColors.prot,
-                              soft: EcoColors.protSoft,
-                            ),
-                          ],
+                        // RepaintBoundary изолирует 3 размытых кольца от
+                        // соседнего CalorieTrack: при анимации калорий кольца
+                        // композитятся из кэша, а не перерисовывают blur каждый
+                        // кадр (как уже сделано в dayview).
+                        RepaintBoundary(
+                          child: MacroRings(
+                            t: t,
+                            size: 168,
+                            data: [
+                              MacroRingData(
+                                value: s.macros.carbs,
+                                goal: s.carbGoal.toDouble(),
+                                color: EcoColors.carb,
+                                soft: EcoColors.carbSoft,
+                              ),
+                              MacroRingData(
+                                value: s.macros.fat,
+                                goal: s.fatGoal.toDouble(),
+                                color: EcoColors.fat,
+                                soft: EcoColors.fatSoft,
+                              ),
+                              MacroRingData(
+                                value: s.macros.protein,
+                                goal: s.protGoal.toDouble(),
+                                color: EcoColors.prot,
+                                soft: EcoColors.protSoft,
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -171,7 +202,7 @@ class HomeScreen extends StatelessWidget {
               left: EcoPill(
                 t: t,
                 bg: t.dark,
-                color: EcoColors.white,
+                color: t.onDark,
                 fontSize: 16,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
@@ -182,15 +213,16 @@ class HomeScreen extends StatelessWidget {
               right: _BodyStatusProgress(status: _BodyStatus.fromStore(s, l)),
             ),
 
-            // Шаги — тап включает шагомер (разрешение) либо обновляет счёт
+            // Шаги — тап открывает экран «Шаги» (недельный график + сводка);
+            // сам шагомер включается/обновляется при открытии экрана.
             _MetricCard(
               icon: 'steps',
               title: l.t('home.steps'),
-              onTap: () => context.read<AppStore>().enableSteps(),
+              onTap: () => Navigator.of(context).pushNamed('/steps'),
               left: EcoPill(
                 t: t,
                 bg: t.dark,
-                color: EcoColors.white,
+                color: t.onDark,
                 fontSize: 16,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
@@ -199,21 +231,6 @@ class HomeScreen extends StatelessWidget {
                 text: '${s.steps} / ${s.stepsGoal}',
               ),
               right: _MiniProgress(pct: stepsPct, label: '$stepsPct%'),
-            ),
-
-            // Сон
-            _MetricCard(
-              icon: 'bed',
-              title: l.t('home.sleep'),
-              onTap: () => Navigator.of(context).pushNamed('/stats'),
-              left: EcoBtn(
-                t: t,
-                height: 44,
-                fontSize: 16,
-                onTap: () => Navigator.of(context).pushNamed('/stats'),
-                child: Text(l.t('common.input')),
-              ),
-              right: const _MiniProgress(pct: 62, label: '?'),
             ),
 
             // Вода
@@ -255,14 +272,14 @@ class HomeScreen extends StatelessWidget {
                                   children: [
                                     TextSpan(
                                       text: '${s.water}',
-                                      style: const TextStyle(
-                                        color: EcoColors.ink,
+                                      style: TextStyle(
+                                        color: t.ink,
                                       ),
                                     ),
                                     TextSpan(
                                       text: ' / ${s.waterGoal} ${l.unit('ml')}',
-                                      style: const TextStyle(
-                                        color: EcoColors.sub,
+                                      style: TextStyle(
+                                        color: t.sub,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -291,47 +308,38 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// "Приём пищи" meal-picker — the FAB modal from home.jsx.
-bool _mealPickerShowing = false;
-
-void showMealPicker(BuildContext context, {String active = 'home'}) {
-  if (_mealPickerShowing) return;
-  final overlay = Overlay.maybeOf(context, rootOverlay: true);
-  if (overlay == null) return;
-
-  _mealPickerShowing = true;
-  late final OverlayEntry entry;
-  entry = OverlayEntry(
-    builder: (_) => _MealPickerOverlay(
-      sourceContext: context,
-      active: active,
-      onClosed: () {
-        entry.remove();
-        _mealPickerShowing = false;
-      },
-    ),
-  );
-  overlay.insert(entry);
-}
-
-class _MealPickerOverlay extends StatefulWidget {
-  final BuildContext sourceContext;
+/// "Приём пищи" meal-picker — нижняя панель из home.jsx.
+///
+/// Живёт в `footer`-слоте [EcoScreen] как слой ВНУТРИ дерева экрана (а не
+/// отдельным маршрутом). Раньше панель показывалась через `showGeneralDialog`,
+/// но в Impeller маршрут экрана под прозрачным диалогом переставал
+/// композититься и фон чернел. Теперь нажатие «+» просто выдвигает панель и
+/// поворачивает «+» на 45° в «×» — контент сзади продолжает отрисовываться,
+/// больше ничего не происходит.
+class MealPickerHost extends StatefulWidget {
+  final EcoTheme t;
   final String active;
-  final VoidCallback onClosed;
+  final VoidCallback onHome;
+  final VoidCallback onProfile;
+  final bool hidden;
 
-  const _MealPickerOverlay({
-    required this.sourceContext,
+  const MealPickerHost({
+    super.key,
+    required this.t,
     required this.active,
-    required this.onClosed,
+    required this.onHome,
+    required this.onProfile,
+    this.hidden = false,
   });
 
   @override
-  State<_MealPickerOverlay> createState() => _MealPickerOverlayState();
+  State<MealPickerHost> createState() => _MealPickerHostState();
 }
 
-class _MealPickerOverlayState extends State<_MealPickerOverlay>
+class _MealPickerHostState extends State<MealPickerHost>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  bool _open = false;
   bool _closing = false;
 
   @override
@@ -339,9 +347,11 @@ class _MealPickerOverlayState extends State<_MealPickerOverlay>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 430),
-      reverseDuration: const Duration(milliseconds: 240),
-    )..forward();
+      // Открытие («выход») панели — в 1.5 раза дольше/медленнее обычного.
+      duration: kEcoMotionDuration * 1.5,
+      // Закрытие оставляем как есть (обычная скорость).
+      reverseDuration: kEcoMotionDuration,
+    );
   }
 
   @override
@@ -350,94 +360,116 @@ class _MealPickerOverlayState extends State<_MealPickerOverlay>
     super.dispose();
   }
 
+  void _openPicker() {
+    if (_open) return;
+    setState(() {
+      _open = true;
+      _closing = false;
+    });
+    _controller.forward(from: 0);
+  }
+
   Future<void> _close({VoidCallback? after}) async {
-    if (_closing) return;
-    _closing = true;
+    if (!_open || _closing) return;
+    setState(() => _closing = true);
     await _controller.reverse();
-    widget.onClosed();
+    if (!mounted) return;
+    setState(() {
+      _open = false;
+      _closing = false;
+    });
     after?.call();
   }
 
   void _pushAfterClose(String route, String mealKey) {
     _close(
       after: () {
-        if (!widget.sourceContext.mounted) return;
-        Navigator.of(widget.sourceContext).pushNamed(route, arguments: mealKey);
+        if (!mounted) return;
+        Navigator.of(context).pushNamed(route, arguments: mealKey);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    const t = HomeScreen.t;
+    final t = widget.t;
     final media = MediaQuery.of(context);
     final bottomInset = media.padding.bottom;
     final navBottom = math.max(30.0, bottomInset + 6.0);
     final navScale = math.min(0.964, (media.size.width - 32) / 310);
     final sheetBottom = navBottom + 83 * navScale;
 
-    return Material(
-      type: MaterialType.transparency,
+    // Слой на весь экран: тапы мимо панели/нав-бара проваливаются к контенту,
+    // пока панель закрыта (в Stack нет дочернего элемента под точкой касания).
+    return Positioned.fill(
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, _) {
           final v = _controller.value;
+          // Единая кривая открытия/закрытия (без прежнего «отскока» easeOutBack),
+          // чтобы выезд панели совпадал по ощущению с переходами экранов.
           final panel =
-              (_closing ? Curves.easeInCubic : Curves.easeOutBack).transform(v);
-          final opacity = (_closing ? Curves.easeInCubic : Curves.easeOutCubic)
+              (_closing ? Curves.easeInCubic : kEcoMotionCurve).transform(v);
+          final opacity = (_closing ? Curves.easeInCubic : kEcoMotionCurve)
               .transform(v)
               .clamp(0.0, 1.0);
-          final barrierColor = Color.lerp(
-            Colors.transparent,
-            const Color(0x00000000),
-            opacity,
-          )!;
 
           return Stack(
             clipBehavior: Clip.none,
             children: [
-              Positioned.fill(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: _close,
-                  child: ColoredBox(color: barrierColor),
+              // Прозрачный барьер: тап мимо панели закрывает её. Есть только
+              // пока панель открыта — иначе контент сзади остаётся кликабельным.
+              if (_open)
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: _close,
+                    child: const SizedBox.expand(),
+                  ),
                 ),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: sheetBottom,
-                child: Center(
-                  child: Transform.scale(
-                    scale: navScale,
-                    alignment: Alignment.bottomCenter,
-                    child: Transform.translate(
-                      offset: Offset(0, (1 - panel) * 460),
-                      child: Opacity(
-                        opacity: opacity,
-                        child: SizedBox(
-                          width: 310,
-                          child: _MealPickerSheet(
-                            onOpenMeal: (mealKey) =>
-                                _pushAfterClose('/meallog', mealKey),
-                            onAddFood: (mealKey) =>
-                                _pushAfterClose('/addfood', mealKey),
+              if (_open)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: sheetBottom,
+                  child: Center(
+                    child: Transform.scale(
+                      scale: navScale,
+                      alignment: Alignment.bottomCenter,
+                      child: Transform.translate(
+                        offset: Offset(0, (1 - panel) * 460),
+                        child: Opacity(
+                          opacity: opacity,
+                          child: SizedBox(
+                            width: 310,
+                            // RepaintBoundary: три размытых painter'а панели
+                            // (тень/хром σ16-18 + сложный ClipPath) растеризуются
+                            // один раз и далее лишь композитятся при выезде, а не
+                            // перерисовываются на каждом кадре анимации.
+                            child: RepaintBoundary(
+                              child: _MealPickerSheet(
+                                onOpenMeal: (mealKey) =>
+                                    _pushAfterClose('/meallog', mealKey),
+                                onAddFood: (mealKey) =>
+                                    _pushAfterClose('/addfood', mealKey),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
+              // Один постоянный нав-бар экрана. При открытой панели его «+»
+              // поворачивается на 45° в «×», а нажатия закрывают панель.
               EcoBottomNav(
                 t: t,
                 active: widget.active,
+                hidden: widget.hidden,
                 fabTurns: 0.125 * opacity,
-                trackActive: false,
-                darkGlass: false,
-                onHome: _close,
-                onProfile: _close,
-                onPlus: _close,
+                onHome: _open ? () => _close() : widget.onHome,
+                onProfile: _open ? () => _close() : widget.onProfile,
+                onPlus: _open ? () => _close() : _openPicker,
               ),
             ],
           );
@@ -456,13 +488,15 @@ class _MealPickerSheet extends StatelessWidget {
     required this.onAddFood,
   });
 
+  // Хронологический порядок сверху вниз: завтрак первым (как в «Журнале
+  // питания»).
   static const _order = [
-    'snackE',
-    'snackD',
-    'snackM',
-    'dinner',
-    'lunch',
     'breakfast',
+    'snackM',
+    'lunch',
+    'snackD',
+    'dinner',
+    'snackE',
   ];
 
   @override
@@ -476,47 +510,57 @@ class _MealPickerSheet extends StatelessWidget {
         ),
     ];
     final store = context.watch<AppStore>();
+    final t = store.theme;
     return SizedBox(
-      height: 336,
+      // Высота увеличена (336 → 432): крупнее шрифты/строки + светлые полосы-
+      // разделители. Ширина не меняется (310): вырез под FAB снизу
+      // масштабируется по ширине (sx=1), поэтому остаётся корректным.
+      height: 432,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          const Positioned.fill(
-            child: CustomPaint(painter: _MealPickerShadowPainter()),
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _MealPickerShadowPainter(isDark: t.isDark),
+            ),
           ),
           Positioned.fill(
             child: ClipPath(
               clipper: _MealPickerPanelClipper(),
-              child: BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-                child: ColoredBox(
-                  color: const Color(0xEEF6F8F5),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 15, 18, 32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          l.t('home.mealPicker'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: EcoColors.ink,
-                            height: 1.05,
-                          ),
+              // Без BackdropFilter: панель почти непрозрачная, размытие там не
+              // видно, а полноэкранный backdrop-сэмпл гасил фон экрана под пикером
+              // (контент переставал отрисовываться).
+              child: ColoredBox(
+                // Фон панели по теме: светлый матовый / тёмный матовый.
+                color: t.isDark
+                    ? const Color(0xF21E2126)
+                    : const Color(0xEEF6F8F5),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 18, 18, 38),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        l.t('home.mealPicker'),
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: t.ink,
+                          height: 1.05,
                         ),
-                        const SizedBox(height: 14),
-                        for (final (i, meal) in meals.indexed) ...[
-                          _MealPickerRow(
-                            meal: meal,
-                            kcal: store.mealKcal(meal.key),
-                            onOpenMeal: onOpenMeal,
-                            onAddFood: onAddFood,
-                          ),
-                          if (i < meals.length - 1) const _MealPickerDivider(),
-                        ],
+                      ),
+                      const SizedBox(height: 17),
+                      for (final (i, meal) in meals.indexed) ...[
+                        _MealPickerRow(
+                          t: t,
+                          meal: meal,
+                          kcal: store.mealKcal(meal.key),
+                          onOpenMeal: onOpenMeal,
+                          onAddFood: onAddFood,
+                        ),
+                        if (i < meals.length - 1) _MealPickerDivider(t: t),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -534,16 +578,22 @@ class _MealPickerSheet extends StatelessWidget {
 }
 
 class _MealPickerDivider extends StatelessWidget {
-  const _MealPickerDivider();
+  final EcoTheme t;
+
+  const _MealPickerDivider({required this.t});
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(left: 43, right: 28),
-      child: Divider(
-        height: 1,
-        thickness: 1.4,
-        color: Color(0xD8F4F4F4),
+    // Горизонтальное разделение списка — светлая полоса со скруглёнными краями
+    // во всю ширину (как в «Журнале питания»).
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+      child: Container(
+        height: 2.5,
+        decoration: BoxDecoration(
+          color: t.isDark ? const Color(0x26FFFFFF) : const Color(0xFFE6EAE4),
+          borderRadius: BorderRadius.circular(2),
+        ),
       ),
     );
   }
@@ -558,7 +608,9 @@ class _MealPickerPanelClipper extends CustomClipper<Path> {
 }
 
 class _MealPickerShadowPainter extends CustomPainter {
-  const _MealPickerShadowPainter();
+  final bool isDark;
+
+  const _MealPickerShadowPainter({required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -566,13 +618,14 @@ class _MealPickerShadowPainter extends CustomPainter {
     canvas.drawPath(
       path.shift(const Offset(-2, -3)),
       Paint()
-        ..color = const Color(0x32FFFFFF)
+        ..color = isDark ? const Color(0x55000000) : const Color(0x32FFFFFF)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 18),
     );
   }
 
   @override
-  bool shouldRepaint(_MealPickerShadowPainter oldDelegate) => false;
+  bool shouldRepaint(_MealPickerShadowPainter oldDelegate) =>
+      oldDelegate.isDark != isDark;
 }
 
 class _MealPickerChromePainter extends CustomPainter {
@@ -634,69 +687,71 @@ Path _mealPickerPanelPath(Size size) {
     ..cubicTo(w - 12, 0, w, 12, w, r)
     ..lineTo(w, h - r)
     ..cubicTo(w, h - 12, w - 12, h, w - r, h)
-    ..lineTo(228.8 * sx, h)
+    // Вырез под FAB снизу — тот же сдвиг +3, что и в баре навигации, чтобы
+    // «×» сидел по центру выреза (центр панели = 155).
+    ..lineTo(231.8 * sx, h)
     ..cubicTo(
-      222.803 * sx,
+      225.803 * sx,
       h,
-      219.805 * sx,
+      222.805 * sx,
       h,
-      218.07 * sx,
+      221.07 * sx,
       h - 0.308 * sy,
     )
     ..cubicTo(
-      211.108 * sx,
+      214.108 * sx,
       h - 1.544 * sy,
-      211.057 * sx,
+      214.057 * sx,
       h - 1.573 * sy,
-      206.434 * sx,
+      209.434 * sx,
       h - 6.923 * sy,
     )
     ..cubicTo(
-      205.282 * sx,
+      208.282 * sx,
       h - 8.256 * sy,
-      201.853 * sx,
+      204.853 * sx,
       h - 14.017 * sy,
-      194.995 * sx,
+      197.995 * sx,
       h - 25.538 * sy,
     )
     ..cubicTo(
-      186.276 * sx,
+      189.276 * sx,
       h - 40.186 * sy,
-      170.284 * sx,
+      173.284 * sx,
       h - 50 * sy,
-      152 * sx,
+      155 * sx,
       h - 50 * sy,
     )
     ..cubicTo(
-      133.716 * sx,
+      136.716 * sx,
       h - 50 * sy,
-      117.724 * sx,
+      120.724 * sx,
       h - 40.186 * sy,
-      109.005 * sx,
+      112.005 * sx,
       h - 25.538 * sy,
     )
     ..cubicTo(
-      102.147 * sx,
+      105.147 * sx,
       h - 14.017 * sy,
-      98.718 * sx,
+      101.718 * sx,
       h - 8.256 * sy,
-      97.566 * sx,
+      100.566 * sx,
       h - 6.923 * sy,
     )
     ..cubicTo(
-      92.943 * sx,
+      95.943 * sx,
       h - 1.573 * sy,
-      92.892 * sx,
+      95.892 * sx,
       h - 1.544 * sy,
-      85.93 * sx,
+      88.93 * sx,
       h - 0.308 * sy,
     )
     ..cubicTo(
-      84.196 * sx,
+      87.196 * sx,
       h,
-      81.197 * sx,
+      84.197 * sx,
       h,
-      75.2 * sx,
+      78.2 * sx,
       h,
     )
     ..lineTo(r, h)
@@ -707,12 +762,14 @@ Path _mealPickerPanelPath(Size size) {
 }
 
 class _MealPickerRow extends StatelessWidget {
+  final EcoTheme t;
   final Meal meal;
   final int kcal;
   final ValueChanged<String> onOpenMeal;
   final ValueChanged<String> onAddFood;
 
   const _MealPickerRow({
+    required this.t,
     required this.meal,
     required this.kcal,
     required this.onOpenMeal,
@@ -723,7 +780,7 @@ class _MealPickerRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return SizedBox(
-      height: 38,
+      height: 46,
       child: Row(
         children: [
           Expanded(
@@ -732,17 +789,17 @@ class _MealPickerRow extends StatelessWidget {
               onTap: () => onOpenMeal(meal.key),
               child: Row(
                 children: [
-                  _MealPickerCalBadge(value: kcal),
+                  _MealPickerCalBadge(t: t, value: kcal),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       l.meal(meal.key),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
+                      style: TextStyle(
+                        fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: EcoColors.ink,
+                        color: t.ink,
                         height: 1.05,
                       ),
                     ),
@@ -756,24 +813,24 @@ class _MealPickerRow extends StatelessWidget {
             behavior: HitTestBehavior.opaque,
             onTap: () => onAddFood(meal.key),
             child: SizedBox(
-              width: 42,
-              height: 38,
+              width: 46,
+              height: 46,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Container(
                     width: 2,
-                    height: 23,
+                    height: 28,
                     decoration: BoxDecoration(
-                      color: const Color(0x663C3C3C),
+                      color: t.sub.withValues(alpha: 0.40),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                   const SizedBox(width: 3),
-                  const Icon(
-                    Icons.add,
-                    size: 33,
-                    color: Color(0xFF3C3C3C),
+                  Icon(
+                    Icons.add_rounded,
+                    size: 40,
+                    color: t.sub,
                   ),
                 ],
               ),
@@ -786,18 +843,19 @@ class _MealPickerRow extends StatelessWidget {
 }
 
 class _MealPickerCalBadge extends StatelessWidget {
+  final EcoTheme t;
   final int value;
 
-  const _MealPickerCalBadge({required this.value});
+  const _MealPickerCalBadge({required this.t, required this.value});
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     return Container(
-      width: 31,
-      height: 31,
-      decoration: const BoxDecoration(
-        color: Color(0xDBD6D6D4),
+      width: 37,
+      height: 37,
+      decoration: BoxDecoration(
+        color: t.isDark ? const Color(0x2EFFFFFF) : const Color(0xDBD6D6D4),
         shape: BoxShape.circle,
       ),
       child: Column(
@@ -805,19 +863,19 @@ class _MealPickerCalBadge extends StatelessWidget {
         children: [
           Text(
             '$value',
-            style: const TextStyle(
-              fontSize: 10,
+            style: TextStyle(
+              fontSize: 12,
               fontWeight: FontWeight.w900,
-              color: EcoColors.faint,
+              color: t.faint,
               height: 1,
             ),
           ),
           Text(
             l.unit('cal'),
-            style: const TextStyle(
-              fontSize: 8,
+            style: TextStyle(
+              fontSize: 10,
               fontWeight: FontWeight.w900,
-              color: EcoColors.faint,
+              color: t.faint,
               height: 1,
             ),
           ),
@@ -844,7 +902,7 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const t = HomeScreen.t;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return EcoCard(
       t: t,
       margin: const EdgeInsets.only(bottom: 12),
@@ -1002,7 +1060,7 @@ class _BodyStatusProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const t = HomeScreen.t;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     return SizedBox(
       width: 132,
       child: Column(
@@ -1012,7 +1070,7 @@ class _BodyStatusProgress extends StatelessWidget {
             child: EcoPill(
               t: t,
               bg: status.level.color,
-              color: EcoColors.white,
+              color: t.onDark,
               text: status.label,
               fontSize: 12,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
@@ -1030,14 +1088,14 @@ class _BodyStatusProgress extends StatelessWidget {
                     Positioned.fill(
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: EcoColors.white.withValues(alpha: 0.68),
+                          color: t.onDark.withValues(alpha: 0.68),
                           borderRadius: BorderRadius.circular(999),
                         ),
                       ),
                     ),
                     // Coloured fill — rounded on both ends.
                     AnimatedContainer(
-                      duration: const Duration(milliseconds: 220),
+                      duration: const Duration(milliseconds: 110),
                       curve: Curves.easeOutCubic,
                       width: (box.maxWidth * status.progress)
                           .clamp(0.0, box.maxWidth),
@@ -1082,8 +1140,12 @@ class _MiniProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const t = HomeScreen.t;
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final progress = (pct / 100).clamp(0.0, 1.0);
+    // Превышение цели (>100%) отмечаем тёмно-фиолетовым.
+    final over = pct > 100;
+    // Доля полосы, приходящаяся на саму цель (при превышении остаток — overflow).
+    final goalFrac = over ? (100 / pct) : progress;
     return SizedBox(
       width: 132,
       child: Column(
@@ -1094,6 +1156,9 @@ class _MiniProgress extends StatelessWidget {
             child: EcoPill(
               t: t,
               text: label,
+              // Подложка бейджа — фиолетовая (тёмно-фиолетовая при превышении).
+              bg: over ? EcoColors.stepAccentDeep : EcoColors.stepAccent,
+              color: t.onDark,
               fontSize: 12,
               padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
             ),
@@ -1115,16 +1180,32 @@ class _MiniProgress extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Rounded fill.
+                    // Превышение: тёмно-фиолетовая база на всю ширину (видна
+                    // справа, за пределами доли цели).
+                    if (over)
+                      Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: EcoColors.stepAccentDeep,
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                        ),
+                      ),
+                    // Заливка до цели — фиолетовая. При превышении правый край
+                    // прямой (стык с тёмной частью), иначе скруглён со всех сторон.
                     Positioned(
                       left: 0,
                       top: 0,
                       bottom: 0,
-                      width: (box.maxWidth * progress).clamp(0.0, box.maxWidth),
+                      width: (box.maxWidth * goalFrac).clamp(0.0, box.maxWidth),
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                          color: t.olive,
-                          borderRadius: BorderRadius.circular(999),
+                          color: EcoColors.stepAccent,
+                          borderRadius: over
+                              ? const BorderRadius.horizontal(
+                                  left: Radius.circular(999),
+                                )
+                              : BorderRadius.circular(999),
                         ),
                       ),
                     ),

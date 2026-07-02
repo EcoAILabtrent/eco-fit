@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import '../ai/saved_advice.dart';
 import '../l10n/app_language.dart';
+import '../nutrition/energy.dart';
 import '../steps/steps_service.dart';
+import '../theme/tokens.dart';
 
 /// Meal definitions (Журнал питания) — from the Eco design store.
 class Meal {
@@ -122,15 +126,65 @@ class AppStore extends ChangeNotifier {
   // Home dashboard metrics
   int water = 0; // мл
   int waterGoal = 2000;
+  // История воды по дням (ymd -> мл) для графика на экране «Вода».
+  // Сегодняшний день всегда берётся из живого [water]; прошлые — отсюда.
+  Map<String, int> waterHistory = {};
   int steps = 0;
   int stepsGoal = 10000;
+  // История шагов по дням (ymd -> шаги) для недельного графика на экране «Шаги».
+  // Сегодняшний день всегда берётся из живого [steps]; прошлые — отсюда.
+  Map<String, int> stepsHistory = {};
   double weight = 0;
   String? recFeedback; // 'up' | 'down'
   AppLanguage language = AppLanguage.ru;
 
+  /// Whether the user has picked a language on the first-launch language page.
+  /// Gates whether that page is shown before onboarding.
+  bool languageChosen = false;
+
+  // Прозрачность стеклянных карточек (alpha заливки EcoGlassSurface).
+  // Меньше значение = карточки прозрачнее. Регулируется ползунком в Настройках.
+  double cardOpacity = 0.30;
+
+  // Тёмная тема (переключатель в Настройках). Активная палитра — [theme].
+  bool darkMode = false;
+
+  /// Активная тема приложения (светлая/тёмная) — для всех экранов и элементов.
+  EcoTheme get theme => darkMode ? EcoTheme.night : EcoTheme.meadow;
+
   // Food diary keyed by date: ymd -> (meal.key -> items).
   Map<String, Map<String, List<LogItem>>> diary = {};
   Set<String> favoriteProductSlugs = {};
+
+  // Кеш агрегатов СЕГОДНЯШНЕГО дня (consumed/macros). Раньше эти геттеры
+  // пересчитывались полным проходом по дневнику на КАЖДОЙ перестройке —
+  // а главный экран читает их в select-хэше, который дёргается на каждый тик
+  // шагомера. Кешируем по дате и сбрасываем только при изменении дневника,
+  // чтобы тик шагов/воды не перелопачивал весь день.
+  String? _aggDate;
+  int? _consumedCache;
+  ({double protein, double carbs, double fat})? _macrosCache;
+
+  /// Растёт при любом изменении дневника. Виджеты, которым важно лишь «дневник
+  /// поменялся» (карточка ИИ-совета), подписываются через
+  /// `context.select((s) => s.diaryRevision)` и не перестраиваются на тики
+  /// шагомера/воды.
+  int diaryRevision = 0;
+
+  void _invalidateAggregates() {
+    _aggDate = null;
+    _consumedCache = null;
+    _macrosCache = null;
+    diaryRevision++;
+  }
+
+  void _ensureAggregates() {
+    final today = ymd();
+    if (_aggDate == today && _consumedCache != null) return;
+    _aggDate = today;
+    _consumedCache = consumedOn(today);
+    _macrosCache = macrosOn(today);
+  }
 
   /// "YYYY-MM-DD" key for a date (local), default today.
   static String ymd([DateTime? d]) {
@@ -150,6 +204,10 @@ class AppStore extends ChangeNotifier {
   double bodyFat = 17.5; // %
   double skeletalMuscle = 30.2; // кг
   List<BodyMetricEntry> bodyHistory = [];
+
+  /// Сохранённые пользователем ИИ-советы (новые в начале). Персист в Hive под
+  /// ключом 'aiAdvices'; показываются на вкладке «Сохранённые» страницы совета.
+  List<SavedAiAdvice> aiAdvices = [];
 
   // Macro goals in grams (set from target kcal at onboarding).
   int carbGoal = 230;
@@ -184,8 +242,20 @@ class AppStore extends ChangeNotifier {
     _box = await Hive.openBox(_boxName);
     water = _box.get('water', defaultValue: 0) as int;
     waterGoal = _box.get('waterGoal', defaultValue: 2000) as int;
+    final rawWaterHistory = _box.get('waterHistory');
+    if (rawWaterHistory is Map) {
+      waterHistory = rawWaterHistory
+          .map((k, v) => MapEntry(k as String, (v as num).toInt()));
+    }
+    _seedRandomWaterMonth();
     steps = _box.get('steps', defaultValue: 0) as int;
     stepsGoal = _box.get('stepsGoal', defaultValue: 10000) as int;
+    final rawStepsHistory = _box.get('stepsHistory');
+    if (rawStepsHistory is Map) {
+      stepsHistory = rawStepsHistory
+          .map((k, v) => MapEntry(k as String, (v as num).toInt()));
+    }
+    _seedRandomStepsMonth();
     weight = (_box.get('weight', defaultValue: 0.0) as num).toDouble();
     bodyFat = (_box.get('bodyFat', defaultValue: 17.5) as num).toDouble();
     skeletalMuscle =
@@ -193,6 +263,10 @@ class AppStore extends ChangeNotifier {
     language = AppLanguage.fromCode(
       _box.get('language', defaultValue: AppLanguage.ru.code) as String?,
     );
+    languageChosen = _box.get('languageChosen', defaultValue: false) as bool;
+    cardOpacity =
+        (_box.get('cardOpacity', defaultValue: 0.30) as num).toDouble();
+    darkMode = _box.get('darkMode', defaultValue: false) as bool;
     goalKcal = _box.get('goalKcal', defaultValue: 2045) as int;
     carbGoal = _box.get('carbGoal', defaultValue: 230) as int;
     fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
@@ -242,6 +316,13 @@ class AppStore extends ChangeNotifier {
     if (rawFavorites is List) {
       favoriteProductSlugs = rawFavorites.whereType<String>().toSet();
     }
+    final rawAdvices = _box.get('aiAdvices');
+    if (rawAdvices is List) {
+      aiAdvices = rawAdvices
+          .whereType<Map<dynamic, dynamic>>()
+          .map(SavedAiAdvice.fromMap)
+          .toList();
+    }
     final rawTimes = _box.get('mealTimes');
     if (rawTimes is Map) {
       mealTimes = rawTimes.map((k, v) => MapEntry(k as String, v as String));
@@ -274,6 +355,20 @@ class AppStore extends ChangeNotifier {
       }
     }
     if (_seedDemoFood) _seedDemoFood30Days();
+    notifyListeners();
+  }
+
+  /// Прозрачность карточек (0.08–0.95). Меньше = прозрачнее. Сразу сохраняется.
+  void setCardOpacity(double value) {
+    cardOpacity = value.clamp(0.08, 0.95);
+    _box.put('cardOpacity', cardOpacity);
+    notifyListeners();
+  }
+
+  /// Включить/выключить тёмную тему. Сохраняется и применяется ко всему UI.
+  void setDarkMode(bool value) {
+    darkMode = value;
+    _box.put('darkMode', value);
     notifyListeners();
   }
 
@@ -315,6 +410,29 @@ class AppStore extends ChangeNotifier {
     _box.put('mealTimes', mealTimes);
   }
 
+  /// Сохранить ИИ-совет (в начало списка), с ограничением на 50 записей.
+  void saveAiAdvice(SavedAiAdvice advice) {
+    aiAdvices.insert(0, advice);
+    if (aiAdvices.length > 50) {
+      aiAdvices = aiAdvices.sublist(0, 50);
+    }
+    _persistAiAdvices();
+    notifyListeners();
+  }
+
+  /// Удалить сохранённый совет по id.
+  void deleteAiAdvice(String id) {
+    final before = aiAdvices.length;
+    aiAdvices.removeWhere((advice) => advice.id == id);
+    if (aiAdvices.length == before) return;
+    _persistAiAdvices();
+    notifyListeners();
+  }
+
+  void _persistAiAdvices() {
+    _box.put('aiAdvices', aiAdvices.map((advice) => advice.toMap()).toList());
+  }
+
   bool isFavoriteProduct(String slug) => favoriteProductSlugs.contains(slug);
 
   void toggleFavoriteProduct(String slug) {
@@ -329,6 +447,14 @@ class AppStore extends ChangeNotifier {
     if (language == next) return;
     language = next;
     await _box.put('language', next.code);
+    notifyListeners();
+  }
+
+  /// Marks that the first-launch language page has been completed.
+  void setLanguageChosen(bool value) {
+    if (languageChosen == value) return;
+    languageChosen = value;
+    _box.put('languageChosen', value);
     notifyListeners();
   }
 
@@ -353,7 +479,10 @@ class AppStore extends ChangeNotifier {
       .expand((items) => items)
       .fold(0, (sum, e) => sum + e.kcal);
 
-  int get consumed => consumedOn();
+  int get consumed {
+    _ensureAggregates();
+    return _consumedCache!;
+  }
 
   int mealKcal(String mealKey, {String? date}) =>
       itemsFor(mealKey, date: date).fold(0, (sum, e) => sum + e.kcal);
@@ -371,7 +500,10 @@ class AppStore extends ChangeNotifier {
     return (protein: p, carbs: c, fat: f);
   }
 
-  ({double protein, double carbs, double fat}) get macros => macrosOn();
+  ({double protein, double carbs, double fat}) get macros {
+    _ensureAggregates();
+    return _macrosCache!;
+  }
 
   /// Consumed micronutrients for a date (keys match Product.micros codes).
   Map<String, double> microsOn([String? date]) {
@@ -395,6 +527,120 @@ class AppStore extends ChangeNotifier {
   StreamSubscription<int>? _liveSteps;
   bool stepsPermission = false;
 
+  /// Демо: заполняет историю шагов случайными значениями (2500–13500) за
+  /// последние 30 дней для дней без записи, чтобы недельный/месячный график не
+  /// был пустым. Реальные записанные дни не трогает; если сегодняшних живых шагов
+  /// ещё нет (0), подставляет случайное значение и в [steps].
+  void _seedRandomStepsMonth() {
+    final rnd = math.Random();
+    final today = DateTime.now();
+    for (var i = 29; i >= 0; i--) {
+      final key = ymd(today.subtract(Duration(days: i)));
+      if ((stepsHistory[key] ?? 0) <= 0) {
+        stepsHistory[key] = 2500 + rnd.nextInt(11000);
+      }
+    }
+    // Если живых шагов ещё нет (эмулятор/нет датчика) — показываем сегодняшнее
+    // демо-значение, чтобы график и сводка не были пустыми.
+    if (steps <= 0) steps = stepsHistory[ymd()] ?? steps;
+    _box.put('steps', steps);
+    _box.put('stepsHistory', stepsHistory);
+  }
+
+  /// Заполняет историю воды за 30 дней демо-значениями там, где их ещё нет, —
+  /// чтобы график на экране «Вода» не был пустым (как [_seedRandomStepsMonth]).
+  void _seedRandomWaterMonth() {
+    final rnd = math.Random();
+    final today = DateTime.now();
+    for (var i = 29; i >= 0; i--) {
+      final key = ymd(today.subtract(Duration(days: i)));
+      if ((waterHistory[key] ?? 0) <= 0) {
+        waterHistory[key] = 600 + rnd.nextInt(1800); // 600..2399 мл
+      }
+    }
+    _box.put('waterHistory', waterHistory);
+  }
+
+  /// Сохраняет сегодняшнюю воду в историю по дате (для графика на экране «Вода»).
+  void _recordWaterToday() {
+    waterHistory[ymd()] = water;
+    _box.put('waterHistory', waterHistory);
+  }
+
+  /// Вода за последние [days] дней (старые слева, сегодня справа) — для
+  /// горизонтально прокручиваемой полосы на экране «Вода». Сегодня берётся из
+  /// живого [water], прошлые дни — из [waterHistory].
+  List<({DateTime date, int water})> waterMonth([int days = 30]) {
+    final today = DateTime.now();
+    final out = <({DateTime date, int water})>[];
+    for (var i = days - 1; i >= 0; i--) {
+      final d = today.subtract(Duration(days: i));
+      final key = ymd(d);
+      out.add(
+          (date: d, water: key == ymd() ? water : (waterHistory[key] ?? 0)));
+    }
+    return out;
+  }
+
+  /// Вода за день, отстоящий на [offset] дней назад (0 = сегодня, живое
+  /// значение; прошлые — из истории).
+  int waterForOffset(int offset) {
+    if (offset <= 0) return water;
+    final key = ymd(DateTime.now().subtract(Duration(days: offset)));
+    return waterHistory[key] ?? 0;
+  }
+
+  /// Сохраняет сегодняшние шаги: и отдельным ключом 'steps', и в историю по дате
+  /// (для недельного графика на экране «Шаги»). Дневник при этом не трогаем.
+  void _recordStepsToday() {
+    _box.put('steps', steps);
+    stepsHistory[ymd()] = steps;
+    _box.put('stepsHistory', stepsHistory);
+  }
+
+  /// Шаги за последние 7 дней (старые слева, сегодня справа). Сегодня берётся из
+  /// живого [steps], прошлые дни — из [stepsHistory].
+  List<({DateTime date, int steps})> stepsWeek() => stepsMonth(7);
+
+  /// Шаги за последние [days] дней (старые слева, сегодня справа) — для
+  /// горизонтально прокручиваемой полосы на экране «Шаги». Сегодня берётся из
+  /// живого [steps], прошлые дни — из [stepsHistory].
+  List<({DateTime date, int steps})> stepsMonth([int days = 30]) {
+    final today = DateTime.now();
+    final out = <({DateTime date, int steps})>[];
+    for (var i = days - 1; i >= 0; i--) {
+      final d = today.subtract(Duration(days: i));
+      final key = ymd(d);
+      out.add(
+          (date: d, steps: key == ymd() ? steps : (stepsHistory[key] ?? 0)));
+    }
+    return out;
+  }
+
+  /// Шаги за день, отстоящий на [offset] дней назад (0 = сегодня, живой
+  /// счётчик; прошлые дни — из истории). Для выбранного в полосе дня.
+  int stepsForOffset(int offset) {
+    if (offset <= 0) return steps;
+    final key = ymd(DateTime.now().subtract(Duration(days: offset)));
+    return stepsHistory[key] ?? 0;
+  }
+
+  /// Оценка сожжённых за активность калорий по шагам и весу (~0.00065 ккал на
+  /// шаг·кг ≈ 0.045 ккал/шаг при 70 кг). Формула в nutrition/energy.dart.
+  int activeKcal() => activeKcalFor(steps);
+
+  /// То же, но для произвольного числа шагов [s] (выбранный в полосе день).
+  int activeKcalFor(int s) {
+    final kg = weight > 0 ? weight : (weightKg ?? 70);
+    return walkingCalories(steps: s, weightKg: kg);
+  }
+
+  /// Оценка времени активности в минутах по шагам (~110 шагов/мин).
+  int activeMinutes() => activeMinutesFor(steps);
+
+  /// То же, но для произвольного числа шагов [s] (выбранный в полосе день).
+  int activeMinutesFor(int s) => (s / 110).round();
+
   /// Silent sync at startup/resume; no permission prompt.
   Future<void> syncSteps() async {
     stepsPermission = await StepsService.instance.checkPermission();
@@ -403,9 +649,11 @@ class AppStore extends ChangeNotifier {
       return;
     }
     final n = await StepsService.instance.getTodaySteps();
-    if (n != null && n != steps) {
+    // Игнорируем нулевые показания (нет датчика/разрешения), чтобы не затирать
+    // уже показанное значение (в т.ч. демо-данные) нулём.
+    if (n != null && n > 0 && n != steps) {
       steps = n;
-      _persist();
+      _recordStepsToday();
     }
     _startLiveSteps();
     notifyListeners();
@@ -420,9 +668,12 @@ class AppStore extends ChangeNotifier {
 
   void _startLiveSteps() {
     _liveSteps ??= StepsService.instance.liveSteps().listen((n) {
-      if (n == steps) return;
+      if (n <= 0 || n == steps) return;
       steps = n;
-      _persist();
+      // Живой шагомер тикает несколько раз в секунду при ходьбе — пишем только
+      // шаги (+ историю дня), а не весь дневник (это и была главная причина
+      // пропуска кадров при ходьбе с открытым приложением).
+      _recordStepsToday();
       notifyListeners();
     }, onError: (_) {});
   }
@@ -435,14 +686,33 @@ class AppStore extends ChangeNotifier {
 
   void addWater(int ml) {
     water = (water + ml).clamp(0, 100000);
-    _persist();
+    // Пишем ТОЛЬКО изменившийся ключ, а не весь дневник (раньше каждый «+250 мл»
+    // заново сериализовал все 30 дней дневника в main-потоке).
+    _box.put('water', water);
+    _recordWaterToday();
     notifyListeners();
   }
 
   /// ± buttons on the water screen clamp to the [0, goal] range (per design).
   void stepWater(int delta) {
     water = (water + delta).clamp(0, waterGoal);
-    _persist();
+    _box.put('water', water);
+    _recordWaterToday();
+    notifyListeners();
+  }
+
+  /// Изменяет воду выбранного в графике дня кнопками ± ([offset] дней назад,
+  /// 0 = сегодня). Сегодня правит живое [water], прошлые дни — запись в истории.
+  /// Клампится в диапазон [0, цель], как и [stepWater].
+  void stepWaterForOffset(int offset, int delta) {
+    if (offset <= 0) {
+      stepWater(delta);
+      return;
+    }
+    final key = ymd(DateTime.now().subtract(Duration(days: offset)));
+    final cur = waterHistory[key] ?? 0;
+    waterHistory[key] = (cur + delta).clamp(0, waterGoal);
+    _box.put('waterHistory', waterHistory);
     notifyListeners();
   }
 
@@ -527,6 +797,7 @@ class AppStore extends ChangeNotifier {
 
   void addFood(String mealKey, LogItem item, {String? date}) {
     _day(date ?? ymd()).putIfAbsent(mealKey, () => []).add(item);
+    _invalidateAggregates();
     _persist();
     notifyListeners();
   }
@@ -535,6 +806,7 @@ class AppStore extends ChangeNotifier {
     final items = diary[date ?? ymd()]?[mealKey];
     if (items == null || index < 0 || index >= items.length) return;
     items.removeAt(index);
+    _invalidateAggregates();
     _persist();
     notifyListeners();
   }
@@ -543,6 +815,7 @@ class AppStore extends ChangeNotifier {
     final items = diary[date ?? ymd()]?[mealKey];
     if (items == null || index < 0 || index >= items.length) return;
     items[index] = item;
+    _invalidateAggregates();
     _persist();
     notifyListeners();
   }
@@ -584,6 +857,24 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Полный сброс пользовательских данных — как первый запуск приложения.
+  /// Очищает Hive-хранилище и заново подтягивает дефолты (профиль, дневник,
+  /// история веса/воды/шагов, настройки). После вызова onboarded == false,
+  /// поэтому приложение ведёт в онбординг, где все характеристики (возраст,
+  /// рост…) вводятся заново. Язык/тема тоже сбрасываются к значениям по
+  /// умолчанию, как при чистой установке.
+  Future<void> resetUserData() async {
+    await _box.clear();
+    _invalidateAggregates();
+    // Сбрасываем живые поля шагомера, чтобы новый поток подписался заново.
+    await _liveSteps?.cancel();
+    _liveSteps = null;
+    // init() перечитывает уже пустой box: всё возвращается к дефолтам и
+    // повторно засеиваются демо-история шагов/воды (как при первом запуске),
+    // в конце вызывает notifyListeners().
+    await init();
+  }
+
   void _upsertBodyHistory(BodyMetricEntry entry) {
     final key = ymd(entry.date);
     bodyHistory = [
@@ -594,6 +885,21 @@ class AppStore extends ChangeNotifier {
     if (bodyHistory.length > 90) {
       bodyHistory = bodyHistory.sublist(bodyHistory.length - 90);
     }
+  }
+
+  /// Удаляет сохранённую запись состава тела за указанную дату. Возвращает
+  /// true, если что-то было удалено (синтетические записи графика не трогаются).
+  bool deleteBodyEntry(DateTime date) {
+    final key = ymd(date);
+    final before = bodyHistory.length;
+    bodyHistory = [
+      for (final item in bodyHistory)
+        if (ymd(item.date) != key) item,
+    ];
+    if (bodyHistory.length == before) return false;
+    _persist();
+    notifyListeners();
+    return true;
   }
 
   String? _cleanName(String? value) {
@@ -638,11 +944,15 @@ class AppStore extends ChangeNotifier {
       final meals = <String, List<LogItem>>{};
       _fillDemoDay(meals, 29 - offset);
       diary[date] = meals;
+      // Демо-шаги: правдоподобный разброс 4500–11500 для недельного графика.
+      stepsHistory[date] = 4500 + ((offset * 1733 + 2200) % 7000);
     }
+    steps = stepsHistory[ymd()] ?? steps;
 
     recFeedback = null;
     _box.put('demoFoodSeeded30Days', true);
     _box.put('demoFoodSeededAt', ymd());
+    _box.put('stepsHistory', stepsHistory);
     _persist();
   }
 
