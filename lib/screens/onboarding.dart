@@ -337,6 +337,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               t: t,
               blur: 60,
               child: _WheelValuePicker(
+                // Ключ обязателен: без него элемент колеса переиспользуется
+                // между шагами рост→вес, а Flutter при подмене контроллера
+                // сохраняет позицию скролла — колесо показывает чужой индекс
+                // (рост 178 → «88 кг»), хотя в состоянии остаётся дефолт 66.
+                key: const ValueKey('onboarding.height'),
                 value: height,
                 min: 120,
                 max: 220,
@@ -354,6 +359,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               t: t,
               blur: 60,
               child: _WheelValuePicker(
+                key: const ValueKey('onboarding.weight'),
                 value: weight,
                 min: 30,
                 max: 200,
@@ -777,6 +783,7 @@ class _WheelValuePicker extends StatefulWidget {
   final ValueChanged<int> onChanged;
 
   const _WheelValuePicker({
+    super.key,
     required this.value,
     required this.min,
     required this.max,
