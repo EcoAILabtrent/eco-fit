@@ -230,9 +230,23 @@ class _StartupError extends StatelessWidget {
 
   const _StartupError({required this.error, required this.onRetry});
 
+  // Стор не загрузился, поэтому Provider выше нет и context.l10n недоступен.
+  // Язык выбираем по системной локали из мини-карты — иначе экран ошибки был бы
+  // всегда английским (как и было с захардкоженными строками).
+  static AppLanguage _localeLanguage() {
+    final code = WidgetsBinding.instance.platformDispatcher.locale.languageCode
+        .toLowerCase();
+    return switch (code) {
+      'ru' => AppLanguage.ru,
+      'uz' => AppLanguage.uzLatn,
+      _ => AppLanguage.en,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     const t = EcoTheme.meadow;
+    final l = AppStrings(_localeLanguage());
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       scrollBehavior: const _EcoScrollBehavior(),
@@ -248,10 +262,13 @@ class _StartupError extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'Could not start Eco Fit.',
+                Text(
+                  l.t('startup.error'),
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -260,7 +277,10 @@ class _StartupError extends StatelessWidget {
                   style: const TextStyle(fontSize: 12, color: EcoColors.sub),
                 ),
                 const SizedBox(height: 16),
-                FilledButton(onPressed: onRetry, child: const Text('Retry')),
+                FilledButton(
+                  onPressed: onRetry,
+                  child: Text(l.t('startup.retry')),
+                ),
               ],
             ),
           ),
@@ -278,113 +298,140 @@ class EcoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: store,
-      child: Consumer<AppStore>(
-        builder: (context, store, _) {
-          final t = store.theme;
-          final l = AppStrings(store.language);
-          return MaterialApp(
-            title: 'Eco health',
-            // Тап по уведомлению открывает экран через этот ключ.
-            navigatorKey: ecoNavigatorKey,
-            debugShowCheckedModeBanner: false,
-            scrollBehavior: const _EcoScrollBehavior(),
-            locale: store.language.locale,
-            supportedLocales: AppLanguage.supportedLocales,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            theme: ThemeData(
-              brightness: t.isDark ? Brightness.dark : Brightness.light,
-              scaffoldBackgroundColor: t.bg,
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: t.olive,
-                brightness: t.isDark ? Brightness.dark : Brightness.light,
-                surface: t.bg,
-              ),
-              // Анимация перехода между экранами по всему приложению —
-              // стандартный горизонтальный пуш: нижний экран уезжает влево с
-              // параллаксом, новый приезжает справа; на закрытии зеркально.
-              // Штатный Cupertino-билдер на всех платформах (двигает и нижний
-              // экран, и верхний).
-              pageTransitionsTheme: const PageTransitionsTheme(
-                builders: {
-                  TargetPlatform.android: _CupertinoSlide(),
-                  TargetPlatform.iOS: _CupertinoSlide(),
-                  TargetPlatform.fuchsia: _CupertinoSlide(),
-                  TargetPlatform.windows: _CupertinoSlide(),
-                  TargetPlatform.macOS: _CupertinoSlide(),
-                  TargetPlatform.linux: _CupertinoSlide(),
-                },
-              ),
-              // Bundled Onest (assets/fonts) — works fully offline.
-              fontFamily: 'Onest',
-              // Базовая типографика по яркости темы (светлый текст в тёмной),
-              // плюс явные ink-цвета. Чинит дефолтный цвет TextField/текста.
-              textTheme: (t.isDark
-                      ? Typography.whiteMountainView
-                      : Typography.blackMountainView)
-                  .apply(
-                fontFamily: 'Onest',
-                bodyColor: t.ink,
-                displayColor: t.ink,
-              ),
-              useMaterial3: true,
-            ),
-            // Язык теперь выбирается первым шагом онбординга, поэтому
-            // непройденный онбординг ведёт сразу в его flow.
-            initialRoute: store.onboarded ? '/' : '/onboarding',
-            // Все маршруты идут через единый EcoPageRoute — одинаковый быстрый
-            // слайд открытия/закрытия ([kEcoMotionDuration]) для каждого экрана
-            // (включая профиль, который раньше открывался мгновенно).
-            onGenerateRoute: (settings) {
-              // Главная ↔ профиль — мгновенно, без анимации (поведение вкладок).
-              if (settings.name == '/profile') {
-                return EcoInstantRoute<void>(
-                  settings: settings,
-                  builder: (_) => const ProfileScreen(),
-                );
-              }
-              final mealKey = (settings.arguments as String?) ?? 'lunch';
-              final WidgetBuilder builder;
-              switch (settings.name) {
-                case '/':
-                  builder = (_) => const HomeScreen();
-                case '/dayview':
-                  builder = (_) => const DayViewScreen();
-                case '/addfood':
-                  builder = (_) => AddFoodScreen(mealKey: mealKey);
-                case '/meallog':
-                  builder = (_) => MealLogScreen(mealKey: mealKey);
-                case '/stats':
-                  builder = (_) => const StatsScreen();
-                case '/aiAdvice':
-                  builder = (_) => const AiAdviceScreen();
-                case '/nutrition':
-                  builder = (_) => StubScreen(title: l.t('home.nutrition'));
-                case '/body':
-                  builder = (_) => const BodyScreen();
-                case '/bodyEntry':
-                  builder = (_) => const BodyEntryScreen();
-                case '/water':
-                  builder = (_) => const WaterScreen();
-                case '/steps':
-                  builder = (_) => const StepsScreen();
-                case '/notifications':
-                  builder = (_) => const NotificationSettingsScreen();
-                case '/onboarding':
-                  builder = (_) => const OnboardingScreen();
-                default:
-                  return null;
-              }
-              return EcoPageRoute<void>(settings: settings, builder: builder);
-            },
-          );
-        },
-      ),
+      child: const _EcoAppView(),
     );
   }
+}
+
+/// Корневой [MaterialApp]. Подписан ТОЧЕЧНО на тему и язык (а не на весь стор
+/// через Consumer, как было раньше): шагомер дёргает notifyListeners несколько
+/// раз в секунду при ходьбе, и Consumer пересобирал MaterialApp + генерировал
+/// новый ThemeData через дорогой [ColorScheme.fromSeed] на КАЖДЫЙ тик, обесценивая
+/// точечные select-подписки экранов. Теперь MaterialApp пересобирается лишь при
+/// реальной смене темы или языка, а ThemeData берётся из кеша по идентичности темы.
+class _EcoAppView extends StatelessWidget {
+  const _EcoAppView();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    final lang = context.select<AppStore, AppLanguage>((s) => s.language);
+    final l = AppStrings(lang);
+    // initialRoute влияет только на первом кадре, поэтому onboarded читаем разово
+    // (read, не select) — смена флага не должна пересобирать MaterialApp.
+    final onboarded = context.read<AppStore>().onboarded;
+    return MaterialApp(
+      title: 'Eco health',
+      // Тап по уведомлению открывает экран через этот ключ.
+      navigatorKey: ecoNavigatorKey,
+      debugShowCheckedModeBanner: false,
+      scrollBehavior: const _EcoScrollBehavior(),
+      locale: lang.locale,
+      supportedLocales: AppLanguage.supportedLocales,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      theme: _ecoThemeData(t),
+      // Язык теперь выбирается первым шагом онбординга, поэтому
+      // непройденный онбординг ведёт сразу в его flow.
+      initialRoute: onboarded ? '/' : '/onboarding',
+      // Все маршруты идут через единый EcoPageRoute — одинаковый быстрый
+      // слайд открытия/закрытия ([kEcoMotionDuration]) для каждого экрана
+      // (включая профиль, который раньше открывался мгновенно).
+      onGenerateRoute: (settings) {
+        // Главная ↔ профиль — мгновенно, без анимации (поведение вкладок).
+        if (settings.name == '/profile') {
+          return EcoInstantRoute<void>(
+            settings: settings,
+            builder: (_) => const ProfileScreen(),
+          );
+        }
+        final mealKey = (settings.arguments as String?) ?? 'lunch';
+        final WidgetBuilder builder;
+        switch (settings.name) {
+          case '/':
+            builder = (_) => const HomeScreen();
+          case '/dayview':
+            builder = (_) => const DayViewScreen();
+          case '/addfood':
+            builder = (_) => AddFoodScreen(mealKey: mealKey);
+          case '/meallog':
+            builder = (_) => MealLogScreen(mealKey: mealKey);
+          case '/stats':
+            builder = (_) => const StatsScreen();
+          case '/aiAdvice':
+            builder = (_) => const AiAdviceScreen();
+          case '/nutrition':
+            builder = (_) => StubScreen(title: l.t('home.nutrition'));
+          case '/body':
+            builder = (_) => const BodyScreen();
+          case '/bodyEntry':
+            builder = (_) => const BodyEntryScreen();
+          case '/water':
+            builder = (_) => const WaterScreen();
+          case '/steps':
+            builder = (_) => const StepsScreen();
+          case '/notifications':
+            builder = (_) => const NotificationSettingsScreen();
+          case '/onboarding':
+            builder = (_) => const OnboardingScreen();
+          default:
+            return null;
+        }
+        return EcoPageRoute<void>(settings: settings, builder: builder);
+      },
+    );
+  }
+}
+
+/// Кеш [ThemeData] по идентичности [EcoTheme]. Тем всего две (meadow/night) и
+/// они — const-канонические инстансы, поэтому Map по идентичности держит максимум
+/// два значения. Смысл кеша — не звать дорогой [ColorScheme.fromSeed] (генерация
+/// палитры) на каждый build MaterialApp.
+final Map<EcoTheme, ThemeData> _ecoThemeCache = {};
+
+ThemeData _ecoThemeData(EcoTheme t) =>
+    _ecoThemeCache.putIfAbsent(t, () => _buildEcoThemeData(t));
+
+ThemeData _buildEcoThemeData(EcoTheme t) {
+  return ThemeData(
+    brightness: t.isDark ? Brightness.dark : Brightness.light,
+    scaffoldBackgroundColor: t.bg,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: t.olive,
+      brightness: t.isDark ? Brightness.dark : Brightness.light,
+      surface: t.bg,
+    ),
+    // Анимация перехода между экранами по всему приложению — стандартный
+    // горизонтальный пуш: нижний экран уезжает влево с параллаксом, новый
+    // приезжает справа; на закрытии зеркально. Штатный Cupertino-билдер на всех
+    // платформах (двигает и нижний экран, и верхний).
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: _CupertinoSlide(),
+        TargetPlatform.iOS: _CupertinoSlide(),
+        TargetPlatform.fuchsia: _CupertinoSlide(),
+        TargetPlatform.windows: _CupertinoSlide(),
+        TargetPlatform.macOS: _CupertinoSlide(),
+        TargetPlatform.linux: _CupertinoSlide(),
+      },
+    ),
+    // Bundled Onest (assets/fonts) — works fully offline.
+    fontFamily: 'Onest',
+    // Базовая типографика по яркости темы (светлый текст в тёмной), плюс явные
+    // ink-цвета. Чинит дефолтный цвет TextField/текста.
+    textTheme: (t.isDark
+            ? Typography.whiteMountainView
+            : Typography.blackMountainView)
+        .apply(
+      fontFamily: 'Onest',
+      bodyColor: t.ink,
+      displayColor: t.ink,
+    ),
+    useMaterial3: true,
+  );
 }
 
 /// Стандартный горизонтальный пуш (как в iOS): новый экран приезжает справа,

@@ -224,7 +224,9 @@ class HomeScreen extends StatelessWidget {
             _BodyCard(
               t: t,
               title: l.t('home.bodyParams'),
-              weightText: '${s.weight > 0 ? s.weight : '—'} ${l.unit('kg')}',
+              // num1: «66»/«66,5» по локали, а не «66.0» с жёсткой точкой.
+              weightText:
+                  '${s.weight > 0 ? l.num1(s.weight) : '—'} ${l.unit('kg')}',
               status: _BodyStatus.fromStore(s, l),
               bmi: _BodyStatus.bmiFor(s),
               onTap: () => Navigator.of(context).pushNamed('/body'),
@@ -399,11 +401,18 @@ class _MealPickerHostState extends State<MealPickerHost>
                             // один раз и далее лишь композитятся при выезде, а не
                             // перерисовываются на каждом кадре анимации.
                             child: RepaintBoundary(
-                              child: _MealPickerSheet(
-                                onOpenMeal: (mealKey) =>
-                                    _pushAfterClose('/meallog', mealKey),
-                                onAddFood: (mealKey) =>
-                                    _pushAfterClose('/addfood', mealKey),
+                              // Панель фиксированной высоты (432) с компактными
+                              // строками (46) и бейджами (37×37): при системном
+                              // textScale 1.3+ они переполняются. Ограничиваем
+                              // масштаб текста внутри панели до 1.2.
+                              child: MediaQuery.withClampedTextScaling(
+                                maxScaleFactor: 1.2,
+                                child: _MealPickerSheet(
+                                  onOpenMeal: (mealKey) =>
+                                      _pushAfterClose('/meallog', mealKey),
+                                  onAddFood: (mealKey) =>
+                                      _pushAfterClose('/addfood', mealKey),
+                                ),
                               ),
                             ),
                           ),
@@ -461,8 +470,13 @@ class _MealPickerSheet extends StatelessWidget {
           orElse: () => kMeals.first,
         ),
     ];
-    final store = context.watch<AppStore>();
-    final t = store.theme;
+    // Панель (432px) раньше висела на context.watch и перестраивалась на КАЖДЫЙ
+    // тик шагомера/воды. Подписываемся точечно: тема (внешний вид) + diaryRevision
+    // (kcal приёмов меняются только при правке дневника). Сам стор берём через
+    // read — mealKcal ниже покрыт diaryRevision.
+    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
+    context.select<AppStore, int>((s) => s.diaryRevision);
+    final store = context.read<AppStore>();
     return SizedBox(
       // Высота увеличена (336 → 432): крупнее шрифты/строки + светлые полосы-
       // разделители. Ширина не меняется (310): вырез под FAB снизу
@@ -857,6 +871,7 @@ class _BodyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return EcoCard(
       t: t,
       bg: t.cardBody,
@@ -893,7 +908,9 @@ class _BodyCard extends StatelessWidget {
           if (bmi != null) ...[
             const SizedBox(height: 6),
             Text(
-              'BMI ${bmi!.toStringAsFixed(1)}',
+              // Значение по локали (num1: «24,5» / «24.5»). Метка «BMI»
+              // сохранена: ключа ИМТ в T4 не заведено (см. new_keys.md).
+              'BMI ${l.num1(bmi!)}',
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,

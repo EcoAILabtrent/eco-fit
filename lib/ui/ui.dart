@@ -302,25 +302,28 @@ class EcoScreen extends StatelessWidget {
       // градиентом, поэтому заливка Scaffold была лишним полноэкранным overdraw
       // на каждый кадр на КАЖДОМ экране.
       backgroundColor: Colors.transparent,
-      body: BackdropGroup(
-        child: Stack(
-          children: [
-            Positioned.fill(child: EcoGlassBackground(t: t)),
-            Positioned.fill(
-              child: SafeArea(
-                bottom: false,
-                child: SingleChildScrollView(
-                  controller: controller,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: pad ? 16 : 0),
-                    child: child,
-                  ),
+      // BackdropGroup убран: он влияет только на BackdropFilter.grouped, а таких
+      // в приложении нет — обёртка была no-op. Единственный живой BackdropFilter
+      // (окна ввода в EcoGlassSurface) живёт в отдельных модальных маршрутах, вне
+      // этого поддерева, поэтому группировать нечего. Такие же no-op обёртки пока
+      // остаются в addfood/onboarding/profile — их файлы не в этой задаче.
+      body: Stack(
+        children: [
+          Positioned.fill(child: EcoGlassBackground(t: t)),
+          Positioned.fill(
+            child: SafeArea(
+              bottom: false,
+              child: SingleChildScrollView(
+                controller: controller,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: pad ? 16 : 0),
+                  child: child,
                 ),
               ),
             ),
-            if (footer != null) footer!,
-          ],
-        ),
+          ),
+          if (footer != null) footer!,
+        ],
       ),
     );
   }
@@ -351,7 +354,14 @@ class EcoTopBar extends StatelessWidget {
           if (onBack != null)
             GestureDetector(
               onTap: onBack,
-              child: Icon(Icons.chevron_left, size: 30, color: t.ink),
+              // Тач-таргет 48×48 (доступный минимум): иконка остаётся 30, вокруг
+              // неё 9px паддинга. opaque — чтобы тап по прозрачному паддингу тоже
+              // срабатывал, а не проваливался к тому, что под ним.
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.all(9),
+                child: Icon(Icons.chevron_left, size: 30, color: t.ink),
+              ),
             ),
           Expanded(
             child: Text(
@@ -450,8 +460,9 @@ class EcoGlassSurface extends StatelessWidget {
           // Окна ввода/модалки: размытие фона (frosted) — позади мягкая дымка,
           // чтобы фон не мешал содержимому. Включается для solid ИЛИ когда явно
           // задан [blur] (полупрозрачные пикер-окна). solid дополнительно рисует
-          // liquid-glass блики по краям. BackdropFilter только здесь (эти окна
-          // не скроллятся), чтобы не возвращать покадровые лаги на экранах.
+          // liquid-glass блики по краям. ВНИМАНИЕ: внутри этих окон крутятся
+          // барабаны пикеров, поэтому σ держим низким (showEcoSheet передаёт σ15)
+          // — живой BackdropFilter пересчитывается на каждый кадр их прокрутки.
           child: (solid || blur != null)
               ? BackdropFilter(
                   filter: ui.ImageFilter.blur(
@@ -958,65 +969,6 @@ class MacroLegend extends StatelessWidget {
   }
 }
 
-/// Horizontal value bar with optional target zone marker.
-class ValueBar extends StatelessWidget {
-  final EcoTheme t;
-  final double value;
-  final double max;
-  final Color color;
-  final Color? soft;
-  final double? zoneLo;
-  final double? zoneHi;
-  final double height;
-
-  const ValueBar({
-    super.key,
-    required this.t,
-    required this.value,
-    required this.max,
-    required this.color,
-    this.soft,
-    this.zoneLo,
-    this.zoneHi,
-    this.height = 14,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final pct = (max > 0 ? value / max : 0).clamp(0.0, 1.0);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: SizedBox(
-        height: height,
-        child: LayoutBuilder(
-          builder: (context, box) {
-            return Stack(
-              children: [
-                Container(color: soft ?? Colors.black.withValues(alpha: 0.06)),
-                Container(
-                  width: box.maxWidth * pct,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-                if (zoneLo != null && zoneHi != null)
-                  Positioned(
-                    left: box.maxWidth * (zoneLo! / max),
-                    width: box.maxWidth * ((zoneHi! - zoneLo!) / max),
-                    top: 0,
-                    bottom: 0,
-                    child: Container(color: t.dark.withValues(alpha: 0.85)),
-                  ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
 /// Progress scale with target/overflow logic.
 /// • Solid colour fills up to min(value, target); a sharp black marker sits at
 ///   the target; the remainder is a light tint of the colour, or — on overflow
@@ -1047,16 +999,17 @@ class ProgressScale extends StatelessWidget {
     this.animateFromZero = false,
   });
 
-  String _fmt(double n) {
-    final r = (n * 10).round() / 10;
-    final s = r == r.roundToDouble()
-        ? r.toInt().toString()
-        : r.toString().replaceAll('.', ',');
+  // Разделитель дробной части — по локали (num1): «,» для ru/uz, «.» для en.
+  // Раньше здесь был жёсткий replaceAll('.', ','), из-за чего английская локаль
+  // тоже получала запятую.
+  String _fmt(AppStrings l, double n) {
+    final s = l.num1(n);
     return unit.isEmpty ? s : '$s $unit';
   }
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: animateFromZero ? 0 : value, end: value),
       duration: const Duration(milliseconds: 260),
@@ -1066,8 +1019,8 @@ class ProgressScale extends StatelessWidget {
         final total = math.max(animatedValue, math.max(target, 1.0));
         final light = Color.lerp(color, Colors.white, 0.62)!;
         final darker = Color.lerp(color, Colors.black, 0.28)!;
-        final realTxt = _fmt(value);
-        final targetTxt = _fmt(target);
+        final realTxt = _fmt(l, value);
+        final targetTxt = _fmt(l, target);
         final realOpacity =
             (1 - ((animatedValue - value).abs() / 0.08)).clamp(0.0, 1.0);
 
@@ -1218,9 +1171,6 @@ class CalorieTrack extends StatelessWidget {
   final EcoTheme t;
   final int value;
   final int goal;
-  final int max;
-  final int zoneLo;
-  final int zoneHi;
 
   static const _brown = EcoColors.cal;
 
@@ -1229,9 +1179,6 @@ class CalorieTrack extends StatelessWidget {
     required this.t,
     required this.value,
     required this.goal,
-    this.max = 2800,
-    this.zoneLo = 1970,
-    this.zoneHi = 2200,
   });
 
   @override
@@ -1243,65 +1190,7 @@ class CalorieTrack extends StatelessWidget {
       target: goal.toDouble(),
       color: _brown,
       unit: l.unit('kcal'),
-      label: 'Общее количество',
-    );
-  }
-}
-
-/// Folder-style tabs ("Избранное / Мои продукты / Мои блюда").
-class FolderTabs extends StatelessWidget {
-  final EcoTheme t;
-  final List<String> tabs;
-  final int active;
-  final ValueChanged<int> onChanged;
-
-  const FolderTabs({
-    super.key,
-    required this.t,
-    required this.tabs,
-    required this.active,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        for (var i = 0; i < tabs.length; i++)
-          Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged(i),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 75),
-                padding: EdgeInsets.fromLTRB(
-                  8,
-                  i == active ? 14 : 10,
-                  8,
-                  i == active ? 18 : 14,
-                ),
-                decoration: BoxDecoration(
-                  color: i == active ? t.card : Colors.transparent,
-                  borderRadius: i == active
-                      ? BorderRadius.only(
-                          topLeft: Radius.circular(t.r),
-                          topRight: Radius.circular(t.r),
-                        )
-                      : BorderRadius.zero,
-                ),
-                child: Text(
-                  tabs[i],
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: i == active ? FontWeight.w700 : FontWeight.w600,
-                    color: i == active ? t.ink : t.sub,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
+      label: l.t('common.totalAmount'),
     );
   }
 }
@@ -1326,10 +1215,12 @@ Future<void> showEcoSheet({
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.fromLTRB(24, 18, 24, 22),
       // Окно ввода: полупрозрачная стеклянная подложка как у пикеров онбординга
-      // («Ваш рост»). solid:false → фон просвечивает, + сильное размытие, чтобы
-      // фон не мешал содержимому.
+      // («Ваш рост»). solid:false → фон просвечивает. Блюр σ15, а не σ60: внутри
+      // крутятся барабаны CupertinoPicker, и живой BackdropFilter пересчитывается
+      // на КАЖДЫЙ кадр прокрутки — на матовой подложке σ15 визуально неотличим от
+      // σ60, но кратно дешевле (тот же класс лагов чинили в 6fe473a).
       solid: false,
-      blur: 60,
+      blur: 15,
       borderRadius: BorderRadius.circular(26),
       shadows: const [
         BoxShadow(
@@ -2811,185 +2702,6 @@ Path _liquidNavPath(Size size) {
     ..close();
 }
 
-/// Bottom navigation: notched band (Figma "Subtract" path) + circular FAB.
-// ignore: unused_element
-class _OldEcoBottomNav extends StatelessWidget {
-  final EcoTheme t;
-  final String active; // 'home' | 'profile'
-  final VoidCallback onHome;
-  final VoidCallback onProfile;
-  final VoidCallback onPlus;
-  final String fabIcon;
-
-  const _OldEcoBottomNav({
-    required this.t,
-    required this.active,
-    required this.onHome,
-    required this.onProfile,
-    required this.onPlus,
-    required this.fabIcon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.of(context).padding.bottom;
-    // Full-bleed band: the colour runs edge-to-edge and down to the very
-    // bottom of the screen; icons and the FAB sit ABOVE the system-button
-    // inset, so nothing overlaps the Android navigation buttons.
-    final bandH = 61.0 + bottomInset;
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      height: bandH + 30 + 28,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // Soft fade so scrolling content dissolves into the band area.
-          Positioned.fill(
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      t.bg.withValues(alpha: 0),
-                      t.bg.withValues(alpha: 0.92),
-                      t.bg,
-                    ],
-                    stops: const [0.0, 0.35, 0.55],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // The notched band, flush to screen edges and bottom.
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: bandH,
-            child: CustomPaint(painter: _BandPainter(t.band)),
-          ),
-          // Icons row — above the system-button inset.
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: bottomInset,
-            height: 61,
-            child: Row(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onHome,
-                    child: Icon(
-                      ecoIcon(active == 'home' ? 'homeFill' : 'home'),
-                      size: 42,
-                      color: t.ink,
-                    ),
-                  ),
-                ),
-                const Expanded(child: SizedBox()),
-                Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onProfile,
-                    child: Icon(
-                      ecoIcon(active == 'profile' ? 'userFill' : 'user'),
-                      size: 39,
-                      color: t.ink,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // FAB dips 34px into the band's notch.
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: bandH - 34,
-            child: Center(
-              child: GestureDetector(
-                onTap: onPlus,
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: t.dark,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: t.bg, width: 4),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x4D28321E),
-                        blurRadius: 18,
-                        offset: Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Icon(ecoIcon(fabIcon), size: 30, color: t.onDark),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The Figma "Subtract" band path (370×61 design), full-bleed variant: the
-/// notched top section is drawn in the top 61px, then the colour is flooded
-/// down to the bottom of the canvas (over the system-inset strip), squaring
-/// off the bottom corners.
-class _BandPainter extends CustomPainter {
-  final Color color;
-  _BandPainter(this.color);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final sx = size.width / 370.0;
-    final sy = 1.0; // notch section is always 61 logical px tall
-    final p = Path()
-      ..moveTo(370 * sx, 41 * sy)
-      ..cubicTo(370 * sx, 52 * sy, 361 * sx, 61 * sy, 350 * sx, 61 * sy)
-      ..lineTo(20 * sx, 61 * sy)
-      ..cubicTo(9 * sx, 61 * sy, 0, 52 * sy, 0, 41 * sy)
-      ..lineTo(0, 20 * sy)
-      ..cubicTo(0, 9 * sy, 9 * sx, 0, 20 * sx, 0)
-      ..lineTo(125 * sx, 0)
-      ..cubicTo(136 * sx, 0, 144.6 * sx, 9.5 * sy, 149.9 * sx, 19.2 * sy)
-      ..cubicTo(156.7 * sx, 31.6 * sy, 169.9 * sx, 40 * sy, 185 * sx, 40 * sy)
-      ..cubicTo(
-        200.1 * sx,
-        40 * sy,
-        213.3 * sx,
-        31.6 * sy,
-        220.1 * sx,
-        19.2 * sy,
-      )
-      ..cubicTo(225.4 * sx, 9.5 * sy, 234 * sx, 0, 245 * sx, 0)
-      ..lineTo(350 * sx, 0)
-      ..cubicTo(361 * sx, 0, 370 * sx, 9 * sy, 370 * sx, 20 * sy)
-      ..close();
-    final paint = Paint()..color = color;
-    canvas.drawPath(p, paint);
-    // Flood below the notch to the screen edge (covers the path's rounded
-    // bottom corners and the system navigation inset).
-    if (size.height > 41 * sy) {
-      canvas.drawRect(
-        Rect.fromLTRB(0, 41 * sy, size.width, size.height),
-        paint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_BandPainter old) => old.color != color;
-}
-
 /// Горизонтальная полоса дневных столбиков (шаги / вода и т.п.) — сегодня
 /// справа. Подложка-капсула ([EcoTheme.band]) едет к выбранному дню; полоса
 /// прокручивается и выравнивает выбранный день по правому краю видимой области
@@ -3216,7 +2928,9 @@ class _EcoDayBarStripState extends State<EcoDayBarStrip> {
                       right: 8,
                       top: _contentTop + _weekdayH + goalY - 8,
                       child: Text(
-                        ecoFmtThousands(widget.goal),
+                        // По локали: «10 000» для ru/uz, «10,000» для en (раньше
+                        // ecoFmtThousands всегда ставил пробел, даже в en).
+                        l.thousands(widget.goal),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -3331,17 +3045,6 @@ class _EcoDayBarStripState extends State<EcoDayBarStrip> {
         _controller.hasClients ? _controller.position.maxScrollExtent : 0.0;
     return aligned.clamp(0.0, max);
   }
-}
-
-/// Число с разделением тысяч пробелом: 10000 → «10 000».
-String ecoFmtThousands(int n) {
-  final s = n.toString();
-  final b = StringBuffer();
-  for (var i = 0; i < s.length; i++) {
-    if (i > 0 && (s.length - i) % 3 == 0) b.write(' ');
-    b.write(s[i]);
-  }
-  return b.toString();
 }
 
 class _DayBarDashPainter extends CustomPainter {
