@@ -144,7 +144,9 @@ class HomeScreen extends StatelessWidget {
                     mb: 8,
                   ),
                   SizedBox(
-                    height: 174,
+                    // Выше прежних 174: в легенде теперь две строки на макрос
+                    // (граммы + kcal), кольца (168) центрируются по вертикали.
+                    height: 188,
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -186,22 +188,30 @@ class HomeScreen extends StatelessWidget {
                               offset: const Offset(-10, 0),
                               child: MacroLegend(
                                 t: t,
-                                // Macros shown in kcal (как в прототипе): carbs/protein ×4, fat ×9.
+                                // Две строки на макрос: сверху граммы
+                                // (съедено/цель), снизу энергия в kcal
+                                // (carbs/protein ×4, fat ×9).
                                 items: [
                                   (
                                     label: l.nutrient('carbs'),
+                                    grams: s.macros.carbs.round(),
+                                    gramsGoal: s.carbGoal,
                                     value: (s.macros.carbs * 4).round(),
                                     goal: s.carbGoal * 4,
                                     color: EcoColors.carb,
                                   ),
                                   (
                                     label: l.nutrient('fat'),
+                                    grams: s.macros.fat.round(),
+                                    gramsGoal: s.fatGoal,
                                     value: (s.macros.fat * 9).round(),
                                     goal: s.fatGoal * 9,
                                     color: EcoColors.fat,
                                   ),
                                   (
                                     label: l.nutrient('protein'),
+                                    grams: s.macros.protein.round(),
+                                    gramsGoal: s.protGoal,
                                     value: (s.macros.protein * 4).round(),
                                     goal: s.protGoal * 4,
                                     color: EcoColors.prot,
@@ -837,7 +847,7 @@ class _MealPickerCalBadge extends StatelessWidget {
             ),
           ),
           Text(
-            l.unit('cal'),
+            l.unit('kcal'),
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w900,

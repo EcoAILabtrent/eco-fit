@@ -319,7 +319,6 @@ class AppStrings {
       'common.setTime': 'Set time',
       'common.stubInProgress':
           'This screen is in progress and will appear in the next port phase.',
-      'unit.cal': 'cal',
       'unit.kcal': 'kcal',
       'unit.g': 'g',
       'unit.kg': 'kg',
@@ -642,7 +641,6 @@ class AppStrings {
       'common.targetRange': 'Целевой диапазон',
       'common.setTime': 'Установить время',
       'common.stubInProgress': 'Раздел в разработке — скоро появится',
-      'unit.cal': 'кал',
       'unit.kcal': 'ккал',
       'unit.g': 'г',
       'unit.kg': 'кг',
@@ -971,7 +969,6 @@ class AppStrings {
       'common.setTime': 'Vaqtni belgilash',
       'common.stubInProgress':
           'Bu ekran tayyorlanmoqda va keyingi port bosqichida paydo boʻladi.',
-      'unit.cal': 'kal',
       'unit.kcal': 'kkal',
       'unit.g': 'g',
       'unit.kg': 'kg',
@@ -1300,7 +1297,6 @@ class AppStrings {
       'common.setTime': 'Вақтни белгилаш',
       'common.stubInProgress':
           'Бу экран тайёрланмоқда ва кейинги порт босқичида пайдо бўлади.',
-      'unit.cal': 'кал',
       'unit.kcal': 'ккал',
       'unit.g': 'г',
       'unit.kg': 'кг',

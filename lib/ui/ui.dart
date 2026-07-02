@@ -738,7 +738,7 @@ class CalBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayUnit = unit ?? context.l10n.unit('cal');
+    final displayUnit = unit ?? context.l10n.unit('kcal');
     return Container(
       width: size,
       height: size,
@@ -902,7 +902,15 @@ class _RingsPainter extends CustomPainter {
 /// Legend next to the rings (dot on the left, text left-aligned).
 class MacroLegend extends StatelessWidget {
   final EcoTheme t;
-  final List<({String label, int value, int goal, Color color})> items;
+  final List<
+      ({
+        String label,
+        int value,
+        int goal,
+        int grams,
+        int gramsGoal,
+        Color color
+      })> items;
 
   const MacroLegend({super.key, required this.t, required this.items});
 
@@ -915,7 +923,7 @@ class MacroLegend extends StatelessWidget {
       children: [
         for (final m in items)
           Padding(
-            padding: const EdgeInsets.only(bottom: 14),
+            padding: const EdgeInsets.only(bottom: 10),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -940,24 +948,19 @@ class MacroLegend extends StatelessWidget {
                         height: 1.15,
                       ),
                     ),
+                    const SizedBox(height: 3),
+                    // Строка 1 — граммы (первичная величина макроса): съедено/цель.
+                    _MacroLegendValue(
+                      t: t,
+                      value: '${m.grams}',
+                      rest: ' /${m.gramsGoal} ${l.unit('g')}',
+                    ),
                     const SizedBox(height: 2),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '${m.value}',
-                            style: TextStyle(
-                              color: t.ink,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          TextSpan(text: ' /${m.goal} ${l.unit('cal')}'),
-                        ],
-                      ),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: t.sub,
-                      ),
+                    // Строка 2 — энергия в kcal (значения — kcal, а не cal).
+                    _MacroLegendValue(
+                      t: t,
+                      value: '${m.value}',
+                      rest: ' /${m.goal} ${l.unit('kcal')}',
                     ),
                   ],
                 ),
@@ -965,6 +968,38 @@ class MacroLegend extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Одна строка значения в [MacroLegend]: съеденное число — жирным (t.ink),
+/// « /цель ед.» — приглушённым (t.sub). Общий вид для строки граммов и kcal.
+class _MacroLegendValue extends StatelessWidget {
+  final EcoTheme t;
+  final String value;
+  final String rest;
+
+  const _MacroLegendValue({
+    required this.t,
+    required this.value,
+    required this.rest,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: value,
+            style: TextStyle(color: t.ink, fontWeight: FontWeight.w700),
+          ),
+          TextSpan(text: rest),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 12, height: 1.1, color: t.sub),
     );
   }
 }
@@ -986,6 +1021,10 @@ class ProgressScale extends StatelessWidget {
   final String unit;
   final String label;
   final bool animateFromZero;
+  // Необязательный градиент заливки (например, «огненный» для «Итога»).
+  // Если задан — рисуется вместо сплошного [color]; [color] при этом всё равно
+  // используется для тинтов остатка/перелива.
+  final Gradient? fillGradient;
 
   const ProgressScale({
     super.key,
@@ -997,6 +1036,7 @@ class ProgressScale extends StatelessWidget {
     this.unit = '',
     this.label = '',
     this.animateFromZero = false,
+    this.fillGradient,
   });
 
   // Разделитель дробной части — по локали (num1): «,» для ru/uz, «.» для en.
@@ -1101,7 +1141,8 @@ class ProgressScale extends StatelessWidget {
                         width: solidW.clamp(0.0, w),
                         child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: color,
+                            color: fillGradient == null ? color : null,
+                            gradient: fillGradient,
                             borderRadius: BorderRadius.horizontal(
                               left: const Radius.circular(999),
                               right: Radius.circular(over ? 0 : 999),
@@ -1172,8 +1213,6 @@ class CalorieTrack extends StatelessWidget {
   final int value;
   final int goal;
 
-  static const _brown = EcoColors.cal;
-
   const CalorieTrack({
     super.key,
     required this.t,
@@ -1188,7 +1227,8 @@ class CalorieTrack extends StatelessWidget {
       t: t,
       value: value.toDouble(),
       target: goal.toDouble(),
-      color: _brown,
+      color: EcoColors.cal,
+      fillGradient: EcoColors.calFire,
       unit: l.unit('kcal'),
       label: l.t('common.totalAmount'),
     );

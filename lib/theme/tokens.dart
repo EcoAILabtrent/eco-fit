@@ -27,8 +27,18 @@ class EcoColors {
   static const water = Color(0xFF6BD2FB);
   static const waterDeep = Color(0xFF6B99FB);
 
-  static const cal = Color(0xFF6E4A2B);
+  // Итог калорий — «огненный» акцент (ярче прежнего коричневого 0xFF6E4A2B).
+  // База для заливки/тинтов; на главном экране поверх идёт градиент [calFire].
+  static const cal = Color(0xFFFF5A1F);
   static const calSoft = Color(0x4A686868);
+
+  // Огненный градиент шкалы «Итог» (золото → оранж → красный).
+  static const calFire = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFFFFC531), Color(0xFFFF7A18), Color(0xFFFF3B18)],
+    stops: [0.0, 0.55, 1.0],
+  );
 
   static const statusGood = Color(0xFF3D806A);
   static const statusWarn = Color(0xFFA96666);
