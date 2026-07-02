@@ -21,6 +21,11 @@ dependencies:
   cloud_functions: ^6.3.2
   lottie: ^3.3.3
   image_picker: ^1.2.2
+  # Local scheduled reminders (meals/water/summary/weigh-in) — offline-first,
+  # no server push. Steps notifications live in the native StepSampleWorker.
+  flutter_local_notifications: ^19.0.0
+  timezone: ^0.10.0
+  flutter_timezone: ^4.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

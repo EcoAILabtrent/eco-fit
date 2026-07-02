@@ -11,11 +11,13 @@ import 'data/products.dart';
 import 'firebase/firebase_backend.dart';
 import 'l10n/app_language.dart';
 import 'l10n/app_strings.dart';
+import 'notifications/notification_service.dart';
 import 'screens/addfood.dart';
 import 'screens/dayview.dart';
 import 'screens/health.dart';
 import 'screens/home.dart';
 import 'screens/meallog.dart';
+import 'screens/notification_settings.dart';
 import 'screens/onboarding.dart';
 import 'screens/profile.dart';
 import 'screens/stats.dart';
@@ -86,8 +88,16 @@ class _EcoBootstrapState extends State<EcoBootstrap> {
     await FoodDb.instance.load(localeCode: store.language.productLocale);
     // Pull today's steps on launch and on every return to the foreground.
     unawaited(store.syncSteps());
+    // Локальные напоминания: подписка на стор + первичное расписание.
+    // syncSteps при каждом возврате в форграунд дёргает notifyListeners, так
+    // что планировщик заодно перепроверяет расписание (смена дня, OEM-киллеры).
+    unawaited(NotificationService.instance.init(store));
     _lifecycleListener = AppLifecycleListener(
-      onResume: () => store.syncSteps(),
+      onResume: () {
+        // Процесс мог пережить ночь в фоне — утро начинаем с нулевой воды.
+        store.rolloverWaterIfNeeded();
+        store.syncSteps();
+      },
     );
     return store;
   }
@@ -274,6 +284,8 @@ class EcoApp extends StatelessWidget {
           final l = AppStrings(store.language);
           return MaterialApp(
             title: 'Eco health',
+            // Тап по уведомлению открывает экран через этот ключ.
+            navigatorKey: ecoNavigatorKey,
             debugShowCheckedModeBanner: false,
             scrollBehavior: const _EcoScrollBehavior(),
             locale: store.language.locale,
@@ -359,6 +371,8 @@ class EcoApp extends StatelessWidget {
                   builder = (_) => const WaterScreen();
                 case '/steps':
                   builder = (_) => const StepsScreen();
+                case '/notifications':
+                  builder = (_) => const NotificationSettingsScreen();
                 case '/onboarding':
                   builder = (_) => const OnboardingScreen();
                 default:

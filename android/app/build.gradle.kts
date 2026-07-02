@@ -16,6 +16,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // flutter_local_notifications uses java.time — needs desugaring.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -52,4 +54,6 @@ dependencies {
     // work-runtime compiles against Guava's ListenableFuture; without real
     // Guava the empty "listenablefuture 9999" stub wins and compilation fails.
     implementation("com.google.guava:guava:33.3.1-android")
+    // java.time backport required by flutter_local_notifications.
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

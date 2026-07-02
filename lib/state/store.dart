@@ -149,6 +149,20 @@ class AppStore extends ChangeNotifier {
   // Тёмная тема (переключатель в Настройках). Активная палитра — [theme].
   bool darkMode = false;
 
+  // ── Настройки уведомлений (экран «Уведомления», колокольчик на главной).
+  // Мастер-тумблер + отдельные категории. Планировщик (NotificationService)
+  // подписан на стор и перепланирует расписание при любом изменении.
+  bool notifEnabled = true;
+  bool notifMeals = true;
+  bool notifWater = true;
+  bool notifSummary = true;
+  bool notifSteps = true;
+  bool notifWeight = true;
+
+  /// Разрешение POST_NOTIFICATIONS уже запрашивалось (чтобы не спамить
+  /// системным диалогом на каждый запуск). Не вызывает notifyListeners.
+  bool notifPermAsked = false;
+
   /// Активная тема приложения (светлая/тёмная) — для всех экранов и элементов.
   EcoTheme get theme => darkMode ? EcoTheme.night : EcoTheme.meadow;
 
@@ -241,6 +255,16 @@ class AppStore extends ChangeNotifier {
     await Hive.initFlutter();
     _box = await Hive.openBox(_boxName);
     water = _box.get('water', defaultValue: 0) as int;
+    // Полуночный сброс: живое [water] принадлежит дню 'waterDate'. Раньше
+    // вчерашний итог «переезжал» в новое утро до первого нажатия ± — и все
+    // прогресс-подписи (и уведомления о воде) утром врали. Вчерашнее значение
+    // уже сохранено в waterHistory, поэтому новый день начинаем с нуля.
+    final waterDate = _box.get('waterDate') as String?;
+    if (waterDate != null && waterDate != ymd()) {
+      water = 0;
+      _box.put('water', 0);
+    }
+    _box.put('waterDate', ymd());
     waterGoal = _box.get('waterGoal', defaultValue: 2000) as int;
     final rawWaterHistory = _box.get('waterHistory');
     if (rawWaterHistory is Map) {
@@ -267,6 +291,13 @@ class AppStore extends ChangeNotifier {
     cardOpacity =
         (_box.get('cardOpacity', defaultValue: 0.30) as num).toDouble();
     darkMode = _box.get('darkMode', defaultValue: false) as bool;
+    notifEnabled = _box.get('notifEnabled', defaultValue: true) as bool;
+    notifMeals = _box.get('notifMeals', defaultValue: true) as bool;
+    notifWater = _box.get('notifWater', defaultValue: true) as bool;
+    notifSummary = _box.get('notifSummary', defaultValue: true) as bool;
+    notifSteps = _box.get('notifSteps', defaultValue: true) as bool;
+    notifWeight = _box.get('notifWeight', defaultValue: true) as bool;
+    notifPermAsked = _box.get('notifPermAsked', defaultValue: false) as bool;
     goalKcal = _box.get('goalKcal', defaultValue: 2045) as int;
     carbGoal = _box.get('carbGoal', defaultValue: 230) as int;
     fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
@@ -450,6 +481,42 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Обновляет настройки уведомлений (мастер-тумблер и/или категории).
+  /// Каждый переданный флаг сразу персистится; планировщик перепланирует
+  /// расписание через подписку на стор.
+  void setNotifPrefs({
+    bool? enabled,
+    bool? meals,
+    bool? water,
+    bool? summary,
+    bool? steps,
+    bool? weight,
+  }) {
+    var changed = false;
+    void apply(String key, bool? value, bool current, void Function(bool) set) {
+      if (value == null || value == current) return;
+      set(value);
+      _box.put(key, value);
+      changed = true;
+    }
+
+    apply('notifEnabled', enabled, notifEnabled, (v) => notifEnabled = v);
+    apply('notifMeals', meals, notifMeals, (v) => notifMeals = v);
+    apply('notifWater', water, notifWater, (v) => notifWater = v);
+    apply('notifSummary', summary, notifSummary, (v) => notifSummary = v);
+    apply('notifSteps', steps, notifSteps, (v) => notifSteps = v);
+    apply('notifWeight', weight, notifWeight, (v) => notifWeight = v);
+    if (changed) notifyListeners();
+  }
+
+  /// Помечает, что системный диалог разрешения уведомлений уже показывали.
+  /// Без notifyListeners — вызывается из планировщика, петля не нужна.
+  void markNotifPermAsked() {
+    if (notifPermAsked) return;
+    notifPermAsked = true;
+    _box.put('notifPermAsked', true);
+  }
+
   /// Marks that the first-launch language page has been completed.
   void setLanguageChosen(bool value) {
     if (languageChosen == value) return;
@@ -561,10 +628,25 @@ class AppStore extends ChangeNotifier {
     _box.put('waterHistory', waterHistory);
   }
 
+  /// Полуночный сброс воды для процесса, пережившего ночь в фоне: init()
+  /// выполняется один раз за запуск, поэтому при возврате из фона на новый
+  /// день сбрасываем живое [water] здесь (вызывается из onResume в main.dart).
+  void rolloverWaterIfNeeded() {
+    final today = ymd();
+    final waterDate = _box.get('waterDate') as String?;
+    if (waterDate == null || waterDate == today) return;
+    water = 0;
+    _box.put('water', 0);
+    _box.put('waterDate', today);
+    notifyListeners();
+  }
+
   /// Сохраняет сегодняшнюю воду в историю по дате (для графика на экране «Вода»).
   void _recordWaterToday() {
     waterHistory[ymd()] = water;
     _box.put('waterHistory', waterHistory);
+    // Штамп дня, которому принадлежит живое [water] (полуночный сброс в init).
+    _box.put('waterDate', ymd());
   }
 
   /// Вода за последние [days] дней (старые слева, сегодня справа) — для
@@ -865,6 +947,18 @@ class AppStore extends ChangeNotifier {
   /// умолчанию, как при чистой установке.
   Future<void> resetUserData() async {
     await _box.clear();
+    // init() присваивает коллекции только при наличии данных в box — после
+    // clear() гварды не срабатывают, и старые in-memory данные (дневник,
+    // история, времена приёмов…) пережили бы сброс до перезапуска приложения.
+    water = 0;
+    steps = 0;
+    diary = {};
+    waterHistory = {};
+    stepsHistory = {};
+    bodyHistory = [];
+    mealTimes = {};
+    favoriteProductSlugs = {};
+    aiAdvices = [];
     _invalidateAggregates();
     // Сбрасываем живые поля шагомера, чтобы новый поток подписался заново.
     await _liveSteps?.cancel();

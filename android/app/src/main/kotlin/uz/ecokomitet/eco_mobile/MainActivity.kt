@@ -45,6 +45,12 @@ class MainActivity : FlutterActivity() {
                     "checkPermission" -> result.success(hasActivityPermission())
                     "requestPermission" -> requestActivityPermission(result)
                     "getTodaySteps" -> getTodaySteps(result)
+                    // Dart mirrors notification config here on every replan so
+                    // StepNotifier works with the Flutter engine dead.
+                    "configureStepNotifications" -> {
+                        configureStepNotifications(call.arguments as? Map<*, *>)
+                        result.success(true)
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -59,6 +65,21 @@ class MainActivity : FlutterActivity() {
                     stopLive()
                 }
             })
+    }
+
+    private fun configureStepNotifications(args: Map<*, *>?) {
+        if (args == null) return
+        StepNotifier.configure(
+            applicationContext,
+            args["enabled"] as? Boolean ?: false,
+            (args["goal"] as? Number)?.toLong() ?: 0L,
+            args["channelName"] as? String ?: "",
+            args["channelDesc"] as? String ?: "",
+            args["celebrationTitle"] as? String ?: "",
+            args["celebrationBody"] as? String ?: "",
+            args["nudgeTitle"] as? String ?: "",
+            args["nudgeBody"] as? String ?: "",
+        )
     }
 
     private fun hasActivityPermission(): Boolean {

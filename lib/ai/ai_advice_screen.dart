@@ -51,6 +51,11 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   Timer? _typingTimer;
   String? _error;
 
+  // Прокрутка результата: во время «потоковой» генерации держим низ в поле
+  // зрения — как в чате ИИ, где новые карточки появляются снизу, а прежние
+  // уходят вверх.
+  final ScrollController _scroll = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +66,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   void dispose() {
     _stopTyping();
     _revealed.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -74,6 +80,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
 
     return EcoScreen(
       t: t,
+      controller: _scroll,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -191,63 +198,98 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   ) {
     final macro = _segs.isNotEmpty ? _segs.first : null;
     final crits = _segs.length > 1 ? _segs.sublist(1) : const <_Seg>[];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // КБЖУ — прежний текст совета, печатается по буквам.
-        EcoCard(
-          t: t,
-          child: ValueListenableBuilder<String>(
-            valueListenable: _revealed,
-            builder: (context, revealed, _) {
-              final n = revealed.length;
-              final text = macro == null ? '' : _visible(macro, n);
-              final typing =
-                  macro != null && n >= macro.start && n < macro.end;
-              return AdviceBulletList(t: t, text: text, showCursor: typing);
-            },
+    // Карточки появляются ПОСЛЕДОВАТЕЛЬНО, как в чате ИИ: сначала печатается
+    // КБЖУ, и только когда печать доходит до начала следующего блока — с плавным
+    // появлением возникает следующая карточка. Микронутриенты за период и
+    // дисклеймер/кнопки показываем в самом конце, когда весь текст «допечатан».
+    return ValueListenableBuilder<String>(
+      valueListenable: _revealed,
+      builder: (context, revealed, _) {
+        final n = revealed.length;
+        final scriptLen = _script.length;
+        final typingDone = scriptLen == 0 || n >= scriptLen;
+        final children = <Widget>[
+          // КБЖУ — первая карточка, печатается по буквам.
+          EcoCard(
+            t: t,
+            child: AdviceBulletList(
+              t: t,
+              text: macro == null ? '' : _visible(macro, n),
+              showCursor: macro != null && n >= macro.start && n < macro.end,
+            ),
           ),
-        ),
-        if (crits.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          _sectionHeader(l, t),
-          for (final seg in crits) ...[
-            const SizedBox(height: 10),
-            _criticalCard(seg, store, l, t),
-          ],
-        ],
-        const SizedBox(height: 12),
-        _microsCard(store, l, t),
-        const SizedBox(height: 12),
-        EcoCard(
-          t: t,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l.t('ai.disclaimer'),
-                style: TextStyle(
-                  fontSize: 12,
-                  height: 1.35,
-                  color: t.sub,
-                  fontWeight: FontWeight.w600,
+        ];
+
+        final visibleCrits = [
+          for (final seg in crits)
+            if (n >= seg.start) seg,
+        ];
+        if (visibleCrits.isNotEmpty) {
+          children
+            ..add(const SizedBox(height: 16))
+            ..add(_RevealIn(
+              key: const ValueKey('crit-header'),
+              child: _sectionHeader(l, t),
+            ));
+          for (final seg in visibleCrits) {
+            children
+              ..add(const SizedBox(height: 10))
+              ..add(_RevealIn(
+                key: ValueKey('crit-${seg.critKey}'),
+                child: _criticalCard(seg, store, l, t, n),
+              ));
+          }
+        }
+
+        if (typingDone) {
+          children
+            ..add(const SizedBox(height: 12))
+            ..add(_RevealIn(
+              key: const ValueKey('micros'),
+              child: _microsCard(store, l, t),
+            ))
+            ..add(const SizedBox(height: 12))
+            ..add(_RevealIn(
+              key: const ValueKey('tail'),
+              delay: const Duration(milliseconds: 220),
+              child: EcoCard(
+                t: t,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.t('ai.disclaimer'),
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.35,
+                        color: t.sub,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _actions(store, l, t, _foodCount(store, _period)),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              _actions(store, l, t, _foodCount(store, _period)),
-            ],
-          ),
-        ),
-      ],
+            ));
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: children,
+        );
+      },
     );
   }
 
   /// Карточка одного критичного нутриента: заголовок (без дублирования имени в
   /// шкале), анимированная шкала [ProgressScale] и печатаемый текст-последствие.
-  Widget _criticalCard(_Seg seg, AppStore store, AppStrings l, EcoTheme t) {
+  /// [n] — сколько символов общего сценария уже «напечатано».
+  Widget _criticalCard(_Seg seg, AppStore store, AppStrings l, EcoTheme t, int n) {
     final key = seg.critKey!;
     final crit = seg.crit!;
     final color = micronutrientColor(key);
+    final typing = n >= seg.start && n < seg.end;
     return EcoCard(
       t: t,
       child: Column(
@@ -278,28 +320,21 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
             animateFromZero: true,
           ),
           const SizedBox(height: 12),
-          ValueListenableBuilder<String>(
-            valueListenable: _revealed,
-            builder: (context, revealed, _) {
-              final n = revealed.length;
-              final typing = n >= seg.start && n < seg.end;
-              return Text.rich(
-                TextSpan(
-                  style: TextStyle(fontSize: 13, height: 1.45, color: t.sub),
-                  children: [
-                    TextSpan(text: _visible(seg, n)),
-                    if (typing)
-                      const TextSpan(
-                        text: '|',
-                        style: TextStyle(
-                          color: EcoColors.statusGood,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
+          Text.rich(
+            TextSpan(
+              style: TextStyle(fontSize: 13, height: 1.45, color: t.sub),
+              children: [
+                TextSpan(text: _visible(seg, n)),
+                if (typing)
+                  const TextSpan(
+                    text: '|',
+                    style: TextStyle(
+                      color: EcoColors.statusGood,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),
@@ -878,9 +913,38 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
       }
       index = math.min(index + charsPerTick, text.length);
       _revealed.value = text.substring(0, index);
+      // Пока идёт печать — держим низ в поле зрения: новые карточки появляются
+      // снизу, а прежние плавно уходят вверх (как в чате ИИ).
+      _stickToBottom();
       if (index >= text.length) {
         timer.cancel();
         _typingTimer = null;
+        // В самом конце появляются карточка микронутриентов и дисклеймер —
+        // плавно доводим прокрутку до низа.
+        _stickToBottom(animate: true);
+      }
+    });
+  }
+
+  /// Прокручивает результат к самому низу. Во время печати используем мгновенный
+  /// [ScrollController.jumpTo] (низ «прилипает» без рывков), в конце — плавную
+  /// анимацию, чтобы финальные карточки красиво доехали в кадр.
+  void _stickToBottom({bool animate = false}) {
+    if (_tab != 0) return; // на вкладке «Сохранённые» не трогаем прокрутку
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scroll.hasClients) return;
+      final position = _scroll.position;
+      if (!position.hasContentDimensions) return;
+      final target = position.maxScrollExtent;
+      if ((target - position.pixels).abs() < 1) return;
+      if (animate) {
+        _scroll.animateTo(
+          target,
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOut,
+        );
+      } else {
+        _scroll.jumpTo(target);
       }
     });
   }
@@ -1005,36 +1069,24 @@ class _AiRobotState extends State<_AiRobot> with TickerProviderStateMixin {
     }
   }
 
+  // Подпись печатается по буквам ОДИН раз и остаётся на экране (не мигает и не
+  // исчезает). Пока печатается — за текстом идёт курсор «|», по завершении он
+  // убирается и текст просто остаётся.
   void _restartCaption() {
     _captionTimer?.cancel();
     _caption.value = '';
     var index = 0;
-    var mode = 0; // 0 — печать, 1 — пауза с текстом, 2 — пауза без текста
-    var ticks = 0;
-    _captionTimer = Timer.periodic(const Duration(milliseconds: 95), (timer) {
+    _captionTimer = Timer.periodic(const Duration(milliseconds: 70), (timer) {
       if (!mounted) {
         timer.cancel();
+        _captionTimer = null;
         return;
       }
-      switch (mode) {
-        case 0:
-          index++;
-          _caption.value = _hint.substring(0, math.min(index, _hint.length));
-          if (index >= _hint.length) {
-            mode = 1;
-            ticks = 0;
-          }
-        case 1:
-          if (++ticks > 18) {
-            mode = 2;
-            ticks = 0;
-            _caption.value = '';
-          }
-        default:
-          if (++ticks > 7) {
-            mode = 0;
-            index = 0;
-          }
+      index++;
+      _caption.value = _hint.substring(0, math.min(index, _hint.length));
+      if (index >= _hint.length) {
+        timer.cancel();
+        _captionTimer = null;
       }
     });
   }
@@ -1609,6 +1661,63 @@ Widget _savedCritChip(bool excess, AppLanguage lang) {
       ],
     ),
   );
+}
+
+/// Обёртка «появления» карточки: при первом монтировании плавно проявляет
+/// содержимое (лёгкий подъём + fade). Каждая новая карточка результата выводится
+/// через неё, чтобы блоки возникали по одному, как в чате ИИ. [delay] сдвигает
+/// старт анимации (используется для дисклеймера — чтобы он появлялся чуть позже
+/// карточки микронутриентов).
+class _RevealIn extends StatefulWidget {
+  final Widget child;
+  final Duration delay;
+
+  const _RevealIn({super.key, required this.child, this.delay = Duration.zero});
+
+  @override
+  State<_RevealIn> createState() => _RevealInState();
+}
+
+class _RevealInState extends State<_RevealIn>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 340),
+  );
+  late final Animation<double> _fade =
+      CurvedAnimation(parent: _c, curve: Curves.easeOut);
+  late final Animation<Offset> _slide = Tween<Offset>(
+    begin: const Offset(0, 0.06),
+    end: Offset.zero,
+  ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
+  Timer? _delayTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.delay == Duration.zero) {
+      _c.forward();
+    } else {
+      _delayTimer = Timer(widget.delay, () {
+        if (mounted) _c.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _delayTimer?.cancel();
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(position: _slide, child: widget.child),
+    );
+  }
 }
 
 /// Один печатаемый блок результата: КБЖУ (первый) или критичный нутриент.

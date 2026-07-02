@@ -189,6 +189,63 @@ class AppStrings {
       'language.choose': 'Choose your language',
       'common.settings': 'Settings',
       'common.notifications': 'Notifications',
+      'notif.settings.master': 'Allow notifications',
+      'notif.settings.masterDesc':
+          'Reminders to log meals, drink water, move more, an evening summary '
+              'and weekly weigh-ins. Everything is computed on your device.',
+      'notif.settings.meals': 'Meal reminders',
+      'notif.settings.mealsDesc':
+          'Breakfast, lunch and dinner — a nudge to log the meal after its '
+              'time. Skipped automatically once the meal is logged.',
+      'notif.settings.water': 'Water',
+      'notif.settings.waterDesc':
+          'Gentle reminders during the day; they stop once the goal is reached.',
+      'notif.settings.summary': 'Day summary',
+      'notif.settings.summaryDesc': 'An evening calorie recap at 21:00.',
+      'notif.settings.steps': 'Steps',
+      'notif.settings.stepsDesc':
+          'Goal celebration and an evening walk nudge. Works even when the '
+              'app is closed.',
+      'notif.settings.weight': 'Weigh-in',
+      'notif.settings.weightDesc':
+          'A weekly morning reminder to update your weight.',
+      'notif.channel.reminders': 'Reminders',
+      'notif.channel.remindersDesc':
+          'Meals, water, day summary and weigh-in reminders',
+      'notif.channel.steps': 'Activity',
+      'notif.channel.stepsDesc': 'Step goal progress',
+      'notif.meal.breakfast.title': 'How was breakfast?',
+      'notif.meal.breakfast.body':
+          'Log what you ate — it takes a minute, and the day stays accurate',
+      'notif.meal.lunch.title': 'Lunch logged?',
+      'notif.meal.lunch.body':
+          'Add your lunch to the diary while you remember it',
+      'notif.meal.dinner.title': 'Dinner logged?',
+      'notif.meal.dinner.body':
+          'Log your dinner — and the day summary will be accurate',
+      'notif.water.title': 'Time for some water 💧',
+      'notif.water.body':
+          '{current} of {goal} ml so far — a glass of water would help',
+      'notif.water.bodyGeneric':
+          "Don't forget to drink water — the goal is {goal} ml",
+      'notif.summary.title': 'Day summary',
+      'notif.summary.bodyEmpty':
+          'Nothing logged today. Add your meals — the day still counts!',
+      'notif.summary.bodyLeft':
+          '{left} kcal left out of {goal}. Dinner still fits!',
+      'notif.summary.bodyOver':
+          '{consumed} kcal today — {over} over the goal. Tomorrow is a new day!',
+      'notif.summary.bodyGreen':
+          'Great day: {consumed} kcal — right in the green zone!',
+      'notif.summary.bodyGeneric': 'Check how your day went',
+      'notif.weight.title': 'Time to weigh in',
+      'notif.weight.body':
+          'A week since your last measurement. Update your weight to keep '
+              'the chart honest',
+      'notif.steps.goal.title': '🎉 Step goal reached!',
+      'notif.steps.goal.body': '{goal} steps today. Great job!',
+      'notif.steps.nudge.title': 'An evening walk?',
+      'notif.steps.nudge.body': '{left} steps to your daily goal',
       'common.metricSystem': 'Metric system',
       'common.connectedDevices': 'Connected devices',
       'common.privacy': 'Privacy',
@@ -428,6 +485,60 @@ class AppStrings {
       'language.choose': 'Выберите язык',
       'common.settings': 'Настройки',
       'common.notifications': 'Уведомления',
+      'notif.settings.master': 'Разрешить уведомления',
+      'notif.settings.masterDesc':
+          'Напоминания записать еду, выпить воду, пройтись, вечерний итог дня '
+              'и еженедельное взвешивание. Всё считается на устройстве.',
+      'notif.settings.meals': 'Напоминания о еде',
+      'notif.settings.mealsDesc':
+          'Завтрак, обед и ужин — напоминание записать приём после его '
+              'времени. Если приём уже записан, уведомление не придёт.',
+      'notif.settings.water': 'Вода',
+      'notif.settings.waterDesc':
+          'Мягкие напоминания в течение дня; при выполненной цели замолкают.',
+      'notif.settings.summary': 'Итог дня',
+      'notif.settings.summaryDesc': 'Вечерняя сводка по калориям в 21:00.',
+      'notif.settings.steps': 'Шаги',
+      'notif.settings.stepsDesc':
+          'Праздник при достижении цели и вечерний зов на прогулку. Работает '
+              'даже при закрытом приложении.',
+      'notif.settings.weight': 'Взвешивание',
+      'notif.settings.weightDesc':
+          'Раз в неделю утреннее напоминание обновить вес.',
+      'notif.channel.reminders': 'Напоминания',
+      'notif.channel.remindersDesc': 'Еда, вода, итог дня и взвешивание',
+      'notif.channel.steps': 'Активность',
+      'notif.channel.stepsDesc': 'Прогресс цели по шагам',
+      'notif.meal.breakfast.title': 'Как прошёл завтрак?',
+      'notif.meal.breakfast.body':
+          'Запишите, что вы ели, — это займёт минуту, а день останется точным',
+      'notif.meal.lunch.title': 'Обед записан?',
+      'notif.meal.lunch.body': 'Добавьте обед в дневник, пока он не забылся',
+      'notif.meal.dinner.title': 'Ужин записан?',
+      'notif.meal.dinner.body': 'Запишите ужин — и итог дня будет точным',
+      'notif.water.title': 'Время для воды 💧',
+      'notif.water.body':
+          'Пока {current} из {goal} мл — стакан воды не помешает',
+      'notif.water.bodyGeneric': 'Не забывайте пить воду — цель {goal} мл',
+      'notif.summary.title': 'Итог дня',
+      'notif.summary.bodyEmpty':
+          'Сегодня ничего не записано. Добавьте приёмы пищи — день ещё не '
+              'потерян!',
+      'notif.summary.bodyLeft':
+          'Осталось {left} ккал из {goal}. Ужин ещё впишется!',
+      'notif.summary.bodyOver':
+          'Сегодня {consumed} ккал — на {over} больше цели. Завтра новый день!',
+      'notif.summary.bodyGreen':
+          'Отличный день: {consumed} ккал — точно в зелёной зоне!',
+      'notif.summary.bodyGeneric': 'Загляните, как прошёл день',
+      'notif.weight.title': 'Пора взвеситься',
+      'notif.weight.body':
+          'Неделя с последнего замера. Обновите вес, чтобы график оставался '
+              'честным',
+      'notif.steps.goal.title': '🎉 Цель по шагам выполнена!',
+      'notif.steps.goal.body': '{goal} шагов за сегодня. Отличная работа!',
+      'notif.steps.nudge.title': 'Вечерняя прогулка?',
+      'notif.steps.nudge.body': 'До дневной цели осталось {left} шагов',
       'common.metricSystem': 'Метрическая система',
       'common.connectedDevices': 'Подключённые устройства',
       'common.privacy': 'Конфиденциальность',
@@ -512,7 +623,7 @@ class AppStrings {
       'ai.generate': 'Получить ИИ-совет',
       'ai.pageTitle': 'ИИ ассистент',
       'ai.cardSubtitle': 'Анализируйте свой рацион с помощью искусственного интеллекта',
-      'ai.robotHint': 'Привет! Я твой ИИ-помощник в Eco Health',
+      'ai.robotHint': 'Привет! Я ИИ-помощник в Eco Health',
       'ai.savedCount': 'Сохранённых',
       'ai.tabNew': 'Новый совет',
       'ai.tabSaved': 'Сохранённые',
@@ -667,6 +778,64 @@ class AppStrings {
       'language.choose': 'Tilingizni tanlang',
       'common.settings': 'Sozlamalar',
       'common.notifications': 'Bildirishnomalar',
+      'notif.settings.master': 'Bildirishnomalarga ruxsat',
+      'notif.settings.masterDesc':
+          "Ovqatni yozish, suv ichish, yurish, kun yakuni va haftalik "
+              "tortilish eslatmalari. Hammasi qurilmaning o'zida hisoblanadi.",
+      'notif.settings.meals': 'Ovqat eslatmalari',
+      'notif.settings.mealsDesc':
+          "Nonushta, tushlik va kechki ovqat — vaqtidan keyin yozishni "
+              "eslatamiz. Ovqat yozilgan bo'lsa, bildirishnoma kelmaydi.",
+      'notif.settings.water': 'Suv',
+      'notif.settings.waterDesc':
+          "Kun davomida yumshoq eslatmalar; maqsad bajarilsa, to'xtaydi.",
+      'notif.settings.summary': 'Kun yakuni',
+      'notif.settings.summaryDesc':
+          "Soat 21:00 da kaloriyalar bo'yicha kechki xulosa.",
+      'notif.settings.steps': 'Qadamlar',
+      'notif.settings.stepsDesc':
+          "Maqsadga yetganda tabrik va kechki sayrga chorlov. Ilova yopiq "
+              "bo'lsa ham ishlaydi.",
+      'notif.settings.weight': 'Tortilish',
+      'notif.settings.weightDesc':
+          'Haftada bir marta ertalab vaznni yangilash eslatmasi.',
+      'notif.channel.reminders': 'Eslatmalar',
+      'notif.channel.remindersDesc': 'Ovqat, suv, kun yakuni va tortilish',
+      'notif.channel.steps': 'Faollik',
+      'notif.channel.stepsDesc': "Qadam maqsadi bo'yicha progress",
+      'notif.meal.breakfast.title': "Nonushta qanday o'tdi?",
+      'notif.meal.breakfast.body':
+          "Nima yeganingizni yozib qo'ying — bir daqiqa kifoya, kun esa aniq "
+              "qoladi",
+      'notif.meal.lunch.title': 'Tushlik yozildimi?',
+      'notif.meal.lunch.body': "Tushlikni unutmasdan kundalikka qo'shing",
+      'notif.meal.dinner.title': 'Kechki ovqat yozildimi?',
+      'notif.meal.dinner.body':
+          "Kechki ovqatni yozing — kun yakuni aniq bo'ladi",
+      'notif.water.title': 'Suv ichish vaqti 💧',
+      'notif.water.body':
+          'Hozircha {goal} ml dan {current} ml — bir stakan suv ichib oling',
+      'notif.water.bodyGeneric': 'Suv ichishni unutmang — maqsad {goal} ml',
+      'notif.summary.title': 'Kun yakuni',
+      'notif.summary.bodyEmpty':
+          "Bugun hech narsa yozilmadi. Ovqatlaringizni qo'shing — kun hali "
+              "yo'qolgani yo'q!",
+      'notif.summary.bodyLeft':
+          "{goal} kkal dan {left} kkal qoldi. Kechki ovqat ham sig'adi!",
+      'notif.summary.bodyOver':
+          "Bugun {consumed} kkal — maqsaddan {over} kkal ko'p. Ertaga yangi "
+              "kun!",
+      'notif.summary.bodyGreen':
+          'Ajoyib kun: {consumed} kkal — yashil zonada!',
+      'notif.summary.bodyGeneric': "Kun qanday o'tganini ko'rib chiqing",
+      'notif.weight.title': 'Tortilish vaqti keldi',
+      'notif.weight.body':
+          "Oxirgi o'lchovdan bir hafta o'tdi. Grafik aniq bo'lishi uchun "
+              "vaznni yangilang",
+      'notif.steps.goal.title': '🎉 Qadam maqsadi bajarildi!',
+      'notif.steps.goal.body': 'Bugun {goal} qadam. Barakalla!',
+      'notif.steps.nudge.title': 'Kechki sayr-chi?',
+      'notif.steps.nudge.body': 'Kunlik maqsadgacha {left} qadam qoldi',
       'common.metricSystem': 'Metrik tizim',
       'common.connectedDevices': 'Ulangan qurilmalar',
       'common.privacy': 'Maxfiylik',
@@ -909,6 +1078,62 @@ class AppStrings {
       'language.choose': 'Тилингизни танланг',
       'common.settings': 'Созламалар',
       'common.notifications': 'Билдиришномалар',
+      'notif.settings.master': 'Билдиришномаларга рухсат',
+      'notif.settings.masterDesc':
+          'Овқатни ёзиш, сув ичиш, юриш, кун якуни ва ҳафталик тортилиш '
+              'эслатмалари. Ҳаммаси қурилманинг ўзида ҳисобланади.',
+      'notif.settings.meals': 'Овқат эслатмалари',
+      'notif.settings.mealsDesc':
+          'Нонушта, тушлик ва кечки овқат — вақтидан кейин ёзишни эслатамиз. '
+              'Овқат ёзилган бўлса, билдиришнома келмайди.',
+      'notif.settings.water': 'Сув',
+      'notif.settings.waterDesc':
+          'Кун давомида юмшоқ эслатмалар; мақсад бажарилса, тўхтайди.',
+      'notif.settings.summary': 'Кун якуни',
+      'notif.settings.summaryDesc':
+          'Соат 21:00 да калориялар бўйича кечки хулоса.',
+      'notif.settings.steps': 'Қадамлар',
+      'notif.settings.stepsDesc':
+          'Мақсадга етганда табрик ва кечки сайрга чорлов. Илова ёпиқ бўлса '
+              'ҳам ишлайди.',
+      'notif.settings.weight': 'Тортилиш',
+      'notif.settings.weightDesc':
+          'Ҳафтада бир марта эрталаб вазнни янгилаш эслатмаси.',
+      'notif.channel.reminders': 'Эслатмалар',
+      'notif.channel.remindersDesc': 'Овқат, сув, кун якуни ва тортилиш',
+      'notif.channel.steps': 'Фаоллик',
+      'notif.channel.stepsDesc': 'Қадам мақсади бўйича прогресс',
+      'notif.meal.breakfast.title': 'Нонушта қандай ўтди?',
+      'notif.meal.breakfast.body':
+          'Нима еганингизни ёзиб қўйинг — бир дақиқа кифоя, кун эса аниқ '
+              'қолади',
+      'notif.meal.lunch.title': 'Тушлик ёзилдими?',
+      'notif.meal.lunch.body': 'Тушликни унутмасдан кундаликка қўшинг',
+      'notif.meal.dinner.title': 'Кечки овқат ёзилдими?',
+      'notif.meal.dinner.body': 'Кечки овқатни ёзинг — кун якуни аниқ бўлади',
+      'notif.water.title': 'Сув ичиш вақти 💧',
+      'notif.water.body':
+          'Ҳозирча {goal} мл дан {current} мл — бир стакан сув ичиб олинг',
+      'notif.water.bodyGeneric': 'Сув ичишни унутманг — мақсад {goal} мл',
+      'notif.summary.title': 'Кун якуни',
+      'notif.summary.bodyEmpty':
+          'Бугун ҳеч нарса ёзилмади. Овқатларингизни қўшинг — кун ҳали '
+              'йўқолгани йўқ!',
+      'notif.summary.bodyLeft':
+          '{goal} ккал дан {left} ккал қолди. Кечки овқат ҳам сиғади!',
+      'notif.summary.bodyOver':
+          'Бугун {consumed} ккал — мақсаддан {over} ккал кўп. Эртага янги кун!',
+      'notif.summary.bodyGreen':
+          'Ажойиб кун: {consumed} ккал — яшил зонада!',
+      'notif.summary.bodyGeneric': 'Кун қандай ўтганини кўриб чиқинг',
+      'notif.weight.title': 'Тортилиш вақти келди',
+      'notif.weight.body':
+          'Охирги ўлчовдан бир ҳафта ўтди. График аниқ бўлиши учун вазнни '
+              'янгиланг',
+      'notif.steps.goal.title': '🎉 Қадам мақсади бажарилди!',
+      'notif.steps.goal.body': 'Бугун {goal} қадам. Баракалла!',
+      'notif.steps.nudge.title': 'Кечки сайр-чи?',
+      'notif.steps.nudge.body': 'Кунлик мақсадгача {left} қадам қолди',
       'common.metricSystem': 'Метрик тизим',
       'common.connectedDevices': 'Уланган қурилмалар',
       'common.privacy': 'Махфийлик',

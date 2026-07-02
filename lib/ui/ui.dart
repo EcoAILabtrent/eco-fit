@@ -278,12 +278,18 @@ class EcoScreen extends StatelessWidget {
   final Widget? footer;
   final bool pad;
 
+  /// Опциональный контроллер прокрутки. Нужен экранам, которым требуется
+  /// программно управлять скроллом (например, авто-прокрутка к низу при
+  /// «потоковой» генерации ИИ-совета).
+  final ScrollController? controller;
+
   const EcoScreen({
     super.key,
     required this.t,
     required this.child,
     this.footer,
     this.pad = true,
+    this.controller,
   });
 
   @override
@@ -304,6 +310,7 @@ class EcoScreen extends StatelessWidget {
               child: SafeArea(
                 bottom: false,
                 child: SingleChildScrollView(
+                  controller: controller,
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: pad ? 16 : 0),
                     child: child,

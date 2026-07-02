@@ -35,6 +35,9 @@ public  class StepSampleWorker extends Worker {
         if (counter != null) {
             StepSamples.add(getApplicationContext(), System.currentTimeMillis(), counter);
         }
+        // Piggyback the step-goal notification rules on the same 15-min tick —
+        // the only reminder evaluated with the app fully closed.
+        StepNotifier.maybeNotify(getApplicationContext());
         return Result.success();
     }
 

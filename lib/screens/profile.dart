@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../data/products.dart';
 import '../l10n/app_strings.dart';
+import '../notifications/notification_service.dart';
 import '../nutrition/energy.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
@@ -24,8 +25,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  bool notif = true;
-
   void _editProfile() {
     Navigator.of(context).push(
       EcoPageRoute<void>(
@@ -351,13 +350,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       height: 32,
                     ),
                   ),
+                  // Мастер-тумблер уведомлений (настоящий: персистится в
+                  // сторе, планировщик перепланирует расписание). Тап по
+                  // строке открывает детальные настройки категорий.
                   _row(
                     t,
                     l.t('common.notifications'),
                     '',
+                    onTap: () =>
+                        Navigator.of(context).pushNamed('/notifications'),
                     control: _Toggle(
-                      on: notif,
-                      onChanged: (v) => setState(() => notif = v),
+                      on: s.notifEnabled,
+                      onChanged: (v) {
+                        context.read<AppStore>().setNotifPrefs(enabled: v);
+                        if (v) {
+                          NotificationService.instance.requestPermission();
+                        }
+                      },
                     ),
                   ),
                   _row(

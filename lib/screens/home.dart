@@ -97,6 +97,27 @@ class HomeScreen extends StatelessWidget {
                       height: 1,
                     ),
                   ),
+                  const Spacer(),
+                  // Колокольчик — настройки уведомлений (напоминания о еде,
+                  // воде, шагах, итоге дня и взвешивании).
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () =>
+                        Navigator.of(context).pushNamed('/notifications'),
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: t.bandSoft,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.notifications_none_rounded,
+                        size: 22,
+                        color: t.ink,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
