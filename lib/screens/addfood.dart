@@ -16,7 +16,17 @@ import 'meallog.dart';
 class AddFoodScreen extends StatefulWidget {
   final String mealKey;
   final String? date; // null = today
-  const AddFoodScreen({super.key, required this.mealKey, this.date});
+  // Что делать после «Добавить»: открыть журнал (маршрут с главного экрана) или
+  // вернуться назад. Когда AddFood открыт ИЗ журнала, повторный pushReplacement
+  // журнала кладёт в стек его дубль — тогда просто возвращаемся (openLogOnFinish
+  // = false), а журнал перечитает store по diaryRevision.
+  final bool openLogOnFinish;
+  const AddFoodScreen({
+    super.key,
+    required this.mealKey,
+    this.date,
+    this.openLogOnFinish = true,
+  });
 
   @override
   State<AddFoodScreen> createState() => _AddFoodScreenState();
@@ -52,6 +62,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   List<ProductCategory> _categoriesFor(AppStrings l) {
     final code = l.language.code;
     if (_categoriesCache == null || _categoriesLocale != code) {
+      // categories() локализует названия групп сама, по продуктовому локали БД.
       _categoriesCache = FoodDb.instance.categories();
       _categoriesLocale = code;
     }
@@ -104,12 +115,18 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
   void _finish() {
     if (_selected.isEmpty) return;
     _commitSelected();
-    Navigator.of(context).pushReplacement(
-      EcoPageRoute(
-        builder: (_) =>
-            MealLogScreen(mealKey: widget.mealKey, date: widget.date),
-      ),
-    );
+    if (widget.openLogOnFinish) {
+      Navigator.of(context).pushReplacement(
+        EcoPageRoute(
+          builder: (_) =>
+              MealLogScreen(mealKey: widget.mealKey, date: widget.date),
+        ),
+      );
+    } else {
+      // Открыт из журнала — возвращаемся к нему (он перечитает store по
+      // diaryRevision), не создавая второй журнал в стеке.
+      Navigator.of(context).pop(true);
+    }
   }
 
   void _applyCategoryFilters(Iterable<ProductCategory> categories) {
@@ -168,15 +185,8 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
     for (final category in categories) {
       if (categoryFilterIds.contains(category.id)) return category.name;
     }
-    return _allFilterLabel(l);
+    return l.t('common.all');
   }
-
-  String _allFilterLabel(AppStrings l) => switch (l.language.code) {
-        'en' => 'All',
-        'uz_latn' => 'Hammasi',
-        'uz_cyrl' => 'Ҳаммаси',
-        _ => 'Всё',
-      };
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +217,9 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
       return product == null ? sum : sum + entry.value.kcal(product);
     });
     return Scaffold(
-      backgroundColor: t.bg,
+      // Под непрозрачным EcoGlassBackground фон Scaffold не виден — красим
+      // прозрачным, чтобы не рисовать лишний полноэкранный слой (как EcoScreen).
+      backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: false,
       body: BackdropGroup(
         child: Stack(
@@ -508,7 +520,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                 showWhenUnlinked: false,
                 child: _FilterMenuPopup(
                   t: t,
-                  allLabel: _allFilterLabel(l),
+                  allLabel: l.t('common.all'),
                   favoritesLabel: l.t('food.favorites'),
                   categories: categories,
                   activeLabel: activeFilterLabel,

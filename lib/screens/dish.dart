@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/products.dart';
-import '../l10n/app_language.dart';
 import '../l10n/app_strings.dart';
 import '../nutrition/micronutrients.dart';
 import '../state/store.dart';
+import '../theme/nutrient_colors.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 
@@ -230,7 +230,7 @@ class _DishScreenState extends State<DishScreen> {
           unit: l.unit(_macroUnits[e.key] ?? microUnitCode(e.key)),
           value: _scaled(e.value),
           pct: null,
-          color: _nutrientColor(e.key),
+          color: nutrientColor(e.key),
         ),
     ];
 
@@ -423,7 +423,7 @@ class _DishScreenState extends State<DishScreen> {
                                   ),
                                 ),
                                 Text(
-                                  '${_fmt(n.value, l)} ${n.unit}',
+                                  '${l.num1(n.value)} ${n.unit}',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w800,
@@ -443,15 +443,6 @@ class _DishScreenState extends State<DishScreen> {
         ],
       ),
     );
-  }
-
-  static String _fmt(double v, AppStrings l) {
-    if (v >= 100) return v.round().toString();
-    final decimal =
-        l.language == AppLanguage.ru || l.language == AppLanguage.uzCyrl
-            ? ','
-            : '.';
-    return v.toStringAsFixed(1).replaceAll('.', decimal);
   }
 
   static String _nutrientBadgeLabel(String key) => switch (key) {
@@ -496,45 +487,6 @@ class _DishScreenState extends State<DishScreen> {
         _ => key.isEmpty ? '' : key.substring(0, 1).toUpperCase(),
       };
 
-  static Color _nutrientColor(String key) => switch (key) {
-        'fiber' => const Color(0xFF86A85A),
-        'sugar' => const Color(0xFFC98BB0),
-        // Minerals.
-        'fe' => const Color(0xFFB85B3C),
-        'mg' => const Color(0xFF4F8F7A),
-        'ca' => const Color(0xFF5E86B8),
-        'p' => const Color(0xFF8A6FB4),
-        'k' => const Color(0xFF54A866),
-        'na' => const Color(0xFFB59349),
-        'zn' => const Color(0xFF6A8A90),
-        'cu' => const Color(0xFFB87333),
-        'mn' => const Color(0xFF9C7BB0),
-        'se' => const Color(0xFF7E9AA6),
-        'i' => const Color(0xFF5B6FB0),
-        'cl' => const Color(0xFF7FB0A8),
-        's' => const Color(0xFFC7B24A),
-        'f' => const Color(0xFF6FA0C0),
-        'cr' => const Color(0xFF8FA05B),
-        'mo' => const Color(0xFF9A8A5B),
-        'co' => const Color(0xFF5B8AA0),
-        // Vitamins.
-        'vit_c' => const Color(0xFF3F9E74),
-        'vit_a' => const Color(0xFFE08B3E),
-        'vit_d' => const Color(0xFF7A77C8),
-        'vit_e' => const Color(0xFFC08A3E),
-        'vit_k' => const Color(0xFF4F8F5B),
-        'vit_h' => const Color(0xFFB0885B),
-        'vit_b1' => const Color(0xFFD98A6A),
-        'vit_b2' => const Color(0xFFD9A24A),
-        'vit_b3' => const Color(0xFFC7A057),
-        'vit_b4' => const Color(0xFFA88FBF),
-        'vit_b5' => const Color(0xFF8FB07A),
-        'vit_b6' => const Color(0xFF6FA890),
-        'vit_b9' => const Color(0xFF5FA06A),
-        'vit_b12' => const Color(0xFFB06A8F),
-        _ => const Color(0xFF6D8B7B),
-      };
-
   void _pickPortion() {
     final t = context.read<AppStore>().theme;
     final l = context.l10nRead;
@@ -551,7 +503,7 @@ class _DishScreenState extends State<DishScreen> {
     final gramsValues = [for (var g = 10; g <= 1000; g += 5) g];
     final standardValues =
         p.isDrink ? const [200, 300, 400] : const [100, 150, 200];
-    final standardLabels = _portionStandardLabels(l.language);
+    final standardLabels = _portionStandardLabels(l);
     var idx = gramsValues.indexOf(grams);
     if (idx < 0) idx = _nearestIndex(gramsValues, grams);
     final kcalCtrl = FixedExtentScrollController(initialItem: idx);
@@ -656,7 +608,10 @@ class _DishScreenState extends State<DishScreen> {
           );
         },
       ),
-    );
+    ).whenComplete(() {
+      kcalCtrl.dispose();
+      gramsCtrl.dispose();
+    });
   }
 
   /// Штучный выбор: вкладки маленький/средний/большой — это РАЗМЕР одной штуки
@@ -714,7 +669,7 @@ class _DishScreenState extends State<DishScreen> {
               children: [
                 _PortionStandardTabs(
                   t: t,
-                  labels: _portionStandardLabels(l.language),
+                  labels: _portionStandardLabels(l),
                   value: sizeIdx,
                   // Размер меняет массу штуки; число штук (колесо) не трогаем.
                   onChanged: (i) {
@@ -788,6 +743,9 @@ class _DishScreenState extends State<DishScreen> {
           _sizeIdx = startSize;
         });
       }
+    }).whenComplete(() {
+      kcalCtrl.dispose();
+      pieceCtrl.dispose();
     });
   }
 
@@ -811,14 +769,11 @@ class _DishScreenState extends State<DishScreen> {
     return index == -1 ? null : index;
   }
 
-  static List<String> _portionStandardLabels(AppLanguage language) {
-    return switch (language) {
-      AppLanguage.en => const ['small', 'medium', 'large'],
-      AppLanguage.uzLatn => const ['kichik', "o'rtacha", 'katta'],
-      AppLanguage.uzCyrl => const ['кичик', 'ўртача', 'катта'],
-      AppLanguage.ru => const ['маленький', 'средний', 'большой'],
-    };
-  }
+  static List<String> _portionStandardLabels(AppStrings l) => [
+        l.t('dish.portionSmall'),
+        l.t('dish.portionMedium'),
+        l.t('dish.portionLarge'),
+      ];
 }
 
 class _PortionStandardTabs extends StatelessWidget {

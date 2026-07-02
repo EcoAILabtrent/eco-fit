@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/products.dart';
-import '../l10n/app_language.dart';
 import '../l10n/app_strings.dart';
 import '../nutrition/micronutrients.dart';
 import '../state/store.dart';
+import '../theme/nutrient_colors.dart';
 import '../theme/tokens.dart';
+import '../ui/nutrition_widgets.dart';
 import '../ui/ui.dart';
 import 'addfood.dart';
 import 'home.dart' show MealPickerHost;
@@ -28,7 +29,14 @@ class _DayViewScreenState extends State<DayViewScreen> {
   int offset = 0; // days back from today (0 = today)
   bool _hideBottomNav = false;
 
-  DateTime get _selectedDate => DateTime.now().subtract(Duration(days: offset));
+  // Календарная арифметика вместо Duration(days: offset): Duration — это ровно
+  // N×24ч, и на переводе часов (DST) отнимание суток даёт соседнюю дату.
+  // Конструктор DateTime нормализует day - offset корректно.
+  DateTime get _selectedDate {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day - offset);
+  }
+
   String get _dateKey => AppStore.ymd(_selectedDate);
   bool get _isToday => offset == 0;
 
@@ -190,7 +198,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                               // из нуля: иначе 4 анимации 260мс конкурируют с
                               // слайдом перехода и утяжеляют первый кадр Dayview.
                               animateFromZero: false,
-                              label: b.head ? 'Общее количество' : b.label,
+                              label: b.head ? l.t('common.totalAmount') : b.label,
                             ),
                           ),
                       ],
@@ -225,7 +233,11 @@ class _DayViewScreenState extends State<DayViewScreen> {
                             EcoPageRoute(
                               builder: (_) => MealLogScreen(
                                 mealKey: meal.key,
-                                date: _isToday ? null : _dateKey,
+                                // Всегда передаём конкретную дату дневника:
+                                // «null = сегодня» разворачивается в ymd() в
+                                // момент каждой операции и на границе полуночи
+                                // уводит запись в новый день.
+                                date: _dateKey,
                               ),
                             ),
                           ),
@@ -254,7 +266,7 @@ class _DayViewScreenState extends State<DayViewScreen> {
                                     EcoPageRoute(
                                       builder: (_) => AddFoodScreen(
                                         mealKey: meal.key,
-                                        date: _isToday ? null : _dateKey,
+                                        date: _dateKey,
                                       ),
                                     ),
                                   ),
@@ -373,8 +385,8 @@ class NutritionDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   if (totalKcal > 0) ...[
-                    _TotalCaloriesSummary(
-                      label: _totalCaloriesLabel(l),
+                    TotalCaloriesSummary(
+                      label: l.t('common.totalAmount'),
                       total: totalKcal,
                       target: store.goalKcal.toDouble(),
                       unit: l.unit('kcal'),
@@ -403,13 +415,6 @@ class NutritionDetailScreen extends StatelessWidget {
   int _totalKcal(List<LogItem> items) {
     return items.fold<int>(0, (sum, item) => sum + item.kcal);
   }
-
-  String _totalCaloriesLabel(AppStrings l) => switch (l.language) {
-        AppLanguage.en => 'Total',
-        AppLanguage.uzLatn => 'Umumiy',
-        AppLanguage.uzCyrl => 'Умумий',
-        AppLanguage.ru => 'Общее количество',
-      };
 
   List<_NutritionSectionData> _buildSections(
     AppStore store,
@@ -474,7 +479,7 @@ class NutritionDetailScreen extends StatelessWidget {
           total: total,
           target: target?.target ?? fallback?.target,
           unit: unit,
-          color: _microColor(key),
+          color: nutrientColor(key),
           contributions: _microContributions(items, key),
         ),
       );
@@ -564,44 +569,6 @@ class NutritionDetailScreen extends StatelessWidget {
     };
   }
 
-  static Color _microColor(String key) => switch (key) {
-        'fiber' => const Color(0xFF86A85A),
-        'sugar' => const Color(0xFFC98BB0),
-        // Vitamins.
-        'vit_a' => const Color(0xFFE08B3E),
-        'vit_c' => const Color(0xFFE6C430),
-        'vit_d' => const Color(0xFF7A77C8),
-        'vit_e' => const Color(0xFFC08A3E),
-        'vit_k' => const Color(0xFF4F8F5B),
-        'vit_h' => const Color(0xFFB0885B),
-        'vit_b1' => const Color(0xFFD98A6A),
-        'vit_b2' => const Color(0xFFD9A24A),
-        'vit_b3' => const Color(0xFFC7A057),
-        'vit_b4' => const Color(0xFFA88FBF),
-        'vit_b5' => const Color(0xFF8FB07A),
-        'vit_b6' => const Color(0xFF6FA890),
-        'vit_b9' => const Color(0xFF5FA06A),
-        'vit_b12' => const Color(0xFFB06A8F),
-        // Minerals.
-        'k' => const Color(0xFF54A866),
-        'mg' => const Color(0xFF4F8F7A),
-        'ca' => const Color(0xFF5E86B8),
-        'p' => const Color(0xFF8A6FB4),
-        'fe' => const Color(0xFFB85B3C),
-        'zn' => const Color(0xFF6A8A90),
-        'na' => const Color(0xFFB59349),
-        'cu' => const Color(0xFFB87333),
-        'mn' => const Color(0xFF9C7BB0),
-        'se' => const Color(0xFF7E9AA6),
-        'i' => const Color(0xFF5B6FB0),
-        'cl' => const Color(0xFF7FB0A8),
-        's' => const Color(0xFFC7B24A),
-        'f' => const Color(0xFF6FA0C0),
-        'cr' => const Color(0xFF8FA05B),
-        'mo' => const Color(0xFF9A8A5B),
-        'co' => const Color(0xFF5B8AA0),
-        _ => EcoTheme.meadow.olive,
-      };
 }
 
 class _FallbackMicroTarget {
@@ -609,33 +576,6 @@ class _FallbackMicroTarget {
   final MicroUnit unit;
 
   const _FallbackMicroTarget(this.target, this.unit);
-}
-
-class _TotalCaloriesSummary extends StatelessWidget {
-  final String label;
-  final int total;
-  final double target;
-  final String unit;
-
-  const _TotalCaloriesSummary({
-    required this.label,
-    required this.total,
-    required this.target,
-    required this.unit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    return ProgressScale(
-      t: t,
-      value: total.toDouble(),
-      target: target,
-      color: EcoColors.cal,
-      unit: unit,
-      label: label,
-    );
-  }
 }
 
 class _NutritionSectionData {
@@ -699,7 +639,7 @@ class _NutritionDetailSection extends StatelessWidget {
               ),
             ),
             Text(
-              '${_fmt(headlineValue, l)} ${section.unit}',
+              '${l.num1(headlineValue)} ${section.unit}',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -718,24 +658,13 @@ class _NutritionDetailSection extends StatelessWidget {
         ),
         if (visible.isNotEmpty) const SizedBox(height: 12),
         for (final (index, item) in visible.indexed)
-          _ContributionRow(
+          NutrientContributionRow(
             name: item.name,
-            value: '${_fmt(item.value, l)} ${section.unit}',
+            value: '${l.num1(item.value)} ${section.unit}',
             last: index == visible.length - 1,
           ),
       ],
     );
-  }
-
-  static String _fmt(double value, AppStrings l) {
-    if (value >= 1000) return value.round().toString();
-    final decimal =
-        l.language == AppLanguage.ru || l.language == AppLanguage.uzCyrl
-            ? ','
-            : '.';
-    final fixed =
-        value >= 100 ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
-    return fixed.replaceAll('.', decimal);
   }
 }
 
@@ -762,10 +691,9 @@ class _NutritionDetailBar extends StatelessWidget {
     final fillEnd = safeTarget == null ? value : math.min(value, safeTarget);
     final light = Color.lerp(color, Colors.white, 0.62)!;
     final darker = Color.lerp(color, Colors.black, 0.28)!;
-    final realText = '${_NutritionDetailSection._fmt(value, l)} $unit';
-    final targetText = safeTarget == null
-        ? ''
-        : '${_NutritionDetailSection._fmt(safeTarget, l)} $unit';
+    final realText = '${l.num1(value)} $unit';
+    final targetText =
+        safeTarget == null ? '' : '${l.num1(safeTarget)} $unit';
 
     Widget valueLabel(String text, Color labelColor) => Text(
           text,
@@ -885,72 +813,6 @@ class _NutritionDetailBar extends StatelessWidget {
   }
 }
 
-class _ContributionRow extends StatelessWidget {
-  final String name;
-  final String value;
-  final bool last;
-
-  const _ContributionRow({
-    required this.name,
-    required this.value,
-    required this.last,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    return Column(
-      children: [
-        SizedBox(
-          height: 34,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1,
-                    fontWeight: FontWeight.w700,
-                    color: t.sub,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                width: 86,
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: t.ink,
-                    height: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (!last)
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: Divider(
-              height: 1,
-              thickness: 1,
-              color: Colors.white.withValues(alpha: 0.38),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 /// Horizontal strip of the last 7 days — today rightmost, each cell shows the
 /// weekday, date, a goal-progress ring and a fill state.
 class _DayStrip extends StatefulWidget {
@@ -1051,8 +913,16 @@ class _DayStripState extends State<_DayStrip> {
                             for (var o = _dayCount - 1; o >= 0; o--)
                               SizedBox(
                                 width: _itemExtent,
+                                // Календарный сдвиг от единого `now` за build:
+                                // Duration(days: o) на переводе часов уводит
+                                // ячейку на соседнюю дату и рассинхронит
+                                // подсветку с ключом данных.
                                 child: _cell(
-                                    now.subtract(Duration(days: o)), o, l, t),
+                                  DateTime(now.year, now.month, now.day - o),
+                                  o,
+                                  l,
+                                  t,
+                                ),
                               ),
                           ],
                         ),

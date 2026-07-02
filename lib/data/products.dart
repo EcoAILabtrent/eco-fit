@@ -6,6 +6,7 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import '../l10n/app_language.dart';
+import '../l10n/app_strings.dart';
 import '../nutrition/micronutrients.dart';
 
 /// Product from the offline SQLite catalog (assets/db/eco_fit.db).
@@ -438,10 +439,14 @@ class FoodDb {
   }
 
   List<ProductCategory> categories({bool recipesOnly = false}) {
+    // Названия групп берём из локализации (`food.category.<id>`), а не из
+    // зашитого `switch localeCode`: продуктовый `_locale` (en/ru/uz_latn/
+    // uz_cyrl) совпадает с кодом языка приложения.
+    final l = AppStrings(AppLanguage.fromCode(_locale));
     final byGroup = <String, _CategoryCounter>{
       for (final definition in _categoryGroupDefinitions)
         definition.id: _CategoryCounter(
-          _categoryGroupName(definition.id, _locale),
+          l.t('food.category.${definition.id}'),
           {...definition.slugs},
         ),
     };
@@ -574,43 +579,6 @@ _CategoryGroupDefinition _categoryGroupForSlug(String slug) {
     if (definition.slugs.contains(slug)) return definition;
   }
   return _categoryGroupDefinitions.last;
-}
-
-String _categoryGroupName(String id, String localeCode) {
-  return switch (localeCode) {
-    'en' => switch (id) {
-        'dishes' => 'Dishes',
-        'drinks' => 'Drinks',
-        'produce' => 'Fruits & vegetables',
-        'protein' => 'Protein foods',
-        'grains' => 'Grains & bread',
-        _ => 'Sweets & other',
-      },
-    'uz_latn' => switch (id) {
-        'dishes' => 'Taomlar',
-        'drinks' => 'Ichimliklar',
-        'produce' => 'Meva-sabzavot',
-        'protein' => 'Oqsilli mahsulotlar',
-        'grains' => 'Don va non',
-        _ => 'Shirinlik/boshqa',
-      },
-    'uz_cyrl' => switch (id) {
-        'dishes' => 'Таомлар',
-        'drinks' => 'Ичимликлар',
-        'produce' => 'Мева-сабзавот',
-        'protein' => 'Оқсилли маҳсулотлар',
-        'grains' => 'Дон ва нон',
-        _ => 'Ширинлик/бошқа',
-      },
-    _ => switch (id) {
-        'dishes' => 'Блюда',
-        'drinks' => 'Напитки',
-        'produce' => 'Фрукты и овощи',
-        'protein' => 'Белковые продукты',
-        'grains' => 'Крупы и хлеб',
-        _ => 'Сладости и прочее',
-      },
-  };
 }
 
 String _normalizeSearchText(String value) {

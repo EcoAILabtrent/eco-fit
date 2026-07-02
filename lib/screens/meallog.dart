@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/products.dart';
-import '../l10n/app_language.dart';
 import '../l10n/app_strings.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
+import '../ui/nutrition_widgets.dart';
 import '../ui/ui.dart';
 import 'addfood.dart';
 import 'dish.dart';
@@ -94,7 +94,13 @@ class _MealLogScreenState extends State<MealLogScreen> {
                 t: t,
                 onTap: () => Navigator.of(context).push(
                   EcoPageRoute(
-                    builder: (_) => AddFoodScreen(mealKey: mealKey, date: date),
+                    builder: (_) => AddFoodScreen(
+                      mealKey: mealKey,
+                      date: date,
+                      // Открыт из журнала — по «Добавить» вернуться сюда, а не
+                      // класть в стек второй журнал.
+                      openLogOnFinish: false,
+                    ),
                   ),
                 ),
                 child: Text(l.t('common.add')),
@@ -326,6 +332,9 @@ class _MealLogScreenState extends State<MealLogScreen> {
     final l = context.l10nRead;
     var v = 210;
     final values = [for (var i = 10; i <= 1500; i += 10) i];
+    // Контроллер создаём до показа шита и dispose'им по его закрытию: иначе
+    // FixedExtentScrollController течёт на каждый показ окна.
+    final ctrl = FixedExtentScrollController(initialItem: values.indexOf(210));
     showEcoSheet(
       context: context,
       t: t,
@@ -340,9 +349,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
       body: SizedBox(
         height: 130,
         child: CupertinoPicker(
-          scrollController: FixedExtentScrollController(
-            initialItem: values.indexOf(210),
-          ),
+          scrollController: ctrl,
           itemExtent: 44,
           selectionOverlay: EcoPickerSelectionOverlay(t: t),
           onSelectedItemChanged: (i) => v = values[i],
@@ -373,7 +380,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
           ],
         ),
       ),
-    );
+    ).whenComplete(ctrl.dispose);
   }
 
   Future<void> _pickMeal(BuildContext context) {
@@ -496,6 +503,9 @@ class _MealLogScreenState extends State<MealLogScreen> {
     final parts = current.split(':');
     var h = int.tryParse(parts[0]) ?? 8;
     var mi = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
+    // Контроллеры колёс создаём до показа шита и dispose'им по его закрытию.
+    final hCtrl = FixedExtentScrollController(initialItem: h);
+    final miCtrl = FixedExtentScrollController(initialItem: mi);
     showEcoSheet(
       context: context,
       t: t,
@@ -510,7 +520,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
           children: [
             Expanded(
               child: CupertinoPicker(
-                scrollController: FixedExtentScrollController(initialItem: h),
+                scrollController: hCtrl,
                 itemExtent: 36,
                 selectionOverlay: EcoPickerSelectionOverlay(
                   t: t,
@@ -541,7 +551,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
             ),
             Expanded(
               child: CupertinoPicker(
-                scrollController: FixedExtentScrollController(initialItem: mi),
+                scrollController: miCtrl,
                 itemExtent: 36,
                 selectionOverlay: EcoPickerSelectionOverlay(
                   t: t,
@@ -565,7 +575,10 @@ class _MealLogScreenState extends State<MealLogScreen> {
           ],
         ),
       ),
-    );
+    ).whenComplete(() {
+      hCtrl.dispose();
+      miCtrl.dispose();
+    });
   }
 }
 
@@ -614,8 +627,8 @@ class _MealMacroCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (totalKcal > 0) ...[
-            _TotalCaloriesSummary(
-              label: _totalCaloriesLabel(l),
+            TotalCaloriesSummary(
+              label: l.t('common.totalAmount'),
               total: totalKcal,
               target: store.goalKcal.toDouble(),
               unit: l.unit('kcal'),
@@ -631,13 +644,6 @@ class _MealMacroCard extends StatelessWidget {
     );
   }
 
-  String _totalCaloriesLabel(AppStrings l) => switch (l.language) {
-        AppLanguage.en => 'Total',
-        AppLanguage.uzLatn => 'Umumiy',
-        AppLanguage.uzCyrl => 'Умумий',
-        AppLanguage.ru => 'Общее количество',
-      };
-
   static List<_MealMacroRowData> _rows(
     List<LogItem> items,
     double Function(LogItem item) valueFor,
@@ -649,33 +655,6 @@ class _MealMacroCard extends StatelessWidget {
     ];
     rows.sort((a, b) => b.value.compareTo(a.value));
     return rows;
-  }
-}
-
-class _TotalCaloriesSummary extends StatelessWidget {
-  final String label;
-  final int total;
-  final double target;
-  final String unit;
-
-  const _TotalCaloriesSummary({
-    required this.label,
-    required this.total,
-    required this.target,
-    required this.unit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    return ProgressScale(
-      t: t,
-      value: total.toDouble(),
-      target: target,
-      color: EcoColors.cal,
-      unit: unit,
-      label: label,
-    );
   }
 }
 
@@ -726,85 +705,10 @@ class _MealMacroSection extends StatelessWidget {
         ),
         if (section.rows.isNotEmpty) const SizedBox(height: 12),
         for (final (index, row) in section.rows.indexed)
-          _MealMacroContributionRow(
+          NutrientContributionRow(
             name: row.name,
-            value: '${_fmtMacro(row.value, l)} ${section.unit}',
+            value: '${l.num1(row.value)} ${section.unit}',
             last: index == section.rows.length - 1,
-          ),
-      ],
-    );
-  }
-
-  static String _fmtMacro(double value, AppStrings l) {
-    final decimal =
-        l.language == AppLanguage.ru || l.language == AppLanguage.uzCyrl
-            ? ','
-            : '.';
-    final fixed =
-        value >= 100 ? value.toStringAsFixed(0) : value.toStringAsFixed(1);
-    return fixed.replaceAll('.', decimal);
-  }
-}
-
-class _MealMacroContributionRow extends StatelessWidget {
-  final String name;
-  final String value;
-  final bool last;
-
-  const _MealMacroContributionRow({
-    required this.name,
-    required this.value,
-    required this.last,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    return Column(
-      children: [
-        SizedBox(
-          height: 34,
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1,
-                    fontWeight: FontWeight.w700,
-                    color: t.sub,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                width: 86,
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                    color: t.ink,
-                    height: 1,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (!last)
-          Padding(
-            padding: const EdgeInsets.only(left: 2, right: 2),
-            child: Divider(
-              height: 1,
-              thickness: 1,
-              color: Colors.white.withValues(alpha: 0.38),
-            ),
           ),
       ],
     );
