@@ -90,6 +90,31 @@ int calorieGoalFor({
   return calorieGoal(tdee: tdee, goal: goal, sex: sex);
 }
 
+/// Adequate daily water intake (ml). Uses the Institute of Medicine rule of
+/// ~1 ml of water per kcal of energy expenditure, so the target scales with the
+/// same drivers as [totalDailyEnergy]: age, sex, weight, height (via BMR) and
+/// activity (via PAL). Based on expenditure, not the calorie *goal*, so a
+/// deficit or surplus never changes how much you should drink.
+int waterGoalFor({
+  required int ageYears,
+  required String sex,
+  required double weightKg,
+  required double heightCm,
+  required String activity,
+}) {
+  final bmr = basalMetabolicRate(
+    ageYears: ageYears,
+    sex: sex,
+    weightKg: weightKg,
+    heightCm: heightCm,
+  );
+  final tdee = totalDailyEnergy(bmr: bmr, activity: activity);
+  // Round to a tidy 50 ml step and clamp to a safe [1200, 4000] ml range so
+  // extreme profiles never yield an unsafe or absurd target.
+  final rounded = (tdee / 50).round() * 50;
+  return rounded.clamp(1200, 4000);
+}
+
 /// Estimated body-water as a percentage of body mass, from body-fat percentage.
 /// Fat-free mass is ~73% water, so TBW% = (100 − bodyFat%) × 0.73.
 double bodyWaterPercent(double bodyFatPercent) =>

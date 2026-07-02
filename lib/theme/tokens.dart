@@ -57,6 +57,12 @@ class EcoTheme {
   final Color cardAlt;
   final Color glassBorder;
 
+  // Тонированное стекло карточек здоровья (тело/шаги/вода). Как и card,
+  // задают только RGB — альфу переопределяет ползунок cardOpacity.
+  final Color cardBody;
+  final Color cardSteps;
+  final Color cardWater;
+
   // Текстовые/контентные токены (инвертируются между темами).
   final Color ink; // основной текст
   final Color sub; // вторичный текст
@@ -82,6 +88,9 @@ class EcoTheme {
     required this.card,
     required this.cardAlt,
     required this.glassBorder,
+    required this.cardBody,
+    required this.cardSteps,
+    required this.cardWater,
     required this.ink,
     required this.sub,
     required this.faint,
@@ -106,6 +115,9 @@ class EcoTheme {
     card: Color(0x33FFFFFF),
     cardAlt: Color(0x57FFFFFF),
     glassBorder: Color(0x66FFFFFF),
+    cardBody: Color(0xFFDCEDE2),
+    cardSteps: Color(0xFFE4EDD6),
+    cardWater: Color(0xFFDBECF8),
     ink: Color(0xFF010103),
     sub: Color(0xFF3C3C3C),
     faint: Color(0xFF686868),
@@ -136,6 +148,9 @@ class EcoTheme {
     card: Color(0xFF30333A),
     cardAlt: Color(0xFF3A3E46),
     glassBorder: Color(0x33FFFFFF),
+    cardBody: Color(0xFF2C3B33),
+    cardSteps: Color(0xFF333D2B),
+    cardWater: Color(0xFF2B3846),
     ink: Color(0xFFF1F1F4),
     sub: Color(0xFFB6B8BE),
     faint: Color(0xFF85878F),

@@ -323,6 +323,20 @@ class AppStore extends ChangeNotifier {
       onboarded = false;
       await _box.put('onboarded', false);
     }
+    // Норма воды теперь выводится из профиля, а не хранится жёстко. Пересчитываем
+    // при каждом старте, когда профиль полон: так «старые» пользователи с
+    // сохранёнными 2000 мл сразу получают персональную норму, и она остаётся
+    // актуальной при изменении возраста/веса.
+    if (hasCompleteProfile) {
+      waterGoal = waterGoalFor(
+        ageYears: age!,
+        sex: gender!,
+        weightKg: weightKg ?? weight,
+        heightCm: heightCm!.toDouble(),
+        activity: activity ?? 'mid',
+      );
+      await _box.put('waterGoal', waterGoal);
+    }
     final rawBodyHistory = _box.get('bodyHistory');
     if (rawBodyHistory is List) {
       bodyHistory = rawBodyHistory
@@ -922,6 +936,15 @@ class AppStore extends ChangeNotifier {
     this.activity = activity;
     this.goal = goal;
     goalKcal = targetKcal;
+    // Норма воды выводится из параметров профиля (см. waterGoalFor), поэтому
+    // пересчитываем её здесь — она больше не фиксированные 2000 мл.
+    waterGoal = waterGoalFor(
+      ageYears: age!,
+      sex: gender,
+      weightKg: weightKg,
+      heightCm: heightCm.toDouble(),
+      activity: activity,
+    );
     // Standard 45/30/25 split → grams (carbs & protein 4 kcal/г, fat 9 kcal/г).
     carbGoal = (targetKcal * 0.45 / 4).round();
     protGoal = (targetKcal * 0.30 / 4).round();
