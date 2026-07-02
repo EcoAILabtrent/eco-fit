@@ -67,8 +67,8 @@ class LogItem {
         'pieces': pieces,
       };
   static LogItem fromMap(Map m) => LogItem(
-        m['name'] as String,
-        (m['kcal'] as num).toInt(),
+        m['name'] as String? ?? '',
+        (m['kcal'] as num?)?.toInt() ?? 0,
         protein: (m['p'] as num?)?.toDouble() ?? 0,
         carbs: (m['c'] as num?)?.toDouble() ?? 0,
         fat: (m['f'] as num?)?.toDouble() ?? 0,
@@ -216,6 +216,21 @@ class AppStore extends ChangeNotifier {
   Map<String, List<LogItem>> _day(String date) =>
       diary.putIfAbsent(date, () => {});
 
+  /// Разбирает список записей одного приёма пищи из Hive, пропуская битые
+  /// (например, частично записанные при краше) вместо падения всего init().
+  static List<LogItem> _parseLogItems(Object? raw) {
+    if (raw is! List) return [];
+    final out = <LogItem>[];
+    for (final e in raw) {
+      try {
+        if (e is Map) out.add(LogItem.fromMap(e));
+      } catch (err) {
+        debugPrint('Пропущена битая запись дневника: $err');
+      }
+    }
+    return out;
+  }
+
   // Custom meal times (meal.key -> "HH:mm"); defaults come from kMeals.
   Map<String, String> mealTimes = {};
 
@@ -260,7 +275,16 @@ class AppStore extends ChangeNotifier {
 
   Future<void> init() async {
     await Hive.initFlutter();
-    _box = await Hive.openBox(_boxName);
+    try {
+      _box = await Hive.openBox(_boxName);
+    } catch (err) {
+      // Повреждённый файл box иначе даёт вечный кирпич на старте: экран Retry
+      // перечитывает тот же битый файл. Удаляем и открываем заново — локальные
+      // данные теряются, но приложение запускается вместо зависания на splash.
+      debugPrint('Не удалось открыть Hive-box "$_boxName" ($err); пересоздаю.');
+      await Hive.deleteBoxFromDisk(_boxName);
+      _box = await Hive.openBox(_boxName);
+    }
     water = _box.get('water', defaultValue: 0) as int;
     // Полуночный сброс: живое [water] принадлежит дню 'waterDate'. Раньше
     // вчерашний итог «переезжал» в новое утро до первого нажатия ± — и все
@@ -278,7 +302,9 @@ class AppStore extends ChangeNotifier {
       waterHistory = rawWaterHistory
           .map((k, v) => MapEntry(k as String, (v as num).toInt()));
     }
-    _seedRandomWaterMonth();
+    // Демо-историю сеем только в демо-сборке (SEED_DEMO_FOOD). У реальных
+    // пользователей пустой график — это честно, никаких выдуманных данных.
+    if (_seedDemoFood) _seedRandomWaterMonth();
     steps = _box.get('steps', defaultValue: 0) as int;
     stepsGoal = _box.get('stepsGoal', defaultValue: 10000) as int;
     final rawStepsHistory = _box.get('stepsHistory');
@@ -286,7 +312,19 @@ class AppStore extends ChangeNotifier {
       stepsHistory = rawStepsHistory
           .map((k, v) => MapEntry(k as String, (v as num).toInt()));
     }
-    _seedRandomStepsMonth();
+    // Полуночный сброс шагов (аналог воды выше). Живой счётчик [steps]
+    // принадлежит дню 'stepsDate'; при смене суток вчерашний итог сохраняем в
+    // историю и обнуляем живое значение, иначе утром показываются вчерашние
+    // шаги, пока натив не пришлёт свежий счётчик.
+    final stepsDate = _box.get('stepsDate') as String?;
+    if (stepsDate != null && stepsDate != ymd()) {
+      if (steps > 0) stepsHistory[stepsDate] = steps;
+      steps = 0;
+      _box.put('steps', 0);
+      _box.put('stepsHistory', stepsHistory);
+    }
+    _box.put('stepsDate', ymd());
+    if (_seedDemoFood) _seedRandomStepsMonth();
     weight = (_box.get('weight', defaultValue: 0.0) as num).toDouble();
     bodyFat = (_box.get('bodyFat', defaultValue: 17.5) as num).toDouble();
     skeletalMuscle =
@@ -330,20 +368,11 @@ class AppStore extends ChangeNotifier {
       onboarded = false;
       await _box.put('onboarded', false);
     }
-    // Норма воды теперь выводится из профиля, а не хранится жёстко. Пересчитываем
-    // при каждом старте, когда профиль полон: так «старые» пользователи с
-    // сохранёнными 2000 мл сразу получают персональную норму, и она остаётся
-    // актуальной при изменении возраста/веса.
-    if (hasCompleteProfile) {
-      waterGoal = waterGoalFor(
-        ageYears: age!,
-        sex: gender!,
-        weightKg: weightKg ?? weight,
-        heightCm: heightCm!.toDouble(),
-        activity: activity ?? 'mid',
-      );
-      await _box.put('waterGoal', waterGoal);
-    }
+    // Норма воды выводится из профиля, а не хранится жёстко. Пересчитываем при
+    // каждом старте (и при любом изменении веса/возраста/пола/роста — см.
+    // _refreshWaterGoal), чтобы «старые» пользователи с сохранёнными 2000 мл
+    // сразу получали персональную норму и она не устаревала до перезапуска.
+    _refreshWaterGoal();
     final rawBodyHistory = _box.get('bodyHistory');
     if (rawBodyHistory is List) {
       bodyHistory = rawBodyHistory
@@ -381,29 +410,23 @@ class AppStore extends ChangeNotifier {
     }
     final rawDiary = _box.get('diary');
     if (rawDiary is Map) {
-      diary = rawDiary.map(
-        (date, meals) => MapEntry(
-          date as String,
-          (meals as Map).map(
-            (mk, items) => MapEntry(
-              mk as String,
-              (items as List).map((e) => LogItem.fromMap(e as Map)).toList(),
-            ),
-          ),
-        ),
-      );
+      diary = {};
+      rawDiary.forEach((date, meals) {
+        if (date is! String || meals is! Map) return;
+        final dayMeals = <String, List<LogItem>>{};
+        meals.forEach((mk, items) {
+          if (mk is String) dayMeals[mk] = _parseLogItems(items);
+        });
+        diary[date] = dayMeals;
+      });
     } else {
       // Migrate the old flat log (meal -> items) into today's diary entry.
       final rawLog = _box.get('log');
       if (rawLog is Map) {
-        _day(ymd()).addAll(
-          rawLog.map(
-            (k, v) => MapEntry(
-              k as String,
-              (v as List).map((e) => LogItem.fromMap(e as Map)).toList(),
-            ),
-          ),
-        );
+        final today = _day(ymd());
+        rawLog.forEach((k, v) {
+          if (k is String) today[k] = _parseLogItems(v);
+        });
       }
     }
     if (_seedDemoFood) _seedDemoFood30Days();
@@ -615,10 +638,11 @@ class AppStore extends ChangeNotifier {
   StreamSubscription<int>? _liveSteps;
   bool stepsPermission = false;
 
-  /// Демо: заполняет историю шагов случайными значениями (2500–13500) за
-  /// последние 30 дней для дней без записи, чтобы недельный/месячный график не
-  /// был пустым. Реальные записанные дни не трогает; если сегодняшних живых шагов
-  /// ещё нет (0), подставляет случайное значение и в [steps].
+  /// Демо (только сборка SEED_DEMO_FOOD): заполняет историю шагов случайными
+  /// значениями (2500–13500) за последние 30 дней для дней без записи, чтобы
+  /// график не был пустым. Реальные записанные дни не трогает. Живой счётчик
+  /// [steps] НЕ подменяет — пустой сегодняшний день у реального пользователя
+  /// остаётся честным.
   void _seedRandomStepsMonth() {
     final rnd = math.Random();
     final today = DateTime.now();
@@ -628,10 +652,6 @@ class AppStore extends ChangeNotifier {
         stepsHistory[key] = 2500 + rnd.nextInt(11000);
       }
     }
-    // Если живых шагов ещё нет (эмулятор/нет датчика) — показываем сегодняшнее
-    // демо-значение, чтобы график и сводка не были пустыми.
-    if (steps <= 0) steps = stepsHistory[ymd()] ?? steps;
-    _box.put('steps', steps);
     _box.put('stepsHistory', stepsHistory);
   }
 
@@ -649,17 +669,42 @@ class AppStore extends ChangeNotifier {
     _box.put('waterHistory', waterHistory);
   }
 
-  /// Полуночный сброс воды для процесса, пережившего ночь в фоне: init()
-  /// выполняется один раз за запуск, поэтому при возврате из фона на новый
-  /// день сбрасываем живое [water] здесь (вызывается из onResume в main.dart).
+  /// Полуночный сброс воды И шагов для процесса, пережившего ночь в фоне: init()
+  /// выполняется один раз за запуск, поэтому при возврате из фона на новый день
+  /// сбрасываем живые [water]/[steps] здесь (вызывается из onResume в main.dart).
+  /// Имя сохранено ради обратной совместимости с вызовом в main.dart.
   void rolloverWaterIfNeeded() {
+    final waterRolled = _rolloverWaterIfNeeded();
+    final stepsRolled = _rolloverStepsIfNeeded();
+    if (waterRolled || stepsRolled) notifyListeners();
+  }
+
+  /// Сбрасывает живое [water] при смене суток. Возвращает true, если что-то
+  /// изменилось (вчерашний итог уже в waterHistory). Без notifyListeners —
+  /// уведомляет объединяющий [rolloverWaterIfNeeded].
+  bool _rolloverWaterIfNeeded() {
     final today = ymd();
     final waterDate = _box.get('waterDate') as String?;
-    if (waterDate == null || waterDate == today) return;
+    if (waterDate == null || waterDate == today) return false;
     water = 0;
     _box.put('water', 0);
     _box.put('waterDate', today);
-    notifyListeners();
+    return true;
+  }
+
+  /// Сбрасывает живой счётчик [steps] при смене суток: вчерашний итог сохраняем
+  /// в историю (stepsDate — день, которому принадлежит живое значение), затем
+  /// обнуляем. Возвращает true, если что-то изменилось.
+  bool _rolloverStepsIfNeeded() {
+    final today = ymd();
+    final stepsDate = _box.get('stepsDate') as String?;
+    if (stepsDate == null || stepsDate == today) return false;
+    if (steps > 0) stepsHistory[stepsDate] = steps;
+    steps = 0;
+    _box.put('steps', 0);
+    _box.put('stepsHistory', stepsHistory);
+    _box.put('stepsDate', today);
+    return true;
   }
 
   /// Сохраняет сегодняшнюю воду в историю по дате (для графика на экране «Вода»).
@@ -699,6 +744,8 @@ class AppStore extends ChangeNotifier {
     _box.put('steps', steps);
     stepsHistory[ymd()] = steps;
     _box.put('stepsHistory', stepsHistory);
+    // Штамп дня, которому принадлежит живое [steps] (полуночный сброс в init).
+    _box.put('stepsDate', ymd());
   }
 
   /// Шаги за последние 7 дней (старые слева, сегодня справа). Сегодня берётся из
@@ -752,9 +799,10 @@ class AppStore extends ChangeNotifier {
       return;
     }
     final n = await StepsService.instance.getTodaySteps();
-    // Игнорируем нулевые показания (нет датчика/разрешения), чтобы не затирать
-    // уже показанное значение (в т.ч. демо-данные) нулём.
-    if (n != null && n > 0 && n != steps) {
+    // Принимаем и реальный 0 от натива (новый день/нет активности): раньше нули
+    // игнорировались, чтобы не затирать демо-данные, но демо больше не сеется, а
+    // живой 0 — валидное значение, которое должно затирать вчерашний счётчик.
+    if (n != null && n != steps) {
       steps = n;
       _recordStepsToday();
     }
@@ -796,9 +844,11 @@ class AppStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// ± buttons on the water screen clamp to the [0, goal] range (per design).
+  /// ± buttons on the water screen. Clamp to a sane physical ceiling (6000 ml),
+  /// not to the goal: a user who drank past their target must still be able to
+  /// log it (the water chart already renders >100%). Zeroing stays possible.
   void stepWater(int delta) {
-    water = (water + delta).clamp(0, waterGoal);
+    water = (water + delta).clamp(0, 6000);
     _box.put('water', water);
     _recordWaterToday();
     notifyListeners();
@@ -806,7 +856,7 @@ class AppStore extends ChangeNotifier {
 
   /// Изменяет воду выбранного в графике дня кнопками ± ([offset] дней назад,
   /// 0 = сегодня). Сегодня правит живое [water], прошлые дни — запись в истории.
-  /// Клампится в диапазон [0, цель], как и [stepWater].
+  /// Клампится в диапазон [0, 6000] мл, как и [stepWater] (можно записать >цели).
   void stepWaterForOffset(int offset, int delta) {
     if (offset <= 0) {
       stepWater(delta);
@@ -814,9 +864,29 @@ class AppStore extends ChangeNotifier {
     }
     final key = ymd(DateTime.now().subtract(Duration(days: offset)));
     final cur = waterHistory[key] ?? 0;
-    waterHistory[key] = (cur + delta).clamp(0, waterGoal);
+    waterHistory[key] = (cur + delta).clamp(0, 6000);
     _box.put('waterHistory', waterHistory);
     notifyListeners();
+  }
+
+  /// Пересчитывает норму воды из текущего профиля (с тем же гвардом полноты, что
+  /// и в init()). Норма выводится из возраста/пола/веса/роста (см. waterGoalFor),
+  /// поэтому вызывается при каждом их изменении — иначе она устаревала бы до
+  /// перезапуска. Персистит waterGoal; notifyListeners оставляем вызывающему.
+  void _refreshWaterGoal() {
+    final hasCompleteProfile = (gender == 'm' || gender == 'f') &&
+        age != null &&
+        heightCm != null &&
+        (weightKg != null || weight > 0);
+    if (!hasCompleteProfile) return;
+    waterGoal = waterGoalFor(
+      ageYears: age!,
+      sex: gender!,
+      weightKg: weightKg ?? weight,
+      heightCm: heightCm!.toDouble(),
+      activity: activity ?? 'mid',
+    );
+    _box.put('waterGoal', waterGoal);
   }
 
   void setWeight(double kg) {
@@ -830,6 +900,7 @@ class AppStore extends ChangeNotifier {
         bodyFat: bodyFat,
       ),
     );
+    _refreshWaterGoal();
     _persist();
     notifyListeners();
   }
@@ -871,6 +942,7 @@ class AppStore extends ChangeNotifier {
         bodyFat: this.bodyFat,
       ),
     );
+    _refreshWaterGoal();
     _persist();
     notifyListeners();
   }
@@ -883,6 +955,7 @@ class AppStore extends ChangeNotifier {
     this.profileName = _cleanName(profileName);
     this.age = age;
     this.gender = gender;
+    _refreshWaterGoal();
     _persist();
     notifyListeners();
   }
@@ -993,9 +1066,9 @@ class AppStore extends ChangeNotifier {
     // Сбрасываем живые поля шагомера, чтобы новый поток подписался заново.
     await _liveSteps?.cancel();
     _liveSteps = null;
-    // init() перечитывает уже пустой box: всё возвращается к дефолтам и
-    // повторно засеиваются демо-история шагов/воды (как при первом запуске),
-    // в конце вызывает notifyListeners().
+    // init() перечитывает уже пустой box: всё возвращается к дефолтам (демо-
+    // история шагов/воды сеется только в сборке SEED_DEMO_FOOD), в конце
+    // вызывает notifyListeners().
     await init();
   }
 

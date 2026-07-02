@@ -2,9 +2,12 @@
 ///
 /// Resting metabolism uses Mifflin–St Jeor for adults (validated for ~19–78 y)
 /// and the Schofield (WHO/FAO) weight-based equations for anyone under 18, where
-/// Mifflin–St Jeor is not valid. Calorie goals are clamped to a safe floor so a
-/// small or older user is never pushed to an unsafe deficit.
+/// Mifflin–St Jeor is not valid. Calorie goals are clamped up to a safe floor —
+/// itself capped at TDEE and scaled down for under-18s — so a small or older
+/// user is never pushed to an unsafe deficit, nor (by the clamp) into a surplus.
 library;
+
+import 'dart:math' as math;
 
 /// Basal metabolic rate (kcal/day). Schofield for ages < 18, Mifflin–St Jeor
 /// for adults. [sex] is 'm' or 'f'.
@@ -51,24 +54,40 @@ double activityMultiplier(String activity) => switch (activity) {
 int totalDailyEnergy({required int bmr, required String activity}) =>
     (bmr * activityMultiplier(activity)).round();
 
-/// Minimum safe daily calorie goal (kcal): ~1500 for men, ~1200 for women, per
-/// mainstream guidance against unsupervised very-low-calorie intake.
-int minimumCalorieGoal(String sex) => sex == 'm' ? 1500 : 1200;
+/// Minimum safe daily calorie goal (kcal). For adults this is a fixed floor
+/// (~1500 men, ~1200 women) per mainstream guidance against unsupervised
+/// very-low-calorie intake. Those adult floors are inappropriate for under-18s
+/// (a small child's whole TDEE can sit below 1200), so for minors the floor is
+/// instead a fraction of expenditure — 85% of [tdee]. That fraction stays at or
+/// above BMR for every activity level (BMR/TDEE ≤ 1/1.2 ≈ 0.83) while still
+/// bounding how deep the deficit can go.
+int minimumCalorieGoal({
+  required String sex,
+  required int ageYears,
+  required int tdee,
+}) =>
+    ageYears < 18 ? (tdee * 0.85).round() : (sex == 'm' ? 1500 : 1200);
 
 /// Daily calorie goal from TDEE, adjusted for [goal] ('lose' | 'gain' |
-/// 'maintain') and clamped to [minimumCalorieGoal].
+/// 'maintain') and clamped up to a safe floor ([minimumCalorieGoal]). The floor
+/// is itself capped at [tdee] (`min(floor, tdee)`) so a 'lose' goal can never be
+/// clamped into a surplus — otherwise a very small child or a petite older woman
+/// whose whole TDEE sits below the adult 1500/1200 floor would be told to eat
+/// *more* than they burn while trying to lose weight.
 int calorieGoal({
   required int tdee,
   required String goal,
   required String sex,
+  required int ageYears,
 }) {
   final adjusted = switch (goal) {
     'lose' => tdee - 400,
     'gain' => tdee + 350,
     _ => tdee,
   };
-  final floor = minimumCalorieGoal(sex);
-  return adjusted < floor ? floor : adjusted;
+  final floor = minimumCalorieGoal(sex: sex, ageYears: ageYears, tdee: tdee);
+  final effectiveFloor = math.min(floor, tdee);
+  return adjusted < effectiveFloor ? effectiveFloor : adjusted;
 }
 
 /// Full pipeline: profile → daily calorie goal.
@@ -87,7 +106,7 @@ int calorieGoalFor({
     heightCm: heightCm,
   );
   final tdee = totalDailyEnergy(bmr: bmr, activity: activity);
-  return calorieGoal(tdee: tdee, goal: goal, sex: sex);
+  return calorieGoal(tdee: tdee, goal: goal, sex: sex, ageYears: ageYears);
 }
 
 /// Adequate daily water intake (ml). Uses the Institute of Medicine rule of
