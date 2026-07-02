@@ -574,6 +574,9 @@ def insert_foods(
         default_unit_code = "ml" if is_drink else (item.get("default_unit") or "g")
         if default_unit_code not in unit_ids:
             default_unit_code = "g"
+        # Штучные продукты (яйца, целые фрукты/овощи, штучная выпечка) помечены
+        # в foods.json как default_unit == "piece"; напитки всегда в ml.
+        is_piece = default_unit_code == "piece"
 
         ml_per_default_unit = 100.0 if default_unit_code == "ml" else None
         density_g_per_ml = grams_per_unit / ml_per_default_unit if ml_per_default_unit else None
@@ -712,7 +715,7 @@ def insert_foods(
                 None,
                 None,
                 100.0,
-                True,
+                not is_piece,
                 10,
                 {
                     "uz_latn": ("100 g", "100 g"),
@@ -722,7 +725,11 @@ def insert_foods(
                 },
             )
 
-        if type_code in {"fruit", "vegetable"}:
+        # Штучная порция — только для курируемых piece-продуктов, с реальным
+        # весом одной штуки (grams_per_unit из foods.json) и как единица по
+        # умолчанию. Раньше piece-порция вешалась на ВСЕ фрукты/овощи с весом-
+        # заглушкой 100 г, что давало мусор (1 малина = 100 г и т.п.).
+        if is_piece:
             add_serving(
                 conn,
                 food_id,
@@ -731,8 +738,8 @@ def insert_foods(
                 None,
                 1.0,
                 1.0,
-                False,
-                30,
+                True,
+                5,
                 {
                     "uz_latn": ("1 dona", "1 dona"),
                     "uz_cyrl": ("1 дона", "1 дона"),

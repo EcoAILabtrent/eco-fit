@@ -39,6 +39,10 @@ class LogItem {
   final Map<String, double> micros;
   final String? productSlug;
   final int? grams;
+  // Число штук, выбранное пользователем (для штучных продуктов). Граммы —
+  // канон; pieces хранится только чтобы показать в журнале то же число штук,
+  // что выбрали, независимо от размера (иначе grams/средняя_масса даёт дроби).
+  final double? pieces;
   const LogItem(
     this.name,
     this.kcal, {
@@ -48,6 +52,7 @@ class LogItem {
     this.micros = const {},
     this.productSlug,
     this.grams,
+    this.pieces,
   });
 
   Map<String, dynamic> toMap() => {
@@ -59,6 +64,7 @@ class LogItem {
         'm': micros,
         'slug': productSlug,
         'grams': grams,
+        'pieces': pieces,
       };
   static LogItem fromMap(Map m) => LogItem(
         m['name'] as String,
@@ -69,6 +75,7 @@ class LogItem {
         micros: _microsFromMap(m['m']),
         productSlug: m['slug'] as String?,
         grams: (m['grams'] as num?)?.toInt(),
+        pieces: (m['pieces'] as num?)?.toDouble(),
       );
 
   static Map<String, double> _microsFromMap(Object? raw) {

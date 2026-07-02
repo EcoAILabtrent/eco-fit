@@ -34,8 +34,13 @@ class DishScreen extends StatefulWidget {
 class DishSelectionResult {
   final Product product;
   final int grams;
+  final double? pieces; // выбранное число штук (для штучных продуктов)
 
-  const DishSelectionResult({required this.product, required this.grams});
+  const DishSelectionResult({
+    required this.product,
+    required this.grams,
+    this.pieces,
+  });
 
   LogItem toLogItem() {
     double scaled(num per100) => per100 * grams / 100;
@@ -48,6 +53,7 @@ class DishSelectionResult {
       micros: product.microsForGrams(grams),
       productSlug: product.slug,
       grams: grams,
+      pieces: pieces,
     );
   }
 }
@@ -63,8 +69,17 @@ const _macroUnits = {
 const _heroPillHeight = 42.0;
 
 class _DishScreenState extends State<DishScreen> {
-  late int grams = 100;
+  late int grams;
   late final int _initialGrams;
+
+  // Штучный режим: размер (индекс 0/1/2 → масса одной штуки) и число штук
+  // выбираются НЕЗАВИСИМО. grams = штуки × масса_размера — канон хранения.
+  static const _pieceSteps = <double>[
+    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10,
+  ];
+  late List<int> _pieceSizes; // [маленький, средний, большой], г
+  int _sizeIdx = 1; // выбранный размер (по умолчанию — средний)
+  double _pieces = 1; // выбранное число штук
 
   Product get p => widget.product;
   double _scaled(num per100) => per100 * grams / 100;
@@ -78,15 +93,46 @@ class _DishScreenState extends State<DishScreen> {
   @override
   void initState() {
     super.initState();
-    _initialGrams = (widget.initialGrams ?? 100).clamp(10, 1000).toInt();
-    grams = _initialGrams;
+    if (p.isPieceUnit) {
+      // Штучные: размер по умолчанию — средний, число штук выводим из массы.
+      _pieceSizes = p.pieceSizeGrams();
+      _sizeIdx = 1;
+      final start = (widget.initialGrams ?? _pieceSizes[_sizeIdx]).toDouble();
+      _pieces = _snapPieces(start / _pieceSizes[_sizeIdx]);
+      grams = (_pieces * _pieceSizes[_sizeIdx]).round();
+    } else {
+      _pieceSizes = const [];
+      grams = (widget.initialGrams ?? 100).clamp(10, 1000).toInt();
+    }
+    _initialGrams = grams;
+  }
+
+  static double _snapPieces(double raw) => _pieceSteps[_nearestStepIndex(raw)];
+
+  static int _nearestStepIndex(double pieces) {
+    var best = 0;
+    var bestDelta = (_pieceSteps.first - pieces).abs();
+    for (var i = 1; i < _pieceSteps.length; i++) {
+      final delta = (_pieceSteps[i] - pieces).abs();
+      if (delta < bestDelta) {
+        bestDelta = delta;
+        best = i;
+      }
+    }
+    return best;
   }
 
   bool get _hasPortionChanges => grams != _initialGrams;
 
   void _cancelOrResetPortion() {
     if (_hasPortionChanges) {
-      setState(() => grams = _initialGrams);
+      setState(() {
+        grams = _initialGrams;
+        if (p.isPieceUnit) {
+          _sizeIdx = 1;
+          _pieces = _snapPieces(_initialGrams / _pieceSizes[_sizeIdx]);
+        }
+      });
       return;
     }
     Navigator.of(context).pop();
@@ -94,7 +140,11 @@ class _DishScreenState extends State<DishScreen> {
 
   void _savePortion() {
     Navigator.of(context).pop(
-      DishSelectionResult(product: p, grams: grams),
+      DishSelectionResult(
+        product: p,
+        grams: grams,
+        pieces: p.isPieceUnit ? _pieces : null,
+      ),
     );
   }
 
@@ -130,6 +180,15 @@ class _DishScreenState extends State<DishScreen> {
       ),
     ];
     final activeSegs = segs.where((g) => g.pct > 0).toList();
+
+    // Штучные продукты: в плашке — число штук, под ней — «Масса: N г» (граммы
+    // остаются каноном хранения и пересчитываются при смене размера/штук).
+    final portionText = p.isPieceUnit
+        ? '${formatPieceCount(_pieces, l.language)} ${p.displayUnit(l.language)}'
+        : '$grams ${p.displayUnit(l.language)}';
+    final portionSubtitle = p.isPieceUnit
+        ? '${l.t('food.mass')}: $grams ${l.unit('g')}'
+        : l.t('food.portionSize');
 
     // Nutrient rows: macros first, then micros from the DB.
     final rows = <({
@@ -274,7 +333,7 @@ class _DishScreenState extends State<DishScreen> {
                                     ),
                                     Expanded(
                                       child: Text(
-                                        '$grams ${p.displayUnit(l.language)}',
+                                        portionText,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 16,
@@ -292,7 +351,7 @@ class _DishScreenState extends State<DishScreen> {
                         const SizedBox(height: 8),
                         Center(
                           child: Text(
-                            l.t('food.portionSize'),
+                            portionSubtitle,
                             style: TextStyle(
                               fontSize: 12,
                               color: t.sub,
@@ -479,12 +538,22 @@ class _DishScreenState extends State<DishScreen> {
   void _pickPortion() {
     final t = context.read<AppStore>().theme;
     final l = context.l10nRead;
+    if (p.isPieceUnit) {
+      _pickPiecePortion(t, l);
+    } else {
+      _pickGramsPortion(t, l);
+    }
+  }
+
+  /// Граммовый выбор (не штучные продукты): вкладки маленький/средний/большой —
+  /// это КОЛИЧЕСТВО (100/150/200 или 200/300/400 для напитков), колесо — граммы.
+  void _pickGramsPortion(EcoTheme t, AppStrings l) {
     final gramsValues = [for (var g = 10; g <= 1000; g += 5) g];
     final standardValues =
         p.isDrink ? const [200, 300, 400] : const [100, 150, 200];
     final standardLabels = _portionStandardLabels(l.language);
     var idx = gramsValues.indexOf(grams);
-    if (idx < 0) idx = gramsValues.indexOf(100);
+    if (idx < 0) idx = _nearestIndex(gramsValues, grams);
     final kcalCtrl = FixedExtentScrollController(initialItem: idx);
     final gramsCtrl = FixedExtentScrollController(initialItem: idx);
     int? activeStandard = _standardIndexFor(gramsValues[idx], standardValues);
@@ -588,6 +657,153 @@ class _DishScreenState extends State<DishScreen> {
         },
       ),
     );
+  }
+
+  /// Штучный выбор: вкладки маленький/средний/большой — это РАЗМЕР одной штуки
+  /// (её масса), правое колесо — число штук (выбираем сами). Смена размера
+  /// меняет только массу и ккал, число штук не трогает.
+  void _pickPiecePortion(EcoTheme t, AppStrings l) {
+    final sizes = _pieceSizes; // [маленький, средний, большой], г
+    // Значения на момент открытия — чтобы откатить по «Отмена»/закрытию.
+    final startGrams = grams;
+    final startPieces = _pieces;
+    final startSize = _sizeIdx;
+    var sizeIdx = _sizeIdx;
+    var pieceIdx = _nearestStepIndex(_pieces);
+    final kcalCtrl = FixedExtentScrollController(initialItem: pieceIdx);
+    final pieceCtrl = FixedExtentScrollController(initialItem: pieceIdx);
+    var syncing = false;
+    var applied = false;
+
+    int gramsFor(int pIdx, int sIdx) => (_pieceSteps[pIdx] * sizes[sIdx]).round();
+
+    // Живой предпросмотр: экран блюда (плашка, ккал, «Масса») обновляется сразу
+    // при смене размера/штук, а не только по «Готово».
+    void applyLive() {
+      setState(() {
+        _sizeIdx = sizeIdx;
+        _pieces = _pieceSteps[pieceIdx];
+        grams = gramsFor(pieceIdx, sizeIdx);
+      });
+    }
+
+    void syncWheels(
+      FixedExtentScrollController other,
+      int i,
+      StateSetter setSheetState,
+    ) {
+      if (syncing) return;
+      syncing = true;
+      pieceIdx = i;
+      if (other.hasClients) other.jumpToItem(i);
+      syncing = false;
+      applyLive();
+      setSheetState(() {});
+    }
+
+    showEcoSheet(
+      context: context,
+      t: t,
+      title: l.t('food.size'),
+      onDone: () => applied = true, // уже применено вживую в applyLive()
+      body: StatefulBuilder(
+        builder: (context, setSheetState) {
+          return SizedBox(
+            height: 186,
+            child: Column(
+              children: [
+                _PortionStandardTabs(
+                  t: t,
+                  labels: _portionStandardLabels(l.language),
+                  value: sizeIdx,
+                  // Размер меняет массу штуки; число штук (колесо) не трогаем.
+                  onChanged: (i) {
+                    sizeIdx = i;
+                    applyLive();
+                    setSheetState(() {});
+                  },
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: CupertinoPicker(
+                          scrollController: kcalCtrl,
+                          itemExtent: 44,
+                          selectionOverlay: EcoPickerSelectionOverlay(t: t),
+                          onSelectedItemChanged: (i) =>
+                              syncWheels(pieceCtrl, i, setSheetState),
+                          children: [
+                            for (var i = 0; i < _pieceSteps.length; i++)
+                              Center(
+                                child: Text(
+                                  '${(gramsFor(i, sizeIdx) * p.kcal / 100).round()}'
+                                  ' ${l.unit('kcal')}',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: CupertinoPicker(
+                          scrollController: pieceCtrl,
+                          itemExtent: 44,
+                          selectionOverlay: EcoPickerSelectionOverlay(t: t),
+                          onSelectedItemChanged: (i) =>
+                              syncWheels(kcalCtrl, i, setSheetState),
+                          children: [
+                            for (final s in _pieceSteps)
+                              Center(
+                                child: Text(
+                                  '${formatPieceCount(s, l.language)}'
+                                  ' ${p.displayUnit(l.language)}',
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    ).then((_) {
+      // Если закрыли без «Готово» — откатываем живой предпросмотр.
+      if (!applied && mounted) {
+        setState(() {
+          grams = startGrams;
+          _pieces = startPieces;
+          _sizeIdx = startSize;
+        });
+      }
+    });
+  }
+
+  /// Индекс ближайшего значения списка к [target] — для случая, когда сохранённая
+  /// порция (например, старая запись в граммах) не попадает точно в шаг колеса.
+  static int _nearestIndex(List<int> values, int target) {
+    var best = 0;
+    var bestDelta = (values.first - target).abs();
+    for (var i = 1; i < values.length; i++) {
+      final delta = (values[i] - target).abs();
+      if (delta < bestDelta) {
+        bestDelta = delta;
+        best = i;
+      }
+    }
+    return best;
   }
 
   static int? _standardIndexFor(int value, List<int> standards) {

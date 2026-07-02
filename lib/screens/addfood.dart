@@ -343,17 +343,28 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                         itemBuilder: (ctx, i) {
                                           final p = items[i];
                                           final selected = _selected[p.slug];
+                                          // Штучные продукты по умолчанию — 1 шт
+                                          // (её вес), остальные — 100 г.
+                                          final defaultGrams = p.isPieceUnit
+                                              ? p.gramsPerUnit.round()
+                                              : 100;
                                           return _ProductRow(
                                             t: t,
                                             p: p,
                                             selected: selected != null,
-                                            grams: selected?.grams ?? 100,
+                                            grams: selected?.grams ?? defaultGrams,
+                                            pieces: selected?.pieces ??
+                                                (p.isPieceUnit ? 1.0 : null),
                                             onToggle: () => setState(
                                               () => selected != null
                                                   ? _selected.remove(p.slug)
                                                   : _selected[p.slug] =
-                                                      const _SelectedProduct(
-                                                          grams: 100),
+                                                      _SelectedProduct(
+                                                        grams: defaultGrams,
+                                                        pieces: p.isPieceUnit
+                                                            ? 1.0
+                                                            : null,
+                                                      ),
                                             ),
                                             onOpen: () async {
                                               final result = await Navigator.of(
@@ -365,7 +376,8 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                                     mealKey: widget.mealKey,
                                                     date: widget.date,
                                                     initialGrams:
-                                                        selected?.grams ?? 100,
+                                                        selected?.grams ??
+                                                            defaultGrams,
                                                   ),
                                                 ),
                                               );
@@ -376,6 +388,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                                                 _selected[result.product.slug] =
                                                     _SelectedProduct(
                                                   grams: result.grams,
+                                                  pieces: result.pieces,
                                                 );
                                               });
                                             },
@@ -594,8 +607,9 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
 
 class _SelectedProduct {
   final int grams;
+  final double? pieces; // выбранное число штук (для штучных продуктов)
 
-  const _SelectedProduct({required this.grams});
+  const _SelectedProduct({required this.grams, this.pieces});
 
   double _scaled(Product p, num value) => value * grams / 100;
 
@@ -610,6 +624,7 @@ class _SelectedProduct {
         micros: p.microsForGrams(grams),
         productSlug: p.slug,
         grams: grams,
+        pieces: pieces,
       );
 }
 
@@ -869,6 +884,7 @@ class _ProductRow extends StatelessWidget {
   final Product p;
   final bool selected;
   final int grams;
+  final double? pieces;
   final VoidCallback onToggle;
   final VoidCallback onOpen;
 
@@ -877,6 +893,7 @@ class _ProductRow extends StatelessWidget {
     required this.p,
     required this.selected,
     required this.grams,
+    required this.pieces,
     required this.onToggle,
     required this.onOpen,
   });
@@ -885,8 +902,14 @@ class _ProductRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final selectedKcal = (p.kcal * grams / 100).round();
+    // Для штучных показываем выбранное число штук (если известно), иначе —
+    // оценку из массы; так «1 большой ломоть» не превращается в «1,5 шт».
+    final portionLabel = p.isPieceUnit
+        ? '${formatPieceCount(pieces ?? p.piecesForGrams(grams), l.language)}'
+            ' ${p.displayUnit(l.language)}'
+        : '$grams ${p.displayUnit(l.language)}';
     final kcalLabel = selected
-        ? '$selectedKcal ${l.unit('kcal')} · $grams ${p.displayUnit(l.language)}'
+        ? '$selectedKcal ${l.unit('kcal')} · $portionLabel'
         : '${p.kcal} ${p.calorieBaseLabel(l.language).replaceAll(' ', '')}';
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),

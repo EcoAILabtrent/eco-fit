@@ -82,13 +82,42 @@ class Product {
         _ => _unit(language, 'g'),
       };
 
-  String calorieBaseLabel(AppLanguage language) =>
-      '${_unit(language, 'kcal')}/100 ${displayUnit(language)}';
+  String calorieBaseLabel(AppLanguage language) {
+    // КБЖУ хранятся на 100 г (или 100 мл для напитков). Для штучных продуктов
+    // база всё равно граммовая, поэтому показываем «/100 г», а не «/100 шт».
+    final base = isPieceUnit ? _unit(language, 'g') : displayUnit(language);
+    return '${_unit(language, 'kcal')}/100 $base';
+  }
 
   Map<String, double> microsForGrams(num grams) => {
         for (final entry in micros.entries)
           entry.key: entry.value.toDouble() * grams / 100,
       };
+
+  /// Продукт вводится/показывается в штуках (яйца, целые фрукты/овощи, штучная
+  /// выпечка). Граммы остаются каноном: 1 шт = [gramsPerUnit] грамм.
+  bool get isPieceUnit => unit == 'piece' && gramsPerUnit > 0;
+
+  /// Сколько штук приходится на заданный вес (для отображения piece-порции).
+  double piecesForGrams(num grams) =>
+      gramsPerUnit <= 0 ? 0 : grams / gramsPerUnit.toDouble();
+
+  /// Массы одной штуки для трёх размеров [маленький, средний, большой], г.
+  /// Средний = [gramsPerUnit] (из БД). Маленький/большой — по коэффициентам
+  /// вокруг среднего, с точными оверрайдами для продуктов со «стандартной»
+  /// линейкой размеров (яйца по ГОСТ C2/C1/C0, буханка = ломоть).
+  List<int> pieceSizeGrams() {
+    final medium = gramsPerUnit.round();
+    final override = _pieceSizeOverrides[slug];
+    if (override != null) return [override.$1, medium, override.$2];
+    final small = (medium * 0.8).round();
+    final large = (medium * 1.25).round();
+    return [
+      small < 1 ? 1 : small,
+      medium,
+      large <= medium ? medium + 1 : large,
+    ];
+  }
 
   static String _unit(AppLanguage language, String code) {
     final labels = _unitLabels[language] ?? _unitLabels[AppLanguage.ru]!;
@@ -163,6 +192,33 @@ class Product {
     final s = value?.toString().trim();
     return s == null || s.isEmpty ? null : s;
   }
+}
+
+/// Точные массы (маленький, большой) одной штуки, г, для продуктов со
+/// «стандартной» линейкой размеров; средний берётся из БД (grams_per_unit).
+const _pieceSizeOverrides = <String, (int, int)>{
+  // Яйца — по ГОСТ (C2 маленькое / C0 отборное).
+  'tovuq_tuxumi': (50, 70),
+  'yumshoq_qaynatilgan_tuxum': (50, 70),
+  'glazunya_qovurilgan_tuxum': (50, 70),
+  'pashot_tuxum': (50, 70),
+  'bedana_tuxumi': (10, 14),
+  'ordak_tuxumi': (60, 85),
+  'tuxum_oqi': (28, 40),
+  'tuxum_sarigi': (14, 22),
+  // Буханки — ломоть: тонкий / толстый.
+  'oq_non_buxanka': (20, 45),
+  'qora_non_buxanka': (20, 45),
+};
+
+/// Формат числа штук: целые — без дробной части, половинки — с одним знаком
+/// (разделитель по языку). Напр. 2 → «2», 1.5 → «1,5».
+String formatPieceCount(num pieces, AppLanguage language) {
+  final snapped = (pieces * 2).round() / 2;
+  if (snapped == snapped.roundToDouble()) return snapped.toStringAsFixed(0);
+  final decimal =
+      language == AppLanguage.ru || language == AppLanguage.uzCyrl ? ',' : '.';
+  return snapped.toStringAsFixed(1).replaceAll('.', decimal);
 }
 
 class ProductCategory {
