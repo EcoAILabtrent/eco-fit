@@ -98,6 +98,24 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
             onChanged: (index) => setState(() => _tab = index),
           ),
           const SizedBox(height: 16),
+          // Период (день/неделя/месяц) держим постоянно на вкладке «Новый совет»,
+          // над контентом: раньше он жил внутри стартовой карточки и пропадал
+          // после генерации. Во время загрузки смену периода блокируем.
+          if (_tab == 0) ...[
+            IgnorePointer(
+              ignoring: _loading,
+              child: Opacity(
+                opacity: _loading ? 0.5 : 1,
+                child: EcoSegmented(
+                  t: t,
+                  options: _periodOptions(l),
+                  value: _period.index,
+                  onChanged: _setPeriod,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
           Padding(
             padding: EdgeInsets.only(
               bottom: 32 + MediaQuery.of(context).padding.bottom,
@@ -143,25 +161,6 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_advice == null && !_loading) ...[
-                Text(
-                  _periodPrompt(l),
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1.2,
-                    color: t.ink,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                EcoSegmented(
-                  t: t,
-                  options: _periodOptions(l),
-                  value: _period.index,
-                  onChanged: _setPeriod,
-                ),
-                const SizedBox(height: 14),
-              ],
               _resultArea(store, l, t, foodCount),
               if (_advice != null && !_loading) ...[
                 const SizedBox(height: 10),
@@ -967,13 +966,6 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
         AppLanguage.ru => const ['День', 'Неделя', 'Месяц'],
         AppLanguage.uzLatn => const ['Kun', 'Hafta', 'Oy'],
         AppLanguage.uzCyrl => const ['Кун', 'Ҳафта', 'Ой'],
-      };
-
-  String _periodPrompt(AppStrings l) => switch (l.language) {
-        AppLanguage.en => 'Choose the advice period',
-        AppLanguage.ru => 'Выберите период совета',
-        AppLanguage.uzLatn => 'Tavsiya davrini tanlang',
-        AppLanguage.uzCyrl => 'Тавсия даврини танланг',
       };
 
   String _readyText(AppStrings l) => switch (l.language) {
