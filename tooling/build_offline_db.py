@@ -151,6 +151,13 @@ FOOD_TYPE_TRANSLATIONS = {
     },
 }
 
+# Full nutrient dictionary. Codes, groups and default units mirror the rich
+# offline DB history (commit 8f5e262) and the Dart unit map in
+# lib/nutrition/micronutrients.dart. default_unit_code MUST stay in sync with
+# that Dart `_microDefaultUnits` map: mcg for the trace minerals
+# se/i/f/cr/mo/co and vitamins a/d/k/b9/b12/h, mg for everything else. Every
+# micro code emitted by assets/foods.json must have a row here, otherwise its
+# amounts are silently dropped when building food_nutrients.
 NUTRIENTS = [
     ("energy_kcal", "energy", "kcal", 10, {"ru": "Калории", "en": "Calories", "uz_latn": "Kaloriya", "uz_cyrl": "Калория"}),
     ("protein", "macro", "g", 20, {"ru": "Белки", "en": "Protein", "uz_latn": "Oqsil", "uz_cyrl": "Оқсил"}),
@@ -158,6 +165,7 @@ NUTRIENTS = [
     ("fat", "macro", "g", 40, {"ru": "Жиры", "en": "Fat", "uz_latn": "Yog'lar", "uz_cyrl": "Ёғлар"}),
     ("fiber", "macro", "g", 50, {"ru": "Клетчатка", "en": "Fiber", "uz_latn": "Kletchatka", "uz_cyrl": "Клетчатка"}),
     ("sugar", "macro", "g", 60, {"ru": "Сахар", "en": "Sugar", "uz_latn": "Shakar", "uz_cyrl": "Шакар"}),
+    # Minerals and trace elements.
     ("fe", "micro", "mg", 110, {"ru": "Железо", "en": "Iron", "uz_latn": "Temir", "uz_cyrl": "Темир"}),
     ("mg", "micro", "mg", 120, {"ru": "Магний", "en": "Magnesium", "uz_latn": "Magniy", "uz_cyrl": "Магний"}),
     ("ca", "micro", "mg", 130, {"ru": "Кальций", "en": "Calcium", "uz_latn": "Kalsiy", "uz_cyrl": "Кальций"}),
@@ -165,9 +173,31 @@ NUTRIENTS = [
     ("k", "micro", "mg", 150, {"ru": "Калий", "en": "Potassium", "uz_latn": "Kaliy", "uz_cyrl": "Калий"}),
     ("na", "micro", "mg", 160, {"ru": "Натрий", "en": "Sodium", "uz_latn": "Natriy", "uz_cyrl": "Натрий"}),
     ("zn", "micro", "mg", 170, {"ru": "Цинк", "en": "Zinc", "uz_latn": "Rux", "uz_cyrl": "Рух"}),
+    ("cu", "micro", "mg", 172, {"ru": "Медь", "en": "Copper", "uz_latn": "Mis", "uz_cyrl": "Мис"}),
+    ("mn", "micro", "mg", 174, {"ru": "Марганец", "en": "Manganese", "uz_latn": "Marganets", "uz_cyrl": "Марганец"}),
+    ("se", "micro", "mcg", 176, {"ru": "Селен", "en": "Selenium", "uz_latn": "Selen", "uz_cyrl": "Селен"}),
+    ("i", "micro", "mcg", 178, {"ru": "Йод", "en": "Iodine", "uz_latn": "Yod", "uz_cyrl": "Йод"}),
+    ("f", "micro", "mcg", 180, {"ru": "Фтор", "en": "Fluorine", "uz_latn": "Ftor", "uz_cyrl": "Фтор"}),
+    ("cr", "micro", "mcg", 182, {"ru": "Хром", "en": "Chromium", "uz_latn": "Xrom", "uz_cyrl": "Хром"}),
+    ("mo", "micro", "mcg", 184, {"ru": "Молибден", "en": "Molybdenum", "uz_latn": "Molibden", "uz_cyrl": "Молибден"}),
+    ("co", "micro", "mcg", 186, {"ru": "Кобальт", "en": "Cobalt", "uz_latn": "Kobalt", "uz_cyrl": "Кобальт"}),
+    ("cl", "micro", "mg", 188, {"ru": "Хлор", "en": "Chlorine", "uz_latn": "Xlor", "uz_cyrl": "Хлор"}),
+    ("s", "micro", "mg", 190, {"ru": "Сера", "en": "Sulfur", "uz_latn": "Oltingugurt", "uz_cyrl": "Олтингугурт"}),
+    # Vitamins.
     ("vit_c", "vitamin", "mg", 210, {"ru": "Витамин C", "en": "Vitamin C", "uz_latn": "C vitamini", "uz_cyrl": "C витамини"}),
     ("vit_a", "vitamin", "mcg", 220, {"ru": "Витамин A", "en": "Vitamin A", "uz_latn": "A vitamini", "uz_cyrl": "A витамини"}),
     ("vit_d", "vitamin", "mcg", 230, {"ru": "Витамин D", "en": "Vitamin D", "uz_latn": "D vitamini", "uz_cyrl": "D витамини"}),
+    ("vit_e", "vitamin", "mg", 240, {"ru": "Витамин E", "en": "Vitamin E", "uz_latn": "E vitamini", "uz_cyrl": "E витамини"}),
+    ("vit_k", "vitamin", "mcg", 250, {"ru": "Витамин K", "en": "Vitamin K", "uz_latn": "K vitamini", "uz_cyrl": "K витамини"}),
+    ("vit_b1", "vitamin", "mg", 260, {"ru": "Витамин B1 (тиамин)", "en": "Vitamin B1 (Thiamine)", "uz_latn": "B1 vitamini (tiamin)", "uz_cyrl": "B1 витамини (тиамин)"}),
+    ("vit_b2", "vitamin", "mg", 270, {"ru": "Витамин B2 (рибофлавин)", "en": "Vitamin B2 (Riboflavin)", "uz_latn": "B2 vitamini (riboflavin)", "uz_cyrl": "B2 витамини (рибофлавин)"}),
+    ("vit_b3", "vitamin", "mg", 280, {"ru": "Витамин B3 (ниацин, PP)", "en": "Vitamin B3 (Niacin)", "uz_latn": "B3 vitamini (niatsin, PP)", "uz_cyrl": "B3 витамини (ниацин, PP)"}),
+    ("vit_b4", "vitamin", "mg", 290, {"ru": "Витамин B4 (холин)", "en": "Vitamin B4 (Choline)", "uz_latn": "B4 vitamini (xolin)", "uz_cyrl": "B4 витамини (холин)"}),
+    ("vit_b5", "vitamin", "mg", 300, {"ru": "Витамин B5 (пантотеновая кислота)", "en": "Vitamin B5 (Pantothenic acid)", "uz_latn": "B5 vitamini (pantoten kislotasi)", "uz_cyrl": "B5 витамини (пантотен кислотаси)"}),
+    ("vit_b6", "vitamin", "mg", 310, {"ru": "Витамин B6 (пиридоксин)", "en": "Vitamin B6 (Pyridoxine)", "uz_latn": "B6 vitamini (piridoksin)", "uz_cyrl": "B6 витамини (пиридоксин)"}),
+    ("vit_b9", "vitamin", "mcg", 320, {"ru": "Витамин B9 (фолат)", "en": "Vitamin B9 (Folate)", "uz_latn": "B9 vitamini (folat)", "uz_cyrl": "B9 витамини (фолат)"}),
+    ("vit_b12", "vitamin", "mcg", 330, {"ru": "Витамин B12 (кобаламин)", "en": "Vitamin B12 (Cobalamin)", "uz_latn": "B12 vitamini (kobalamin)", "uz_cyrl": "B12 витамини (кобаламин)"}),
+    ("vit_h", "vitamin", "mcg", 340, {"ru": "Витамин H (биотин)", "en": "Vitamin H (Biotin)", "uz_latn": "H vitamini (biotin)", "uz_cyrl": "H витамини (биотин)"}),
 ]
 
 MEAL_TYPES = [
