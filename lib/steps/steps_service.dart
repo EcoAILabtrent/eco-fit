@@ -38,7 +38,13 @@ class StepsService {
 
   Future<bool> requestPermission() async {
     try {
-      return await _channel.invokeMethod<bool>('requestPermission') ?? false;
+      // Safety net: if the native side ever strands this call (e.g. the system
+      // dialog is dismissed without a result), don't leave the caller's Future
+      // hanging until app restart — resolve to "not granted" after 90 s.
+      return await _channel
+              .invokeMethod<bool>('requestPermission')
+              .timeout(const Duration(seconds: 90), onTimeout: () => false) ??
+          false;
     } on PlatformException {
       return false;
     } on MissingPluginException {
@@ -50,6 +56,21 @@ class StepsService {
   Future<int?> getTodaySteps() async {
     try {
       return await _channel.invokeMethod<int>('getTodaySteps');
+    } on PlatformException {
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  /// Steps recorded on a past [day] the native engine still keeps samples for
+  /// (8-day window). Used to backfill days the app was closed. Null = no
+  /// permission, no data, or the platform lacks the native bridge.
+  Future<int?> stepsForDay(DateTime day) async {
+    final start =
+        DateTime(day.year, day.month, day.day).millisecondsSinceEpoch;
+    try {
+      return await _channel.invokeMethod<int>('getStepsForDay', start);
     } on PlatformException {
       return null;
     } on MissingPluginException {

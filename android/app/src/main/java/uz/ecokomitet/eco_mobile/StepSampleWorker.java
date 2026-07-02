@@ -1,8 +1,12 @@
 package uz.ecokomitet.eco_mobile;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -31,13 +35,26 @@ public  class StepSampleWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Long counter = StepSamples.readCounter(getApplicationContext(), 5000);
+        Context ctx = getApplicationContext();
+        // Without ACTIVITY_RECOGNITION (API 29+) the sensor silently withholds
+        // events, so readCounter() would block for its full 5 s timeout every
+        // tick and re-enqueue forever — burning battery for nothing. Bail out
+        // (and if the device has no step counter at all) until the grant lands.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                && ContextCompat.checkSelfPermission(ctx, Manifest.permission.ACTIVITY_RECOGNITION)
+                    != PackageManager.PERMISSION_GRANTED) {
+            return Result.success();
+        }
+        if (!StepSamples.hasSensor(ctx)) {
+            return Result.success();
+        }
+        Long counter = StepSamples.readCounter(ctx, 5000);
         if (counter != null) {
-            StepSamples.add(getApplicationContext(), System.currentTimeMillis(), counter);
+            StepSamples.add(ctx, System.currentTimeMillis(), counter);
         }
         // Piggyback the step-goal notification rules on the same 15-min tick —
         // the only reminder evaluated with the app fully closed.
-        StepNotifier.maybeNotify(getApplicationContext());
+        StepNotifier.maybeNotify(ctx);
         return Result.success();
     }
 

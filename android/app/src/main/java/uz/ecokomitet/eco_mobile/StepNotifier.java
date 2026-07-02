@@ -88,7 +88,7 @@ final class StepNotifier {
     private static void show(Context ctx, NotificationManager nm, SharedPreferences sp,
                              int id, String title, String body) {
         if (title == null || title.isEmpty()) return;
-        ensureChannel(ctx, nm, sp);
+        if (!ensureChannel(ctx, nm, sp)) return;
         PendingIntent pi = null;
         Intent launch = ctx.getPackageManager().getLaunchIntentForPackage(ctx.getPackageName());
         if (launch != null) {
@@ -99,7 +99,7 @@ final class StepNotifier {
         Notification.Builder b = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
             ? new Notification.Builder(ctx, CHANNEL_ID)
             : new Notification.Builder(ctx);
-        b.setSmallIcon(ctx.getApplicationInfo().icon)
+        b.setSmallIcon(R.drawable.ic_stat_eco)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true);
@@ -111,14 +111,18 @@ final class StepNotifier {
         }
     }
 
-    private static void ensureChannel(Context ctx, NotificationManager nm, SharedPreferences sp) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+    /** @return true once the channel exists (or isn't needed on pre-O). */
+    private static boolean ensureChannel(Context ctx, NotificationManager nm, SharedPreferences sp) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return true;
         String name = sp.getString("channelName", null);
-        if (name == null || name.isEmpty()) name = "Activity";
+        // No localized name mirrored yet — skip rather than invent a channel
+        // under a placeholder label (same stance as the empty-title guard).
+        if (name == null || name.isEmpty()) return false;
         NotificationChannel ch =
             new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT);
         ch.setDescription(sp.getString("channelDesc", ""));
         nm.createNotificationChannel(ch);
+        return true;
     }
 
     private static String todayKey() {

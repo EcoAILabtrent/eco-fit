@@ -54,15 +54,26 @@ final class StepSamples {
 
     /** Steps accumulated since local midnight, computed from stored samples. */
     static synchronized long todaySteps(Context ctx) {
-        SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        JSONArray arr = load(sp);
-
         Calendar c = Calendar.getInstance();
         c.set(Calendar.HOUR_OF_DAY, 0);
         c.set(Calendar.MINUTE, 0);
         c.set(Calendar.SECOND, 0);
         c.set(Calendar.MILLISECOND, 0);
-        long midnight = c.getTimeInMillis();
+        return stepsForRange(ctx, c.getTimeInMillis(), Long.MAX_VALUE);
+    }
+
+    /**
+     * Steps recorded in the half-open window [from, to), computed from the
+     * stored (time, counter) deltas. A delta whose neighbouring sample falls
+     * outside the window (earlier than {@code from} or later than {@code to})
+     * is pro-rated by time to its overlap, so a gap spanning a day boundary
+     * (Doze can block sampling for hours) splits between the two days instead
+     * of dumping onto one. Passing {@code Long.MAX_VALUE} as {@code to} means
+     * "up to the latest sample".
+     */
+    static synchronized long stepsForRange(Context ctx, long from, long to) {
+        SharedPreferences sp = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        JSONArray arr = load(sp);
 
         long total = 0;
         long prevCounter = -1;
@@ -72,13 +83,15 @@ final class StepSamples {
                 JSONArray s = arr.getJSONArray(i);
                 long t = s.getLong(0);
                 long v = s.getLong(1);
-                if (prevCounter >= 0 && t >= midnight) {
+                // Count a delta only when it overlaps the window: its current
+                // sample is at/after `from` and its earlier sample is before `to`.
+                if (prevCounter >= 0 && t >= from && prevT < to) {
                     long d = v >= prevCounter ? v - prevCounter : v;
-                    if (prevT < midnight && t > prevT && d > 0) {
-                        // The delta spans midnight (Doze can block sampling for
-                        // hours overnight): pro-rate it by time so yesterday's
-                        // late-evening steps don't all land on today.
-                        double frac = (double) (t - midnight) / (double) (t - prevT);
+                    boolean spansEdge = prevT < from || t > to;
+                    if (spansEdge && t > prevT && d > 0) {
+                        long lo = prevT < from ? from : prevT;
+                        long hi = t < to ? t : to;
+                        double frac = (double) (hi - lo) / (double) (t - prevT);
                         total += Math.round(d * frac);
                     } else {
                         total += d;

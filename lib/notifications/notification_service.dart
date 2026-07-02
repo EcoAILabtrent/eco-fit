@@ -61,6 +61,9 @@ class NotificationService {
   static const _waterSlots = [(11, 30), (15, 30), (18, 30)];
 
   Future<void> init(AppStore store) async {
+    // Повторный init (Retry-сценарий main.dart) не должен плодить подписки:
+    // снимаем прежний listener до переустановки стора.
+    _store?.removeListener(_onStoreChanged);
     _store = store;
     if (kIsWeb) return; // web-сборка живёт без плагина уведомлений
     try {
@@ -75,7 +78,9 @@ class NotificationService {
       final launch = await _plugin.getNotificationAppLaunchDetails();
       final initialized = await _plugin.initialize(
         const InitializationSettings(
-          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+          // Монохромная status-bar иконка (res/drawable/ic_stat_eco.xml) —
+          // цветной launcher рендерится по альфа-каналу в серый квадрат.
+          android: AndroidInitializationSettings('ic_stat_eco'),
         ),
         onDidReceiveNotificationResponse: (response) =>
             _openPayload(response.payload),
