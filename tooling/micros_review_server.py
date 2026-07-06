@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Local browser editor for reviewing Eco Fit micronutrients (per 100 g).
 
-Sibling of ``food_review_server.py``: that tool edits names/images, this one
-edits the nutrition — the four macros plus every micronutrient and vitamin the
+This editor edits a product's names, category and photo together with its
+nutrition — the four macros plus every micronutrient and vitamin the
 offline database knows about. The full nutrient dictionary is imported straight
 from ``build_offline_db.py`` so the editor can never drift from the codes, units
 and ordering the SQLite build actually understands.
 
 Edits are written back to ``assets/foods.json`` (atomic write + timestamped
-backup) and the offline SQLite base is rebuilt, exactly like the food editor.
+backup) and the offline SQLite base is rebuilt.
 
 Usage:
     python tooling/micros_review_server.py
