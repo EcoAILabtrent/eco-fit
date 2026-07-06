@@ -46,6 +46,44 @@ enum AiAdviceTopic {
     }
     return null;
   }
+
+  /// Maps a micronutrient DB key (`nutrients.code`) to its advice topic, or
+  /// null for keys without a dedicated topic (sulfur `s`, cobalt `co`, fiber,
+  /// sugar). Single source of truth shared by advice generation
+  /// (`AiAdviceService`) and the critical-values detection on the AI screen —
+  /// keep every key that carries a UL/CDRR here so it can surface as critical.
+  static AiAdviceTopic? forMicroKey(String key) => switch (key) {
+        'fe' => iron,
+        'mg' => magnesium,
+        'ca' => calcium,
+        'p' => phosphorus,
+        'k' => potassium,
+        'na' => sodium,
+        'zn' => zinc,
+        'vit_a' => vitaminA,
+        'vit_c' => vitaminC,
+        'vit_d' => vitaminD,
+        'vit_e' => vitaminE,
+        'vit_k' => vitaminK,
+        'vit_b1' => vitaminB1,
+        'vit_b2' => vitaminB2,
+        'vit_b3' => vitaminB3,
+        'vit_b6' => vitaminB6,
+        'vit_b9' => vitaminB9,
+        'vit_b12' => vitaminB12,
+        'cu' => copper,
+        'mn' => manganese,
+        'se' => selenium,
+        'i' => iodine,
+        'mo' => molybdenum,
+        'cr' => chromium,
+        'cl' => chloride,
+        'f' => fluoride,
+        'vit_b4' => choline,
+        'vit_h' => biotin,
+        'vit_b5' => pantothenicAcid,
+        _ => null,
+      };
 }
 
 class AiAdviceEntry {

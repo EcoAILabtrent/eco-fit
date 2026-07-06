@@ -8,6 +8,7 @@ import '../nutrition/energy.dart';
 import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
+import 'home.dart' show WaterGlass;
 
 // Единые акценты состава тела: иконка и полоса прогресса одного цвета.
 // Вес остаётся тёмным (t.dark) и здесь не задаётся.
@@ -227,10 +228,14 @@ class _WaterScreenState extends State<WaterScreen> {
             t: t,
             child: Column(
               children: [
-                SizedBox(
-                  width: 150,
-                  height: 150,
-                  child: CustomPaint(painter: _CupPainter(pct.clamp(0.0, 1.0))),
+                // Тот же стакан, что и на карточке воды главного экрана
+                // (WaterGlass), просто крупнее. pct здесь — доля (0..1),
+                // а WaterGlass ждёт проценты (0..100).
+                WaterGlass(
+                  pct: (pct * 100).clamp(0, 100).toDouble(),
+                  t: t,
+                  width: 116,
+                  height: 152,
                 ),
                 const SizedBox(height: 18),
                 Text(
@@ -256,7 +261,7 @@ class _WaterScreenState extends State<WaterScreen> {
                     GestureDetector(
                       onTap: () => context
                           .read<AppStore>()
-                          .stepWaterForOffset(_offset, -250),
+                          .stepWaterForOffset(_offset, -100),
                       child: Container(
                         width: 52,
                         height: 52,
@@ -274,8 +279,8 @@ class _WaterScreenState extends State<WaterScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 30),
                       onTap: () => context
                           .read<AppStore>()
-                          .stepWaterForOffset(_offset, 250),
-                      child: Text('+ 250 ${l.unit('ml')}'),
+                          .stepWaterForOffset(_offset, 100),
+                      child: Text('+ 100 ${l.unit('ml')}'),
                     ),
                   ],
                 ),
@@ -286,48 +291,6 @@ class _WaterScreenState extends State<WaterScreen> {
       ),
     );
   }
-}
-
-class _CupPainter extends CustomPainter {
-  final double pct;
-  _CupPainter(this.pct);
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width, h = size.height;
-    final cup = Path()
-      ..moveTo(w * 0.14, 0)
-      ..lineTo(w * 0.86, 0)
-      ..lineTo(w * 0.76, h)
-      ..lineTo(w * 0.24, h)
-      ..close();
-    canvas.save();
-    canvas.clipPath(cup);
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = const Color(0xFFDCEAF6),
-    );
-    final fillH = h * pct;
-    canvas.drawRect(
-      Rect.fromLTWH(0, h - fillH, w, fillH),
-      Paint()
-        ..shader = const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [EcoColors.water, EcoColors.waterDeep],
-        ).createShader(Rect.fromLTWH(0, h - fillH, w, fillH)),
-    );
-    canvas.restore();
-    canvas.drawPath(
-      cup,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5
-        ..color = EcoColors.waterDeep.withValues(alpha: 0.33),
-    );
-  }
-
-  @override
-  bool shouldRepaint(_CupPainter old) => old.pct != pct;
 }
 
 // ── Состав тела ───────────────────────────────────────────────

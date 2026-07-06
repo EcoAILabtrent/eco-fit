@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/foundation.dart';
 
 import '../data/products.dart';
 import '../l10n/app_language.dart';
@@ -768,38 +769,8 @@ class AiAdviceService {
     ];
   }
 
-  AiAdviceTopic _topicForMicro(String key) => switch (key) {
-        'fe' => AiAdviceTopic.iron,
-        'mg' => AiAdviceTopic.magnesium,
-        'ca' => AiAdviceTopic.calcium,
-        'p' => AiAdviceTopic.phosphorus,
-        'k' => AiAdviceTopic.potassium,
-        'na' => AiAdviceTopic.sodium,
-        'zn' => AiAdviceTopic.zinc,
-        'vit_a' => AiAdviceTopic.vitaminA,
-        'vit_c' => AiAdviceTopic.vitaminC,
-        'vit_d' => AiAdviceTopic.vitaminD,
-        'vit_e' => AiAdviceTopic.vitaminE,
-        'vit_k' => AiAdviceTopic.vitaminK,
-        'vit_b1' => AiAdviceTopic.vitaminB1,
-        'vit_b2' => AiAdviceTopic.vitaminB2,
-        'vit_b3' => AiAdviceTopic.vitaminB3,
-        'vit_b6' => AiAdviceTopic.vitaminB6,
-        'vit_b9' => AiAdviceTopic.vitaminB9,
-        'vit_b12' => AiAdviceTopic.vitaminB12,
-        'cu' => AiAdviceTopic.copper,
-        'mn' => AiAdviceTopic.manganese,
-        'se' => AiAdviceTopic.selenium,
-        'i' => AiAdviceTopic.iodine,
-        'mo' => AiAdviceTopic.molybdenum,
-        'cr' => AiAdviceTopic.chromium,
-        'cl' => AiAdviceTopic.chloride,
-        'f' => AiAdviceTopic.fluoride,
-        'vit_b4' => AiAdviceTopic.choline,
-        'vit_h' => AiAdviceTopic.biotin,
-        'vit_b5' => AiAdviceTopic.pantothenicAcid,
-        _ => throw ArgumentError.value(key, 'key'),
-      };
+  AiAdviceTopic _topicForMicro(String key) =>
+      AiAdviceTopic.forMicroKey(key) ?? (throw ArgumentError.value(key, 'key'));
 
   String _micronutrientAdvice(
     String key,
@@ -815,6 +786,16 @@ class AiAdviceService {
     return _micronutrientClause(key, data, language, period, loggedDays);
   }
 
+  @visibleForTesting
+  String micronutrientClauseForTesting(
+    String key,
+    Map<Object?, Object?> data,
+    AppLanguage language, {
+    String period = 'day',
+    int loggedDays = 1,
+  }) =>
+      _micronutrientClause(key, data, language, period, loggedDays);
+
   String _micronutrientClause(
     String key,
     Map<Object?, Object?> data,
@@ -825,6 +806,7 @@ class AiAdviceService {
     final reference = (data['reference_per_day'] as num).toDouble();
     final amountValue = data['average_per_logged_day'];
     final status = data['status'] as String?;
+    final safetyStatus = data['safety_status'] as String?;
     final cdrr = (data['cdrr'] as num?)?.toDouble();
     final unit = _localizedMicroUnit('${data['unit'] ?? 'mg'}', language);
     final referenceText = _localizedNumber(reference, language);
@@ -869,6 +851,24 @@ class AiAdviceService {
         loggedDays: loggedDays,
       );
       return '$reading ${_microShortageDetail(key, language)}';
+    }
+
+    // Intake above the safe upper limit (Tolerable Upper Intake Level). The
+    // screen already flags this with an «Excess» chip; here the text must warn
+    // about the excess and its consequences instead of listing more sources.
+    if (safetyStatus == 'above_ul') {
+      final ul = (data['ul'] as num?)?.toDouble();
+      final ulText = _localizedNumber(ul ?? reference, language);
+      final reading = _microExcessReading(
+        amountText: amountText,
+        referenceText: referenceText,
+        ulText: ulText,
+        unit: unit,
+        language: language,
+        period: period,
+        loggedDays: loggedDays,
+      );
+      return '$reading ${_microExcessDetail(key, language)}';
     }
 
     final sources = _microSources(key, language);
@@ -1090,6 +1090,146 @@ class AiAdviceService {
     };
     return details[key]?[language.index] ?? '';
   }
+
+  String _microExcessReading({
+    required String amountText,
+    required String referenceText,
+    required String ulText,
+    required String unit,
+    required AppLanguage language,
+    required String period,
+    required int loggedDays,
+  }) {
+    if (period != 'day') {
+      return switch (language) {
+        AppLanguage.en =>
+          '$amountText $unit on average across $loggedDays logged days against $referenceText $unit; above the $ulText $unit safe upper limit.',
+        AppLanguage.ru =>
+          'В среднем $amountText $unit за $loggedDays заполненных дней при ориентире $referenceText $unit; выше безопасного предела $ulText $unit.',
+        AppLanguage.uzLatn =>
+          '$loggedDays qayd etilgan kunda oʻrtacha $amountText $unit, moʻljal $referenceText $unit; $ulText $unit xavfsiz chegaradan yuqori.',
+        AppLanguage.uzCyrl =>
+          '$loggedDays қайд этилган кунда ўртача $amountText $unit, мўлжал $referenceText $unit; $ulText $unit хавфсиз чегарадан юқори.',
+      };
+    }
+    return switch (language) {
+      AppLanguage.en =>
+        '$amountText $unit against a $referenceText $unit reference; above the $ulText $unit safe upper limit.',
+      AppLanguage.ru =>
+        '$amountText $unit при ориентире $referenceText $unit; выше безопасного предела $ulText $unit.',
+      AppLanguage.uzLatn =>
+        '$amountText $unit, moʻljal $referenceText $unit; $ulText $unit xavfsiz chegaradan yuqori.',
+      AppLanguage.uzCyrl =>
+        '$amountText $unit, мўлжал $referenceText $unit; $ulText $unit хавфсиз чегарадан юқори.',
+    };
+  }
+
+  String _microExcessDetail(String key, AppLanguage language) {
+    const details = {
+      'fe': [
+        'A regular excess can cause nausea and constipation and, over time, strain the liver; cut back on iron supplements and organ meats.',
+        'Регулярный избыток может вызывать тошноту и запоры, а со временем нагружать печень; сократите препараты железа и субпродукты.',
+        'Muntazam ortiqcha koʻngil aynishi va ich qotishiga, vaqt oʻtib esa jigarga yuk boʻlishiga olib kelishi mumkin; temir qoʻshimchalari va ichak-jigar mahsulotlarini kamaytiring.',
+        'Мунтазам ортиқча кўнгил айниши ва ич қотишига, вақт ўтиб эса жигарга юк бўлишига олиб келиши мумкин; темир қўшимчалари ва ичак-жигар маҳсулотларини камайтиринг.',
+      ],
+      'ca': [
+        'A regular excess can raise the risk of kidney stones and hinder iron and zinc absorption; cut back on calcium supplements and very large dairy portions.',
+        'Регулярный избыток может повышать риск камней в почках и мешать усвоению железа и цинка; сократите препараты кальция и очень большие порции молочного.',
+        'Muntazam ortiqcha buyrak toshi xavfini oshirishi va temir hamda rux soʻrilishiga xalaqit berishi mumkin; kalsiy qoʻshimchalari va juda katta sut porsiyalarini kamaytiring.',
+        'Мунтазам ортиқча буйрак тоши хавфини ошириши ва темир ҳамда рух сўрилишига халақит бериши мумкин; кальций қўшимчалари ва жуда катта сут порцияларини камайтиринг.',
+      ],
+      'p': [
+        'A regular excess can upset calcium balance and bone health, especially with kidney problems; cut back on processed foods and cola drinks.',
+        'Регулярный избыток может нарушать баланс кальция и здоровье костей, особенно при проблемах с почками; сократите переработанные продукты и колу.',
+        'Muntazam ortiqcha kalsiy muvozanati va suyak sogʻligʻini buzishi mumkin, ayniqsa buyrak muammolarida; qayta ishlangan mahsulot va kola ichimliklarini kamaytiring.',
+        'Мунтазам ортиқча кальций мувозанати ва суяк соғлиғини бузиши мумкин, айниқса буйрак муаммоларида; қайта ишланган маҳсулот ва кола ичимликларини камайтиринг.',
+      ],
+      'zn': [
+        'A regular excess can impair copper absorption and weaken immunity; cut back on zinc supplements and very large portions of meat or seafood.',
+        'Регулярный избыток может нарушать усвоение меди и ослаблять иммунитет; сократите препараты цинка и очень большие порции мяса или морепродуктов.',
+        'Muntazam ortiqcha mis soʻrilishini buzishi va immunitetni zaiflashtirishi mumkin; rux qoʻshimchalari va juda katta goʻsht yoki dengiz mahsuloti porsiyalarini kamaytiring.',
+        'Мунтазам ортиқча мис сўрилишини бузиши ва иммунитетни заифлаштириши мумкин; рух қўшимчалари ва жуда катта гўшт ёки денгиз маҳсулоти порцияларини камайтиринг.',
+      ],
+      'cu': [
+        'A regular excess can cause nausea and stomach upset and strain the liver; cut back on copper supplements and large amounts of liver.',
+        'Регулярный избыток может вызывать тошноту и расстройство желудка и нагружать печень; сократите препараты меди и большое количество печени.',
+        'Muntazam ortiqcha koʻngil aynishi va oshqozon buzilishiga, jigarga yuk boʻlishiga olib kelishi mumkin; mis qoʻshimchalari va koʻp miqdordagi jigarni kamaytiring.',
+        'Мунтазам ортиқча кўнгил айниши ва ошқозон бузилишига, жигарга юк бўлишига олиб келиши мумкин; мис қўшимчалари ва кўп миқдордаги жигарни камайтиринг.',
+      ],
+      'mn': [
+        'A regular excess can affect the nervous system; cut back on manganese supplements and heavily fortified products.',
+        'Регулярный избыток может влиять на нервную систему; сократите препараты марганца и сильно обогащённые продукты.',
+        'Muntazam ortiqcha asab tizimiga taʼsir qilishi mumkin; marganes qoʻshimchalari va kuchli vitaminlashtirilgan mahsulotlarni kamaytiring.',
+        'Мунтазам ортиқча асаб тизимига таъсир қилиши мумкин; марганес қўшимчалари ва кучли витаминлаштирилган маҳсулотларни камайтиринг.',
+      ],
+      'se': [
+        'A regular excess can cause brittle hair and nails and stomach upset; cut back on selenium supplements and large amounts of Brazil nuts.',
+        'Регулярный избыток может вызывать ломкость волос и ногтей и расстройство желудка; сократите препараты селена и большое количество бразильских орехов.',
+        'Muntazam ortiqcha soch va tirnoqlarning moʻrtligiga hamda oshqozon buzilishiga olib kelishi mumkin; selen qoʻshimchalari va koʻp miqdordagi braziliya yongʻogʻini kamaytiring.',
+        'Мунтазам ортиқча соч ва тирноқларнинг мўртлигига ҳамда ошқозон бузилишига олиб келиши мумкин; селен қўшимчалари ва кўп миқдордаги бразилия ёнғоғини камайтиринг.',
+      ],
+      'i': [
+        'A regular excess can disturb thyroid function; cut back on iodine supplements, seaweed, and excess iodized salt.',
+        'Регулярный избыток может нарушать работу щитовидной железы; сократите препараты йода, водоросли и избыток йодированной соли.',
+        'Muntazam ortiqcha qalqonsimon bez faoliyatini buzishi mumkin; yod qoʻshimchalari, dengiz oʻti va ortiqcha yodlangan tuzni kamaytiring.',
+        'Мунтазам ортиқча қалқонсимон без фаолиятини бузиши мумкин; йод қўшимчалари, денгиз ўти ва ортиқча йодланган тузни камайтиринг.',
+      ],
+      'mo': [
+        'A regular excess is rare but can affect copper balance and joints; cut back on molybdenum supplements.',
+        'Регулярный избыток встречается редко, но может влиять на баланс меди и суставы; сократите препараты молибдена.',
+        'Muntazam ortiqcha kam uchraydi, ammo mis muvozanati va boʻgʻimlarga taʼsir qilishi mumkin; molibden qoʻshimchalarini kamaytiring.',
+        'Мунтазам ортиқча кам учрайди, аммо мис мувозанати ва бўғимларга таъсир қилиши мумкин; молибден қўшимчаларини камайтиринг.',
+      ],
+      'cl': [
+        'A regular excess usually comes with too much salt and can raise blood pressure; cut back on salt, sausages, and salty snacks.',
+        'Регулярный избыток обычно связан с большим количеством соли и может повышать давление; сократите соль, колбасы и солёные снеки.',
+        'Muntazam ortiqcha odatda koʻp tuz bilan bogʻliq va qon bosimini oshirishi mumkin; tuz, kolbasa va shoʻr gazaklarni kamaytiring.',
+        'Мунтазам ортиқча одатда кўп туз билан боғлиқ ва қон босимини ошириши мумкин; туз, колбаса ва шўр газакларни камайтиринг.',
+      ],
+      'f': [
+        'A prolonged excess can mottle teeth and, at high levels, affect bones; cut back on fluoride supplements and very strong tea.',
+        'Длительный избыток может вызывать пятна на зубах, а при высоких уровнях влиять на кости; сократите препараты фтора и очень крепкий чай.',
+        'Uzoq davom etgan ortiqcha tishlarda dogʻ paydo qilishi va yuqori darajada suyaklarga taʼsir qilishi mumkin; ftor qoʻshimchalari va juda achchiq choyni kamaytiring.',
+        'Узоқ давом этган ортиқча тишларда доғ пайдо қилиши ва юқори даражада суякларга таъсир қилиши мумкин; фтор қўшимчалари ва жуда аччиқ чойни камайтиринг.',
+      ],
+      'vit_c': [
+        'A regular excess can cause stomach upset and diarrhea and raise kidney-stone risk; cut back on high-dose vitamin C supplements.',
+        'Регулярный избыток может вызывать расстройство желудка и диарею и повышать риск камней в почках; сократите высокие дозы витамина C в добавках.',
+        'Muntazam ortiqcha oshqozon buzilishi va ich ketishiga olib kelishi hamda buyrak toshi xavfini oshirishi mumkin; yuqori dozadagi C vitamini qoʻshimchalarini kamaytiring.',
+        'Мунтазам ортиқча ошқозон бузилиши ва ич кетишига олиб келиши ҳамда буйрак тоши хавфини ошириши мумкин; юқори дозадаги C витамини қўшимчаларини камайтиринг.',
+      ],
+      'vit_d': [
+        'A regular excess can raise blood calcium and cause nausea and kidney problems; cut back on high-dose vitamin D supplements.',
+        'Регулярный избыток может повышать кальций в крови и вызывать тошноту и проблемы с почками; сократите высокие дозы витамина D в добавках.',
+        'Muntazam ortiqcha qondagi kalsiyni oshirishi va koʻngil aynishi hamda buyrak muammolariga olib kelishi mumkin; yuqori dozadagi D vitamini qoʻshimchalarini kamaytiring.',
+        'Мунтазам ортиқча қондаги кальцийни ошириши ва кўнгил айниши ҳамда буйрак муаммоларига олиб келиши мумкин; юқори дозадаги D витамини қўшимчаларини камайтиринг.',
+      ],
+      'vit_b6': [
+        'A prolonged excess can damage nerves and cause tingling in the hands and feet; cut back on high-dose vitamin B6 supplements.',
+        'Длительный избыток может повреждать нервы и вызывать покалывание в руках и ногах; сократите высокие дозы витамина B6 в добавках.',
+        'Uzoq davom etgan ortiqcha asablarni shikastlashi va qoʻl-oyoqda achishishga olib kelishi mumkin; yuqori dozadagi B6 vitamini qoʻshimchalarini kamaytiring.',
+        'Узоқ давом этган ортиқча асабларни шикастлаши ва қўл-оёқда ачишишга олиб келиши мумкин; юқори дозадаги B6 витамини қўшимчаларини камайтиринг.',
+      ],
+      'vit_b4': [
+        'A regular excess can cause low blood pressure, sweating, and a fishy body odor; cut back on choline supplements.',
+        'Регулярный избыток может вызывать низкое давление, потливость и рыбный запах тела; сократите добавки холина.',
+        'Muntazam ortiqcha past qon bosimi, terlash va tanadan baliq hidi kelishiga olib kelishi mumkin; xolin qoʻshimchalarini kamaytiring.',
+        'Мунтазам ортиқча паст қон босими, терлаш ва танадан балиқ ҳиди келишига олиб келиши мумкин; холин қўшимчаларини камайтиринг.',
+      ],
+    };
+    return details[key]?[language.index] ?? _microExcessGeneric(language);
+  }
+
+  String _microExcessGeneric(AppLanguage language) => switch (language) {
+        AppLanguage.en =>
+          'A regular excess offers no extra benefit and can burden the body; cut back on supplements and very concentrated sources.',
+        AppLanguage.ru =>
+          'Регулярный избыток не даёт дополнительной пользы и может нагружать организм; сократите добавки и очень концентрированные источники.',
+        AppLanguage.uzLatn =>
+          'Muntazam ortiqcha qoʻshimcha foyda bermaydi va organizmga yuk boʻlishi mumkin; qoʻshimchalar va juda konsentrlangan manbalarni kamaytiring.',
+        AppLanguage.uzCyrl =>
+          'Мунтазам ортиқча қўшимча фойда бермайди ва организмга юк бўлиши мумкин; қўшимчалар ва жуда концентрланган манбаларни камайтиринг.',
+      };
 
   String _microSources(String key, AppLanguage language) {
     const sources = {

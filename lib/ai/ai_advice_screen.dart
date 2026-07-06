@@ -435,10 +435,13 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     final macroText = macroLines.join('\n');
     segs.add(_Seg(start: cursor, text: macroText));
     cursor += macroText.length;
+    // Каждый критичный нутриент из [_criticalMicros] получает карточку, даже
+    // если для его топика нет текста-последствия: пустой текст просто печатается
+    // как ничего, но шкала и чип «Избыток/Дефицит» показываются. Так блок
+    // критичных всегда совпадает с детекцией и ни один показатель не «теряется».
     for (final c in criticals) {
       final tp = _microTopic(c.key);
       final text = (tp != null ? parsed[tp] : null) ?? '';
-      if (text.isEmpty) continue;
       segs.add(_Seg(start: cursor, text: text, critKey: c.key, crit: c));
       cursor += text.length;
     }
@@ -509,27 +512,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     return out;
   }
 
-  AiAdviceTopic? _microTopic(String key) => switch (key) {
-        'fe' => AiAdviceTopic.iron,
-        'mg' => AiAdviceTopic.magnesium,
-        'ca' => AiAdviceTopic.calcium,
-        'p' => AiAdviceTopic.phosphorus,
-        'k' => AiAdviceTopic.potassium,
-        'na' => AiAdviceTopic.sodium,
-        'zn' => AiAdviceTopic.zinc,
-        'vit_a' => AiAdviceTopic.vitaminA,
-        'vit_c' => AiAdviceTopic.vitaminC,
-        'vit_d' => AiAdviceTopic.vitaminD,
-        'vit_e' => AiAdviceTopic.vitaminE,
-        'vit_k' => AiAdviceTopic.vitaminK,
-        'vit_b1' => AiAdviceTopic.vitaminB1,
-        'vit_b2' => AiAdviceTopic.vitaminB2,
-        'vit_b3' => AiAdviceTopic.vitaminB3,
-        'vit_b6' => AiAdviceTopic.vitaminB6,
-        'vit_b9' => AiAdviceTopic.vitaminB9,
-        'vit_b12' => AiAdviceTopic.vitaminB12,
-        _ => null,
-      };
+  AiAdviceTopic? _microTopic(String key) => AiAdviceTopic.forMicroKey(key);
 
   Widget _resultArea(
     AppStore store,
@@ -636,9 +619,18 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   Widget _microsCard(AppStore store, AppStrings l, EcoTheme t) =>
       _MicrosPeriodCard(t: t, l: l, rows: _microRows(store, l, t));
 
+  /// Ключи нутриентов, уже показанных отдельными карточками в блоке критичных.
+  /// Их исключаем из «Микронутриенты за период», чтобы не дублировать: критичный
+  /// показатель живёт наверху (шкала + чип + совет), в списке ниже — остальные.
+  Set<String> _criticalKeys() => {
+        for (final seg in _segs)
+          if (seg.crit != null) seg.crit!.key,
+      };
+
   List<Widget> _microRows(AppStore store, AppStrings l, EcoTheme t) {
     final period = _periodMicros(store);
     if (period.totals.isEmpty) return const [];
+    final critKeys = _criticalKeys();
     // Норма (target) — СУТОЧНАЯ. Поэтому потребление приводим к среднему за день:
     // сумму за период делим на число дней с записями. Иначе за неделю/месяц
     // сравнивалась бы 7-/30-дневная сумма с 1-дневной нормой (полоса всегда
@@ -655,6 +647,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
 
     final rows = <Widget>[];
     for (final key in orderedKeys) {
+      if (critKeys.contains(key)) continue;
       final perDay = (period.totals[key] ?? 0) / days;
       if (perDay <= 0) continue;
       final target =
@@ -861,6 +854,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     final days = math.max(1, period.loggedDays);
     final targets = _microTargets(store);
     final female = store.gender == 'f';
+    final critKeys = _criticalKeys();
     final orderedKeys = [
       ...kMicronutrientDisplayOrder.where(period.totals.containsKey),
       for (final key in period.totals.keys)
@@ -868,6 +862,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     ];
     final out = <SavedNutrient>[];
     for (final key in orderedKeys) {
+      if (critKeys.contains(key)) continue;
       final perDay = (period.totals[key] ?? 0) / days;
       if (perDay <= 0) continue;
       final target =

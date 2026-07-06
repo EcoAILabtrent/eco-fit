@@ -170,6 +170,12 @@ class AppStore extends ChangeNotifier {
   /// системным диалогом на каждый запуск). Не вызывает notifyListeners.
   bool notifPermAsked = false;
 
+  /// Пользователь принял согласие на обработку данных ИИ и политику
+  /// конфиденциальности (экран согласия после онбординга). Пока флаг false,
+  /// приложение показывает экран согласия и не планирует уведомления —
+  /// см. [ConsentScreen] и гейт в main.dart / NotificationService.
+  bool consentAccepted = false;
+
   /// Активная тема приложения (светлая/тёмная) — для всех экранов и элементов.
   EcoTheme get theme => darkMode ? EcoTheme.night : EcoTheme.meadow;
 
@@ -343,6 +349,7 @@ class AppStore extends ChangeNotifier {
     notifSteps = _box.get('notifSteps', defaultValue: true) as bool;
     notifWeight = _box.get('notifWeight', defaultValue: true) as bool;
     notifPermAsked = _box.get('notifPermAsked', defaultValue: false) as bool;
+    consentAccepted = _box.get('consentAccepted', defaultValue: false) as bool;
     goalKcal = _box.get('goalKcal', defaultValue: 2045) as int;
     carbGoal = _box.get('carbGoal', defaultValue: 230) as int;
     fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
@@ -559,6 +566,16 @@ class AppStore extends ChangeNotifier {
     if (notifPermAsked) return;
     notifPermAsked = true;
     _box.put('notifPermAsked', true);
+  }
+
+  /// Отмечает, что пользователь принял согласие ИИ/политику и разрешения на
+  /// экране согласия. Персистится; после этого приложение пускает на главный
+  /// экран и планировщик уведомлений начинает работу.
+  void setConsentAccepted(bool value) {
+    if (consentAccepted == value) return;
+    consentAccepted = value;
+    _box.put('consentAccepted', value);
+    notifyListeners();
   }
 
   /// Marks that the first-launch language page has been completed.

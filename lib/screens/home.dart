@@ -244,7 +244,7 @@ class HomeScreen extends StatelessWidget {
               unitMl: l.unit('ml'),
               pct: waterPct.toDouble(),
               onTap: () => Navigator.of(context).pushNamed('/water'),
-              onAdd: () => context.read<AppStore>().addWater(250),
+              onAdd: () => context.read<AppStore>().addWater(100),
             ),
           ],
         ),
@@ -1063,7 +1063,7 @@ class _WaterCard extends StatelessWidget {
                           height: 44,
                           fontSize: 16,
                           onTap: onAdd,
-                          child: Text('+ 250 $unitMl'),
+                          child: Text('+ 100 $unitMl'),
                         ),
                       ],
                     ),
@@ -1071,7 +1071,7 @@ class _WaterCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              _WaterGlass(pct: pct, t: t),
+              WaterGlass(pct: pct, t: t),
             ],
           ),
         ],
@@ -1307,17 +1307,27 @@ class _FootTrailPainter extends CustomPainter {
       old.steps != steps || old.goal != goal || old.outline != outline;
 }
 
-class _WaterGlass extends StatelessWidget {
+/// Стакан воды (классика) — используется и на карточке главного экрана, и на
+/// экране «Вода». Размер настраивается; [pct] — заполнение в процентах (0..100).
+class WaterGlass extends StatelessWidget {
   final double pct;
   final EcoTheme t;
+  final double width;
+  final double height;
 
-  const _WaterGlass({required this.pct, required this.t});
+  const WaterGlass({
+    super.key,
+    required this.pct,
+    required this.t,
+    this.width = 64,
+    this.height = 84,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 64,
-      height: 84,
+      width: width,
+      height: height,
       // Плавный подъём уровня при «+250 мл».
       child: TweenAnimationBuilder<double>(
         tween: Tween(end: (pct / 100).clamp(0.0, 1.0)),

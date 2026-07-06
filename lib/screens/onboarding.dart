@@ -83,7 +83,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           goal: goal,
           targetKcal: norm,
         );
-    Navigator.of(context).pushReplacementNamed('/');
+    // После ввода всех данных — экран согласия и разрешений (обработка данных
+    // ИИ, уведомления, шаги). Только после «Принять» пользователь попадёт на
+    // главный экран (см. ConsentScreen). Гейт по флагу consentAccepted.
+    Navigator.of(context).pushReplacementNamed('/consent');
   }
 
   void _prev() {

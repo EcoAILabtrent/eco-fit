@@ -13,6 +13,7 @@ import 'l10n/app_language.dart';
 import 'l10n/app_strings.dart';
 import 'notifications/notification_service.dart';
 import 'screens/addfood.dart';
+import 'screens/consent.dart';
 import 'screens/dayview.dart';
 import 'screens/health.dart';
 import 'screens/home.dart';
@@ -317,9 +318,13 @@ class _EcoAppView extends StatelessWidget {
     final t = context.select<AppStore, EcoTheme>((s) => s.theme);
     final lang = context.select<AppStore, AppLanguage>((s) => s.language);
     final l = AppStrings(lang);
-    // initialRoute влияет только на первом кадре, поэтому onboarded читаем разово
-    // (read, не select) — смена флага не должна пересобирать MaterialApp.
-    final onboarded = context.read<AppStore>().onboarded;
+    // initialRoute влияет только на первом кадре, поэтому флаги читаем разово
+    // (read, не select) — их смена не должна пересобирать MaterialApp.
+    final store = context.read<AppStore>();
+    final onboarded = store.onboarded;
+    // Профиль заполнен, но согласие ИИ/политики ещё не принято (новый гейт или
+    // обновление для уже установленных пользователей) → сначала экран согласия.
+    final needsConsent = onboarded && !store.consentAccepted;
     return MaterialApp(
       title: 'Eco health',
       // Тап по уведомлению открывает экран через этот ключ.
@@ -335,8 +340,13 @@ class _EcoAppView extends StatelessWidget {
       ],
       theme: _ecoThemeData(t),
       // Язык теперь выбирается первым шагом онбординга, поэтому
-      // непройденный онбординг ведёт сразу в его flow.
-      initialRoute: onboarded ? '/' : '/onboarding',
+      // непройденный онбординг ведёт сразу в его flow. После онбординга, но до
+      // принятия согласия — экран согласия и разрешений.
+      initialRoute: !onboarded
+          ? '/onboarding'
+          : needsConsent
+              ? '/consent'
+              : '/',
       // Все маршруты идут через единый EcoPageRoute — одинаковый быстрый
       // слайд открытия/закрытия ([kEcoMotionDuration]) для каждого экрана
       // (включая профиль, который раньше открывался мгновенно).
@@ -377,6 +387,8 @@ class _EcoAppView extends StatelessWidget {
             builder = (_) => const NotificationSettingsScreen();
           case '/onboarding':
             builder = (_) => const OnboardingScreen();
+          case '/consent':
+            builder = (_) => const ConsentScreen();
           default:
             return null;
         }

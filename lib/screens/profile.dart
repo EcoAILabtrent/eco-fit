@@ -13,6 +13,7 @@ import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/language_selector.dart';
 import '../ui/ui.dart';
+import 'consent.dart' show showPrivacyPolicySheet;
 import 'home.dart' show HomeScreen, MealPickerHost;
 
 /// Профиль — port of profile.jsx::Profile. Identity + goals + body params +
@@ -391,6 +392,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       on: s.darkMode,
                       onChanged: (v) => context.read<AppStore>().setDarkMode(v),
                     ),
+                  ),
+                  // Политика конфиденциальности — доступна в приложении в любой
+                  // момент (тот же лист, что и на экране согласия).
+                  _row(
+                    t,
+                    l.t('consent.policyTitle'),
+                    '',
+                    onTap: () => showPrivacyPolicySheet(context, t, l),
                   ),
                   // Ползунок прозрачности карточек (вправо = прозрачнее).
                   // Свой Builder со select(cardOpacity): перетаскивание
