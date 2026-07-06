@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>Eco Fit — микронутриенты</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="brand-mark" aria-hidden="true">µ</div>
+        <div>
+          <p class="eyebrow">Eco Fit</p>
+          <h1>Микронутриенты</h1>
+        </div>
+      </div>
+      <div class="summary" aria-live="polite">
+        <strong id="visible-count">—</strong>
+        <span id="total-label">загружаем базу</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="controls" aria-label="Фильтры списка">
+        <label class="search-box" for="search-input">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
+          </svg>
+          <input
+            id="search-input"
+            type="search"
+            aria-label="Поиск продуктов"
+            placeholder="Поиск на любом языке, по категории или slug"
+            autocomplete="off"
+          />
+          <kbd>/</kbd>
+        </label>
+        <label class="select-wrap">
+          <span>Заполненность</span>
+          <select id="fill-filter">
+            <option value="all">Все продукты</option>
+            <option value="empty">Без микронутриентов</option>
+            <option value="partial">Неполные</option>
+            <option value="full">Полные (все)</option>
+          </select>
+        </label>
+        <label class="select-wrap">
+          <span>Категория</span>
+          <select id="category-filter">
+            <option value="all">Все категории</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="hint-row">
+        <p>Нажмите карточку, чтобы отредактировать названия, фото и нутриенты на 100 г.</p>
+        <button id="scroll-top" class="text-button" type="button">Наверх ↑</button>
+      </section>
+
+      <section id="loading" class="state-panel">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Открываем каталог…</p>
+      </section>
+      <section id="empty" class="state-panel" hidden>
+        <div class="empty-icon" aria-hidden="true">⌕</div>
+        <h2>Ничего не найдено</h2>
+        <p>Попробуйте изменить поиск или фильтры.</p>
+      </section>
+
+      <section id="food-grid" class="food-grid" aria-label="Продукты"></section>
+      <div id="load-sentinel" class="load-sentinel" aria-hidden="true"></div>
+    </main>
+
+    <dialog id="editor-dialog" class="editor-dialog">
+      <form id="editor-form" method="dialog">
+        <div class="editor-shell">
+          <header class="editor-header">
+            <div>
+              <p class="eyebrow">Редактирование продукта</p>
+              <h2 id="editor-title">Продукт</h2>
+              <p id="editor-slug" class="editor-slug"></p>
+            </div>
+            <button id="close-editor" class="icon-button" type="button" aria-label="Закрыть">×</button>
+          </header>
+
+          <div class="editor-content">
+            <section class="identity">
+              <aside class="image-editor">
+                <div class="editor-image-wrap">
+                  <img id="editor-image" alt="" />
+                  <div id="editor-image-empty" class="image-placeholder">Нет изображения</div>
+                </div>
+                <label class="upload-button" for="image-input">
+                  <span>Заменить изображение</span>
+                  <small>WEBP, JPG или PNG · до 10 МБ</small>
+                </label>
+                <input id="image-input" type="file" accept="image/webp,image/jpeg,image/png" hidden />
+              </aside>
+
+              <div class="name-fields">
+                <label class="field">
+                  <span><b class="locale-badge uz">UZ</b> O‘zbekcha (lotin)</span>
+                  <input id="name-uz-latn" name="uz_latn" maxlength="300" required />
+                </label>
+                <label class="field">
+                  <span><b class="locale-badge cyrl">ЎЗ</b> Ўзбекча (кирилл)</span>
+                  <input id="name-uz-cyrl" name="uz_cyrl" maxlength="300" required />
+                </label>
+                <label class="field">
+                  <span><b class="locale-badge ru">RU</b> Русский</span>
+                  <input id="name-ru" name="ru" maxlength="300" required />
+                </label>
+                <label class="field">
+                  <span><b class="locale-badge en">EN</b> English</span>
+                  <input id="name-en" name="en" maxlength="300" required />
+                </label>
+                <label class="field category-field">
+                  <span>Категория</span>
+                  <input id="category-input" name="category" maxlength="200" required />
+                </label>
+              </div>
+            </section>
+
+            <fieldset class="nutrient-group">
+              <legend>Макронутриенты</legend>
+              <div id="macro-fields" class="nutrient-grid"></div>
+            </fieldset>
+            <fieldset class="nutrient-group">
+              <legend>Минералы и микроэлементы</legend>
+              <div id="mineral-fields" class="nutrient-grid"></div>
+            </fieldset>
+            <fieldset class="nutrient-group">
+              <legend>Витамины</legend>
+              <div id="vitamin-fields" class="nutrient-grid"></div>
+            </fieldset>
+            <p class="editor-note">
+              Пустое поле микронутриента — значение будет удалено из базы.
+              Разделитель дробной части — точка или запятая.
+            </p>
+          </div>
+
+          <footer class="editor-footer">
+            <button id="clear-editor" class="danger-button" type="button">Очистить микро</button>
+            <p id="save-status" role="status"></p>
+            <div class="editor-actions">
+              <span class="shortcut-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span>
+              <button id="cancel-editor" class="secondary-button" type="button">Отмена</button>
+              <button id="save-editor" class="primary-button" type="submit">Сохранить</button>
+            </div>
+          </footer>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <template id="card-template">
+      <button class="food-card" type="button">
+        <div class="card-image-wrap">
+          <img class="card-image" loading="lazy" alt="" />
+          <div class="card-image-empty" aria-hidden="true">Нет фото</div>
+        </div>
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="card-category"></span>
+            <span class="fill-pill"></span>
+          </div>
+          <div class="card-title">
+            <span class="card-emoji" aria-hidden="true"></span>
+            <span class="card-name"></span>
+          </div>
+          <div class="card-sub"></div>
+          <div class="fill-bar" aria-hidden="true"><i></i></div>
+          <span class="card-slug"></span>
+        </div>
+      </button>
+    </template>
+
+    <template id="nutrient-field-template">
+      <label class="nutrient-field">
+        <span class="nutrient-label"></span>
+        <span class="nutrient-input">
+          <input type="text" inputmode="decimal" autocomplete="off" />
+          <b class="nutrient-unit"></b>
+        </span>
+      </label>
+    </template>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
