@@ -309,33 +309,6 @@
     }
   },
   {
-    "slug": "anna_kartoshkasi",
-    "name_uz_lat": "Anna kartoshkasi",
-    "name_uz_kril": "Анна картошкаси",
-    "name_ru": "Картошка Анны",
-    "name_en": "Anna's potatoes",
-    "photo_url": "/photos/000014.jpeg",
-    "emoji": null,
-    "category": "Taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 180,
-      "protein": 3.5,
-      "carbs": 20,
-      "fat": 10,
-      "type": "food",
-      "micros": {
-        "fe": 1,
-        "mg": 22,
-        "ca": 22,
-        "p": 78,
-        "k": 450,
-        "na": 200
-      }
-    }
-  },
-  {
     "slug": "uz_anor",
     "name_uz_lat": "Anor",
     "name_uz_kril": "Анор",
@@ -477,32 +450,6 @@
         "vit_b2": 0.02,
         "vit_b6": 0.06,
         "vit_b9": 30
-      }
-    }
-  },
-  {
-    "slug": "aralash_snejok",
-    "name_uz_lat": "Aralash snejok",
-    "name_uz_kril": "Аралаш снэжок",
-    "name_ru": "Смешанный снег",
-    "name_en": "Mixed snow",
-    "photo_url": "/photos/000019.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 85,
-      "protein": 3,
-      "carbs": 13,
-      "fat": 2.5,
-      "type": "food",
-      "micros": {
-        "mg": 15,
-        "ca": 100,
-        "p": 90,
-        "k": 130,
-        "na": 50
       }
     }
   },
@@ -899,32 +846,6 @@
     }
   },
   {
-    "slug": "baliq_atlantika_treskasi_tabiiy_tutilgan_xom",
-    "name_uz_lat": "Baliq, Atlantika treskasi, tabiiy tutilgan, xom",
-    "name_uz_kril": "Балиқ, Атлантика трэскаси, табиий тутилган, хом",
-    "name_ru": "Рыба, атлантическая треска, выловленная в дикой природе, сырая",
-    "name_en": "Fish, Atlantic cod, wild caught, raw",
-    "photo_url": "/photos/000034.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 66,
-      "protein": 16.1,
-      "carbs": 0,
-      "fat": 0.67,
-      "type": "food",
-      "micros": {
-        "mg": 18,
-        "ca": 6,
-        "p": 224,
-        "k": 245,
-        "na": 299
-      }
-    }
-  },
-  {
     "slug": "baliq_tilapiya_fermada_ostirilgan_xom",
     "name_uz_lat": "Baliq, tilapiya, fermada o'stirilgan, xom",
     "name_uz_kril": "Балиқ, тилапия, фэрмада ўстирилган, хом",
@@ -1299,31 +1220,6 @@
         "mg": 200,
         "na": 100,
         "fe": 22
-      }
-    }
-  },
-  {
-    "slug": "bayram_sariyogi",
-    "name_uz_lat": "Bayram sariyog'i",
-    "name_uz_kril": "Байрам сариёғи",
-    "name_ru": "Праздничное сливочное масло",
-    "name_en": "Holiday butter",
-    "photo_url": "/photos/000047.jpeg",
-    "emoji": null,
-    "category": "Yog'lar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 748,
-      "protein": 0.5,
-      "carbs": 0.8,
-      "fat": 82.5,
-      "type": "food",
-      "micros": {
-        "ca": 24,
-        "p": 30,
-        "k": 23,
-        "na": 15
       }
     }
   },
@@ -3011,33 +2907,6 @@
     }
   },
   {
-    "slug": "butun_tuxum_quritilgan",
-    "name_uz_lat": "Butun tuxum, quritilgan",
-    "name_uz_kril": "Бутун тухум, қуритилган",
-    "name_ru": "Яйца цельные, сушеные",
-    "name_en": "Whole eggs, dried",
-    "photo_url": "/photos/000106.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 575,
-      "protein": 48.1,
-      "carbs": 1.87,
-      "fat": 39.8,
-      "type": "food",
-      "micros": {
-        "fe": 6,
-        "mg": 44,
-        "ca": 220,
-        "p": 770,
-        "k": 468,
-        "na": 485
-      }
-    }
-  },
-  {
     "slug": "butun_tuxum_xom_muzlatilgan_pasterizatsiyalangan",
     "name_uz_lat": "Butun tuxum, xom, muzlatilgan, pasterizatsiyalangan",
     "name_uz_kril": "Бутун тухум, хом, музлатилган, пастэризатсияланган",
@@ -3286,33 +3155,6 @@
         "na": 580,
         "fe": 1,
         "vit_b1": 0.1
-      }
-    }
-  },
-  {
-    "slug": "charko_ozb",
-    "name_uz_lat": "Charko (o'zb.)",
-    "name_uz_kril": "Чарко (ўзб.)",
-    "name_ru": "Чарко (Узб.)",
-    "name_en": "Charko (Uzb.)",
-    "photo_url": "/photos/000115.jpeg",
-    "emoji": null,
-    "category": "Taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 180,
-      "protein": 10,
-      "carbs": 16,
-      "fat": 8,
-      "type": "food",
-      "micros": {
-        "fe": 1,
-        "mg": 22,
-        "ca": 22,
-        "p": 130,
-        "k": 200,
-        "na": 380
       }
     }
   },
@@ -3701,32 +3543,6 @@
     "image_asset_path": "assets/foods/images/coca_cola.png"
   },
   {
-    "slug": "davolovchi_smetana",
-    "name_uz_lat": "Davolovchi smetana",
-    "name_uz_kril": "Даволовчи смэтана",
-    "name_ru": "Лечебный крем",
-    "name_en": "Healing cream",
-    "photo_url": "/photos/000129.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 200,
-      "protein": 3,
-      "carbs": 3,
-      "fat": 20,
-      "type": "food",
-      "micros": {
-        "mg": 9,
-        "ca": 90,
-        "p": 65,
-        "k": 100,
-        "na": 40
-      }
-    }
-  },
-  {
     "slug": "daxi_hind_yogurti",
     "name_uz_lat": "Daxi (hind yogurti)",
     "name_uz_kril": "Дахи (ҳинд ёгурти)",
@@ -3837,33 +3653,6 @@
         "na": 21,
         "fe": 0.4,
         "vit_c": 22
-      }
-    }
-  },
-  {
-    "slug": "dengiz_grebeshogi",
-    "name_uz_lat": "Dengiz grebeshogi",
-    "name_uz_kril": "Дэнгиз грэбэшоги",
-    "name_ru": "Морская поганка",
-    "name_en": "Sea grebe",
-    "photo_url": "/photos/000134.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 92,
-      "protein": 17.5,
-      "carbs": 3.2,
-      "fat": 2,
-      "type": "food",
-      "micros": {
-        "fe": 2,
-        "mg": 50,
-        "ca": 50,
-        "p": 330,
-        "k": 300,
-        "na": 220
       }
     }
   },
@@ -4019,8 +3808,8 @@
     "slug": "uz_dimlama",
     "name_uz_lat": "Dimlama",
     "name_uz_kril": "Димлама",
-    "name_ru": "Затемнение",
-    "name_en": "Dimming",
+    "name_ru": "Димлама",
+    "name_en": "Dimlama",
     "photo_url": "/photos/000140.jpeg",
     "emoji": null,
     "category": "main",
@@ -4754,8 +4543,8 @@
   },
   {
     "slug": "fetaksa_pishlogi",
-    "name_uz_lat": "Fetaksa pishlog'i",
-    "name_uz_kril": "Фэтакса пишлоғи",
+    "name_uz_lat": "Feta pishlog'i",
+    "name_uz_kril": "Фэта пишлоғи",
     "name_ru": "сыр фета",
     "name_en": "Feta cheese",
     "photo_url": "/photos/000167.jpeg",
@@ -5173,28 +4962,6 @@
     }
   },
   {
-    "slug": "gi_moyi",
-    "name_uz_lat": "G'i moyi",
-    "name_uz_kril": "Ғи мойи",
-    "name_ru": "Масло гхи",
-    "name_en": "Ghee oil",
-    "photo_url": "/photos/000181.jpeg",
-    "emoji": null,
-    "category": "Yog'lar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 892,
-      "protein": 0,
-      "carbs": 0,
-      "fat": 99.5,
-      "type": "food",
-      "micros": {
-        "k": 12
-      }
-    }
-  },
-  {
     "slug": "goz_goshti",
     "name_uz_lat": "G'oz go'shti",
     "name_uz_kril": "Ғоз гўшти",
@@ -5260,33 +5027,6 @@
         "vit_b3": 3.9,
         "vit_b5": 1.5,
         "vit_b12": 0.5
-      }
-    }
-  },
-  {
-    "slug": "garam_masala",
-    "name_uz_lat": "Garam masala",
-    "name_uz_kril": "Гарам масала",
-    "name_ru": "Гарам масала",
-    "name_en": "Garam masala",
-    "photo_url": "/photos/000184.jpeg",
-    "emoji": null,
-    "category": "Ziravor va qo'shimchalar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 379,
-      "protein": 16,
-      "carbs": 50,
-      "fat": 15,
-      "type": "food",
-      "micros": {
-        "fe": 25,
-        "mg": 200,
-        "ca": 700,
-        "p": 380,
-        "k": 1500,
-        "na": 150
       }
     }
   },
@@ -5379,37 +5119,10 @@
     }
   },
   {
-    "slug": "glazunya_qovurilgan_tuxum",
-    "name_uz_lat": "Glazunya (qovurilgan tuxum)",
-    "name_uz_kril": "Глазуня (қовурилган тухум)",
-    "name_ru": "Глазунья (жареное яйцо)",
-    "name_en": "Glazunya (fried egg)",
-    "photo_url": "/photos/000189.jpeg",
-    "emoji": null,
-    "category": "Tuxum",
-    "default_unit": "piece",
-    "grams_per_unit": 60,
-    "per_100g": {
-      "kcal": 243,
-      "protein": 13.5,
-      "carbs": 0.9,
-      "fat": 20.5,
-      "type": "food",
-      "micros": {
-        "fe": 2,
-        "mg": 12,
-        "ca": 55,
-        "p": 180,
-        "k": 140,
-        "na": 220
-      }
-    }
-  },
-  {
     "slug": "glyutensiz_brauni",
     "name_uz_lat": "Glyutensiz brauni",
     "name_uz_kril": "Глютэнсиз брауни",
-    "name_ru": "Безглютеновые пирожные",
+    "name_ru": "Безглютеновый брауни",
     "name_en": "Gluten-free brownies",
     "photo_url": "/photos/000191.jpeg",
     "emoji": null,
@@ -5959,25 +5672,6 @@
     }
   },
   {
-    "slug": "uz_kabob",
-    "name_uz_lat": "Kabob (mol)",
-    "name_uz_kril": "Кабоб (мол)",
-    "name_ru": "шашлык (говядина)",
-    "name_en": "kebab (beef)",
-    "photo_url": "/photos/000211.jpeg",
-    "emoji": null,
-    "category": "main",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 225.3,
-      "protein": 15,
-      "carbs": 1.5,
-      "fat": 17.3,
-      "type": "recipe"
-    }
-  },
-  {
     "slug": "kalmar",
     "name_uz_lat": "Kalmar",
     "name_uz_kril": "Калмар",
@@ -6502,32 +6196,6 @@
         "fe": 0.5,
         "vit_a": 1500,
         "vit_c": 12
-      }
-    }
-  },
-  {
-    "slug": "kartoshkali_zapekanka",
-    "name_uz_lat": "Kartoshkali zapekanka",
-    "name_uz_kril": "Картошкали запэканка",
-    "name_ru": "Запеканка с картофелем",
-    "name_en": "Zapekanka with potatoes",
-    "photo_url": "/photos/000231.jpeg",
-    "emoji": null,
-    "category": "Taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 115,
-      "protein": 3,
-      "carbs": 15,
-      "fat": 5,
-      "type": "food",
-      "micros": {
-        "mg": 22,
-        "ca": 22,
-        "p": 78,
-        "k": 380,
-        "na": 220
       }
     }
   },
@@ -7355,28 +7023,9 @@
     }
   },
   {
-    "slug": "koknori_yogi",
-    "name_uz_lat": "Ko'knori yog'i",
-    "name_uz_kril": "Кўкнори ёғи",
-    "name_ru": "Масло семян мака",
-    "name_en": "Poppy seed oil",
-    "photo_url": "/photos/000262.jpeg",
-    "emoji": null,
-    "category": "Yog'lar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 899,
-      "protein": 0,
-      "carbs": 0,
-      "fat": 99.9,
-      "type": "food"
-    }
-  },
-  {
     "slug": "koknorli_buloshka",
-    "name_uz_lat": "Ko'knorli buloshka",
-    "name_uz_kril": "Кўкнорли булошка",
+    "name_uz_lat": "Makli bulochka",
+    "name_uz_kril": "Макли булочка",
     "name_ru": "Булочка с маком",
     "name_en": "Poppy seed bun",
     "photo_url": "/photos/000263.jpeg",
@@ -7520,32 +7169,6 @@
         "vit_b5": 0.5,
         "vit_b6": 0.3,
         "vit_b12": 2
-      }
-    }
-  },
-  {
-    "slug": "kolbasa_pishlogi",
-    "name_uz_lat": "Kolbasa pishlog'i",
-    "name_uz_kril": "Колбаса пишлоғи",
-    "name_ru": "Колбаса сырная",
-    "name_en": "Sausage cheese",
-    "photo_url": "/photos/000268.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 267,
-      "protein": 21,
-      "carbs": 3.7,
-      "fat": 19,
-      "type": "food",
-      "micros": {
-        "mg": 30,
-        "ca": 630,
-        "p": 440,
-        "k": 100,
-        "na": 1430
       }
     }
   },
@@ -7728,32 +7351,6 @@
         "p": 100,
         "mg": 22,
         "na": 280
-      }
-    }
-  },
-  {
-    "slug": "kollard_kokat",
-    "name_uz_lat": "Kollard (ko'kat)",
-    "name_uz_kril": "Коллард (кўкат)",
-    "name_ru": "Зелень капусты",
-    "name_en": "Collard greens",
-    "photo_url": "/photos/000274.jpeg",
-    "emoji": null,
-    "category": "Ko'katlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 32,
-      "protein": 3,
-      "carbs": 5.4,
-      "fat": 0.5,
-      "type": "food",
-      "micros": {
-        "mg": 27,
-        "ca": 232,
-        "p": 25,
-        "k": 213,
-        "na": 17
       }
     }
   },
@@ -8447,8 +8044,8 @@
     "slug": "kurka_soni",
     "name_uz_lat": "Kurka soni",
     "name_uz_kril": "Курка сони",
-    "name_ru": "Количество индеек",
-    "name_en": "Number of turkeys",
+    "name_ru": "Бедро индейки",
+    "name_en": "Turkey thigh",
     "photo_url": "/photos/000301.jpeg",
     "emoji": null,
     "category": "Parranda go'shti",
@@ -9402,8 +8999,8 @@
     "slug": "uz_manti",
     "name_uz_lat": "Manti",
     "name_uz_kril": "Манти",
-    "name_ru": "Богомол",
-    "name_en": "Mantis",
+    "name_ru": "Манти",
+    "name_en": "Manti",
     "photo_url": "/photos/000335.jpeg",
     "emoji": null,
     "category": "main",
@@ -9717,32 +9314,6 @@
         "fe": 1,
         "vit_a": 100,
         "vit_b2": 0.2
-      }
-    }
-  },
-  {
-    "slug": "maxi_maxi_baliq_muzlatilgan_tabiiy_tutilgan",
-    "name_uz_lat": "Maxi-maxi baliq, muzlatilgan, tabiiy tutilgan",
-    "name_uz_kril": "Махи-махи балиқ, музлатилган, табиий тутилган",
-    "name_ru": "Рыба макси-макси, замороженная, выловленная естественным путем",
-    "name_en": "Maxi-maxi fish, frozen, naturally caught",
-    "photo_url": "/photos/000348.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 83.7,
-      "protein": 19.8,
-      "carbs": 0.29,
-      "fat": 0.38,
-      "type": "food",
-      "micros": {
-        "mg": 28,
-        "ca": 6,
-        "p": 224,
-        "k": 408,
-        "na": 51
       }
     }
   },
@@ -10924,33 +10495,6 @@
     }
   },
   {
-    "slug": "mol_goshtli_bulyon_kubigi",
-    "name_uz_lat": "Mol go'shtli bulyon kubigi",
-    "name_uz_kril": "Мол гўштли булён кубиги",
-    "name_ru": "Бульонный кубик из говядины",
-    "name_en": "Beef bouillon cube",
-    "photo_url": "/photos/000386.jpeg",
-    "emoji": null,
-    "category": "Ziravor va qo'shimchalar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 240,
-      "protein": 12,
-      "carbs": 10,
-      "fat": 16,
-      "type": "food",
-      "micros": {
-        "fe": 1,
-        "mg": 30,
-        "ca": 50,
-        "p": 200,
-        "k": 200,
-        "na": 19000
-      }
-    }
-  },
-  {
     "slug": "mol_jigari",
     "name_uz_lat": "Mol jigari",
     "name_uz_kril": "Мол жигари",
@@ -11155,8 +10699,8 @@
     "slug": "mol_tili",
     "name_uz_lat": "Mol tili",
     "name_uz_kril": "Мол тили",
-    "name_ru": "Кротовий язык",
-    "name_en": "Mole language",
+    "name_ru": "Говяжий язык",
+    "name_en": "Beef tongue",
     "photo_url": "/photos/000393.jpeg",
     "emoji": null,
     "category": "Subproduktlar",
@@ -11216,8 +10760,8 @@
     "slug": "mol_yuragi",
     "name_uz_lat": "Mol yuragi",
     "name_uz_kril": "Мол юраги",
-    "name_ru": "Сердце крота",
-    "name_en": "The heart of a mole",
+    "name_ru": "Говяжье сердце",
+    "name_en": "Beef hear",
     "photo_url": "/photos/000395.jpeg",
     "emoji": null,
     "category": "Subproduktlar",
@@ -11253,10 +10797,10 @@
   },
   {
     "slug": "uz_shokolad_molok",
-    "name_uz_lat": "Molokli shokolad",
-    "name_uz_kril": "Молокли шоколад",
-    "name_ru": "Молокли шоколадный",
-    "name_en": "Molokli chocolate",
+    "name_uz_lat": "Sutli shokolad",
+    "name_uz_kril": "Сутли шоколад",
+    "name_ru": "Молочный шоколад",
+    "name_en": "Milk chocolate",
     "photo_url": "/photos/000396.jpeg",
     "emoji": null,
     "category": "sweets",
@@ -11846,7 +11390,7 @@
     "name_uz_lat": "Norin",
     "name_uz_kril": "Норин",
     "name_ru": "Норин",
-    "name_en": "Noreen",
+    "name_en": "Norin",
     "photo_url": "/photos/000416.jpeg",
     "emoji": null,
     "category": "main",
@@ -12122,33 +11666,6 @@
     }
   },
   {
-    "slug": "ozbek_eprusi_bulyon",
-    "name_uz_lat": "O'zbek eprusi (bulyon)",
-    "name_uz_kril": "Ўзбэк эпруси (булён)",
-    "name_ru": "Узбекский суп (бульон)",
-    "name_en": "Uzbek soup (broth)",
-    "photo_url": "/photos/000425.jpeg",
-    "emoji": null,
-    "category": "Milliy taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 85,
-      "protein": 5,
-      "carbs": 5,
-      "fat": 5,
-      "type": "food",
-      "micros": {
-        "fe": 1,
-        "mg": 22,
-        "ca": 22,
-        "p": 130,
-        "k": 200,
-        "na": 380
-      }
-    }
-  },
-  {
     "slug": "ozbek_erigan_pishlogi",
     "name_uz_lat": "O'zbek erigan pishlog'i",
     "name_uz_kril": "Ўзбэк эриган пишлоғи",
@@ -12291,25 +11808,6 @@
         "vit_b2": 0.2,
         "vit_b3": 5
       }
-    }
-  },
-  {
-    "slug": "uz_non_obi",
-    "name_uz_lat": "Obi non",
-    "name_uz_kril": "Оби нон",
-    "name_ru": "Оби хлеб",
-    "name_en": "Obi bread",
-    "photo_url": "/photos/000431.jpeg",
-    "emoji": null,
-    "category": "bakery",
-    "default_unit": "piece",
-    "grams_per_unit": 320,
-    "per_100g": {
-      "kcal": 275,
-      "protein": 9,
-      "carbs": 55,
-      "fat": 2,
-      "type": "food"
     }
   },
   {
@@ -13372,7 +12870,7 @@
     "name_uz_lat": "Paxlava",
     "name_uz_kril": "Пахлава",
     "name_ru": "Пахлава",
-    "name_en": "Baklava",
+    "name_en": "Pakhlava",
     "photo_url": "/photos/000467.jpeg",
     "emoji": null,
     "category": "Shirinliklar",
@@ -13391,32 +12889,6 @@
         "mg": 100,
         "na": 30,
         "fe": 2
-      }
-    }
-  },
-  {
-    "slug": "paxta_sut_buttermilk_kam_yogli",
-    "name_uz_lat": "Paxta sut (buttermilk), kam yog'li",
-    "name_uz_kril": "Пахта сут (буттэрмилк), кам ёғли",
-    "name_ru": "Хлопковое молоко (пахта), обезжиренное",
-    "name_en": "Cotton milk (buttermilk), low fat",
-    "photo_url": "/photos/000468.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 42.8,
-      "protein": 3.46,
-      "carbs": 4.81,
-      "fat": 1.08,
-      "type": "food",
-      "micros": {
-        "mg": 11,
-        "ca": 120,
-        "p": 92,
-        "k": 158,
-        "na": 92
       }
     }
   },
@@ -13448,7 +12920,7 @@
     "slug": "uz_pechenye",
     "name_uz_lat": "Pechenye",
     "name_uz_kril": "Пэчэнйэ",
-    "name_ru": "Файлы cookie",
+    "name_ru": "Печенье",
     "name_en": "Cookies",
     "photo_url": "/photos/000470.jpeg",
     "emoji": null,
@@ -13906,32 +13378,6 @@
     }
   },
   {
-    "slug": "pishloq_parmezan_maydalangan_sovutilgan",
-    "name_uz_lat": "Pishloq, parmezan, maydalangan, sovutilgan",
-    "name_uz_kril": "Пишлоқ, пармэзан, майдаланган, совутилган",
-    "name_ru": "Сыр, пармезан, тертый, охлажденный",
-    "name_en": "Cheese, parmesan, grated, cooled",
-    "photo_url": "/photos/000486.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 403,
-      "protein": 30.1,
-      "carbs": 4.33,
-      "fat": 29.5,
-      "type": "food",
-      "micros": {
-        "mg": 35,
-        "ca": 950,
-        "p": 625,
-        "k": 74,
-        "na": 1046
-      }
-    }
-  },
-  {
     "slug": "pishloq_pasterizatsiyalangan_ishlangan_amerika_d_vitamini_bilan_boyitilgan",
     "name_uz_lat": "Pishloq, pasterizatsiyalangan ishlangan, Amerika, D vitamini bilan boyitilgan",
     "name_uz_kril": "Пишлоқ, пастэризатсияланган ишланган, Амэрика, Д витамини билан бойитилган",
@@ -14207,7 +13653,7 @@
     "slug": "uz_fistashki",
     "name_uz_lat": "Pista",
     "name_uz_kril": "Писта",
-    "name_ru": "Фисташковый",
+    "name_ru": "Фисташки",
     "name_en": "Pistachio",
     "photo_url": "/photos/000496.jpeg",
     "emoji": null,
@@ -14643,32 +14089,6 @@
         "cu": 0.1,
         "mn": 0.15,
         "vit_c": 9.1
-      }
-    }
-  },
-  {
-    "slug": "pomidor_konservalangan_qizil_pishgan_kubiklarga_kesilgan",
-    "name_uz_lat": "Pomidor, konservalangan, qizil, pishgan, kubiklarga kesilgan",
-    "name_uz_kril": "Помидор, консэрваланган, қизил, пишган, кубикларга кэсилган",
-    "name_ru": "Помидоры, консервированные, красные, спелые, нарезанные кубиками",
-    "name_en": "Tomatoes, canned, red, ripe, diced",
-    "photo_url": "/photos/000509.jpeg",
-    "emoji": null,
-    "category": "Konservalar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 18,
-      "protein": 0.84,
-      "carbs": 3.32,
-      "fat": 0.5,
-      "type": "food",
-      "micros": {
-        "mg": 9,
-        "ca": 30,
-        "p": 18,
-        "k": 198,
-        "na": 125
       }
     }
   },
@@ -15597,8 +15017,8 @@
     "slug": "qimiz",
     "name_uz_lat": "Qimiz",
     "name_uz_kril": "Қимиз",
-    "name_ru": "Мы",
-    "name_en": "We are",
+    "name_ru": "Кимиз",
+    "name_en": "Kimiz",
     "photo_url": "/photos/000544.jpeg",
     "emoji": null,
     "category": "Sut mahsulotlari",
@@ -15682,32 +15102,6 @@
         "mn": 0.08,
         "vit_c": 7.6,
         "vit_b9": 55
-      }
-    }
-  },
-  {
-    "slug": "qisqichbaqasimonlar_kok_suzuvchi_krab_bolakli_pasterizatsiyalangan_sovutilgan",
-    "name_uz_lat": "Qisqichbaqasimonlar, ko'k suzuvchi krab, bo'lakli, pasterizatsiyalangan, sovutilgan",
-    "name_uz_kril": "Қисқичбақасимонлар, кўк сузувчи краб, бўлакли, пастэризатсияланган, совутилган",
-    "name_ru": "Ракообразные, краб голубой, кусками, пастеризованный, охлажденный",
-    "name_en": "Crustaceans, blue swimmer crab, in pieces, pasteurized, chilled",
-    "photo_url": "/photos/000548.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 81,
-      "protein": 18.6,
-      "carbs": 0,
-      "fat": 0.81,
-      "type": "food",
-      "micros": {
-        "mg": 43,
-        "ca": 111,
-        "p": 278,
-        "k": 235,
-        "na": 331
       }
     }
   },
@@ -16238,10 +15632,10 @@
   },
   {
     "slug": "qoy_pishlogi_jerebok",
-    "name_uz_lat": "Qo'y pishlog'i (jerebok)",
-    "name_uz_kril": "Қўй пишлоғи (жэрэбок)",
-    "name_ru": "Овечий сыр (жеребок)",
-    "name_en": "Sheep cheese (jerebok)",
+    "name_uz_lat": "Qo'y pishlog'i",
+    "name_uz_kril": "Қўй пишлоғи",
+    "name_ru": "Овечий сыр",
+    "name_en": "Sheep cheese",
     "photo_url": "/photos/000564.jpeg",
     "emoji": null,
     "category": "Sut mahsulotlari",
@@ -16295,32 +15689,6 @@
         "vit_d": 0.045,
         "vit_b2": 0.36,
         "vit_b12": 0.71
-      }
-    }
-  },
-  {
-    "slug": "qoy_suti_pishlogi_feta",
-    "name_uz_lat": "Qo'y suti pishlog'i (feta)",
-    "name_uz_kril": "Қўй сути пишлоғи (фэта)",
-    "name_ru": "Сыр из овечьего молока (фета)",
-    "name_en": "Sheep milk cheese (feta)",
-    "photo_url": "/photos/000566.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 264,
-      "protein": 14.2,
-      "carbs": 4.1,
-      "fat": 21.3,
-      "type": "food",
-      "micros": {
-        "mg": 19,
-        "ca": 493,
-        "p": 337,
-        "k": 62,
-        "na": 1116
       }
     }
   },
@@ -16404,7 +15772,7 @@
     "slug": "qoziqorin_buk",
     "name_uz_lat": "Qo'ziqorin, buk",
     "name_uz_kril": "Қўзиқорин, бук",
-    "name_ru": "Гриб, бук",
+    "name_ru": "Буковый гриб",
     "name_en": "Mushroom, beech",
     "photo_url": "/photos/000569.jpeg",
     "emoji": null,
@@ -17212,32 +16580,6 @@
     }
   },
   {
-    "slug": "qulupnayli_snejok",
-    "name_uz_lat": "Qulupnayli snejok",
-    "name_uz_kril": "Қулупнайли снэжок",
-    "name_ru": "Клубничный снежок",
-    "name_en": "Strawberry snejok",
-    "photo_url": "/photos/000595.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 85,
-      "protein": 3,
-      "carbs": 13,
-      "fat": 2.5,
-      "type": "food",
-      "micros": {
-        "mg": 15,
-        "ca": 100,
-        "p": 90,
-        "k": 130,
-        "na": 50
-      }
-    }
-  },
-  {
     "slug": "quritilgan_rayhon",
     "name_uz_lat": "Quritilgan rayhon",
     "name_uz_kril": "Қуритилган райҳон",
@@ -17610,28 +16952,6 @@
     }
   },
   {
-    "slug": "raps_yogi",
-    "name_uz_lat": "Raps yog'i",
-    "name_uz_kril": "Рапс ёғи",
-    "name_ru": "Рапсовое масло",
-    "name_en": "Rapeseed oil",
-    "photo_url": "/photos/000609.jpeg",
-    "emoji": null,
-    "category": "Yog'lar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 899,
-      "protein": 0,
-      "carbs": 0,
-      "fat": 99.9,
-      "type": "food",
-      "micros": {
-        "k": 71
-      }
-    }
-  },
-  {
     "slug": "ras_el_xanut",
     "name_uz_lat": "Ras-el-xanut",
     "name_uz_kril": "Рас-эл-ханут",
@@ -17662,7 +16982,7 @@
     "slug": "rayhon",
     "name_uz_lat": "Rayhon",
     "name_uz_kril": "Райҳон",
-    "name_ru": "Василий",
+    "name_ru": "Базилик",
     "name_en": "Basil",
     "photo_url": "/photos/000611.jpeg",
     "emoji": null,
@@ -18138,31 +17458,6 @@
     }
   },
   {
-    "slug": "roybush_choy",
-    "name_uz_lat": "Roybush choy",
-    "name_uz_kril": "Ройбуш чой",
-    "name_ru": "Ройбуш чай",
-    "name_en": "Roybush tea",
-    "photo_url": "/photos/000627.jpeg",
-    "emoji": null,
-    "category": "Ichimliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 1,
-      "protein": 0,
-      "carbs": 0.1,
-      "fat": 0,
-      "type": "food",
-      "micros": {
-        "mg": 1,
-        "ca": 3,
-        "k": 30,
-        "na": 1
-      }
-    }
-  },
-  {
     "slug": "rozmarin",
     "name_uz_lat": "Rozmarin",
     "name_uz_kril": "Розмарин",
@@ -18391,33 +17686,6 @@
         "fe": 1,
         "vit_c": 15,
         "vit_e": 3
-      }
-    }
-  },
-  {
-    "slug": "sabzavotli_zapekanka",
-    "name_uz_lat": "Sabzavotli zapekanka",
-    "name_uz_kril": "Сабзавотли запэканка",
-    "name_ru": "Овощная запеканка",
-    "name_en": "Vegetable zapekanka",
-    "photo_url": "/photos/000636.jpeg",
-    "emoji": null,
-    "category": "Taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 85,
-      "protein": 3,
-      "carbs": 9,
-      "fat": 4,
-      "type": "food",
-      "micros": {
-        "fe": 1,
-        "mg": 22,
-        "ca": 50,
-        "p": 50,
-        "k": 280,
-        "na": 220
       }
     }
   },
@@ -19151,10 +18419,10 @@
   },
   {
     "slug": "shakar_qum",
-    "name_uz_lat": "Shakar (qum)",
-    "name_uz_kril": "Шакар (қум)",
-    "name_ru": "сахар (песок)",
-    "name_en": "sugar (sand)",
+    "name_uz_lat": "Shakar",
+    "name_uz_kril": "Шакар",
+    "name_ru": "сахар",
+    "name_en": "sugar",
     "photo_url": "/photos/000661.jpeg",
     "emoji": null,
     "category": "Ziravor va qo'shimchalar",
@@ -19603,32 +18871,6 @@
     }
   },
   {
-    "slug": "sholgom_xom",
-    "name_uz_lat": "Sholg'om, xom",
-    "name_uz_kril": "Шолғом, хом",
-    "name_ru": "Репа, сырая",
-    "name_en": "Turnip, raw",
-    "photo_url": "/photos/000678.jpeg",
-    "emoji": null,
-    "category": "Sabzavotlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 34,
-      "protein": 0.95,
-      "carbs": 7.27,
-      "fat": 0.12,
-      "type": "food",
-      "micros": {
-        "mg": 10,
-        "ca": 32,
-        "p": 31,
-        "k": 262,
-        "na": 12
-      }
-    }
-  },
-  {
     "slug": "shomboleho_kolbasasi",
     "name_uz_lat": "Shomboleho kolbasasi",
     "name_uz_kril": "Шомболэҳо колбасаси",
@@ -19680,32 +18922,6 @@
         "mg": 22,
         "na": 180,
         "fe": 1
-      }
-    }
-  },
-  {
-    "slug": "shubat_tuya_kefiri",
-    "name_uz_lat": "Shubat (tuya kefiri)",
-    "name_uz_kril": "Шубат (туя кэфири)",
-    "name_ru": "Шубат (верблюжий кефир)",
-    "name_en": "Shubat (camel kefir)",
-    "photo_url": "/photos/000681.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 82,
-      "protein": 3.8,
-      "carbs": 5.2,
-      "fat": 5.5,
-      "type": "food",
-      "micros": {
-        "mg": 15,
-        "ca": 180,
-        "p": 110,
-        "k": 180,
-        "na": 50
       }
     }
   },
@@ -19762,33 +18978,6 @@
         "fe": 1,
         "vit_a": 50,
         "vit_b2": 0.2
-      }
-    }
-  },
-  {
-    "slug": "skrembl_tuxum",
-    "name_uz_lat": "Skrembl tuxum",
-    "name_uz_kril": "Скрэмбл тухум",
-    "name_ru": "Яичница",
-    "name_en": "Scrambled eggs",
-    "photo_url": "/photos/000684.jpeg",
-    "emoji": null,
-    "category": "Tuxum",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 166,
-      "protein": 12,
-      "carbs": 1.8,
-      "fat": 12,
-      "type": "food",
-      "micros": {
-        "fe": 1,
-        "mg": 12,
-        "ca": 66,
-        "p": 180,
-        "k": 140,
-        "na": 180
       }
     }
   },
@@ -20099,8 +19288,8 @@
   },
   {
     "slug": "snapper_baliq_muzlatilgan_tabiiy_tutilgan",
-    "name_uz_lat": "Snapper baliq, muzlatilgan, tabiiy tutilgan",
-    "name_uz_kril": "Снаппэр балиқ, музлатилган, табиий тутилган",
+    "name_uz_lat": "Olabug`a baliq, muzlatilgan, tabiiy tutilgan",
+    "name_uz_kril": "Олабуға балиқ, музлатилган, табиий тутилган",
     "name_ru": "Рыба окунь мороженая, выловленная в дикой природе",
     "name_en": "Snapper fish, frozen, wild caught",
     "photo_url": "/photos/000695.jpeg",
@@ -20257,25 +19446,6 @@
         "vit_b5": 0.2,
         "vit_b6": 0.18
       }
-    }
-  },
-  {
-    "slug": "uz_sosiska",
-    "name_uz_lat": "Sosiska",
-    "name_uz_kril": "Сосиска",
-    "name_ru": "Колбаса",
-    "name_en": "Sausage",
-    "photo_url": "/photos/000700.jpeg",
-    "emoji": null,
-    "category": "meat",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 266,
-      "protein": 11,
-      "carbs": 1.5,
-      "fat": 24,
-      "type": "food"
     }
   },
   {
@@ -20793,32 +19963,6 @@
     }
   },
   {
-    "slug": "sut_zardobi",
-    "name_uz_lat": "Sut zardobi",
-    "name_uz_kril": "Сут зардоби",
-    "name_ru": "сыворотка",
-    "name_en": "Whey",
-    "photo_url": "/photos/000718.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 20,
-      "protein": 0.8,
-      "carbs": 3.5,
-      "fat": 0.2,
-      "type": "food",
-      "micros": {
-        "mg": 9,
-        "ca": 60,
-        "p": 78,
-        "k": 130,
-        "na": 44
-      }
-    }
-  },
-  {
     "slug": "sut_kamaytirilgan_yogli_suyuq_2_yogli_a_va_d_vitamini_qoshilgan",
     "name_uz_lat": "Sut, kamaytirilgan yog'li, suyuq, 2% yog'li, A va D vitamini qo'shilgan",
     "name_uz_kril": "Сут, камайтирилган ёғли, суюқ, 2% ёғли, А ва Д витамини қўшилган",
@@ -21137,8 +20281,8 @@
     "slug": "suzma",
     "name_uz_lat": "Suzma",
     "name_uz_kril": "Сузма",
-    "name_ru": "Не плавай",
-    "name_en": "Don't swim",
+    "name_ru": "Сузьма",
+    "name_en": "Suzma",
     "photo_url": "/photos/000730.jpeg",
     "emoji": null,
     "category": "Sut mahsulotlari",
@@ -21837,33 +20981,6 @@
     }
   },
   {
-    "slug": "tovuq_bulyon_kubigi",
-    "name_uz_lat": "Tovuq bulyon kubigi",
-    "name_uz_kril": "Товуқ булён кубиги",
-    "name_ru": "Куриный бульонный кубик",
-    "name_en": "Chicken bouillon cube",
-    "photo_url": "/photos/000753.jpeg",
-    "emoji": null,
-    "category": "Ziravor va qo'shimchalar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 240,
-      "protein": 12,
-      "carbs": 12,
-      "fat": 15,
-      "type": "food",
-      "micros": {
-        "fe": 1,
-        "mg": 30,
-        "ca": 50,
-        "p": 180,
-        "k": 200,
-        "na": 19000
-      }
-    }
-  },
-  {
     "slug": "tovuq_filesi_panirovkada",
     "name_uz_lat": "Tovuq filesi, panirovkada",
     "name_uz_kril": "Товуқ филэси, панировкада",
@@ -22270,8 +21387,8 @@
     "slug": "tovuq_soni",
     "name_uz_lat": "Tovuq soni",
     "name_uz_kril": "Товуқ сони",
-    "name_ru": "Количество цыплят",
-    "name_en": "Number of chickens",
+    "name_ru": "Куриное бедро",
+    "name_en": "Chicken thigh",
     "photo_url": "/photos/000766.jpeg",
     "emoji": null,
     "category": "Parranda go'shti",
@@ -22452,58 +21569,6 @@
     }
   },
   {
-    "slug": "tovuq_oyoq_gosht_va_teri_xom",
-    "name_uz_lat": "Tovuq, oyoq, go'sht va teri, xom",
-    "name_uz_kril": "Товуқ, оёқ, гўшт ва тэри, хом",
-    "name_ru": "Курица, ножка, мясо и кожа, сырые",
-    "name_en": "Chicken, leg, meat and skin, raw",
-    "photo_url": "/photos/000774.jpeg",
-    "emoji": null,
-    "category": "Parranda go'shti",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 125,
-      "protein": 18.4,
-      "carbs": 0,
-      "fat": 5.94,
-      "type": "food",
-      "micros": {
-        "mg": 18,
-        "ca": 8,
-        "p": 152,
-        "k": 244,
-        "na": 91
-      }
-    }
-  },
-  {
-    "slug": "tovuq_qanot_gosht_va_teri_xom",
-    "name_uz_lat": "Tovuq, qanot, go'sht va teri, xom",
-    "name_uz_kril": "Товуқ, қанот, гўшт ва тэри, хом",
-    "name_ru": "Курица, крылья, мясо и кожа, сырые",
-    "name_en": "Chicken, wings, meat and skin, raw",
-    "photo_url": "/photos/000775.jpeg",
-    "emoji": null,
-    "category": "Parranda go'shti",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 168,
-      "protein": 18.4,
-      "carbs": 0,
-      "fat": 10.6,
-      "type": "food",
-      "micros": {
-        "mg": 16,
-        "ca": 13,
-        "p": 133,
-        "k": 194,
-        "na": 84
-      }
-    }
-  },
-  {
     "slug": "tovuq_qiyma_qoshimchalar_bilan_xom",
     "name_uz_lat": "Tovuq, qiyma, qo'shimchalar bilan, xom",
     "name_uz_kril": "Товуқ, қийма, қўшимчалар билан, хом",
@@ -22530,32 +21595,6 @@
         "zn": 1.18,
         "cu": 0.04,
         "mn": 0.005
-      }
-    }
-  },
-  {
-    "slug": "tovuq_son_suyaksiz_terisiz_xom",
-    "name_uz_lat": "Tovuq, son, suyaksiz, terisiz, xom",
-    "name_uz_kril": "Товуқ, сон, суяксиз, тэрисиз, хом",
-    "name_ru": "Курица, бедра, без костей и кожи, сырые",
-    "name_en": "Chicken, thigh, boneless, skinless, raw",
-    "photo_url": "/photos/000778.jpeg",
-    "emoji": null,
-    "category": "Parranda go'shti",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 144,
-      "protein": 18.6,
-      "carbs": 0,
-      "fat": 7.92,
-      "type": "food",
-      "micros": {
-        "mg": 21,
-        "ca": 5,
-        "p": 178,
-        "k": 272,
-        "na": 62
       }
     }
   },
@@ -22594,32 +21633,6 @@
         "vit_b3": 2.3,
         "vit_b6": 0.17,
         "vit_b12": 1.6
-      }
-    }
-  },
-  {
-    "slug": "treska_tinch_okeani_yoki_alyaska_muzlatilgan_tabiiy_tutilgan",
-    "name_uz_lat": "Treska, Tinch okeani yoki Alyaska, muzlatilgan, tabiiy tutilgan",
-    "name_uz_kril": "Трэска, Тинч окэани ёки Аляска, музлатилган, табиий тутилган",
-    "name_ru": "Треска тихоокеанская или аляскинская, замороженная, выловленная в натуральном вылове.",
-    "name_en": "Cod, Pacific or Alaskan, frozen, natural caught",
-    "photo_url": "/photos/000782.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 60.8,
-      "protein": 14.2,
-      "carbs": 0.52,
-      "fat": 0.22,
-      "type": "food",
-      "micros": {
-        "mg": 17,
-        "ca": 9,
-        "p": 279,
-        "k": 192,
-        "na": 354
       }
     }
   },
@@ -22697,32 +21710,6 @@
     }
   },
   {
-    "slug": "tunets_axi_yoki_sariq_qanot_muzlatilgan_tabiiy_tutilgan",
-    "name_uz_lat": "Tunets, axi yoki sariq qanot, muzlatilgan, tabiiy tutilgan",
-    "name_uz_kril": "Тунэтс, ахи ёки сариқ қанот, музлатилган, табиий тутилган",
-    "name_ru": "Тунец, ахи или желтоперый, замороженный, выловленный в натуральном вылове",
-    "name_en": "Tuna, ahi or yellowfin, frozen, natural caught",
-    "photo_url": "/photos/000785.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 102,
-      "protein": 24.7,
-      "carbs": 0,
-      "fat": 0.39,
-      "type": "food",
-      "micros": {
-        "mg": 35,
-        "ca": 3,
-        "p": 271,
-        "k": 420,
-        "na": 94
-      }
-    }
-  },
-  {
     "slug": "tunetsli_maki",
     "name_uz_lat": "Tunetsli maki",
     "name_uz_kril": "Тунэтсли маки",
@@ -22747,33 +21734,6 @@
         "na": 580,
         "fe": 1,
         "vit_b12": 2
-      }
-    }
-  },
-  {
-    "slug": "tuxum_ikrasi_yastik",
-    "name_uz_lat": "Tuxum ikrasi (yastik)",
-    "name_uz_kril": "Тухум икраси (ястик)",
-    "name_ru": "Икра яичная (подушка)",
-    "name_en": "Egg caviar (pillow)",
-    "photo_url": "/photos/000787.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 200,
-      "protein": 26,
-      "carbs": 0,
-      "fat": 11.5,
-      "type": "food",
-      "micros": {
-        "fe": 2,
-        "mg": 300,
-        "ca": 130,
-        "p": 490,
-        "k": 220,
-        "na": 2200
       }
     }
   },
@@ -25675,33 +24635,6 @@
     }
   },
   {
-    "slug": "zira_tmin",
-    "name_uz_lat": "Zira (tmin)",
-    "name_uz_kril": "Зира (тмин)",
-    "name_ru": "тмин (tmin)",
-    "name_en": "cumin (tmin)",
-    "photo_url": "/photos/000883.jpeg",
-    "emoji": null,
-    "category": "Ziravor va qo'shimchalar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 333,
-      "protein": 20,
-      "carbs": 44.2,
-      "fat": 14.6,
-      "type": "food",
-      "micros": {
-        "fe": 16,
-        "mg": 258,
-        "ca": 689,
-        "p": 568,
-        "k": 1351,
-        "na": 17
-      }
-    }
-  },
-  {
     "slug": "zubatka_baliq",
     "name_uz_lat": "Zubatka baliq",
     "name_uz_kril": "Зубатка балиқ",
@@ -25741,8 +24674,8 @@
     "slug": "toshkent_to_y_oshi",
     "name_uz_lat": "Toshkent to'y oshi",
     "name_uz_kril": "Тошкэнт тўй оши",
-    "name_ru": "Ташкентский свадебный ужин",
-    "name_en": "Tashkent wedding dinner",
+    "name_ru": "Ташкентский свадебный плов",
+    "name_en": "Tashkent wedding pilaf",
     "photo_url": "/photos/000885.jpeg",
     "emoji": null,
     "category": "Palov va uning turlari",
@@ -26090,8 +25023,8 @@
     "slug": "qazili_palov",
     "name_uz_lat": "Qazili palov",
     "name_uz_kril": "Қазили палов",
-    "name_ru": "Газилийский плов",
-    "name_en": "Gazili pilaf",
+    "name_ru": "Плов с кази",
+    "name_en": "Pilaf with kazi",
     "photo_url": "/photos/000900.jpeg",
     "emoji": null,
     "category": "Palov va uning turlari",
@@ -26144,25 +25077,6 @@
         "fe": 2,
         "vit_b12": 1.5
       }
-    }
-  },
-  {
-    "slug": "qo_y_go_shtli_palov",
-    "name_uz_lat": "Qo'y go'shtli palov",
-    "name_uz_kril": "Қўй гўштли палов",
-    "name_ru": "Плов из баранины",
-    "name_en": "Mutton pilaf",
-    "photo_url": "/photos/000903.jpeg",
-    "emoji": null,
-    "category": "Palov va uning turlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 260,
-      "protein": 7.5,
-      "carbs": 22,
-      "fat": 15,
-      "type": "food"
     }
   },
   {
@@ -26505,8 +25419,8 @@
     "slug": "dumba_jigar_somsa",
     "name_uz_lat": "Dumba-jigar somsa",
     "name_uz_kril": "Думба-жигар сомса",
-    "name_ru": "Коричневая сомса",
-    "name_en": "Butt-brown somsa",
+    "name_ru": "Самса с печенью и курдюком",
+    "name_en": "Liver and lamb tail fat somsa",
     "photo_url": "/photos/000915.jpeg",
     "emoji": null,
     "category": "Somsa",
@@ -26589,7 +25503,7 @@
     "slug": "qatlama_somsa",
     "name_uz_lat": "Qatlama somsa",
     "name_uz_kril": "Қатлама сомса",
-    "name_ru": "Складная сомса",
+    "name_ru": "Слоеная самса",
     "name_en": "Folding somsa",
     "photo_url": "/photos/000917.jpeg",
     "emoji": null,
@@ -26611,25 +25525,6 @@
         "fe": 1.5,
         "vit_b12": 1
       }
-    }
-  },
-  {
-    "slug": "farmuda_somsa",
-    "name_uz_lat": "Farmuda somsa",
-    "name_uz_kril": "Фармуда сомса",
-    "name_ru": "Фармуда сомса",
-    "name_en": "Farmuda somsa",
-    "photo_url": "/photos/000918.jpeg",
-    "emoji": null,
-    "category": "Somsa",
-    "default_unit": "piece",
-    "grams_per_unit": 150,
-    "per_100g": {
-      "kcal": 290,
-      "protein": 8.5,
-      "carbs": 29,
-      "fat": 15,
-      "type": "food"
     }
   },
   {
@@ -26808,8 +25703,8 @@
     "slug": "manti_jigarli",
     "name_uz_lat": "Manti jigarli",
     "name_uz_kril": "Манти жигарли",
-    "name_ru": "Печень богомола",
-    "name_en": "Mantis liver",
+    "name_ru": "Манты с печенью",
+    "name_en": "Liver manti",
     "photo_url": "/photos/000924.jpeg",
     "emoji": null,
     "category": "Manti va barak",
@@ -26852,8 +25747,8 @@
     "slug": "manti_dumba_jigar",
     "name_uz_lat": "Manti dumba-jigar",
     "name_uz_kril": "Манти думба-жигар",
-    "name_ru": "Попка-печень богомола",
-    "name_en": "Mantis butt-liver",
+    "name_ru": "Манты с печенью и курдюком",
+    "name_en": "Liver and lamb tail fat manti",
     "photo_url": "/photos/000925.jpeg",
     "emoji": null,
     "category": "Manti va barak",
@@ -26937,30 +25832,11 @@
     }
   },
   {
-    "slug": "ochiq_manti_gul_manti",
-    "name_uz_lat": "Ochiq manti / Gul manti",
-    "name_uz_kril": "Очиқ манти / Гул манти",
-    "name_ru": "Открытый богомол / Цветочный богомол",
-    "name_en": "Open mantis / Flower mantis",
-    "photo_url": "/photos/000927.jpeg",
-    "emoji": null,
-    "category": "Manti va barak",
-    "default_unit": "piece",
-    "grams_per_unit": 90,
-    "per_100g": {
-      "kcal": 220,
-      "protein": 8,
-      "carbs": 25,
-      "fat": 9,
-      "type": "food"
-    }
-  },
-  {
     "slug": "tuxum_barak",
     "name_uz_lat": "Tuxum barak",
     "name_uz_kril": "Тухум барак",
-    "name_ru": "Благословение яйца",
-    "name_en": "Egg blessing",
+    "name_ru": "Тухум барак",
+    "name_en": "Tuxum barak",
     "photo_url": "/photos/000928.jpeg",
     "emoji": null,
     "category": "Manti va barak",
@@ -27003,8 +25879,8 @@
     "slug": "xiva_baragi",
     "name_uz_lat": "Xiva baragi",
     "name_uz_kril": "Хива бараги",
-    "name_ru": "Хивинский лист",
-    "name_en": "Khiva leaf",
+    "name_ru": "Хивинские пельмени",
+    "name_en": "Khiva-style dumplings",
     "photo_url": "/photos/000929.jpeg",
     "emoji": null,
     "category": "Manti va barak",
@@ -27091,8 +25967,8 @@
     "slug": "suv_barak",
     "name_uz_lat": "Suv barak",
     "name_uz_kril": "Сув барак",
-    "name_ru": "Водный барак",
-    "name_en": "Water barak",
+    "name_ru": "Пельмени в бульоне",
+    "name_en": "Boiled meat dumplings in broth",
     "photo_url": "/photos/000931.jpeg",
     "emoji": null,
     "category": "Manti va barak",
@@ -27203,8 +26079,8 @@
     "slug": "shashlik_qiyma_qo_y",
     "name_uz_lat": "Shashlik qiyma qo'y",
     "name_uz_kril": "Шашлик қийма қўй",
-    "name_ru": "Нанизываем фарш на шампуры",
-    "name_en": "Put minced meat on skewers",
+    "name_ru": "Люля-кебаб из баранины",
+    "name_en": "Minced lamb kebab",
     "photo_url": "/photos/000934.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27299,8 +26175,8 @@
     "slug": "shashlik_jigar_mol",
     "name_uz_lat": "Shashlik jigar mol",
     "name_uz_kril": "Шашлик жигар мол",
-    "name_ru": "Шашлык из печени моль",
-    "name_en": "Shashlik liver mole",
+    "name_ru": "Шашлык из говяжьей печени",
+    "name_en": "Beef liver kebab",
     "photo_url": "/photos/000937.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27323,25 +26199,6 @@
         "vit_a": 9000,
         "vit_b12": 50
       }
-    }
-  },
-  {
-    "slug": "shashlik_buyrak",
-    "name_uz_lat": "Shashlik buyrak",
-    "name_uz_kril": "Шашлик буйрак",
-    "name_ru": "Шашковая почка",
-    "name_en": "Shashky kidney",
-    "photo_url": "/photos/000938.jpeg",
-    "emoji": null,
-    "category": "Kaboblar va shashliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 160,
-      "protein": 16,
-      "carbs": 1,
-      "fat": 10,
-      "type": "food"
     }
   },
   {
@@ -27378,10 +26235,10 @@
   },
   {
     "slug": "shashlik_qanotcha",
-    "name_uz_lat": "Shashlik qanotcha",
-    "name_uz_kril": "Шашлик қанотча",
-    "name_ru": "Крылышки шашлыка",
-    "name_en": "Shashlik wings",
+    "name_uz_lat": "Qanotcha shashlik",
+    "name_uz_kril": "Қанотча шашлик",
+    "name_ru": "Шашлык из куриных крылышек",
+    "name_en": "Chicken wing kebab",
     "photo_url": "/photos/000940.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27406,25 +26263,6 @@
         "vit_b3": 12,
         "vit_b12": 0.5
       }
-    }
-  },
-  {
-    "slug": "shashlik_baliq",
-    "name_uz_lat": "Shashlik baliq",
-    "name_uz_kril": "Шашлик балиқ",
-    "name_ru": "Шашлык рыбный",
-    "name_en": "Shashlik fish",
-    "photo_url": "/photos/000941.jpeg",
-    "emoji": null,
-    "category": "Kaboblar va shashliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 150,
-      "protein": 19,
-      "carbs": 0,
-      "fat": 8,
-      "type": "food"
     }
   },
   {
@@ -27458,10 +26296,10 @@
   },
   {
     "slug": "shashlik_dumba",
-    "name_uz_lat": "Shashlik dumba",
-    "name_uz_kril": "Шашлик думба",
-    "name_ru": "Перекошенная задница",
-    "name_en": "Skewered butt",
+    "name_uz_lat": "Dumba shashlik",
+    "name_uz_kril": "Думба шашлик",
+    "name_ru": "Шашлык из курдюка",
+    "name_en": "Lamb tail fat kebab",
     "photo_url": "/photos/000943.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27477,44 +26315,6 @@
         "vit_a": 30,
         "vit_e": 3
       }
-    }
-  },
-  {
-    "slug": "shashlik_rulet",
-    "name_uz_lat": "Shashlik rulet",
-    "name_uz_kril": "Шашлик рулэт",
-    "name_ru": "Шашки рулетка",
-    "name_en": "Checkers roulette",
-    "photo_url": "/photos/000944.jpeg",
-    "emoji": null,
-    "category": "Kaboblar va shashliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 300,
-      "protein": 15,
-      "carbs": 2,
-      "fat": 25,
-      "type": "food"
-    }
-  },
-  {
-    "slug": "shashlik_beshpanja",
-    "name_uz_lat": "Shashlik beshpanja",
-    "name_uz_kril": "Шашлик бэшпанжа",
-    "name_ru": "Шашлык пять лап",
-    "name_en": "Shashlik five paws",
-    "photo_url": "/photos/000945.jpeg",
-    "emoji": null,
-    "category": "Kaboblar va shashliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 310,
-      "protein": 15,
-      "carbs": 1,
-      "fat": 27,
-      "type": "food"
     }
   },
   {
@@ -27569,10 +26369,10 @@
   },
   {
     "slug": "katta_shashlik_napaleon",
-    "name_uz_lat": "Katta shashlik / Napaleon",
-    "name_uz_kril": "Катта шашлик / Напалэон",
-    "name_ru": "Большой кинжал / Наполеон",
-    "name_en": "Large dagger / Napoleon",
+    "name_uz_lat": "Napoleon shashlik",
+    "name_uz_kril": "Наполеон шашлик",
+    "name_ru": "Шашлык «Наполеон»",
+    "name_en": "Napoleon kebab",
     "photo_url": "/photos/000947.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27636,49 +26436,11 @@
     }
   },
   {
-    "slug": "shashlik_pomidor",
-    "name_uz_lat": "Shashlik pomidor",
-    "name_uz_kril": "Шашлик помидор",
-    "name_ru": "Шашлычные помидоры",
-    "name_en": "Skewered tomatoes",
-    "photo_url": "/photos/000949.jpeg",
-    "emoji": null,
-    "category": "Kaboblar va shashliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 35,
-      "protein": 1,
-      "carbs": 7,
-      "fat": 0.5,
-      "type": "food"
-    }
-  },
-  {
-    "slug": "shashlik_kartoshka",
-    "name_uz_lat": "Shashlik kartoshka",
-    "name_uz_kril": "Шашлик картошка",
-    "name_ru": "Картофель на шампуре",
-    "name_en": "Skewered potatoes",
-    "photo_url": "/photos/000950.jpeg",
-    "emoji": null,
-    "category": "Kaboblar va shashliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 110,
-      "protein": 2.5,
-      "carbs": 22,
-      "fat": 2,
-      "type": "food"
-    }
-  },
-  {
     "slug": "qozonkabob_qo_y",
     "name_uz_lat": "Qozonkabob qo'y",
     "name_uz_kril": "Қозонкабоб қўй",
-    "name_ru": "Кебаб из баранины",
-    "name_en": "Lamb kebab",
+    "name_ru": "Казанкебаб (баранины)",
+    "name_en": "Kazankebab (lamb)",
     "photo_url": "/photos/000951.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27706,8 +26468,8 @@
     "slug": "qozonkabob_mol",
     "name_uz_lat": "Qozonkabob mol",
     "name_uz_kril": "Қозонкабоб мол",
-    "name_ru": "Казанский шашлык мясной",
-    "name_en": "Kazan kebab meat",
+    "name_ru": "Казанкебаб (говядина)",
+    "name_en": "Kazankebab (Beef)",
     "photo_url": "/photos/000952.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27739,8 +26501,8 @@
     "slug": "qozonkabob_tovuq",
     "name_uz_lat": "Qozonkabob tovuq",
     "name_uz_kril": "Қозонкабоб товуқ",
-    "name_ru": "Казанкабоб с курицей",
-    "name_en": "Kazankabob chicken",
+    "name_ru": "Казанкабаб (куриный)",
+    "name_en": "Kazankabab (chicken)",
     "photo_url": "/photos/000953.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27769,8 +26531,8 @@
     "slug": "tandir_kabob",
     "name_uz_lat": "Tandir kabob",
     "name_uz_kril": "Тандир кабоб",
-    "name_ru": "Тандури-кебаб",
-    "name_en": "Tandoori kebab",
+    "name_ru": "Тандир кебаб",
+    "name_en": "Tandir kebab",
     "photo_url": "/photos/000954.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27797,8 +26559,8 @@
     "slug": "jiz",
     "name_uz_lat": "Jiz",
     "name_uz_kril": "Жиз",
-    "name_ru": "Господи",
-    "name_en": "Jeez",
+    "name_ru": "Жиз",
+    "name_en": "Jiz",
     "photo_url": "/photos/000955.jpeg",
     "emoji": null,
     "category": "Kaboblar va shashliklar",
@@ -27861,25 +26623,6 @@
         "fe": 2,
         "vit_b12": 2
       }
-    }
-  },
-  {
-    "slug": "cho_pon_kabob",
-    "name_uz_lat": "Cho'pon kabob",
-    "name_uz_kril": "Чўпон кабоб",
-    "name_ru": "Шашлык из овчарки",
-    "name_en": "Shepherd kebab",
-    "photo_url": "/photos/000957.jpeg",
-    "emoji": null,
-    "category": "Kaboblar va shashliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 290,
-      "protein": 15,
-      "carbs": 2,
-      "fat": 24,
-      "type": "food"
     }
   },
   {
@@ -28051,30 +26794,11 @@
     }
   },
   {
-    "slug": "kifta_shurva",
-    "name_uz_lat": "Kifta shurva",
-    "name_uz_kril": "Кифта шурва",
-    "name_ru": "Кифта суп",
-    "name_en": "Kifta soup",
-    "photo_url": "/photos/000963.jpeg",
-    "emoji": null,
-    "category": "Suyuq taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 110,
-      "protein": 7,
-      "carbs": 8,
-      "fat": 6,
-      "type": "food"
-    }
-  },
-  {
     "slug": "ugra_oshi",
     "name_uz_lat": "Ugra oshi",
     "name_uz_kril": "Угра оши",
-    "name_ru": "Югорский суп",
-    "name_en": "Ugra soup",
+    "name_ru": "Угра оши",
+    "name_en": "Ugra oshi",
     "photo_url": "/photos/000964.jpeg",
     "emoji": null,
     "category": "Suyuq taomlar",
@@ -28110,25 +26834,6 @@
         "vit_b12": 0.08,
         "vit_b4": 20
       }
-    }
-  },
-  {
-    "slug": "cho_pon_shurva",
-    "name_uz_lat": "Cho'pon shurva",
-    "name_uz_kril": "Чўпон шурва",
-    "name_ru": "Пастух Шурва",
-    "name_en": "Shepherd Shurva",
-    "photo_url": "/photos/000965.jpeg",
-    "emoji": null,
-    "category": "Suyuq taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 150,
-      "protein": 8,
-      "carbs": 8,
-      "fat": 10,
-      "type": "food"
     }
   },
   {
@@ -28210,10 +26915,10 @@
   },
   {
     "slug": "xarcho_o_zbekcha",
-    "name_uz_lat": "Xarcho o'zbekcha",
-    "name_uz_kril": "Харчо ўзбэкча",
-    "name_ru": "Все на узбекском языке",
-    "name_en": "All in Uzbek",
+    "name_uz_lat": "Xarcho sho'rva",
+    "name_uz_kril": "Харчо шурва",
+    "name_ru": "Суп Харчо",
+    "name_en": "Soup Kharcho",
     "photo_url": "/photos/000968.jpeg",
     "emoji": null,
     "category": "Suyuq taomlar",
@@ -28369,10 +27074,10 @@
   },
   {
     "slug": "mosh_ugra",
-    "name_uz_lat": "Mosh-ugra",
-    "name_uz_kril": "Мош-угра",
-    "name_ru": "Мош-Югра",
-    "name_en": "Mosh-ugra",
+    "name_uz_lat": "Mosh-Ugra",
+    "name_uz_kril": "Мош-Угра",
+    "name_ru": "Мош-Угра",
+    "name_en": "Mosh-Ugra",
     "photo_url": "/photos/000973.jpeg",
     "emoji": null,
     "category": "Suyuq taomlar",
@@ -28393,44 +27098,6 @@
         "fe": 2,
         "vit_b1": 0.18
       }
-    }
-  },
-  {
-    "slug": "piyova",
-    "name_uz_lat": "Piyova",
-    "name_uz_kril": "Пиёва",
-    "name_ru": "Лук-порей",
-    "name_en": "Leek",
-    "photo_url": "/photos/000974.jpeg",
-    "emoji": null,
-    "category": "Suyuq taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 90,
-      "protein": 3,
-      "carbs": 10,
-      "fat": 5,
-      "type": "food"
-    }
-  },
-  {
-    "slug": "yovvoyi_shurva",
-    "name_uz_lat": "Yovvoyi shurva",
-    "name_uz_kril": "Ёввойи шурва",
-    "name_ru": "Дикий суп",
-    "name_en": "Wild soup",
-    "photo_url": "/photos/000975.jpeg",
-    "emoji": null,
-    "category": "Suyuq taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 100,
-      "protein": 8,
-      "carbs": 5,
-      "fat": 5,
-      "type": "food"
     }
   },
   {
@@ -28587,8 +27254,8 @@
     "slug": "shivit_oshi",
     "name_uz_lat": "Shivit oshi",
     "name_uz_kril": "Шивит оши",
-    "name_ru": "Шивит суп",
-    "name_en": "Shivit soup",
+    "name_ru": "Шивит оши",
+    "name_en": "Shivit oshi",
     "photo_url": "/photos/000982.jpeg",
     "emoji": null,
     "category": "Xamirli taomlar",
@@ -28750,30 +27417,11 @@
     }
   },
   {
-    "slug": "ko_katli_chuchvara",
-    "name_uz_lat": "Ko'katli chuchvara",
-    "name_uz_kril": "Кўкатли чучвара",
-    "name_ru": "Зелёные пельмени",
-    "name_en": "Green dumplings",
-    "photo_url": "/photos/000988.jpeg",
-    "emoji": null,
-    "category": "Xamirli taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 180,
-      "protein": 5,
-      "carbs": 28,
-      "fat": 6,
-      "type": "food"
-    }
-  },
-  {
     "slug": "xonim_go_shtli",
     "name_uz_lat": "Xonim go'shtli",
     "name_uz_kril": "Хоним гўштли",
-    "name_ru": "Ханум с мясо",
-    "name_en": "Meat Khanum",
+    "name_ru": "Ханим с мясом",
+    "name_en": "Meat Gulkhanim",
     "photo_url": "/photos/000989.jpeg",
     "emoji": null,
     "category": "Xamirli taomlar",
@@ -28800,8 +27448,8 @@
     "slug": "xonim_qovoqli",
     "name_uz_lat": "Xonim qovoqli",
     "name_uz_kril": "Хоним қовоқли",
-    "name_ru": "Ханум с тыквой",
-    "name_en": "Pumpkin Khanum",
+    "name_ru": "Ханим с тыквой",
+    "name_en": "Pumpkin Gulkhanim",
     "photo_url": "/photos/000990.jpeg",
     "emoji": null,
     "category": "Xamirli taomlar",
@@ -29321,25 +27969,6 @@
     }
   },
   {
-    "slug": "shirmoq_non",
-    "name_uz_lat": "Shirmoq non",
-    "name_uz_kril": "Ширмоқ нон",
-    "name_ru": "Ширмакский хлеб",
-    "name_en": "Shirmak bread",
-    "photo_url": "/photos/001005.jpeg",
-    "emoji": null,
-    "category": "Non va pishiriqlar",
-    "default_unit": "piece",
-    "grams_per_unit": 300,
-    "per_100g": {
-      "kcal": 250,
-      "protein": 8,
-      "carbs": 52,
-      "fat": 1,
-      "type": "food"
-    }
-  },
-  {
     "slug": "zog_ora_non",
     "name_uz_lat": "Zog'ora non",
     "name_uz_kril": "Зоғора нон",
@@ -29771,8 +28400,8 @@
     "slug": "bo_g_irsoq",
     "name_uz_lat": "Bo'g'irsoq",
     "name_uz_kril": "Бўғирсоқ",
-    "name_ru": "Горло",
-    "name_en": "Throat",
+    "name_ru": "Бугирсак",
+    "name_en": "Bugirsak",
     "photo_url": "/photos/001017.jpeg",
     "emoji": null,
     "category": "Non va pishiriqlar",
@@ -29799,8 +28428,8 @@
     "slug": "qush_tili",
     "name_uz_lat": "Qush tili",
     "name_uz_kril": "Қуш тили",
-    "name_ru": "Птичий язык",
-    "name_en": "Bird language",
+    "name_ru": "Хворост",
+    "name_en": "Bird's tongue pastry",
     "photo_url": "/photos/001018.jpeg",
     "emoji": null,
     "category": "Non va pishiriqlar",
@@ -29944,10 +28573,10 @@
   },
   {
     "slug": "achchiq_chuchuk_shakarob",
-    "name_uz_lat": "Achchiq-chuchuk / Shakarob",
-    "name_uz_kril": "Аччиқ-чучук / Шакароб",
-    "name_ru": "Горько-сладкий / Сахар",
-    "name_en": "Bittersweet / Sugar",
+    "name_uz_lat": "Achchiq-chuchuk",
+    "name_uz_kril": "Аччиқ-чучук",
+    "name_ru": "Аччик-чучук",
+    "name_en": "Achchik-chuchuk",
     "photo_url": "/photos/001023.jpeg",
     "emoji": null,
     "category": "Salatlar va gazaklar",
@@ -29974,8 +28603,8 @@
     "slug": "suzma_sarimsoq_bilan",
     "name_uz_lat": "Suzma sarimsoq bilan",
     "name_uz_kril": "Сузма саримсоқ билан",
-    "name_ru": "С жареным чесноком",
-    "name_en": "With fried garlic",
+    "name_ru": "Сузьма с чесноком",
+    "name_en": "Strained yogurt with garlic",
     "photo_url": "/photos/001024.jpeg",
     "emoji": null,
     "category": "Salatlar va gazaklar",
@@ -30015,8 +28644,8 @@
     "slug": "qurt",
     "name_uz_lat": "Qurt",
     "name_uz_kril": "Қурт",
-    "name_ru": "Червь",
-    "name_en": "Worm",
+    "name_ru": "Курт",
+    "name_en": "Kurt",
     "photo_url": "/photos/001025.jpeg",
     "emoji": null,
     "category": "Salatlar va gazaklar",
@@ -30050,30 +28679,11 @@
     }
   },
   {
-    "slug": "marg_ilon_turpi_salati",
-    "name_uz_lat": "Marg'ilon turpi salati",
-    "name_uz_kril": "Марғилон турпи салати",
-    "name_ru": "Салат из маргиланской репы",
-    "name_en": "Margylan turnip salad",
-    "photo_url": "/photos/001026.jpeg",
-    "emoji": null,
-    "category": "Salatlar va gazaklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 50,
-      "protein": 1,
-      "carbs": 8,
-      "fat": 2,
-      "type": "food"
-    }
-  },
-  {
     "slug": "chakka",
-    "name_uz_lat": "Chakka",
-    "name_uz_kril": "Чакка",
-    "name_ru": "Чакка",
-    "name_en": "Chakka",
+    "name_uz_lat": "Chakki",
+    "name_uz_kril": "Чакки",
+    "name_ru": "Чакки",
+    "name_en": "Chakki",
     "photo_url": "/photos/001027.jpeg",
     "emoji": null,
     "category": "Salatlar va gazaklar",
@@ -30131,10 +28741,10 @@
   },
   {
     "slug": "sabzi_salat_marko_vcha",
-    "name_uz_lat": "Sabzi salat / Marko'vcha",
-    "name_uz_kril": "Сабзи салат / Маркўвча",
-    "name_ru": "Салат Морковный/Марковча",
-    "name_en": "Carrot salad / Markovcha",
+    "name_uz_lat": "Sabzi salat",
+    "name_uz_kril": "Сабзи салат",
+    "name_ru": "Салат Морковный",
+    "name_en": "Carrot salad",
     "photo_url": "/photos/001029.jpeg",
     "emoji": null,
     "category": "Salatlar va gazaklar",
@@ -30198,25 +28808,6 @@
         "vit_b9": 42,
         "f": 2
       }
-    }
-  },
-  {
-    "slug": "hammayoq_salati",
-    "name_uz_lat": "Hammayoq salati",
-    "name_uz_kril": "Ҳаммаёқ салати",
-    "name_ru": "Капустный салат",
-    "name_en": "Cabbage salad",
-    "photo_url": "/photos/001031.jpeg",
-    "emoji": null,
-    "category": "Salatlar va gazaklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 70,
-      "protein": 1,
-      "carbs": 6,
-      "fat": 4,
-      "type": "food"
     }
   },
   {
@@ -30991,7 +29582,7 @@
     "name_uz_lat": "Mandarin",
     "name_uz_kril": "Мандарин",
     "name_ru": "Мандарин",
-    "name_en": "Tangerine",
+    "name_en": "Mandarin (Tangerine)",
     "photo_url": "/photos/001057.jpeg",
     "emoji": null,
     "category": "Mevalar va rezavorlar",
@@ -31179,7 +29770,7 @@
     "name_uz_lat": "Chernika",
     "name_uz_kril": "Чэрника",
     "name_ru": "Черника",
-    "name_en": "Chernika",
+    "name_en": "Blueberry",
     "photo_url": "/photos/001062.jpeg",
     "emoji": null,
     "category": "Mevalar va rezavorlar",
@@ -31214,7 +29805,7 @@
     "name_uz_lat": "Qora smorodina",
     "name_uz_kril": "Қора смородина",
     "name_ru": "Черная смородина",
-    "name_en": "Black currant",
+    "name_en": "Blackcurrant",
     "photo_url": "/photos/001063.jpeg",
     "emoji": null,
     "category": "Mevalar va rezavorlar",
@@ -31313,8 +29904,8 @@
     "slug": "qoroli",
     "name_uz_lat": "Qoroli",
     "name_uz_kril": "Қороли",
-    "name_ru": "Кароли",
-    "name_en": "Karoli",
+    "name_ru": "Чернослив",
+    "name_en": "Prunes",
     "photo_url": "/photos/001066.jpeg",
     "emoji": null,
     "category": "Quruq mevalar",
@@ -32859,25 +31450,6 @@
     }
   },
   {
-    "slug": "shovul",
-    "name_uz_lat": "Shovul",
-    "name_uz_kril": "Шовул",
-    "name_ru": "Шул",
-    "name_en": "Shoul",
-    "photo_url": "/photos/001110.jpeg",
-    "emoji": null,
-    "category": "Ko'katlar va sabzavotlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 22,
-      "protein": 1.5,
-      "carbs": 2.9,
-      "fat": 0.3,
-      "type": "food"
-    }
-  },
-  {
     "slug": "kalla_karam",
     "name_uz_lat": "Kalla karam",
     "name_uz_kril": "Калла карам",
@@ -32921,8 +31493,8 @@
     "slug": "tut",
     "name_uz_lat": "Tut",
     "name_uz_kril": "Тут",
-    "name_ru": "Держись",
-    "name_en": "Hold on",
+    "name_ru": "Шелковица",
+    "name_en": "Mulberry",
     "photo_url": "/photos/001112.jpeg",
     "emoji": null,
     "category": "Mevalar va rezavorlar",
@@ -32960,8 +31532,8 @@
     "slug": "maymunjon",
     "name_uz_lat": "Maymunjon",
     "name_uz_kril": "Маймунжон",
-    "name_ru": "Обезьяна",
-    "name_en": "Monkey",
+    "name_ru": "Ежевика",
+    "name_en": "Blackberry",
     "photo_url": "/photos/001113.jpeg",
     "emoji": null,
     "category": "Mevalar va rezavorlar",
@@ -33059,25 +31631,6 @@
         "vit_b3": 1.6,
         "vit_b6": 0.1
       }
-    }
-  },
-  {
-    "slug": "tvorog_massasi_mayizli",
-    "name_uz_lat": "Tvorog massasi mayizli",
-    "name_uz_kril": "Творог массаси майизли",
-    "name_ru": "Творожная масса с изюмом",
-    "name_en": "Curd mass with raisins",
-    "photo_url": "/photos/001116.jpeg",
-    "emoji": null,
-    "category": "Sut mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 343,
-      "protein": 7.1,
-      "carbs": 32.5,
-      "fat": 20.5,
-      "type": "food"
     }
   },
   {
@@ -33275,41 +31828,1244 @@
     }
   },
   {
-    "slug": "oq_non_buxanka",
-    "name_uz_lat": "Oq non (buxanka)",
-    "name_uz_kril": "Оқ нон (буханка)",
-    "name_ru": "Белый хлеб (буханка)",
-    "name_en": "White loaf bread",
+    "slug": "assorti",
+    "name_uz_lat": "Assorti",
+    "name_uz_kril": "Ассорти",
+    "name_ru": "Мясное ассорти",
+    "name_en": "Meat & cheese platter",
     "photo_url": null,
     "emoji": null,
-    "category": "Non va pishiriqlar",
-    "default_unit": "piece",
-    "grams_per_unit": 30,
+    "image_asset_path": "assets/foods/images/assorti.png",
+    "category": "Salatlar va gazaklar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
     "per_100g": {
-      "kcal": 262,
-      "protein": 8.5,
-      "carbs": 50,
-      "fat": 3.2,
-      "type": "food"
+      "kcal": 280,
+      "protein": 18,
+      "carbs": 1.5,
+      "fat": 22,
+      "type": "food",
+      "micros": {
+        "fe": 1.5,
+        "mg": 20,
+        "ca": 20,
+        "p": 220,
+        "k": 200,
+        "na": 950,
+        "zn": 3.2,
+        "se": 22,
+        "vit_b1": 0.35,
+        "vit_b2": 0.2,
+        "vit_b3": 4.5,
+        "vit_b6": 0.3,
+        "vit_b12": 1.6
+      }
     }
   },
   {
-    "slug": "qora_non_buxanka",
-    "name_uz_lat": "Qora non (buxanka)",
-    "name_uz_kril": "Қора нон (буханка)",
-    "name_ru": "Чёрный хлеб (буханка)",
-    "name_en": "Black (rye) loaf bread",
+    "slug": "befstroganov",
+    "name_uz_lat": "Befstroganov",
+    "name_uz_kril": "Бефстроганов",
+    "name_ru": "Бефстроганов",
+    "name_en": "Beef stroganoff",
     "photo_url": null,
     "emoji": null,
-    "category": "Non va pishiriqlar",
-    "default_unit": "piece",
-    "grams_per_unit": 30,
+    "image_asset_path": "assets/foods/images/befstroganov.jpg",
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
     "per_100g": {
-      "kcal": 210,
-      "protein": 6.6,
-      "carbs": 41,
-      "fat": 1.2,
-      "type": "food"
+      "kcal": 190,
+      "protein": 14,
+      "carbs": 5,
+      "fat": 13,
+      "type": "food",
+      "micros": {
+        "fe": 2.4,
+        "mg": 22,
+        "ca": 20,
+        "p": 170,
+        "k": 320,
+        "na": 360,
+        "zn": 3.5,
+        "se": 18,
+        "vit_a": 30,
+        "vit_b2": 0.2,
+        "vit_b3": 4.5,
+        "vit_b6": 0.3,
+        "vit_b9": 8,
+        "vit_b12": 1.8
+      }
     }
+  },
+  {
+    "slug": "borsh",
+    "name_uz_lat": "Borsh",
+    "name_uz_kril": "Борш",
+    "name_ru": "Борщ",
+    "name_en": "Borscht",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/borsh.jpg",
+    "category": "Suyuq taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 58,
+      "protein": 3,
+      "carbs": 5.7,
+      "fat": 2.8,
+      "type": "food",
+      "micros": {
+        "fe": 0.8,
+        "mg": 18,
+        "ca": 22,
+        "p": 45,
+        "k": 270,
+        "na": 380,
+        "vit_c": 12,
+        "vit_a": 150,
+        "vit_e": 0.6,
+        "vit_k": 30,
+        "vit_b6": 0.12,
+        "vit_b9": 20
+      }
+    }
+  },
+  {
+    "slug": "burger",
+    "name_uz_lat": "Burger",
+    "name_uz_kril": "Бургер",
+    "name_ru": "Бургер",
+    "name_en": "Burger",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/burger.jpg",
+    "category": "Fastfood",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 250,
+      "protein": 13,
+      "carbs": 18,
+      "fat": 14,
+      "type": "food",
+      "micros": {
+        "fe": 2.5,
+        "mg": 22,
+        "ca": 80,
+        "p": 140,
+        "k": 230,
+        "na": 490,
+        "zn": 2.5,
+        "vit_c": 1,
+        "vit_a": 40,
+        "vit_b1": 0.2,
+        "vit_b2": 0.2,
+        "vit_b3": 3.5,
+        "vit_b12": 1.2
+      }
+    }
+  },
+  {
+    "slug": "chalpak",
+    "name_uz_lat": "Chalpak",
+    "name_uz_kril": "Чалпак",
+    "name_ru": "Чалпак",
+    "name_en": "Chalpak (fried flatbread)",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/chalpak.jpg",
+    "category": "Non va pishiriqlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 330,
+      "protein": 7,
+      "carbs": 45,
+      "fat": 14,
+      "type": "food",
+      "micros": {
+        "fe": 1.2,
+        "mg": 16,
+        "ca": 18,
+        "p": 80,
+        "k": 90,
+        "na": 300,
+        "cu": 0.1,
+        "mn": 0.4,
+        "vit_e": 1.2,
+        "vit_b1": 0.2,
+        "vit_b2": 0.1,
+        "vit_b3": 2,
+        "vit_b9": 25
+      }
+    }
+  },
+  {
+    "slug": "dorado",
+    "name_uz_lat": "Dorado",
+    "name_uz_kril": "Дорадо",
+    "name_ru": "Дорадо",
+    "name_en": "Dorado (sea bream)",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/dorado.jpg",
+    "category": "Baliq va dengiz mahsulotlari",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 110,
+      "protein": 19,
+      "carbs": 0,
+      "fat": 4,
+      "type": "food",
+      "micros": {
+        "fe": 0.8,
+        "mg": 30,
+        "ca": 25,
+        "p": 200,
+        "k": 350,
+        "na": 90,
+        "zn": 0.5,
+        "se": 35,
+        "i": 30,
+        "vit_a": 30,
+        "vit_d": 4,
+        "vit_e": 1,
+        "vit_b3": 4,
+        "vit_b6": 0.4,
+        "vit_b12": 2.5
+      }
+    }
+  },
+  {
+    "slug": "gosht_say",
+    "name_uz_lat": "Go'sht say",
+    "name_uz_kril": "Гўшт сай",
+    "name_ru": "Мясо сай",
+    "name_en": "Beef sauté",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/gosht_say.jpg",
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 180,
+      "protein": 14,
+      "carbs": 6,
+      "fat": 12,
+      "type": "food",
+      "micros": {
+        "fe": 2.2,
+        "mg": 22,
+        "ca": 16,
+        "p": 160,
+        "k": 300,
+        "na": 340,
+        "zn": 3,
+        "vit_c": 3,
+        "vit_a": 40,
+        "vit_b2": 0.18,
+        "vit_b3": 4,
+        "vit_b6": 0.3,
+        "vit_b12": 1.5
+      }
+    }
+  },
+  {
+    "slug": "gulyash",
+    "name_uz_lat": "Gulyash (garnir bilan)",
+    "name_uz_kril": "Гуляш (гарнир билан)",
+    "name_ru": "Гуляш с гарниром",
+    "name_en": "Goulash with side dish",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/gulyash.jpg",
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 160,
+      "protein": 9,
+      "carbs": 13,
+      "fat": 8,
+      "type": "food",
+      "micros": {
+        "fe": 2,
+        "mg": 20,
+        "ca": 18,
+        "p": 130,
+        "k": 280,
+        "na": 380,
+        "zn": 2.5,
+        "vit_c": 4,
+        "vit_a": 80,
+        "vit_b2": 0.15,
+        "vit_b3": 3.5,
+        "vit_b6": 0.25,
+        "vit_b12": 1.2
+      }
+    }
+  },
+  {
+    "slug": "halim",
+    "name_uz_lat": "Halim",
+    "name_uz_kril": "Ҳалим",
+    "name_ru": "Халим",
+    "name_en": "Halim (wheat & meat porridge)",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/halim.png",
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 160,
+      "protein": 8,
+      "carbs": 21,
+      "fat": 5,
+      "type": "food",
+      "micros": {
+        "fe": 1.8,
+        "mg": 30,
+        "ca": 20,
+        "p": 110,
+        "k": 160,
+        "na": 280,
+        "zn": 1.8,
+        "mn": 0.5,
+        "vit_b1": 0.15,
+        "vit_b3": 3,
+        "vit_b6": 0.2,
+        "vit_b12": 0.8
+      }
+    }
+  },
+  {
+    "slug": "kartoshka_fri",
+    "name_uz_lat": "Kartoshka fri",
+    "name_uz_kril": "Картошка фри",
+    "name_ru": "Картофель фри",
+    "name_en": "French fries",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/kartoshka_fri.jpg",
+    "category": "Fastfood",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 312,
+      "protein": 3.4,
+      "carbs": 41,
+      "fat": 15,
+      "type": "food",
+      "micros": {
+        "fe": 0.8,
+        "mg": 28,
+        "ca": 18,
+        "p": 120,
+        "k": 580,
+        "na": 210,
+        "mn": 0.2,
+        "vit_c": 10,
+        "vit_e": 2,
+        "vit_k": 8,
+        "vit_b6": 0.3
+      }
+    }
+  },
+  {
+    "slug": "kfc",
+    "name_uz_lat": "KFC tovug'i",
+    "name_uz_kril": "KFC товуғи",
+    "name_ru": "Курица KFC",
+    "name_en": "KFC fried chicken",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/kfc.jpg",
+    "category": "Fastfood",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 260,
+      "protein": 19,
+      "carbs": 9,
+      "fat": 16,
+      "type": "food",
+      "micros": {
+        "fe": 1.2,
+        "mg": 22,
+        "ca": 25,
+        "p": 170,
+        "k": 200,
+        "na": 720,
+        "zn": 1.4,
+        "se": 20,
+        "vit_a": 20,
+        "vit_b2": 0.15,
+        "vit_b3": 8,
+        "vit_b5": 0.9,
+        "vit_b6": 0.35
+      }
+    }
+  },
+  {
+    "slug": "kurutob",
+    "name_uz_lat": "Qurutob",
+    "name_uz_kril": "Қурутоб",
+    "name_ru": "Курутоб",
+    "name_en": "Kurutob",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/kurutob.jpg",
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 180,
+      "protein": 6,
+      "carbs": 17,
+      "fat": 10,
+      "type": "food",
+      "micros": {
+        "fe": 1.2,
+        "mg": 20,
+        "ca": 120,
+        "p": 110,
+        "k": 180,
+        "na": 350,
+        "zn": 1,
+        "mn": 0.3,
+        "vit_c": 2,
+        "vit_a": 30,
+        "vit_b2": 0.15,
+        "vit_b12": 0.4
+      }
+    }
+  },
+  {
+    "slug": "lavash",
+    "name_uz_lat": "Lavash",
+    "name_uz_kril": "Лаваш",
+    "name_ru": "Лаваш",
+    "name_en": "Lavash",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/lavash.jpg",
+    "category": "Non va pishiriqlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 270,
+      "protein": 9,
+      "carbs": 56,
+      "fat": 1.2,
+      "type": "food",
+      "micros": {
+        "fe": 1.5,
+        "mg": 20,
+        "ca": 20,
+        "p": 90,
+        "k": 120,
+        "na": 460,
+        "cu": 0.12,
+        "mn": 0.5,
+        "vit_b1": 0.3,
+        "vit_b2": 0.1,
+        "vit_b3": 3,
+        "vit_b9": 30
+      }
+    }
+  },
+  {
+    "slug": "olivye",
+    "name_uz_lat": "Olivye salati",
+    "name_uz_kril": "Оливье салати",
+    "name_ru": "Оливье с мясом и колбасой",
+    "name_en": "Olivier salad",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/olivye.jpg",
+    "category": "Salatlar va gazaklar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 198,
+      "protein": 6,
+      "carbs": 9,
+      "fat": 15,
+      "type": "food",
+      "micros": {
+        "fe": 0.8,
+        "mg": 14,
+        "ca": 20,
+        "p": 90,
+        "k": 230,
+        "na": 400,
+        "zn": 0.7,
+        "vit_c": 4,
+        "vit_a": 60,
+        "vit_e": 2,
+        "vit_k": 12,
+        "vit_b9": 15,
+        "vit_b12": 0.4
+      }
+    }
+  },
+  {
+    "slug": "olot_somsa",
+    "name_uz_lat": "Olot somsa",
+    "name_uz_kril": "Олот сомса",
+    "name_ru": "Олотская самса",
+    "name_en": "Olot somsa",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/olot_somsa.jpg",
+    "category": "Somsa",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 280,
+      "protein": 11,
+      "carbs": 22,
+      "fat": 17,
+      "type": "food",
+      "micros": {
+        "fe": 1.8,
+        "mg": 18,
+        "ca": 24,
+        "p": 120,
+        "k": 180,
+        "na": 420,
+        "zn": 1.8,
+        "mn": 0.3,
+        "vit_b1": 0.15,
+        "vit_b2": 0.12,
+        "vit_b3": 3,
+        "vit_b12": 1
+      }
+    }
+  },
+  {
+    "slug": "pitsa",
+    "name_uz_lat": "Pitsa",
+    "name_uz_kril": "Пицца",
+    "name_ru": "Пицца",
+    "name_en": "Pizza",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/pitsa.jpg",
+    "category": "Fastfood",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 266,
+      "protein": 11,
+      "carbs": 33,
+      "fat": 10,
+      "type": "food",
+      "micros": {
+        "fe": 1.5,
+        "mg": 20,
+        "ca": 190,
+        "p": 170,
+        "k": 180,
+        "na": 600,
+        "zn": 1.5,
+        "vit_c": 2,
+        "vit_a": 70,
+        "vit_b1": 0.2,
+        "vit_b2": 0.2,
+        "vit_b3": 3,
+        "vit_b12": 0.5
+      }
+    }
+  },
+  {
+    "slug": "qoziqorinli_gosht",
+    "name_uz_lat": "Qo'ziqorinli go'sht",
+    "name_uz_kril": "Қўзиқоринли гўшт",
+    "name_ru": "Мясо с грибами",
+    "name_en": "Meat with mushrooms",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/qoziqorinli_gosht.jpg",
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 170,
+      "protein": 13,
+      "carbs": 4,
+      "fat": 12,
+      "type": "food",
+      "micros": {
+        "fe": 2,
+        "mg": 22,
+        "ca": 14,
+        "p": 150,
+        "k": 320,
+        "na": 300,
+        "zn": 3,
+        "se": 16,
+        "vit_d": 0.5,
+        "vit_b2": 0.3,
+        "vit_b3": 5,
+        "vit_b5": 1,
+        "vit_b12": 1.5
+      }
+    }
+  },
+  {
+    "slug": "quymoq",
+    "name_uz_lat": "Quymoq",
+    "name_uz_kril": "Қуймоқ",
+    "name_ru": "Блинчик",
+    "name_en": "Pancake",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/quymoq.png",
+    "category": "breakfast",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 230,
+      "protein": 6.1,
+      "carbs": 26,
+      "fat": 12.3,
+      "type": "food",
+      "micros": {
+        "fe": 1,
+        "mg": 12,
+        "ca": 70,
+        "p": 100,
+        "k": 110,
+        "na": 300,
+        "se": 12,
+        "vit_a": 50,
+        "vit_d": 0.6,
+        "vit_b2": 0.2,
+        "vit_b5": 0.5,
+        "vit_b9": 15,
+        "vit_b12": 0.4
+      }
+    }
+  },
+  {
+    "slug": "sezar",
+    "name_uz_lat": "Sezar salati (tovuq bilan)",
+    "name_uz_kril": "Сезар салати (товуқ билан)",
+    "name_ru": "Цезарь с курицей",
+    "name_en": "Caesar salad with chicken",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/sezar.jpg",
+    "category": "Salatlar va gazaklar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 190,
+      "protein": 11,
+      "carbs": 6,
+      "fat": 13,
+      "type": "food",
+      "micros": {
+        "fe": 1,
+        "mg": 18,
+        "ca": 90,
+        "p": 130,
+        "k": 240,
+        "na": 420,
+        "zn": 0.9,
+        "se": 12,
+        "vit_c": 3,
+        "vit_a": 80,
+        "vit_e": 1.5,
+        "vit_k": 40,
+        "vit_b3": 4,
+        "vit_b12": 0.4
+      }
+    }
+  },
+  {
+    "slug": "shaurma",
+    "name_uz_lat": "Shaurma",
+    "name_uz_kril": "Шаурма",
+    "name_ru": "Шаурма (Донер)",
+    "name_en": "Shawarma (Doner)",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/shaurma.jpg",
+    "category": "Fastfood",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 215,
+      "protein": 12,
+      "carbs": 17,
+      "fat": 11,
+      "type": "food",
+      "micros": {
+        "fe": 1.8,
+        "mg": 24,
+        "ca": 60,
+        "p": 140,
+        "k": 250,
+        "na": 540,
+        "zn": 2,
+        "vit_c": 3,
+        "vit_a": 30,
+        "vit_b1": 0.15,
+        "vit_b3": 4.5,
+        "vit_b6": 0.3,
+        "vit_b12": 0.8
+      }
+    }
+  },
+  {
+    "slug": "tovuq_say",
+    "name_uz_lat": "Tovuq say",
+    "name_uz_kril": "Товуқ сай",
+    "name_ru": "Куриный сай",
+    "name_en": "Chicken say",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/tovuq_say.jpg",
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 150,
+      "protein": 13,
+      "carbs": 5,
+      "fat": 9,
+      "type": "food",
+      "micros": {
+        "fe": 1,
+        "mg": 24,
+        "ca": 18,
+        "p": 150,
+        "k": 280,
+        "na": 320,
+        "zn": 1.2,
+        "se": 16,
+        "vit_c": 4,
+        "vit_a": 50,
+        "vit_b3": 7,
+        "vit_b5": 0.8,
+        "vit_b6": 0.4
+      }
+    }
+  },
+  {
+    "slug": "tovuq_shorva",
+    "name_uz_lat": "Tovuq sho'rva",
+    "name_uz_kril": "Товуқ шўрва",
+    "name_ru": "Куриный суп",
+    "name_en": "Chicken soup",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/tovuq_shorva.jpg",
+    "category": "Suyuq taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 45,
+      "protein": 4,
+      "carbs": 3,
+      "fat": 2,
+      "type": "food",
+      "micros": {
+        "fe": 0.5,
+        "mg": 10,
+        "ca": 14,
+        "p": 60,
+        "k": 150,
+        "na": 320,
+        "vit_a": 60,
+        "vit_b3": 2.5,
+        "vit_b6": 0.15
+      }
+    }
+  },
+  {
+    "slug": "xachapuri",
+    "name_uz_lat": "Xachapuri",
+    "name_uz_kril": "Хачапури",
+    "name_ru": "Хачапури",
+    "name_en": "Khachapuri",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/xachapuri.jpg",
+    "category": "Non va pishiriqlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 300,
+      "protein": 12,
+      "carbs": 28,
+      "fat": 16,
+      "type": "food",
+      "micros": {
+        "fe": 1.4,
+        "mg": 18,
+        "ca": 220,
+        "p": 200,
+        "k": 110,
+        "na": 520,
+        "zn": 1.8,
+        "vit_a": 90,
+        "vit_b1": 0.15,
+        "vit_b2": 0.25,
+        "vit_b12": 0.6
+      }
+    }
+  },
+  {
+    "slug": "xinkali",
+    "name_uz_lat": "Xinkali",
+    "name_uz_kril": "Хинкали",
+    "name_ru": "Хинкали",
+    "name_en": "Khinkali",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/xinkali.jpg",
+    "category": "Manti va barak",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 235,
+      "protein": 9,
+      "carbs": 25,
+      "fat": 11,
+      "type": "food",
+      "micros": {
+        "fe": 1.6,
+        "mg": 18,
+        "ca": 20,
+        "p": 110,
+        "k": 170,
+        "na": 380,
+        "zn": 1.6,
+        "vit_b1": 0.2,
+        "vit_b2": 0.12,
+        "vit_b3": 3,
+        "vit_b12": 1
+      }
+    }
+  },
+  {
+    "slug": "xot_dog",
+    "name_uz_lat": "Xot-dog",
+    "name_uz_kril": "Хот-дог",
+    "name_ru": "Хот-дог",
+    "name_en": "Hot dog",
+    "photo_url": null,
+    "emoji": null,
+    "image_asset_path": "assets/foods/images/xot_dog.jpg",
+    "category": "Fastfood",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 247,
+      "protein": 10,
+      "carbs": 18,
+      "fat": 15,
+      "type": "food",
+      "micros": {
+        "fe": 1.5,
+        "mg": 16,
+        "ca": 40,
+        "p": 110,
+        "k": 180,
+        "na": 800,
+        "zn": 1.5,
+        "vit_a": 10,
+        "vit_b1": 0.25,
+        "vit_b3": 3,
+        "vit_b12": 0.8
+      }
+    }
+  },
+  {
+    "slug": "chashushuli",
+    "name_uz_lat": "Tovuqli chashushuli",
+    "name_uz_kril": "Товуқли чашушули",
+    "name_ru": "Чашушули из курицы",
+    "name_en": "Chicken chashushuli",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 130,
+      "protein": 13,
+      "carbs": 5,
+      "fat": 6,
+      "type": "food",
+      "micros": {
+        "fe": 1.4,
+        "mg": 24,
+        "ca": 20,
+        "p": 150,
+        "k": 320,
+        "na": 380,
+        "zn": 1.3,
+        "vit_c": 12,
+        "vit_a": 80,
+        "vit_k": 15,
+        "vit_b3": 6,
+        "vit_b6": 0.4
+      }
+    },
+    "image_asset_path": "assets/foods/images/chashushuli.jpg"
+  },
+  {
+    "slug": "cho_poncha",
+    "name_uz_lat": "Cho'poncha",
+    "name_uz_kril": "Чўпонча",
+    "name_ru": "Чупонча",
+    "name_en": "Chuponcha",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 270,
+      "protein": 15,
+      "carbs": 4,
+      "fat": 22,
+      "type": "food",
+      "micros": {
+        "fe": 2.2,
+        "mg": 22,
+        "ca": 18,
+        "p": 170,
+        "k": 280,
+        "na": 400,
+        "zn": 3.5,
+        "se": 8,
+        "vit_b2": 0.22,
+        "vit_b3": 5,
+        "vit_b6": 0.3,
+        "vit_b12": 2.2
+      }
+    },
+    "image_asset_path": "assets/foods/images/cho_poncha.jpg"
+  },
+  {
+    "slug": "gan_fan",
+    "name_uz_lat": "G'an fan",
+    "name_uz_kril": "Ған фан",
+    "name_ru": "Ган фан",
+    "name_en": "Gan fan",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 150,
+      "protein": 7,
+      "carbs": 20,
+      "fat": 5,
+      "type": "food",
+      "micros": {
+        "fe": 1.3,
+        "mg": 24,
+        "ca": 20,
+        "p": 110,
+        "k": 220,
+        "na": 350,
+        "zn": 1.5,
+        "vit_c": 6,
+        "vit_a": 60,
+        "vit_e": 1.2,
+        "vit_b1": 0.12,
+        "vit_b3": 3,
+        "vit_b12": 0.6
+      }
+    },
+    "image_asset_path": "assets/foods/images/gan_fan.jpg"
+  },
+  {
+    "slug": "guja",
+    "name_uz_lat": "Go'ja",
+    "name_uz_kril": "Гўжа",
+    "name_ru": "Гужа",
+    "name_en": "Guja",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Suyuq taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 80,
+      "protein": 3,
+      "carbs": 13,
+      "fat": 1.8,
+      "type": "food",
+      "micros": {
+        "fe": 1,
+        "mg": 20,
+        "ca": 60,
+        "p": 90,
+        "k": 160,
+        "na": 300,
+        "mn": 0.4,
+        "vit_c": 2,
+        "vit_a": 20,
+        "vit_b1": 0.1,
+        "vit_b2": 0.12
+      }
+    },
+    "image_asset_path": "assets/foods/images/guja.jpg"
+  },
+  {
+    "slug": "jiz_qoy",
+    "name_uz_lat": "Qo'y jizi",
+    "name_uz_kril": "Қўй жизи",
+    "name_ru": "Жиз из баранины",
+    "name_en": "Lamb jiz",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 330,
+      "protein": 16,
+      "carbs": 1,
+      "fat": 30,
+      "type": "food",
+      "micros": {
+        "fe": 2,
+        "mg": 20,
+        "ca": 14,
+        "p": 160,
+        "k": 250,
+        "na": 380,
+        "zn": 3.2,
+        "vit_b2": 0.2,
+        "vit_b3": 5,
+        "vit_b6": 0.25,
+        "vit_b12": 2.4
+      }
+    },
+    "image_asset_path": "assets/foods/images/jiz_qoy.jpg"
+  },
+  {
+    "slug": "kuksi",
+    "name_uz_lat": "Kuksi",
+    "name_uz_kril": "Кукси",
+    "name_ru": "Кукси",
+    "name_en": "Kuksi",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Suyuq taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 95,
+      "protein": 5,
+      "carbs": 13,
+      "fat": 2.5,
+      "type": "food",
+      "micros": {
+        "fe": 1.2,
+        "mg": 18,
+        "ca": 25,
+        "p": 90,
+        "k": 180,
+        "na": 480,
+        "zn": 1.2,
+        "vit_c": 5,
+        "vit_a": 40,
+        "vit_k": 15,
+        "vit_b1": 0.1,
+        "vit_b3": 2.5,
+        "vit_b12": 0.6
+      }
+    },
+    "image_asset_path": "assets/foods/images/kuksi.jpg"
+  },
+  {
+    "slug": "mol_kotlet_pishloq",
+    "name_uz_lat": "Pishloqli mol kotleti",
+    "name_uz_kril": "Пишлоқли мол котлети",
+    "name_ru": "Говяжьи котлеты с сыром",
+    "name_en": "Beef cutlets with cheese",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 250,
+      "protein": 16,
+      "carbs": 8,
+      "fat": 17,
+      "type": "food",
+      "micros": {
+        "fe": 2,
+        "mg": 20,
+        "ca": 130,
+        "p": 190,
+        "k": 240,
+        "na": 480,
+        "zn": 3,
+        "se": 20,
+        "vit_a": 70,
+        "vit_b2": 0.25,
+        "vit_b3": 4.5,
+        "vit_b12": 1.8
+      }
+    },
+    "image_asset_path": "assets/foods/images/mol_kotlet_pishloq.jpg"
+  },
+  {
+    "slug": "moshkichiri",
+    "name_uz_lat": "Moshkichiri",
+    "name_uz_kril": "Мошкичири",
+    "name_ru": "Мошкичри",
+    "name_en": "Moshkichiri",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 150,
+      "protein": 8,
+      "carbs": 18,
+      "fat": 5,
+      "type": "food",
+      "micros": {
+        "fe": 2.2,
+        "mg": 40,
+        "ca": 25,
+        "p": 130,
+        "k": 220,
+        "na": 300,
+        "zn": 1.6,
+        "cu": 0.2,
+        "mn": 0.4,
+        "vit_a": 90,
+        "vit_b1": 0.2,
+        "vit_b3": 2.5,
+        "vit_b9": 60,
+        "vit_b12": 0.6
+      }
+    },
+    "image_asset_path": "assets/foods/images/moshkichiri.jpg"
+  },
+  {
+    "slug": "tovuq_kotlet",
+    "name_uz_lat": "Tovuq kotleti",
+    "name_uz_kril": "Товуқ котлети",
+    "name_ru": "Куриные котлеты",
+    "name_en": "Chicken cutlets",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Asosiy taomlar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 220,
+      "protein": 15,
+      "carbs": 9,
+      "fat": 13,
+      "type": "food",
+      "micros": {
+        "fe": 1,
+        "mg": 24,
+        "ca": 25,
+        "p": 160,
+        "k": 220,
+        "na": 420,
+        "zn": 1.1,
+        "se": 18,
+        "vit_a": 30,
+        "vit_b2": 0.15,
+        "vit_b3": 7,
+        "vit_b6": 0.35
+      }
+    },
+    "image_asset_path": "assets/foods/images/tovuq_kotlet.jpg"
+  },
+  {
+    "slug": "kapriz_ayol",
+    "name_uz_lat": "Jenskiy kapriz",
+    "name_uz_kril": "Женский каприз",
+    "name_ru": "Женский каприз",
+    "name_en": "Jenskiy kapriz",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Salatlar va gazaklar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 230,
+      "protein": 12,
+      "carbs": 6,
+      "fat": 18,
+      "type": "food",
+      "micros": {
+        "fe": 0.9,
+        "mg": 16,
+        "ca": 100,
+        "p": 150,
+        "k": 190,
+        "na": 460,
+        "se": 14,
+        "vit_a": 85,
+        "vit_e": 3,
+        "vit_k": 12,
+        "vit_b2": 0.18,
+        "vit_b3": 4,
+        "vit_b12": 0.5
+      }
+    },
+    "image_asset_path": "assets/foods/images/kapriz_ayol.png"
+  },
+  {
+    "slug": "kapriz_erkak",
+    "name_uz_lat": "Mujskoy kapriz",
+    "name_uz_kril": "Мужской каприз",
+    "name_ru": "Мужской каприз",
+    "name_en": "Mujskoy kapriz",
+    "photo_url": null,
+    "emoji": null,
+    "category": "Salatlar va gazaklar",
+    "default_unit": "g",
+    "grams_per_unit": 100,
+    "per_100g": {
+      "kcal": 270,
+      "protein": 11,
+      "carbs": 4,
+      "fat": 24,
+      "type": "food",
+      "micros": {
+        "fe": 1.6,
+        "mg": 16,
+        "ca": 110,
+        "p": 160,
+        "k": 180,
+        "na": 480,
+        "zn": 2.2,
+        "se": 15,
+        "vit_a": 90,
+        "vit_e": 3,
+        "vit_k": 12,
+        "vit_b2": 0.2,
+        "vit_b9": 20,
+        "vit_b12": 1.2
+      }
+    },
+    "image_asset_path": "assets/foods/images/kapriz_erkak.jpg"
   }
 ]
