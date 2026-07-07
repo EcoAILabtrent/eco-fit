@@ -60,7 +60,7 @@
   {
     "slug": "adigey_pishlogi",
     "name_uz_lat": "Adigey pishlog'i",
-    "name_uz_kril": "Адигэй пишлоғи",
+    "name_uz_kril": "Адигей пишлоғи",
     "name_ru": "Адыгейский сыр",
     "name_en": "Adyghe cheese",
     "photo_url": "/photos/000005.jpeg",
@@ -119,7 +119,7 @@
   {
     "slug": "adrenaline_rush",
     "name_uz_lat": "Adrenaline Rush",
-    "name_uz_kril": "Адрэналинэ Руш",
+    "name_uz_kril": "Адреналине Руш",
     "name_ru": "Адреналин",
     "name_en": "Adrenaline Rush",
     "photo_url": "/photos/000007.jpeg",
@@ -141,7 +141,8 @@
         "vit_b6": 2,
         "vit_b12": 2
       }
-    }
+    },
+    "image_asset_path": "assets/foods/images/adrenaline_rush.jpg"
   },
   {
     "slug": "alkogolsiz_pivo",
@@ -195,7 +196,7 @@
   {
     "slug": "amerikano",
     "name_uz_lat": "Amerikano",
-    "name_uz_kril": "Амэрикано",
+    "name_uz_kril": "Американо",
     "name_ru": "Американский",
     "name_en": "American",
     "photo_url": "/photos/000010.jpeg",
@@ -380,8 +381,8 @@
   {
     "slug": "uz_apelsin",
     "name_uz_lat": "Apelsin",
-    "name_uz_kril": "Апэлсин",
-    "name_ru": "Оранжевый",
+    "name_uz_kril": "Апелсин",
+    "name_ru": "Апельсин",
     "name_en": "Orange",
     "photo_url": "/photos/000017.jpeg",
     "emoji": null,
@@ -421,7 +422,7 @@
   {
     "slug": "apelsin_sharbati",
     "name_uz_lat": "Apelsin sharbati",
-    "name_uz_kril": "Апэлсин шарбати",
+    "name_uz_kril": "Апелсин шарбати",
     "name_ru": "Апельсиновый сок",
     "name_en": "Orange juice",
     "photo_url": "/photos/000018.jpeg",
@@ -571,7 +572,7 @@
   {
     "slug": "asalli_grek_yogurti",
     "name_uz_lat": "Asalli grek yogurti",
-    "name_uz_kril": "Асалли грэк ёгурти",
+    "name_uz_kril": "Асалли грек ёгурти",
     "name_ru": "Греческий йогурт с медом",
     "name_en": "Greek yogurt with honey",
     "photo_url": "/photos/000024.jpeg",
@@ -764,7 +765,7 @@
   {
     "slug": "ayvar_serb_sousi",
     "name_uz_lat": "Ayvar (Serb sousi)",
-    "name_uz_kril": "Айвар (Сэрб соуси)",
+    "name_uz_kril": "Айвар (Серб соуси)",
     "name_ru": "Айвар (сербский соус)",
     "name_en": "Ayvar (Serbian sauce)",
     "photo_url": "/photos/000031.jpeg",
@@ -848,7 +849,7 @@
   {
     "slug": "baliq_tilapiya_fermada_ostirilgan_xom",
     "name_uz_lat": "Baliq, tilapiya, fermada o'stirilgan, xom",
-    "name_uz_kril": "Балиқ, тилапия, фэрмада ўстирилган, хом",
+    "name_uz_kril": "Балиқ, тилапия, фермада ўстирилган, хом",
     "name_ru": "Рыба, тилапия, выращенная на ферме, сырая",
     "name_en": "Fish, tilapia, farm raised, raw",
     "photo_url": "/photos/000035.jpeg",
@@ -878,7 +879,7 @@
   {
     "slug": "baliqli_burger",
     "name_uz_lat": "Baliqli burger",
-    "name_uz_kril": "Балиқли бургэр",
+    "name_uz_kril": "Балиқли бургер",
     "name_ru": "Рыбный бургер",
     "name_en": "Fish burger",
     "photo_url": "/photos/000036.jpeg",
@@ -1248,7 +1249,7 @@
   {
     "slug": "bedana_goshti",
     "name_uz_lat": "Bedana go'shti",
-    "name_uz_kril": "Бэдана гўшти",
+    "name_uz_kril": "Бедана гўшти",
     "name_ru": "Перепелиное мясо",
     "name_en": "Quail meat",
     "photo_url": "/photos/000049.jpeg",
@@ -1283,7 +1284,7 @@
   {
     "slug": "bedana_tuxumi",
     "name_uz_lat": "Bedana tuxumi",
-    "name_uz_kril": "Бэдана тухуми",
+    "name_uz_kril": "Бедана тухуми",
     "name_ru": "Перепелиное яйцо",
     "name_en": "Quail egg",
     "photo_url": "/photos/000050.jpeg",
@@ -1322,7 +1323,7 @@
   {
     "slug": "bekon",
     "name_uz_lat": "Bekon",
-    "name_uz_kril": "Бэкон",
+    "name_uz_kril": "Бекон",
     "name_ru": "Бекон",
     "name_en": "Bacon",
     "photo_url": "/photos/000051.jpeg",
@@ -1353,7 +1354,7 @@
   {
     "slug": "berbere",
     "name_uz_lat": "Berbere",
-    "name_uz_kril": "Бэрбэрэ",
+    "name_uz_kril": "Бербере",
     "name_ru": "берберский",
     "name_en": "Berber",
     "photo_url": "/photos/000052.jpeg",
@@ -1380,7 +1381,7 @@
   {
     "slug": "beshamel_sousi",
     "name_uz_lat": "Beshamel sousi",
-    "name_uz_kril": "Бэшамэл соуси",
+    "name_uz_kril": "Бешамел соуси",
     "name_ru": "Соус Бешамель",
     "name_en": "Bechamel sauce",
     "photo_url": "/photos/000053.jpeg",
@@ -1409,7 +1410,7 @@
   {
     "slug": "biokefir",
     "name_uz_lat": "Biokefir",
-    "name_uz_kril": "Биокэфир",
+    "name_uz_kril": "Биокефир",
     "name_ru": "Биокефир",
     "name_en": "Biokefir",
     "photo_url": "/photos/000054.jpeg",
@@ -1495,7 +1496,7 @@
   {
     "slug": "biskvit_pechenesi",
     "name_uz_lat": "Biskvit pechen'esi",
-    "name_uz_kril": "Бисквит пэчэн'эси",
+    "name_uz_kril": "Бисквит печен'эси",
     "name_ru": "Печенье",
     "name_en": "Biscuits",
     "photo_url": "/photos/000057.jpeg",
@@ -1582,7 +1583,7 @@
   {
     "slug": "bolaklangan_vetchina",
     "name_uz_lat": "Bo'laklangan vetchina",
-    "name_uz_kril": "Бўлакланган вэтчина",
+    "name_uz_kril": "Бўлакланган ветчина",
     "name_ru": "Нарезанная ветчина",
     "name_en": "Sliced ham",
     "photo_url": "/photos/000060.jpeg",
@@ -1752,7 +1753,7 @@
   {
     "slug": "bolalar_grechka_botqasi",
     "name_uz_lat": "Bolalar grechka bo'tqasi",
-    "name_uz_kril": "Болалар грэчка бўтқаси",
+    "name_uz_kril": "Болалар гречка бўтқаси",
     "name_ru": "Детская гречневая каша",
     "name_en": "Children's buckwheat porridge",
     "photo_url": "/photos/000065.jpeg",
@@ -1809,7 +1810,7 @@
   {
     "slug": "bolalar_pechenesi",
     "name_uz_lat": "Bolalar pechen'esi",
-    "name_uz_kril": "Болалар пэчэн'эси",
+    "name_uz_kril": "Болалар печен'эси",
     "name_ru": "Детское печенье",
     "name_en": "Children's cookies",
     "photo_url": "/photos/000067.jpeg",
@@ -1895,7 +1896,7 @@
   {
     "slug": "bolalar_uchun_banan_pyuresi",
     "name_uz_lat": "Bolalar uchun banan pyuresi",
-    "name_uz_kril": "Болалар учун банан пюрэси",
+    "name_uz_kril": "Болалар учун банан пюреси",
     "name_ru": "Банановое пюре для детей.",
     "name_en": "Banana puree for children",
     "photo_url": "/photos/000071.jpeg",
@@ -1924,7 +1925,7 @@
   {
     "slug": "bolalar_uchun_brokkoli_pyuresi",
     "name_uz_lat": "Bolalar uchun brokkoli pyuresi",
-    "name_uz_kril": "Болалар учун брокколи пюрэси",
+    "name_uz_kril": "Болалар учун брокколи пюреси",
     "name_ru": "Пюре из брокколи для детей",
     "name_en": "Broccoli puree for children",
     "photo_url": "/photos/000072.jpeg",
@@ -1980,7 +1981,7 @@
   {
     "slug": "bolalar_uchun_kabachok_pyuresi",
     "name_uz_lat": "Bolalar uchun kabachok pyuresi",
-    "name_uz_kril": "Болалар учун кабачок пюрэси",
+    "name_uz_kril": "Болалар учун кабачок пюреси",
     "name_ru": "Пюре из кабачков для детей",
     "name_en": "Zucchini puree for children",
     "photo_url": "/photos/000074.jpeg",
@@ -2008,7 +2009,7 @@
   {
     "slug": "bolalar_uchun_kefir",
     "name_uz_lat": "Bolalar uchun kefir",
-    "name_uz_kril": "Болалар учун кэфир",
+    "name_uz_kril": "Болалар учун кефир",
     "name_ru": "Кефир для детей",
     "name_en": "Kefir for children",
     "photo_url": "/photos/000075.jpeg",
@@ -2037,7 +2038,7 @@
   {
     "slug": "bolalar_uchun_kurka_pyuresi",
     "name_uz_lat": "Bolalar uchun kurka pyuresi",
-    "name_uz_kril": "Болалар учун курка пюрэси",
+    "name_uz_kril": "Болалар учун курка пюреси",
     "name_ru": "Пюре из индейки для детей",
     "name_en": "Turkey puree for children",
     "photo_url": "/photos/000076.jpeg",
@@ -2094,7 +2095,7 @@
   {
     "slug": "bolalar_uchun_mango_pyuresi",
     "name_uz_lat": "Bolalar uchun mango pyuresi",
-    "name_uz_kril": "Болалар учун манго пюрэси",
+    "name_uz_kril": "Болалар учун манго пюреси",
     "name_ru": "Пюре манго для детей",
     "name_en": "Mango puree for children",
     "photo_url": "/photos/000078.jpeg",
@@ -2123,7 +2124,7 @@
   {
     "slug": "bolalar_uchun_mevali_pechene",
     "name_uz_lat": "Bolalar uchun mevali pechen'e",
-    "name_uz_kril": "Болалар учун мэвали пэчэн'э",
+    "name_uz_kril": "Болалар учун мевали печен'э",
     "name_ru": "Фруктовое печенье для детей",
     "name_en": "Fruit cookies for children",
     "photo_url": "/photos/000079.jpeg",
@@ -2151,7 +2152,7 @@
   {
     "slug": "bolalar_uchun_mevali_pyure_aralashmasi",
     "name_uz_lat": "Bolalar uchun mevali pyure aralashmasi",
-    "name_uz_kril": "Болалар учун мэвали пюрэ аралашмаси",
+    "name_uz_kril": "Болалар учун мевали пюре аралашмаси",
     "name_ru": "Смесь фруктовое пюре для детей",
     "name_en": "Fruit puree mix for children",
     "photo_url": "/photos/000080.jpeg",
@@ -2179,7 +2180,7 @@
   {
     "slug": "bolalar_uchun_mol_goshti_pyuresi",
     "name_uz_lat": "Bolalar uchun mol go'shti pyuresi",
-    "name_uz_kril": "Болалар учун мол гўшти пюрэси",
+    "name_uz_kril": "Болалар учун мол гўшти пюреси",
     "name_ru": "Пюре говяжье для детей",
     "name_en": "Beef puree for children",
     "photo_url": "/photos/000081.jpeg",
@@ -2241,7 +2242,7 @@
   {
     "slug": "bolalar_uchun_nok_pyuresi",
     "name_uz_lat": "Bolalar uchun nok pyuresi",
-    "name_uz_kril": "Болалар учун нок пюрэси",
+    "name_uz_kril": "Болалар учун нок пюреси",
     "name_ru": "Грушевое пюре для детей",
     "name_en": "Pear puree for children",
     "photo_url": "/photos/000083.jpeg",
@@ -2269,7 +2270,7 @@
   {
     "slug": "bolalar_uchun_orik_pyuresi",
     "name_uz_lat": "Bolalar uchun o'rik pyuresi",
-    "name_uz_kril": "Болалар учун ўрик пюрэси",
+    "name_uz_kril": "Болалар учун ўрик пюреси",
     "name_ru": "Абрикосовое пюре для детей",
     "name_en": "Apricot puree for children",
     "photo_url": "/photos/000084.jpeg",
@@ -2298,7 +2299,7 @@
   {
     "slug": "bolalar_uchun_olma_pyuresi",
     "name_uz_lat": "Bolalar uchun olma pyuresi",
-    "name_uz_kril": "Болалар учун олма пюрэси",
+    "name_uz_kril": "Болалар учун олма пюреси",
     "name_ru": "Яблочное пюре для детей",
     "name_en": "Apple puree for children",
     "photo_url": "/photos/000085.jpeg",
@@ -2355,7 +2356,7 @@
   {
     "slug": "bolalar_uchun_qovoq_pyuresi",
     "name_uz_lat": "Bolalar uchun qovoq pyuresi",
-    "name_uz_kril": "Болалар учун қовоқ пюрэси",
+    "name_uz_kril": "Болалар учун қовоқ пюреси",
     "name_ru": "Тыквенное пюре для детей",
     "name_en": "Pumpkin puree for children",
     "photo_url": "/photos/000087.jpeg",
@@ -2414,7 +2415,7 @@
   {
     "slug": "bolalar_uchun_sabzavotli_pyure_aralashmasi",
     "name_uz_lat": "Bolalar uchun sabzavotli pyure aralashmasi",
-    "name_uz_kril": "Болалар учун сабзавотли пюрэ аралашмаси",
+    "name_uz_kril": "Болалар учун сабзавотли пюре аралашмаси",
     "name_ru": "Овощная смесь-пюре для детей",
     "name_en": "Vegetable puree mixture for children",
     "photo_url": "/photos/000089.jpeg",
@@ -2442,7 +2443,7 @@
   {
     "slug": "bolalar_uchun_sabzi_pyuresi",
     "name_uz_lat": "Bolalar uchun sabzi pyuresi",
-    "name_uz_kril": "Болалар учун сабзи пюрэси",
+    "name_uz_kril": "Болалар учун сабзи пюреси",
     "name_ru": "Морковное пюре для детей",
     "name_en": "Carrot puree for children",
     "photo_url": "/photos/000090.jpeg",
@@ -2471,7 +2472,7 @@
   {
     "slug": "bolalar_uchun_shaftoli_pyuresi",
     "name_uz_lat": "Bolalar uchun shaftoli pyuresi",
-    "name_uz_kril": "Болалар учун шафтоли пюрэси",
+    "name_uz_kril": "Болалар учун шафтоли пюреси",
     "name_ru": "Персиковое пюре для детей",
     "name_en": "Peach puree for children",
     "photo_url": "/photos/000091.jpeg",
@@ -2499,7 +2500,7 @@
   {
     "slug": "bolalar_uchun_tovuq_pyuresi",
     "name_uz_lat": "Bolalar uchun tovuq pyuresi",
-    "name_uz_kril": "Болалар учун товуқ пюрэси",
+    "name_uz_kril": "Болалар учун товуқ пюреси",
     "name_ru": "Куриная каша для детей",
     "name_en": "Chicken porridge for children",
     "photo_url": "/photos/000092.jpeg",
@@ -2686,7 +2687,7 @@
   {
     "slug": "bryussel_karami",
     "name_uz_lat": "Bryussel karami",
-    "name_uz_kril": "Брюссэл карами",
+    "name_uz_kril": "Брюссел карами",
     "name_ru": "Брюссельская капуста",
     "name_en": "Brussels sprouts",
     "photo_url": "/photos/000099.jpeg",
@@ -2784,8 +2785,8 @@
   },
   {
     "slug": "bujenina",
-    "name_uz_lat": "Bujenina",
-    "name_uz_kril": "Бужэнина",
+    "name_uz_lat": "Pishirilgan cho'chqa go'shti",
+    "name_uz_kril": "Пиширилган чўчқа гўшти",
     "name_ru": "Буженина",
     "name_en": "Buzhenina",
     "photo_url": "/photos/000102.jpeg",
@@ -2909,7 +2910,7 @@
   {
     "slug": "butun_tuxum_xom_muzlatilgan_pasterizatsiyalangan",
     "name_uz_lat": "Butun tuxum, xom, muzlatilgan, pasterizatsiyalangan",
-    "name_uz_kril": "Бутун тухум, хом, музлатилган, пастэризатсияланган",
+    "name_uz_kril": "Бутун тухум, хом, музлатилган, пастеризатсияланган",
     "name_ru": "Яйца цельные, сырые, замороженные, пастеризованные",
     "name_en": "Whole eggs, raw, frozen, pasteurized",
     "photo_url": "/photos/000107.jpeg",
@@ -2938,7 +2939,7 @@
   {
     "slug": "buza_tariqdan_tayyorlangan_ozbek_ichimligi",
     "name_uz_lat": "Buza (tariqdan tayyorlangan o'zbek ichimligi)",
-    "name_uz_kril": "Буза (тариқдан тайёрланган ўзбэк ичимлиги)",
+    "name_uz_kril": "Буза (тариқдан тайёрланган ўзбек ичимлиги)",
     "name_ru": "Буза (узбекский напиток из проса)",
     "name_en": "Buza (Uzbek drink made from millet)",
     "photo_url": "/photos/000108.jpeg",
@@ -2966,7 +2967,7 @@
   {
     "slug": "buzoq_filesi",
     "name_uz_lat": "Buzoq filesi",
-    "name_uz_kril": "Бузоқ филэси",
+    "name_uz_kril": "Бузоқ филеси",
     "name_ru": "Филе телятины",
     "name_en": "Veal fillet",
     "photo_url": "/photos/000109.jpeg",
@@ -3102,10 +3103,10 @@
   },
   {
     "slug": "chakanda_morsi",
-    "name_uz_lat": "Chakanda morsi",
-    "name_uz_kril": "Чаканда морси",
-    "name_ru": "Чаканда Мурси",
-    "name_en": "Chakanda Morsi",
+    "name_uz_lat": "Chakanda ichimligi",
+    "name_uz_kril": "Чаканда ичимлиги",
+    "name_ru": "Облепиховый напиток",
+    "name_en": "Sea buckthorn drink",
     "photo_url": "/photos/000113.jpeg",
     "emoji": null,
     "category": "Ichimliklar",
@@ -3133,7 +3134,7 @@
   {
     "slug": "chapchxe",
     "name_uz_lat": "Chapchxe",
-    "name_uz_kril": "Чапчхэ",
+    "name_uz_kril": "Чапчхе",
     "name_ru": "Чапчхе",
     "name_en": "Chapchhe",
     "photo_url": "/photos/000114.jpeg",
@@ -3161,7 +3162,7 @@
   {
     "slug": "chechil_pishlogi",
     "name_uz_lat": "Chechil pishlog'i",
-    "name_uz_kril": "Чэчил пишлоғи",
+    "name_uz_kril": "Чечил пишлоғи",
     "name_ru": "сыр Чечил",
     "name_en": "Chechil cheese",
     "photo_url": "/photos/000116.jpeg",
@@ -3190,7 +3191,7 @@
   {
     "slug": "chedder_pishlogi",
     "name_uz_lat": "Chedder pishlog'i",
-    "name_uz_kril": "Чэддэр пишлоғи",
+    "name_uz_kril": "Чеддер пишлоғи",
     "name_ru": "сыр Чеддер",
     "name_en": "Cheddar cheese",
     "photo_url": "/photos/000117.jpeg",
@@ -3221,7 +3222,7 @@
   {
     "slug": "chili_kon_karne",
     "name_uz_lat": "Chili kon karne",
-    "name_uz_kril": "Чили кон карнэ",
+    "name_uz_kril": "Чили кон карне",
     "name_ru": "Чили кон карне",
     "name_en": "Chili con carne",
     "photo_url": "/photos/000118.jpeg",
@@ -3278,7 +3279,7 @@
   {
     "slug": "chochqa_goshti_korejka_suyaksiz_xom",
     "name_uz_lat": "Cho'chqa go'shti, korejka, suyaksiz, xom",
-    "name_uz_kril": "Чўчқа гўшти, корэжка, суяксиз, хом",
+    "name_uz_kril": "Чўчқа гўшти, корежка, суяксиз, хом",
     "name_ru": "Свиная корейка, бескостная, сырая",
     "name_en": "Pork loin, boneless, raw",
     "photo_url": "/photos/000120.jpeg",
@@ -3307,7 +3308,7 @@
   {
     "slug": "chochqa_goshti_korejka_vyrezka_suyaksiz_xom",
     "name_uz_lat": "Cho'chqa go'shti, korejka, vyrezka, suyaksiz, xom",
-    "name_uz_kril": "Чўчқа гўшти, корэжка, вйрэзка, суяксиз, хом",
+    "name_uz_kril": "Чўчқа гўшти, корежка, вйрезка, суяксиз, хом",
     "name_ru": "Свинина, корейка, бескостная, сырая",
     "name_en": "Pork, loin, boneless, raw",
     "photo_url": "/photos/000121.jpeg",
@@ -3337,7 +3338,7 @@
   {
     "slug": "chochqa_goshti_kotlet_markaziy_kesim_xom",
     "name_uz_lat": "Cho'chqa go'shti, kotlet, markaziy kesim, xom",
-    "name_uz_kril": "Чўчқа гўшти, котлэт, марказий кэсим, хом",
+    "name_uz_kril": "Чўчқа гўшти, котлет, марказий кесим, хом",
     "name_ru": "Свинина, котлета, центральная часть, сырая",
     "name_en": "Pork, cutlet, center cut, raw",
     "photo_url": "/photos/000122.jpeg",
@@ -3396,7 +3397,7 @@
   {
     "slug": "chochqa_goshti_qorin_terili_xom",
     "name_uz_lat": "Cho'chqa go'shti, qorin, terili, xom",
-    "name_uz_kril": "Чўчқа гўшти, қорин, тэрили, хом",
+    "name_uz_kril": "Чўчқа гўшти, қорин, терили, хом",
     "name_ru": "Свиная грудинка, на коже, сырая",
     "name_en": "Pork belly, skin on, raw",
     "photo_url": "/photos/000124.jpeg",
@@ -3426,7 +3427,7 @@
   {
     "slug": "chochqa_goshti_tuzlangan_bekon_pishirilgan_restoran",
     "name_uz_lat": "Cho'chqa go'shti, tuzlangan, bekon, pishirilgan, restoran",
-    "name_uz_kril": "Чўчқа гўшти, тузланган, бэкон, пиширилган, рэсторан",
+    "name_uz_kril": "Чўчқа гўшти, тузланган, бекон, пиширилган, ресторан",
     "name_ru": "Свинина соленая, беконная, запеченная, ресторанная",
     "name_en": "Pork, salted, bacon, baked, restaurant",
     "photo_url": "/photos/000125.jpeg",
@@ -3659,7 +3660,7 @@
   {
     "slug": "dengiz_okuni_chili_muzlatilgan_tabiiy_tutilgan",
     "name_uz_lat": "Dengiz okuni, Chili, muzlatilgan, tabiiy tutilgan",
-    "name_uz_kril": "Дэнгиз окуни, Чили, музлатилган, табиий тутилган",
+    "name_uz_kril": "Денгиз окуни, Чили, музлатилган, табиий тутилган",
     "name_ru": "Форель морская, Чили, замороженная, выловленная в натуральном вылове.",
     "name_en": "Sea trout, Chile, frozen, natural caught",
     "photo_url": "/photos/000135.jpeg",
@@ -3688,7 +3689,7 @@
   {
     "slug": "dengiz_taroqchasi_muzlatilgan_tabiiy_tutilgan",
     "name_uz_lat": "Dengiz taroqchasi, muzlatilgan, tabiiy tutilgan",
-    "name_uz_kril": "Дэнгиз тароқчаси, музлатилган, табиий тутилган",
+    "name_uz_kril": "Денгиз тароқчаси, музлатилган, табиий тутилган",
     "name_ru": "Морской гребешок, замороженный, натуральный вылов.",
     "name_en": "Sea scallop, frozen, natural caught",
     "photo_url": "/photos/000136.jpeg",
@@ -3720,7 +3721,7 @@
   {
     "slug": "desert_qizil_vino",
     "name_uz_lat": "Desert qizil vino",
-    "name_uz_kril": "Дэсэрт қизил вино",
+    "name_uz_kril": "Десерт қизил вино",
     "name_ru": "Десерт из красного вина",
     "name_en": "Red wine dessert",
     "photo_url": "/photos/000137.jpeg",
@@ -3749,7 +3750,7 @@
   {
     "slug": "uz_guruch_devzira",
     "name_uz_lat": "Devzira guruchi (xom)",
-    "name_uz_kril": "Дэвзира гуручи (хом)",
+    "name_uz_kril": "Девзира гуручи (хом)",
     "name_ru": "Рис Девзира (сырой)",
     "name_en": "Devzira rice (raw)",
     "photo_url": "/photos/000138.jpeg",
@@ -3784,7 +3785,7 @@
   {
     "slug": "dietik_kola",
     "name_uz_lat": "Dietik kola",
-    "name_uz_kril": "Диэтик кола",
+    "name_uz_kril": "Диетик кола",
     "name_ru": "Диетическая кола",
     "name_en": "Diet Coke",
     "photo_url": "/photos/000139.jpeg",
@@ -4110,7 +4111,7 @@
   {
     "slug": "dudlangan_treska",
     "name_uz_lat": "Dudlangan treska",
-    "name_uz_kril": "Дудланган трэска",
+    "name_uz_kril": "Дудланган треска",
     "name_ru": "Копченая треска",
     "name_en": "Smoked cod",
     "photo_url": "/photos/000150.jpeg",
@@ -4312,7 +4313,7 @@
   {
     "slug": "edamame",
     "name_uz_lat": "Edamame",
-    "name_uz_kril": "Эдамамэ",
+    "name_uz_kril": "Эдамаме",
     "name_ru": "Эдамаме",
     "name_en": "Edamame",
     "photo_url": "/photos/000157.jpeg",
@@ -4344,7 +4345,7 @@
   {
     "slug": "ekler",
     "name_uz_lat": "Ekler",
-    "name_uz_kril": "Эклэр",
+    "name_uz_kril": "Эклер",
     "name_ru": "Эклеры",
     "name_en": "Eclairs",
     "photo_url": "/photos/000158.jpeg",
@@ -4433,7 +4434,7 @@
   {
     "slug": "espresso",
     "name_uz_lat": "Espresso",
-    "name_uz_kril": "Эспрэссо",
+    "name_uz_kril": "Эспрессо",
     "name_ru": "Эспрессо",
     "name_en": "Espresso",
     "photo_url": "/photos/000162.jpeg",
@@ -4486,7 +4487,7 @@
   {
     "slug": "fenxel",
     "name_uz_lat": "Fenxel",
-    "name_uz_kril": "Фэнхэл",
+    "name_uz_kril": "Фенхел",
     "name_ru": "Фенхель",
     "name_en": "Fennel",
     "photo_url": "/photos/000164.jpeg",
@@ -4517,7 +4518,7 @@
   {
     "slug": "fenxel_urugi",
     "name_uz_lat": "Fenxel urug'i",
-    "name_uz_kril": "Фэнхэл уруғи",
+    "name_uz_kril": "Фенхел уруғи",
     "name_ru": "Семена фенхеля",
     "name_en": "Fennel seeds",
     "photo_url": "/photos/000165.jpeg",
@@ -4545,7 +4546,7 @@
   {
     "slug": "fetaksa_pishlogi",
     "name_uz_lat": "Feta pishlog'i",
-    "name_uz_kril": "Фэта пишлоғи",
+    "name_uz_kril": "Фета пишлоғи",
     "name_ru": "сыр фета",
     "name_en": "Feta cheese",
     "photo_url": "/photos/000167.jpeg",
@@ -4575,7 +4576,7 @@
   {
     "slug": "filadelfiya_pishlogi_krem_pishloq",
     "name_uz_lat": "Filadelfiya pishlog'i (krem-pishloq)",
-    "name_uz_kril": "Филадэлфия пишлоғи (крэм-пишлоқ)",
+    "name_uz_kril": "Филаделфия пишлоғи (крем-пишлоқ)",
     "name_ru": "Сыр Филадельфия (сливочный сыр)",
     "name_en": "Philadelphia cheese (cream cheese)",
     "photo_url": "/photos/000168.jpeg",
@@ -4654,7 +4655,7 @@
   {
     "slug": "fitnes_batonchigi",
     "name_uz_lat": "Fitnes batonchigi",
-    "name_uz_kril": "Фитнэс батончиги",
+    "name_uz_kril": "Фитнес батончиги",
     "name_ru": "Фитнес-палка",
     "name_en": "Fitness stick",
     "photo_url": "/photos/000171.jpeg",
@@ -4711,7 +4712,7 @@
   {
     "slug": "forel",
     "name_uz_lat": "Forel",
-    "name_uz_kril": "Форэл",
+    "name_uz_kril": "Форел",
     "name_ru": "Форель",
     "name_en": "Trout",
     "photo_url": "/photos/000173.jpeg",
@@ -4804,7 +4805,7 @@
   {
     "slug": "frappe",
     "name_uz_lat": "Frappe",
-    "name_uz_kril": "Фраппэ",
+    "name_uz_kril": "Фраппе",
     "name_ru": "Фраппе",
     "name_en": "Frappe",
     "photo_url": "/photos/000176.jpeg",
@@ -4831,7 +4832,7 @@
   {
     "slug": "frikadelkali_shorva",
     "name_uz_lat": "Frikadelkali sho'rva",
-    "name_uz_kril": "Фрикадэлкали шўрва",
+    "name_uz_kril": "Фрикаделкали шўрва",
     "name_ru": "Суп с фрикадельками",
     "name_en": "Meatball soup",
     "photo_url": "/photos/000177.jpeg",
@@ -5090,7 +5091,7 @@
   {
     "slug": "geyner",
     "name_uz_lat": "Geyner",
-    "name_uz_kril": "Гэйнэр",
+    "name_uz_kril": "Гейнер",
     "name_ru": "Гейнер",
     "name_en": "Gainer",
     "photo_url": "/photos/000188.jpeg",
@@ -5122,7 +5123,7 @@
   {
     "slug": "glyutensiz_brauni",
     "name_uz_lat": "Glyutensiz brauni",
-    "name_uz_kril": "Глютэнсиз брауни",
+    "name_uz_kril": "Глютенсиз брауни",
     "name_ru": "Безглютеновый брауни",
     "name_en": "Gluten-free brownies",
     "photo_url": "/photos/000191.jpeg",
@@ -5149,7 +5150,7 @@
   {
     "slug": "goshtli_rulet",
     "name_uz_lat": "Go'shtli rulet",
-    "name_uz_kril": "Гўштли рулэт",
+    "name_uz_kril": "Гўштли рулет",
     "name_ru": "Мясная рулетка",
     "name_en": "Meat roulette",
     "photo_url": "/photos/000192.jpeg",
@@ -5209,7 +5210,7 @@
   {
     "slug": "uz_grechka",
     "name_uz_lat": "Grechka",
-    "name_uz_kril": "Грэчка",
+    "name_uz_kril": "Гречка",
     "name_ru": "Гречка",
     "name_en": "Buckwheat",
     "photo_url": "/photos/000194.jpeg",
@@ -5248,7 +5249,7 @@
   {
     "slug": "gril_krevetkalari",
     "name_uz_lat": "Gril krevetkalari",
-    "name_uz_kril": "Грил крэвэткалари",
+    "name_uz_kril": "Грил креветкалари",
     "name_ru": "Креветки на гриле",
     "name_en": "Grilled shrimp",
     "photo_url": "/photos/000195.jpeg",
@@ -5306,8 +5307,8 @@
   },
   {
     "slug": "grilda_midiyalar",
-    "name_uz_lat": "Grilda midiyalar",
-    "name_uz_kril": "Грилда мидиялар",
+    "name_uz_lat": "Qovurilgan midiyalar",
+    "name_uz_kril": "Қовурилган мидиялар",
     "name_ru": "Жареные мидии",
     "name_en": "Grilled mussels",
     "photo_url": "/photos/000197.jpeg",
@@ -5336,7 +5337,7 @@
   {
     "slug": "guakamole_sousi",
     "name_uz_lat": "Guakamole sousi",
-    "name_uz_kril": "Гуакамолэ соуси",
+    "name_uz_kril": "Гуакамоле соуси",
     "name_ru": "соус гуакамоле",
     "name_en": "Guacamole sauce",
     "photo_url": "/photos/000198.jpeg",
@@ -5491,7 +5492,7 @@
   {
     "slug": "hind_paneri",
     "name_uz_lat": "Hind paneri",
-    "name_uz_kril": "Ҳинд панэри",
+    "name_uz_kril": "Ҳинд панери",
     "name_ru": "Индийский панир",
     "name_en": "Indian paneer",
     "photo_url": "/photos/000203.jpeg",
@@ -5548,7 +5549,7 @@
   {
     "slug": "jambil_ozbek_rayhoni",
     "name_uz_lat": "Jambil (o'zbek rayhoni)",
-    "name_uz_kril": "Жамбил (ўзбэк райҳони)",
+    "name_uz_kril": "Жамбил (ўзбек райҳони)",
     "name_ru": "Джамбил (узбекский базилик)",
     "name_en": "Jambil (Uzbek basil)",
     "photo_url": "/photos/000206.jpeg",
@@ -5770,7 +5771,7 @@
   {
     "slug": "kamamber_pishlogi",
     "name_uz_lat": "Kamamber pishlog'i",
-    "name_uz_kril": "Камамбэр пишлоғи",
+    "name_uz_kril": "Камамбер пишлоғи",
     "name_ru": "сыр камамбер",
     "name_en": "Camembert cheese",
     "photo_url": "/photos/000216.jpeg",
@@ -5799,10 +5800,10 @@
   },
   {
     "slug": "kambala_baliq",
-    "name_uz_lat": "Kambala baliq",
-    "name_uz_kril": "Камбала балиқ",
-    "name_ru": "Камбала рыба",
-    "name_en": "Flounder fish",
+    "name_uz_lat": "Qovurilgan kambala",
+    "name_uz_kril": "Қовурилган камбала",
+    "name_ru": "Жареная камбала",
+    "name_en": "Fried flounder",
     "photo_url": "/photos/000217.jpeg",
     "emoji": null,
     "category": "Baliq va dengiz mahsulotlari",
@@ -5985,7 +5986,7 @@
   {
     "slug": "karamelli_muzqaymoq",
     "name_uz_lat": "Karamelli muzqaymoq",
-    "name_uz_kril": "Карамэлли музқаймоқ",
+    "name_uz_kril": "Карамелли музқаймоқ",
     "name_ru": "Карамельное мороженое",
     "name_en": "Caramel ice cream",
     "photo_url": "/photos/000224.jpeg",
@@ -6042,7 +6043,7 @@
   {
     "slug": "karkade_gibiskus_choy",
     "name_uz_lat": "Karkade (gibiskus) choy",
-    "name_uz_kril": "Каркадэ (гибискус) чой",
+    "name_uz_kril": "Каркаде (гибискус) чой",
     "name_ru": "Чай Каркаде (гибискус)",
     "name_en": "Karkade (hibiscus) tea",
     "photo_url": "/photos/000226.jpeg",
@@ -6098,10 +6099,10 @@
   },
   {
     "slug": "karta_ot_kolbasasi",
-    "name_uz_lat": "Kazi",
+    "name_uz_lat": "Qazi",
     "name_uz_kril": "Қази",
     "name_ru": "Казы",
-    "name_en": "Kazi",
+    "name_en": "Horse meat sausage",
     "photo_url": "/photos/000228.jpeg",
     "emoji": null,
     "category": "Go'sht mahsulotlari",
@@ -6301,7 +6302,7 @@
   {
     "slug": "kayen_qalampiri",
     "name_uz_lat": "Kayen qalampiri",
-    "name_uz_kril": "Кайэн қалампири",
+    "name_uz_kril": "Кайен қалампири",
     "name_ru": "Кайенский перец",
     "name_en": "Cayenne pepper",
     "photo_url": "/photos/000235.jpeg",
@@ -6332,7 +6333,7 @@
   {
     "slug": "kazein_protein",
     "name_uz_lat": "Kazein (protein)",
-    "name_uz_kril": "Казэин (протэин)",
+    "name_uz_kril": "Казеин (протеин)",
     "name_ru": "Казеин (белок)",
     "name_en": "Casein (protein)",
     "photo_url": "/photos/000236.jpeg",
@@ -6361,7 +6362,7 @@
   {
     "slug": "kefal_baliq",
     "name_uz_lat": "Kefal baliq",
-    "name_uz_kril": "Кэфал балиқ",
+    "name_uz_kril": "Кефал балиқ",
     "name_ru": "Рыба кефаль",
     "name_en": "Mullet fish",
     "photo_url": "/photos/000237.jpeg",
@@ -6394,7 +6395,7 @@
   {
     "slug": "kefir_1",
     "name_uz_lat": "Kefir 1%",
-    "name_uz_kril": "Кэфир 1%",
+    "name_uz_kril": "Кефир 1%",
     "name_ru": "Кефир 1%",
     "name_en": "Kefir 1%",
     "photo_url": "/photos/000238.jpeg",
@@ -6423,7 +6424,7 @@
   {
     "slug": "kefir_25",
     "name_uz_lat": "Kefir 2,5%",
-    "name_uz_kril": "Кэфир 2,5%",
+    "name_uz_kril": "Кефир 2,5%",
     "name_ru": "Кефир 2,5%",
     "name_en": "Kefir 2.5%",
     "photo_url": "/photos/000239.jpeg",
@@ -6452,7 +6453,7 @@
   {
     "slug": "kefir_32",
     "name_uz_lat": "Kefir 3,2%",
-    "name_uz_kril": "Кэфир 3,2%",
+    "name_uz_kril": "Кефир 3,2%",
     "name_ru": "Кефир 3,2%",
     "name_en": "Kefir 3.2%",
     "photo_url": "/photos/000240.jpeg",
@@ -6491,7 +6492,7 @@
   {
     "slug": "ketchup",
     "name_uz_lat": "Ketchup",
-    "name_uz_kril": "Кэтчуп",
+    "name_uz_kril": "Кетчуп",
     "name_ru": "Кетчуп",
     "name_en": "Ketchup",
     "photo_url": "/photos/000242.jpeg",
@@ -6521,7 +6522,7 @@
   {
     "slug": "ketchup_restoran",
     "name_uz_lat": "Ketchup, restoran",
-    "name_uz_kril": "Кэтчуп, рэсторан",
+    "name_uz_kril": "Кетчуп, ресторан",
     "name_ru": "Кетчуп, ресторан",
     "name_en": "Ketchup, restaurant",
     "photo_url": "/photos/000243.jpeg",
@@ -6551,7 +6552,7 @@
   {
     "slug": "keyl_muzlatilgan_pishirilgan_qaynatilgan_suvi_tokilgan_tuzsiz",
     "name_uz_lat": "Keyl, muzlatilgan, pishirilgan, qaynatilgan, suvi to'kilgan, tuzsiz",
-    "name_uz_kril": "Кэйл, музлатилган, пиширилган, қайнатилган, суви тўкилган, тузсиз",
+    "name_uz_kril": "Кейл, музлатилган, пиширилган, қайнатилган, суви тўкилган, тузсиз",
     "name_ru": "Капуста замороженная, приготовленная, вареная, осушенная, несоленая",
     "name_en": "Kale, frozen, cooked, boiled, drained, unsalted",
     "photo_url": "/photos/000244.jpeg",
@@ -6590,7 +6591,7 @@
   {
     "slug": "keyl_xom",
     "name_uz_lat": "Keyl, xom",
-    "name_uz_kril": "Кэйл, хом",
+    "name_uz_kril": "Кейл, хом",
     "name_ru": "Кайл, сырой",
     "name_en": "Kyle, raw",
     "photo_url": "/photos/000245.jpeg",
@@ -6630,8 +6631,8 @@
     "slug": "kilka_baliq",
     "name_uz_lat": "Kilka baliq",
     "name_uz_kril": "Килка балиқ",
-    "name_ru": "Несколько рыб",
-    "name_en": "A few fish",
+    "name_ru": "Килька",
+    "name_en": "Sprat",
     "photo_url": "/photos/000247.jpeg",
     "emoji": null,
     "category": "Baliq va dengiz mahsulotlari",
@@ -6776,7 +6777,7 @@
   {
     "slug": "klyukvali_kissel",
     "name_uz_lat": "Klyukvali kissel",
-    "name_uz_kril": "Клюквали киссэл",
+    "name_uz_kril": "Клюквали киссел",
     "name_ru": "Клюквенный кисель",
     "name_en": "Cranberry Kissel",
     "photo_url": "/photos/000253.jpeg",
@@ -6967,7 +6968,7 @@
   {
     "slug": "kokatli_krem_chiz",
     "name_uz_lat": "Ko'katli krem-chiz",
-    "name_uz_kril": "Кўкатли крэм-чиз",
+    "name_uz_kril": "Кўкатли крем-чиз",
     "name_ru": "Зеленый сливочный сыр",
     "name_en": "Green cream cheese",
     "photo_url": "/photos/000260.jpeg",
@@ -7332,7 +7333,7 @@
   {
     "slug": "kollagen",
     "name_uz_lat": "Kollagen",
-    "name_uz_kril": "Коллагэн",
+    "name_uz_kril": "Коллаген",
     "name_ru": "Коллаген",
     "name_en": "Collagen",
     "photo_url": "/photos/000273.jpeg",
@@ -7466,7 +7467,7 @@
   {
     "slug": "koreyscha_sabzi",
     "name_uz_lat": "Koreyscha sabzi",
-    "name_uz_kril": "Корэйсча сабзи",
+    "name_uz_kril": "Корейсча сабзи",
     "name_ru": "Корейская морковь",
     "name_en": "Korean carrot",
     "photo_url": "/photos/000280.jpeg",
@@ -7590,7 +7591,7 @@
   {
     "slug": "uz_creatine",
     "name_uz_lat": "Kreatin",
-    "name_uz_kril": "Крэатин",
+    "name_uz_kril": "Креатин",
     "name_ru": "Креатин",
     "name_en": "Creatine",
     "photo_url": "/photos/000284.jpeg",
@@ -7610,7 +7611,7 @@
   {
     "slug": "krem_fresh",
     "name_uz_lat": "Krem-fresh",
-    "name_uz_kril": "Крэм-фрэш",
+    "name_uz_kril": "Крем-фреш",
     "name_ru": "Сливки свежие",
     "name_en": "Cream fresh",
     "photo_url": "/photos/000285.jpeg",
@@ -7639,7 +7640,7 @@
   {
     "slug": "krem_pishloq_toliq_yogli_blok",
     "name_uz_lat": "Krem-pishloq, to'liq yog'li, blok",
-    "name_uz_kril": "Крэм-пишлоқ, тўлиқ ёғли, блок",
+    "name_uz_kril": "Крем-пишлоқ, тўлиқ ёғли, блок",
     "name_ru": "Сливочный сыр, жирный, блочный",
     "name_en": "Cream cheese, full fat, block",
     "photo_url": "/photos/000286.jpeg",
@@ -7669,7 +7670,7 @@
   {
     "slug": "krevetka_va_avokadoli_salat",
     "name_uz_lat": "Krevetka va avokadoli salat",
-    "name_uz_kril": "Крэвэтка ва авокадоли салат",
+    "name_uz_kril": "Креветка ва авокадоли салат",
     "name_ru": "Салат из креветок и авокадо",
     "name_en": "Shrimp and avocado salad",
     "photo_url": "/photos/000287.jpeg",
@@ -7700,7 +7701,7 @@
   {
     "slug": "krevetkalar",
     "name_uz_lat": "Krevetkalar",
-    "name_uz_kril": "Крэвэткалар",
+    "name_uz_kril": "Креветкалар",
     "name_ru": "Креветки",
     "name_en": "Shrimps",
     "photo_url": "/photos/000288.jpeg",
@@ -7739,7 +7740,7 @@
   {
     "slug": "krevetkali_salat",
     "name_uz_lat": "Krevetkali salat",
-    "name_uz_kril": "Крэвэткали салат",
+    "name_uz_kril": "Креветкали салат",
     "name_ru": "Салат с креветками",
     "name_en": "Shrimp salad",
     "photo_url": "/photos/000289.jpeg",
@@ -7767,7 +7768,7 @@
   {
     "slug": "krovavaya_meri",
     "name_uz_lat": "Krovavaya Meri",
-    "name_uz_kril": "Кровавая Мэри",
+    "name_uz_kril": "Кровавая Мери",
     "name_ru": "Кровавая Мэри",
     "name_en": "Blood Mary",
     "photo_url": "/photos/000290.jpeg",
@@ -7873,7 +7874,7 @@
   {
     "slug": "kupkop_mineral_suvi",
     "name_uz_lat": "Kupkop mineral suvi",
-    "name_uz_kril": "Купкоп минэрал суви",
+    "name_uz_kril": "Купкоп минерал суви",
     "name_ru": "Купкопская минеральная вода",
     "name_en": "Kupkop mineral water",
     "photo_url": "/photos/000295.jpeg",
@@ -7900,7 +7901,7 @@
   {
     "slug": "kurka_filesi_kokragi",
     "name_uz_lat": "Kurka filesi (ko'kragi)",
-    "name_uz_kril": "Курка филэси (кўкраги)",
+    "name_uz_kril": "Курка филеси (кўкраги)",
     "name_ru": "Филе индейки (грудка)",
     "name_en": "Turkey fillet (breast)",
     "photo_url": "/photos/000296.jpeg",
@@ -8217,7 +8218,7 @@
   {
     "slug": "laminariya_dengiz_karami",
     "name_uz_lat": "Laminariya (dengiz karami)",
-    "name_uz_kril": "Ламинария (дэнгиз карами)",
+    "name_uz_kril": "Ламинария (денгиз карами)",
     "name_ru": "Келп (морская капуста)",
     "name_en": "Kelp (Sea Cabbage)",
     "photo_url": "/photos/000309.jpeg",
@@ -8252,7 +8253,7 @@
   {
     "slug": "latte",
     "name_uz_lat": "Latte",
-    "name_uz_kril": "Латтэ",
+    "name_uz_kril": "Латте",
     "name_ru": "Латте",
     "name_en": "Latte",
     "photo_url": "/photos/000310.jpeg",
@@ -8568,7 +8569,7 @@
   {
     "slug": "losos_semga",
     "name_uz_lat": "Losos (semga)",
-    "name_uz_kril": "Лосос (сэмга)",
+    "name_uz_kril": "Лосос (семга)",
     "name_ru": "лосось",
     "name_en": "salmon",
     "photo_url": "/photos/000320.jpeg",
@@ -8704,7 +8705,7 @@
   {
     "slug": "loviya_katta_shimoliy_konservalangan_tuz_qoshilgan_suvi_tokilgan_va_yuvilgan",
     "name_uz_lat": "Loviya, katta shimoliy, konservalangan, tuz qo'shilgan, suvi to'kilgan va yuvilgan",
-    "name_uz_kril": "Ловия, катта шимолий, консэрваланган, туз қўшилган, суви тўкилган ва ювилган",
+    "name_uz_kril": "Ловия, катта шимолий, консерваланган, туз қўшилган, суви тўкилган ва ювилган",
     "name_ru": "Фасоль крупная северная, консервированная, посоленная, осушенная и промытая.",
     "name_en": "Beans, large northern, canned, salted, drained and washed",
     "photo_url": "/photos/000325.jpeg",
@@ -8734,7 +8735,7 @@
   {
     "slug": "loviya_qizil_buyrak_shaklidagi_och_qizil_konservalangan_tuz_qoshilgan_shakar_qoshilgan_suvi_tokilgan_va_yuvilgan",
     "name_uz_lat": "Loviya, qizil buyrak shaklidagi, och qizil, konservalangan, tuz qo'shilgan, shakar qo'shilgan, suvi to'kilgan va yuvilgan",
-    "name_uz_kril": "Ловия, қизил буйрак шаклидаги, оч қизил, консэрваланган, туз қўшилган, шакар қўшилган, суви тўкилган ва ювилган",
+    "name_uz_kril": "Ловия, қизил буйрак шаклидаги, оч қизил, консерваланган, туз қўшилган, шакар қўшилган, суви тўкилган ва ювилган",
     "name_ru": "Фасоль красная почковидная, светло-красная, консервированная, соленая, засахаренная, слить воду и промыть.",
     "name_en": "Beans, red kidney-shaped, light red, canned, salted, sugared, drained and rinsed",
     "photo_url": "/photos/000326.jpeg",
@@ -9199,7 +9200,7 @@
   {
     "slug": "maskarpone",
     "name_uz_lat": "Maskarpone",
-    "name_uz_kril": "Маскарпонэ",
+    "name_uz_kril": "Маскарпоне",
     "name_ru": "Маскарпоне",
     "name_en": "Mascarpone",
     "photo_url": "/photos/000344.jpeg",
@@ -9292,7 +9293,7 @@
   {
     "slug": "mattya_latte",
     "name_uz_lat": "Mattya latte",
-    "name_uz_kril": "Маття латтэ",
+    "name_uz_kril": "Маття латте",
     "name_ru": "Маттиас латте",
     "name_en": "Matthias latte",
     "photo_url": "/photos/000347.jpeg",
@@ -9417,7 +9418,7 @@
   {
     "slug": "melissa",
     "name_uz_lat": "Melissa",
-    "name_uz_kril": "Мэлисса",
+    "name_uz_kril": "Мелисса",
     "name_ru": "Мелисса",
     "name_en": "Melissa",
     "photo_url": "/photos/000352.jpeg",
@@ -9445,7 +9446,7 @@
   {
     "slug": "mevali_ichimlik_yogurt",
     "name_uz_lat": "Mevali ichimlik yogurt",
-    "name_uz_kril": "Мэвали ичимлик ёгурт",
+    "name_uz_kril": "Мевали ичимлик ёгурт",
     "name_ru": "Фруктовый напиток йогурт",
     "name_en": "Fruit drink yogurt",
     "photo_url": "/photos/000353.jpeg",
@@ -9475,7 +9476,7 @@
   {
     "slug": "mevali_jele",
     "name_uz_lat": "Mevali jele",
-    "name_uz_kril": "Мэвали жэлэ",
+    "name_uz_kril": "Мевали желе",
     "name_ru": "Фруктовое желе",
     "name_en": "Fruit jelly",
     "photo_url": "/photos/000354.jpeg",
@@ -9502,7 +9503,7 @@
   {
     "slug": "mevali_muzqaymoq",
     "name_uz_lat": "Mevali muzqaymoq",
-    "name_uz_kril": "Мэвали музқаймоқ",
+    "name_uz_kril": "Мевали музқаймоқ",
     "name_ru": "Фруктовое мороженое",
     "name_en": "Fruit ice cream",
     "photo_url": "/photos/000355.jpeg",
@@ -9530,7 +9531,7 @@
   {
     "slug": "mevali_yogurt",
     "name_uz_lat": "Mevali yogurt",
-    "name_uz_kril": "Мэвали ёгурт",
+    "name_uz_kril": "Мевали ёгурт",
     "name_ru": "Фруктовый йогурт",
     "name_en": "Fruit yogurt",
     "photo_url": "/photos/000356.jpeg",
@@ -9635,7 +9636,7 @@
   {
     "slug": "mineral_suv",
     "name_uz_lat": "Mineral suv",
-    "name_uz_kril": "Минэрал сув",
+    "name_uz_kril": "Минерал сув",
     "name_ru": "Минеральная вода",
     "name_en": "Mineral water",
     "photo_url": "/photos/000359.jpeg",
@@ -9790,10 +9791,10 @@
   },
   {
     "slug": "mol_boyni",
-    "name_uz_lat": "Mol bo'yni",
-    "name_uz_kril": "Мол бўйни",
-    "name_ru": "Родинка на шее",
-    "name_en": "Mole neck",
+    "name_uz_lat": "Mol bo'yni go'shti",
+    "name_uz_kril": "Мол бўйни гўшти",
+    "name_ru": "Говяжья шейка",
+    "name_en": "Beef neck",
     "photo_url": "/photos/000364.jpeg",
     "emoji": null,
     "category": "Go'sht mahsulotlari",
@@ -9863,7 +9864,7 @@
   {
     "slug": "mol_filesi",
     "name_uz_lat": "Mol filesi",
-    "name_uz_kril": "Мол филэси",
+    "name_uz_kril": "Мол филеси",
     "name_ru": "Филе говядины",
     "name_en": "Beef fillet",
     "photo_url": "/photos/000366.jpeg",
@@ -9898,7 +9899,7 @@
   {
     "slug": "mol_goshti_vetchinasi",
     "name_uz_lat": "Mol go'shti vetchinasi",
-    "name_uz_kril": "Мол гўшти вэтчинаси",
+    "name_uz_kril": "Мол гўшти ветчинаси",
     "name_ru": "Говяжья ветчина",
     "name_en": "Beef ham",
     "photo_url": "/photos/000367.jpeg",
@@ -9926,7 +9927,7 @@
   {
     "slug": "mol_goshti_biqin_steyk_suyaksiz_sara_xom",
     "name_uz_lat": "Mol go'shti, biqin, steyk, suyaksiz, sara, xom",
-    "name_uz_kril": "Мол гўшти, биқин, стэйк, суяксиз, сара, хом",
+    "name_uz_kril": "Мол гўшти, биқин, стейк, суяксиз, сара, хом",
     "name_ru": "Говядина, вырезка, стейк, бескостный, вырезка, сырая",
     "name_en": "Beef, sirloin, steak, boneless, sirloin, raw",
     "photo_url": "/photos/000368.jpeg",
@@ -9956,7 +9957,7 @@
   {
     "slug": "mol_goshti_dumba_koz_dumba_rosti_suyaksiz_faqat_yogsiz_qismi_0_yoggacha_kesilgan_tanlangan_xom",
     "name_uz_lat": "Mol go'shti, dumba, ko'z dumba rosti, suyaksiz, faqat yog'siz qismi, 0\" yog'gacha kesilgan, tanlangan, xom",
-    "name_uz_kril": "Мол гўшти, думба, кўз думба рости, суяксиз, фақат ёғсиз қисми, 0\" ёғгача кэсилган, танланган, хом",
+    "name_uz_kril": "Мол гўшти, думба, кўз думба рости, суяксиз, фақат ёғсиз қисми, 0\" ёғгача кесилган, танланган, хом",
     "name_ru": "Говядина, огузок, огузок, без костей, только нежирное, обезжиренный до 0 дюймов жира, отборный, сырой",
     "name_en": "Beef, rump, eye rump, boneless, lean only, trimmed to 0\" fat, selected, raw",
     "photo_url": "/photos/000369.jpeg",
@@ -9991,7 +9992,7 @@
   {
     "slug": "mol_goshti_dumba_yuqori_dumba_rosti_suyaksiz_faqat_yogsiz_qismi_0_yoggacha_kesilgan_tanlangan_xom",
     "name_uz_lat": "Mol go'shti, dumba, yuqori dumba rosti, suyaksiz, faqat yog'siz qismi, 0\" yog'gacha kesilgan, tanlangan, xom",
-    "name_uz_kril": "Мол гўшти, думба, юқори думба рости, суяксиз, фақат ёғсиз қисми, 0\" ёғгача кэсилган, танланган, хом",
+    "name_uz_kril": "Мол гўшти, думба, юқори думба рости, суяксиз, фақат ёғсиз қисми, 0\" ёғгача кесилган, танланган, хом",
     "name_ru": "Говядина, корейка, верхняя часть корейки, без костей, только нежирное мясо, с обрезанной до 0 дюймов жира, отборная, сырая",
     "name_en": "Beef, loin, top loin, boneless, lean only, trimmed to 0\" fat, selected, raw",
     "photo_url": "/photos/000370.jpeg",
@@ -10059,7 +10060,7 @@
   {
     "slug": "mol_goshti_korejka_vyrezka_rosti_faqat_yogsiz_qismi_suyaksiz_0_yoggacha_kesilgan_tanlangan_pishirilgan_qovurilgan",
     "name_uz_lat": "Mol go'shti, korejka, vyrezka rosti, faqat yog'siz qismi, suyaksiz, 0\" yog'gacha kesilgan, tanlangan, pishirilgan, qovurilgan",
-    "name_uz_kril": "Мол гўшти, корэжка, вйрэзка рости, фақат ёғсиз қисми, суяксиз, 0\" ёғгача кэсилган, танланган, пиширилган, қовурилган",
+    "name_uz_kril": "Мол гўшти, корежка, вйрезка рости, фақат ёғсиз қисми, суяксиз, 0\" ёғгача кесилган, танланган, пиширилган, қовурилган",
     "name_ru": "Говядина, вырезка, вырезка рости, только нежирная, без костей, с толщиной жира 0 дюймов, отборная, запеченная, жареная",
     "name_en": "Beef, sirloin, vyrezka rosti, lean only, boneless, cut to 0\" fat, selected, baked, roasted",
     "photo_url": "/photos/000372.jpeg",
@@ -10094,7 +10095,7 @@
   {
     "slug": "mol_goshti_korejka_yuqori_korejka_steyk_suyaksiz_lab_bilan_faqat_yogsiz_qismi_18_yoggacha_kesilgan_sara_xom",
     "name_uz_lat": "Mol go'shti, korejka, yuqori korejka steyk, suyaksiz, lab bilan, faqat yog'siz qismi, 1/8\" yog'gacha kesilgan, sara, xom",
-    "name_uz_kril": "Мол гўшти, корэжка, юқори корэжка стэйк, суяксиз, лаб билан, фақат ёғсиз қисми, 1/8\" ёғгача кэсилган, сара, хом",
+    "name_uz_kril": "Мол гўшти, корежка, юқори корежка стейк, суяксиз, лаб билан, фақат ёғсиз қисми, 1/8\" ёғгача кесилган, сара, хом",
     "name_ru": "Говядина, вырезка, стейк из вырезки, без костей, губа, только нежирное мясо, с обрезанным жиром до 1/8 дюйма, вырезка, сырая",
     "name_en": "Beef, sirloin, sirloin steak, boneless, lip, lean only, trimmed to 1/8\" fat, sirloin, raw",
     "photo_url": "/photos/000373.jpeg",
@@ -10161,7 +10162,7 @@
   {
     "slug": "mol_goshti_qisqa_korejka_ny_strip_steyk_xom",
     "name_uz_lat": "Mol go'shti, qisqa korejka (NY strip steyk), xom",
-    "name_uz_kril": "Мол гўшти, қисқа корэжка (НЙ стрип стэйк), хом",
+    "name_uz_kril": "Мол гўшти, қисқа корежка (НЙ стрип стейк), хом",
     "name_ru": "Говядина, короткое ребро (стейк из Нью-Йорка), сырое",
     "name_en": "Beef, short rib (NY strip steak), raw",
     "photo_url": "/photos/000375.jpeg",
@@ -10191,7 +10192,7 @@
   {
     "slug": "mol_goshti_qisqa_korejka_porterxaus_steyk_faqat_yogsiz_qismi_18_yoggacha_kesilgan_tanlangan_xom",
     "name_uz_lat": "Mol go'shti, qisqa korejka, porterxaus steyk, faqat yog'siz qismi, 1/8\" yog'gacha kesilgan, tanlangan, xom",
-    "name_uz_kril": "Мол гўшти, қисқа корэжка, портэрхаус стэйк, фақат ёғсиз қисми, 1/8\" ёғгача кэсилган, танланган, хом",
+    "name_uz_kril": "Мол гўшти, қисқа корежка, портерхаус стейк, фақат ёғсиз қисми, 1/8\" ёғгача кесилган, танланган, хом",
     "name_ru": "Говядина, короткие ребра, стейк портерхаус, только постное, с обрезанным жиром до 1/8 дюйма, отборное, сырое.",
     "name_en": "Beef, short rib, porterhouse steak, lean only, trimmed to 1/8\" fat, selected, raw",
     "photo_url": "/photos/000376.jpeg",
@@ -10226,7 +10227,7 @@
   {
     "slug": "mol_goshti_qisqa_korejka_t_suyak_steyk_suyakli_faqat_yogsiz_qismi_18_yoggacha_kesilgan_sara_pishirilgan_gril_qilingan",
     "name_uz_lat": "Mol go'shti, qisqa korejka, T-suyak steyk, suyakli, faqat yog'siz qismi, 1/8\" yog'gacha kesilgan, sara, pishirilgan, gril qilingan",
-    "name_uz_kril": "Мол гўшти, қисқа корэжка, Т-суяк стэйк, суякли, фақат ёғсиз қисми, 1/8\" ёғгача кэсилган, сара, пиширилган, грил қилинган",
+    "name_uz_kril": "Мол гўшти, қисқа корежка, Т-суяк стейк, суякли, фақат ёғсиз қисми, 1/8\" ёғгача кесилган, сара, пиширилган, грил қилинган",
     "name_ru": "Говядина, короткие ребра, стейк на косточке, на кости, только постное, с обрезанным жиром до 1/8 дюйма, нарезанное ломтиками, приготовленное, на гриле",
     "name_en": "Beef, short rib, T-bone steak, bone-in, lean only, trimmed to 1/8\" fat, sliced, cooked, grilled",
     "photo_url": "/photos/000377.jpeg",
@@ -10319,7 +10320,7 @@
   {
     "slug": "mol_goshti_ribay_steyk_suyaksiz_sara_xom",
     "name_uz_lat": "Mol go'shti, ribay, steyk, suyaksiz, sara, xom",
-    "name_uz_kril": "Мол гўшти, рибай, стэйк, суяксиз, сара, хом",
+    "name_uz_kril": "Мол гўшти, рибай, стейк, суяксиз, сара, хом",
     "name_ru": "Говядина, рибай, стейк, без костей, вырезка, сырая",
     "name_en": "Beef, ribeye, steak, boneless, sirloin, raw",
     "photo_url": "/photos/000380.jpeg",
@@ -10348,7 +10349,7 @@
   {
     "slug": "mol_goshti_vyrezka_steyk_xom",
     "name_uz_lat": "Mol go'shti, vyrezka steyk, xom",
-    "name_uz_kril": "Мол гўшти, вйрэзка стэйк, хом",
+    "name_uz_kril": "Мол гўшти, вйрезка стейк, хом",
     "name_ru": "Говядина, стейк из вырезки, сырой",
     "name_en": "Beef, sirloin steak, raw",
     "photo_url": "/photos/000381.jpeg",
@@ -10378,7 +10379,7 @@
   {
     "slug": "mol_goshti_yuqori_filey_steyk_xom",
     "name_uz_lat": "Mol go'shti, yuqori filey steyk, xom",
-    "name_uz_kril": "Мол гўшти, юқори филэй стэйк, хом",
+    "name_uz_kril": "Мол гўшти, юқори филей стейк, хом",
     "name_ru": "Говядина, стейк из верхней части вырезки, сырой",
     "name_en": "Beef, top sirloin steak, raw",
     "photo_url": "/photos/000382.jpeg",
@@ -10438,7 +10439,7 @@
   {
     "slug": "mol_goshtidan_kotlet",
     "name_uz_lat": "Mol go'shtidan kotlet",
-    "name_uz_kril": "Мол гўштидан котлэт",
+    "name_uz_kril": "Мол гўштидан котлет",
     "name_ru": "Котлета из говядины",
     "name_en": "Beef cutlet",
     "photo_url": "/photos/000384.jpeg",
@@ -10468,7 +10469,7 @@
   {
     "slug": "mol_goshtidan_shnitsel",
     "name_uz_lat": "Mol go'shtidan shnitsel",
-    "name_uz_kril": "Мол гўштидан шнитсэл",
+    "name_uz_kril": "Мол гўштидан шнитсел",
     "name_ru": "Шницель из говядины",
     "name_en": "Beef schnitzel",
     "photo_url": "/photos/000385.jpeg",
@@ -10885,7 +10886,7 @@
   {
     "slug": "motsarella",
     "name_uz_lat": "Motsarella",
-    "name_uz_kril": "Мотсарэлла",
+    "name_uz_kril": "Мотсарелла",
     "name_ru": "Моцарелла",
     "name_en": "Mozzarella",
     "photo_url": "/photos/000399.jpeg",
@@ -10920,7 +10921,7 @@
   {
     "slug": "moychechak_choy",
     "name_uz_lat": "Moychechak choy",
-    "name_uz_kril": "Мойчэчак чой",
+    "name_uz_kril": "Мойчечак чой",
     "name_ru": "Ромашковый чай",
     "name_en": "Chamomile tea",
     "photo_url": "/photos/000400.jpeg",
@@ -11026,37 +11027,6 @@
         "fe": 3,
         "vit_c": 3,
         "vit_b6": 0.16
-      }
-    }
-  },
-  {
-    "slug": "muz_baliq",
-    "name_uz_lat": "Muz baliq",
-    "name_uz_kril": "Муз балиқ",
-    "name_ru": "Ледяная рыба",
-    "name_en": "Ice fish",
-    "photo_url": "/photos/000404.jpeg",
-    "emoji": null,
-    "category": "Baliq va dengiz mahsulotlari",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 75,
-      "protein": 17.7,
-      "carbs": 0,
-      "fat": 0.7,
-      "type": "food",
-      "micros": {
-        "k": 340,
-        "ca": 30,
-        "p": 230,
-        "mg": 50,
-        "na": 65,
-        "fe": 0.7,
-        "zn": 1,
-        "vit_b1": 0.12,
-        "vit_b3": 1.3,
-        "vit_b12": 1.3
       }
     }
   },
@@ -11582,7 +11552,7 @@
   {
     "slug": "orilgan_pishloq_chechil",
     "name_uz_lat": "O'rilgan pishloq (chechil)",
-    "name_uz_kril": "Ўрилган пишлоқ (чэчил)",
+    "name_uz_kril": "Ўрилган пишлоқ (чечил)",
     "name_ru": "Тертый сыр (чечил)",
     "name_en": "Grated cheese (chechil)",
     "photo_url": "/photos/000422.jpeg",
@@ -11669,7 +11639,7 @@
   {
     "slug": "ozbek_erigan_pishlogi",
     "name_uz_lat": "O'zbek erigan pishlog'i",
-    "name_uz_kril": "Ўзбэк эриган пишлоғи",
+    "name_uz_kril": "Ўзбек эриган пишлоғи",
     "name_ru": "Узбекский плавленый сыр",
     "name_en": "Uzbek processed cheese",
     "photo_url": "/photos/000426.jpeg",
@@ -11698,7 +11668,7 @@
   {
     "slug": "ozbek_uy_kolbasasi",
     "name_uz_lat": "O'zbek uy kolbasasi",
-    "name_uz_kril": "Ўзбэк уй колбасаси",
+    "name_uz_kril": "Ўзбек уй колбасаси",
     "name_ru": "Узбекская домашняя колбаса",
     "name_en": "Uzbek homemade sausage",
     "photo_url": "/photos/000427.jpeg",
@@ -11727,7 +11697,7 @@
   {
     "slug": "ozbek_uzum_bargli_dolma",
     "name_uz_lat": "O'zbek uzum bargli dolma",
-    "name_uz_kril": "Ўзбэк узум баргли долма",
+    "name_uz_kril": "Ўзбек узум баргли долма",
     "name_ru": "Узбекская долма с виноградными листьями",
     "name_en": "Uzbek dolma with grape leaves",
     "photo_url": "/photos/000428.jpeg",
@@ -11755,7 +11725,7 @@
   {
     "slug": "ozbek_ziravori_universal",
     "name_uz_lat": "O'zbek ziravori (universal)",
-    "name_uz_kril": "Ўзбэк зиравори (унивэрсал)",
+    "name_uz_kril": "Ўзбек зиравори (универсал)",
     "name_ru": "Узбекская специя (универсальная)",
     "name_en": "Uzbek spice (universal)",
     "photo_url": "/photos/000429.jpeg",
@@ -11783,7 +11753,7 @@
   {
     "slug": "ozbekcha_qovurma_qozon_kabob",
     "name_uz_lat": "O'zbekcha qovurma (qozon kabob)",
-    "name_uz_kril": "Ўзбэкча қовурма (қозон кабоб)",
+    "name_uz_kril": "Ўзбекча қовурма (қозон кабоб)",
     "name_ru": "Узбекское жаркое (кебаб в горшочке)",
     "name_en": "Uzbek roast (pot kebab)",
     "photo_url": "/photos/000430.jpeg",
@@ -11853,7 +11823,7 @@
   {
     "slug": "odessa_kolbasasi",
     "name_uz_lat": "Odessa kolbasasi",
-    "name_uz_kril": "Одэсса колбасаси",
+    "name_uz_kril": "Одесса колбасаси",
     "name_ru": "Одесская колбаса",
     "name_en": "Odessa sausage",
     "photo_url": "/photos/000434.jpeg",
@@ -12214,7 +12184,7 @@
   {
     "slug": "omlet",
     "name_uz_lat": "Omlet",
-    "name_uz_kril": "Омлэт",
+    "name_uz_kril": "Омлет",
     "name_ru": "омлет",
     "name_en": "Omelet",
     "photo_url": "/photos/000446.jpeg",
@@ -12461,10 +12431,10 @@
   },
   {
     "slug": "osminog",
-    "name_uz_lat": "Osminog",
-    "name_uz_kril": "Осминог",
-    "name_ru": "Осминог",
-    "name_en": "Osminog",
+    "name_uz_lat": "Sakkizoyoq",
+    "name_uz_kril": "Саккизоёқ",
+    "name_ru": "Осьминог",
+    "name_en": "Octopus",
     "photo_url": "/photos/000454.jpeg",
     "emoji": null,
     "category": "Baliq va dengiz mahsulotlari",
@@ -12535,10 +12505,10 @@
   },
   {
     "slug": "uz_ovsyanka",
-    "name_uz_lat": "Ovsyanka",
-    "name_uz_kril": "Овсянка",
+    "name_uz_lat": "Suli yormasi",
+    "name_uz_kril": "Сули ёрмаси",
     "name_ru": "Овсянка",
-    "name_en": "Ovsyanka",
+    "name_en": "Oatmeal",
     "photo_url": "/photos/000456.jpeg",
     "emoji": null,
     "category": "grains",
@@ -12630,7 +12600,7 @@
   {
     "slug": "panettone",
     "name_uz_lat": "Panettone",
-    "name_uz_kril": "Панэттонэ",
+    "name_uz_kril": "Панеттоне",
     "name_ru": "Панеттоне",
     "name_en": "Panettone",
     "photo_url": "/photos/000459.jpeg",
@@ -12689,7 +12659,7 @@
   {
     "slug": "parmezan_pishlogi",
     "name_uz_lat": "Parmezan pishlog'i",
-    "name_uz_kril": "Пармэзан пишлоғи",
+    "name_uz_kril": "Пармезан пишлоғи",
     "name_ru": "сыр пармезан",
     "name_en": "Parmesan cheese",
     "photo_url": "/photos/000461.jpeg",
@@ -12775,7 +12745,7 @@
   {
     "slug": "pasternak",
     "name_uz_lat": "Pasternak",
-    "name_uz_kril": "Пастэрнак",
+    "name_uz_kril": "Пастернак",
     "name_ru": "Пастернак",
     "name_en": "Pasternak",
     "photo_url": "/photos/000464.jpeg",
@@ -12920,7 +12890,7 @@
   {
     "slug": "uz_pechenye",
     "name_uz_lat": "Pechenye",
-    "name_uz_kril": "Пэчэнйэ",
+    "name_uz_kril": "Печенйе",
     "name_ru": "Печенье",
     "name_en": "Cookies",
     "photo_url": "/photos/000470.jpeg",
@@ -12948,7 +12918,7 @@
   {
     "slug": "pekin_karami",
     "name_uz_lat": "Pekin karami",
-    "name_uz_kril": "Пэкин карами",
+    "name_uz_kril": "Пекин карами",
     "name_ru": "Пекинская капуста",
     "name_en": "Beijing cabbage",
     "photo_url": "/photos/000471.jpeg",
@@ -12980,7 +12950,7 @@
   {
     "slug": "pepperoni",
     "name_uz_lat": "Pepperoni",
-    "name_uz_kril": "Пэппэрони",
+    "name_uz_kril": "Пепперони",
     "name_ru": "Пепперони",
     "name_en": "Pepperoni",
     "photo_url": "/photos/000472.jpeg",
@@ -13008,7 +12978,7 @@
   {
     "slug": "pepsi",
     "name_uz_lat": "Pepsi",
-    "name_uz_kril": "Пэпси",
+    "name_uz_kril": "Пепси",
     "name_ru": "Пепси",
     "name_en": "Pepsi",
     "photo_url": "/photos/000473.jpeg",
@@ -13032,7 +13002,7 @@
   {
     "slug": "uz_perlovka",
     "name_uz_lat": "Perlovka",
-    "name_uz_kril": "Пэрловка",
+    "name_uz_kril": "Перловка",
     "name_ru": "Перловка",
     "name_en": "Perlovka",
     "photo_url": "/photos/000474.jpeg",
@@ -13068,7 +13038,7 @@
   {
     "slug": "pesto_sousi",
     "name_uz_lat": "Pesto sousi",
-    "name_uz_kril": "Пэсто соуси",
+    "name_uz_kril": "Песто соуси",
     "name_ru": "Соус песто",
     "name_en": "Pesto sauce",
     "photo_url": "/photos/000475.jpeg",
@@ -13153,7 +13123,7 @@
   {
     "slug": "pishloq_amerika_restoran",
     "name_uz_lat": "Pishloq, Amerika, restoran",
-    "name_uz_kril": "Пишлоқ, Амэрика, рэсторан",
+    "name_uz_kril": "Пишлоқ, Америка, ресторан",
     "name_ru": "Сырная, Американская, Ресторанная",
     "name_en": "Cheese, American, restaurant",
     "photo_url": "/photos/000479.jpeg",
@@ -13183,7 +13153,7 @@
   {
     "slug": "pishloq_feta_toliq_yogli_sutdan_uvalangan",
     "name_uz_lat": "Pishloq, feta, to'liq yog'li sutdan, uvalangan",
-    "name_uz_kril": "Пишлоқ, фэта, тўлиқ ёғли сутдан, уваланган",
+    "name_uz_kril": "Пишлоқ, фета, тўлиқ ёғли сутдан, уваланган",
     "name_ru": "Сыр фета из цельного молока, сгущенный",
     "name_en": "Cheese, feta, from whole milk, evaporated",
     "photo_url": "/photos/000480.jpeg",
@@ -13245,7 +13215,7 @@
   {
     "slug": "pishloq_monterey_jek_qattiq",
     "name_uz_lat": "Pishloq, monterey jek, qattiq",
-    "name_uz_kril": "Пишлоқ, монтэрэй жэк, қаттиқ",
+    "name_uz_kril": "Пишлоқ, монтерей жек, қаттиқ",
     "name_ru": "Сыр, Монтерей Джек, твердый",
     "name_en": "Cheese, monterey jack, hard",
     "photo_url": "/photos/000482.jpeg",
@@ -13273,7 +13243,7 @@
   {
     "slug": "pishloq_motsarella_kam_namlikli_yarim_yogsiz_sutdan",
     "name_uz_lat": "Pishloq, motsarella, kam namlikli, yarim yog'siz sutdan",
-    "name_uz_kril": "Пишлоқ, мотсарэлла, кам намликли, ярим ёғсиз сутдан",
+    "name_uz_kril": "Пишлоқ, мотсарелла, кам намликли, ярим ёғсиз сутдан",
     "name_ru": "Сыр, моцарелла, из маловлажного полуобезжиренного молока",
     "name_en": "Cheese, mozzarella, from low-moisture, semi-skimmed milk",
     "photo_url": "/photos/000483.jpeg",
@@ -13341,7 +13311,7 @@
   {
     "slug": "pishloq_parmezan_maydalangan",
     "name_uz_lat": "Pishloq, parmezan, maydalangan",
-    "name_uz_kril": "Пишлоқ, пармэзан, майдаланган",
+    "name_uz_kril": "Пишлоқ, пармезан, майдаланган",
     "name_ru": "Сыр, Пармезан, тертый",
     "name_en": "Cheese, Parmesan, grated",
     "photo_url": "/photos/000485.jpeg",
@@ -13381,7 +13351,7 @@
   {
     "slug": "pishloq_pasterizatsiyalangan_ishlangan_amerika_d_vitamini_bilan_boyitilgan",
     "name_uz_lat": "Pishloq, pasterizatsiyalangan ishlangan, Amerika, D vitamini bilan boyitilgan",
-    "name_uz_kril": "Пишлоқ, пастэризатсияланган ишланган, Амэрика, Д витамини билан бойитилган",
+    "name_uz_kril": "Пишлоқ, пастеризатсияланган ишланган, Америка, Д витамини билан бойитилган",
     "name_ru": "Сыр пастеризованный плавленный американский обогащенный витамином D",
     "name_en": "Cheese, pasteurized processed, American, enriched with vitamin D",
     "photo_url": "/photos/000488.jpeg",
@@ -13421,7 +13391,7 @@
   {
     "slug": "pishloq_provolone_bolaklangan",
     "name_uz_lat": "Pishloq, provolone, bo'laklangan",
-    "name_uz_kril": "Пишлоқ, проволонэ, бўлакланган",
+    "name_uz_kril": "Пишлоқ, проволоне, бўлакланган",
     "name_ru": "Сыр, проволоне, нарезанный",
     "name_en": "Cheese, provolone, sliced",
     "photo_url": "/photos/000489.jpeg",
@@ -13449,7 +13419,7 @@
   {
     "slug": "pishloq_queso_fresco_qattiq",
     "name_uz_lat": "Pishloq, queso fresco, qattiq",
-    "name_uz_kril": "Пишлоқ, қуэсо фрэско, қаттиқ",
+    "name_uz_kril": "Пишлоқ, қуесо фреско, қаттиқ",
     "name_ru": "Сыр, кесо фреска, твердый",
     "name_en": "Cheese, queso fresco, hard",
     "photo_url": "/photos/000490.jpeg",
@@ -13476,7 +13446,7 @@
   {
     "slug": "pishloq_quruq_oq_queso_seco",
     "name_uz_lat": "Pishloq, quruq oq (queso seco)",
-    "name_uz_kril": "Пишлоқ, қуруқ оқ (қуэсо сэко)",
+    "name_uz_kril": "Пишлоқ, қуруқ оқ (қуесо секо)",
     "name_ru": "Сыр белый сухой (queso seco)",
     "name_en": "Cheese, dry white (queso seco)",
     "photo_url": "/photos/000491.jpeg",
@@ -13554,7 +13524,7 @@
   {
     "slug": "pishloq_shveytsariya",
     "name_uz_lat": "Pishloq, shveytsariya",
-    "name_uz_kril": "Пишлоқ, швэйтсария",
+    "name_uz_kril": "Пишлоқ, швейтсария",
     "name_ru": "Сыр, швейцарский",
     "name_en": "Cheese, swiss",
     "photo_url": "/photos/000493.jpeg",
@@ -13752,7 +13722,7 @@
   {
     "slug": "piyoz_halqalari_panirlangan_qisman_qovurilgan_muzlatilgan_tayyorlangan_pechda_isitilgan",
     "name_uz_lat": "Piyoz halqalari, panirlangan, qisman qovurilgan, muzlatilgan, tayyorlangan, pechda isitilgan",
-    "name_uz_kril": "Пиёз ҳалқалари, панирланган, қисман қовурилган, музлатилган, тайёрланган, пэчда иситилган",
+    "name_uz_kril": "Пиёз ҳалқалари, панирланган, қисман қовурилган, музлатилган, тайёрланган, печда иситилган",
     "name_ru": "Луковые кольца в панировке, частично обжаренные, замороженные, подготовленные, разогретые в духовке",
     "name_en": "Onion rings, breaded, partially fried, frozen, prepared, heated in the oven",
     "photo_url": "/photos/000499.jpeg",
@@ -13836,7 +13806,7 @@
   {
     "slug": "plastik_marmelad",
     "name_uz_lat": "Plastik marmelad",
-    "name_uz_kril": "Пластик мармэлад",
+    "name_uz_kril": "Пластик мармелад",
     "name_ru": "Пластиковый мармелад",
     "name_en": "Plastic marmalade",
     "photo_url": "/photos/000501.jpeg",
@@ -14034,7 +14004,7 @@
   {
     "slug": "pomidor_butun_konservalangan_qattiq_va_suyuq_qismlari_tuz_qoshilgan",
     "name_uz_lat": "Pomidor, butun, konservalangan, qattiq va suyuq qismlari, tuz qo'shilgan",
-    "name_uz_kril": "Помидор, бутун, консэрваланган, қаттиқ ва суюқ қисмлари, туз қўшилган",
+    "name_uz_kril": "Помидор, бутун, консерваланган, қаттиқ ва суюқ қисмлари, туз қўшилган",
     "name_ru": "Помидоры целые, консервированные, твердые и жидкие части, соленые",
     "name_en": "Tomatoes, whole, canned, solid and liquid parts, salted",
     "photo_url": "/photos/000507.jpeg",
@@ -14065,7 +14035,7 @@
   {
     "slug": "pomidor_ezilgan_konservalangan",
     "name_uz_lat": "Pomidor, ezilgan, konservalangan",
-    "name_uz_kril": "Помидор, эзилган, консэрваланган",
+    "name_uz_kril": "Помидор, эзилган, консерваланган",
     "name_ru": "Помидоры, измельченные, консервированные",
     "name_en": "Tomatoes, crushed, canned",
     "photo_url": "/photos/000508.jpeg",
@@ -14196,7 +14166,7 @@
   {
     "slug": "poreyi_piyoz",
     "name_uz_lat": "Poreyi piyoz",
-    "name_uz_kril": "Порэйи пиёз",
+    "name_uz_kril": "Порейи пиёз",
     "name_ru": "Лук-порей и лук",
     "name_en": "Leeks and onions",
     "photo_url": "/photos/000513.jpeg",
@@ -14229,7 +14199,7 @@
   {
     "slug": "uz_whey_shokolad",
     "name_uz_lat": "Protein (whey, shokolad)",
-    "name_uz_kril": "Протэин (wҳэй, шоколад)",
+    "name_uz_kril": "Протеин (wҳей, шоколад)",
     "name_ru": "Белок (сывороточный, шоколадный)",
     "name_en": "Protein (whey, chocolate)",
     "photo_url": "/photos/000514.jpeg",
@@ -14259,7 +14229,7 @@
   {
     "slug": "uz_whey_vanil",
     "name_uz_lat": "Protein (whey, vanil)",
-    "name_uz_kril": "Протэин (wҳэй, ванил)",
+    "name_uz_kril": "Протеин (wҳей, ванил)",
     "name_ru": "Белок (сывороточный, ванильный)",
     "name_en": "Protein (whey, vanilla)",
     "photo_url": "/photos/000515.jpeg",
@@ -14289,7 +14259,7 @@
   {
     "slug": "uz_protein_bar",
     "name_uz_lat": "Protein batonchik",
-    "name_uz_kril": "Протэин батончик",
+    "name_uz_kril": "Протеин батончик",
     "name_ru": "Протеиновые батончики",
     "name_en": "Protein bars",
     "photo_url": "/photos/000516.jpeg",
@@ -14346,7 +14316,7 @@
   {
     "slug": "provansal_mayonezi",
     "name_uz_lat": "Provansal mayonezi",
-    "name_uz_kril": "Провансал маёнэзи",
+    "name_uz_kril": "Провансал маёнези",
     "name_ru": "Провансальский майонез",
     "name_en": "Provençal mayonnaise",
     "photo_url": "/photos/000518.jpeg",
@@ -14376,7 +14346,7 @@
   {
     "slug": "qalampir_banan_yoki_venger_mum_qalampiri_urugsizlangan_xom",
     "name_uz_lat": "Qalampir, banan yoki venger mum qalampiri, urug'sizlangan, xom",
-    "name_uz_kril": "Қалампир, банан ёки вэнгэр мум қалампири, уруғсизланган, хом",
+    "name_uz_kril": "Қалампир, банан ёки венгер мум қалампири, уруғсизланган, хом",
     "name_ru": "Перец, банановый или венгерский восковой перец, без косточек, сырой",
     "name_en": "Pepper, banana or Hungarian wax pepper, seedless, raw",
     "photo_url": "/photos/000520.jpeg",
@@ -14758,7 +14728,7 @@
   {
     "slug": "qaynatilgan_krevetka",
     "name_uz_lat": "Qaynatilgan krevetka",
-    "name_uz_kril": "Қайнатилган крэвэтка",
+    "name_uz_kril": "Қайнатилган креветка",
     "name_ru": "Вареные креветки",
     "name_en": "Boiled shrimp",
     "photo_url": "/photos/000535.jpeg",
@@ -15078,7 +15048,7 @@
   {
     "slug": "qishki_qovoq_butternut_xom",
     "name_uz_lat": "Qishki qovoq, butternut, xom",
-    "name_uz_kril": "Қишки қовоқ, буттэрнут, хом",
+    "name_uz_kril": "Қишки қовоқ, буттернут, хом",
     "name_ru": "Зимняя тыква, орехи, сырые",
     "name_en": "Winter squash, butternut, raw",
     "photo_url": "/photos/000547.jpeg",
@@ -15109,7 +15079,7 @@
   {
     "slug": "qisqichbaqasimonlar_krevetka_fermada_ostirilgan_xom",
     "name_uz_lat": "Qisqichbaqasimonlar, krevetka, fermada o'stirilgan, xom",
-    "name_uz_kril": "Қисқичбақасимонлар, крэвэтка, фэрмада ўстирилган, хом",
+    "name_uz_kril": "Қисқичбақасимонлар, креветка, фермада ўстирилган, хом",
     "name_ru": "Моллюски, креветки, выращенные на ферме, сырые",
     "name_en": "Shellfish, shrimp, farm-raised, raw",
     "photo_url": "/photos/000549.jpeg",
@@ -15141,7 +15111,7 @@
   {
     "slug": "qoy_beli",
     "name_uz_lat": "Qo'y beli",
-    "name_uz_kril": "Қўй бэли",
+    "name_uz_kril": "Қўй бели",
     "name_ru": "Корейка ягненка",
     "name_en": "Lamb loin",
     "photo_url": "/photos/000550.jpeg",
@@ -15270,7 +15240,7 @@
   {
     "slug": "qoy_filesi",
     "name_uz_lat": "Qo'y filesi",
-    "name_uz_kril": "Қўй филэси",
+    "name_uz_kril": "Қўй филеси",
     "name_ru": "Филе баранины",
     "name_en": "Lamb fillet",
     "photo_url": "/photos/000553.jpeg",
@@ -15407,7 +15377,7 @@
   {
     "slug": "qoy_goshtidan_kotlet",
     "name_uz_lat": "Qo'y go'shtidan kotlet",
-    "name_uz_kril": "Қўй гўштидан котлэт",
+    "name_uz_kril": "Қўй гўштидан котлет",
     "name_ru": "Котлета из баранины",
     "name_en": "Mutton cutlet",
     "photo_url": "/photos/000557.jpeg",
@@ -15478,9 +15448,9 @@
   {
     "slug": "qoy_koreykasi",
     "name_uz_lat": "Qo'y koreykasi",
-    "name_uz_kril": "Қўй корэйкаси",
-    "name_ru": "Овцы корейские",
-    "name_en": "Sheep Korean",
+    "name_uz_kril": "Қўй корейкаси",
+    "name_ru": "Баранья корейка",
+    "name_en": "Lamb loin",
     "photo_url": "/photos/000560.jpeg",
     "emoji": null,
     "category": "Go'sht mahsulotlari",
@@ -15518,8 +15488,8 @@
     "slug": "qoy_kuragi",
     "name_uz_lat": "Qo'y kuragi",
     "name_uz_kril": "Қўй кураги",
-    "name_ru": "Овечья шерсть",
-    "name_en": "Sheep's wool",
+    "name_ru": "Баранья лопатка",
+    "name_en": "Lamb shoulder",
     "photo_url": "/photos/000561.jpeg",
     "emoji": null,
     "category": "Go'sht mahsulotlari",
@@ -15911,7 +15881,7 @@
   {
     "slug": "qoziqorin_maytake",
     "name_uz_lat": "Qo'ziqorin, maytake",
-    "name_uz_kril": "Қўзиқорин, майтакэ",
+    "name_uz_kril": "Қўзиқорин, майтаке",
     "name_ru": "Гриб, майтаке",
     "name_en": "Mushroom, maitake",
     "photo_url": "/photos/000573.jpeg",
@@ -16014,7 +15984,7 @@
   {
     "slug": "qoziqorin_portabella",
     "name_uz_lat": "Qo'ziqorin, portabella",
-    "name_uz_kril": "Қўзиқорин, портабэлла",
+    "name_uz_kril": "Қўзиқорин, портабелла",
     "name_ru": "Гриб, портабелла",
     "name_en": "Mushroom, portabella",
     "photo_url": "/photos/000576.jpeg",
@@ -16084,7 +16054,7 @@
   {
     "slug": "qoziqorin_sher_yolasi",
     "name_uz_lat": "Qo'ziqorin, sher yolasi",
-    "name_uz_kril": "Қўзиқорин, шэр ёласи",
+    "name_uz_kril": "Қўзиқорин, шер ёласи",
     "name_ru": "Гриб, львиная грива",
     "name_en": "Mushroom, lion's mane",
     "photo_url": "/photos/000578.jpeg",
@@ -16118,7 +16088,7 @@
   {
     "slug": "qoziqorin_shiitake",
     "name_uz_lat": "Qo'ziqorin, shiitake",
-    "name_uz_kril": "Қўзиқорин, шиитакэ",
+    "name_uz_kril": "Қўзиқорин, шиитаке",
     "name_ru": "Гриб, шиитаке",
     "name_en": "Mushroom, shiitake",
     "photo_url": "/photos/000579.jpeg",
@@ -16715,7 +16685,7 @@
   {
     "slug": "quruq_mevalar_komposti",
     "name_uz_lat": "Quruq mevalar komposti",
-    "name_uz_kril": "Қуруқ мэвалар компости",
+    "name_uz_kril": "Қуруқ мевалар компости",
     "name_ru": "Компост из сухих фруктов",
     "name_en": "Dry fruit compost",
     "photo_url": "/photos/000601.jpeg",
@@ -16801,7 +16771,7 @@
   {
     "slug": "quyon_filesi",
     "name_uz_lat": "Quyon filesi",
-    "name_uz_kril": "Қуён филэси",
+    "name_uz_kril": "Қуён филеси",
     "name_ru": "Филе кролика",
     "name_en": "Rabbit fillet",
     "photo_url": "/photos/000604.jpeg",
@@ -17022,7 +16992,7 @@
   {
     "slug": "red_bull",
     "name_uz_lat": "Red Bull",
-    "name_uz_kril": "Рэд Булл",
+    "name_uz_kril": "Ред Булл",
     "name_ru": "Ред Булл",
     "name_en": "Red Bull",
     "photo_url": "/photos/000612.jpeg",
@@ -17049,7 +17019,7 @@
   {
     "slug": "rediska",
     "name_uz_lat": "Rediska",
-    "name_uz_kril": "Рэдиска",
+    "name_uz_kril": "Редиска",
     "name_ru": "Редис",
     "name_en": "Radish",
     "photo_url": "/photos/000613.jpeg",
@@ -17087,7 +17057,7 @@
   {
     "slug": "rezavor_mevalardan_murabbo",
     "name_uz_lat": "Rezavor mevalardan murabbo",
-    "name_uz_kril": "Рэзавор мэвалардан мураббо",
+    "name_uz_kril": "Резавор мевалардан мураббо",
     "name_ru": "Варенье из ягод",
     "name_en": "Jam from berries",
     "photo_url": "/photos/000614.jpeg",
@@ -17115,7 +17085,7 @@
   {
     "slug": "rezavor_mevali_biskvit",
     "name_uz_lat": "Rezavor mevali biskvit",
-    "name_uz_kril": "Рэзавор мэвали бисквит",
+    "name_uz_kril": "Резавор мевали бисквит",
     "name_ru": "Ягодно-фруктовый бисквит",
     "name_en": "Berry fruit biscuit",
     "photo_url": "/photos/000615.jpeg",
@@ -17142,7 +17112,7 @@
   {
     "slug": "rezavor_mevali_keks",
     "name_uz_lat": "Rezavor mevali keks",
-    "name_uz_kril": "Рэзавор мэвали кэкс",
+    "name_uz_kril": "Резавор мевали кекс",
     "name_ru": "Ягодно-фруктовый торт",
     "name_en": "Berry fruit cake",
     "photo_url": "/photos/000616.jpeg",
@@ -17170,7 +17140,7 @@
   {
     "slug": "rezavor_mevali_kissel",
     "name_uz_lat": "Rezavor mevali kissel",
-    "name_uz_kril": "Рэзавор мэвали киссэл",
+    "name_uz_kril": "Резавор мевали киссел",
     "name_ru": "Ягодно-фруктовый кисель",
     "name_en": "Berry fruit kissel",
     "photo_url": "/photos/000617.jpeg",
@@ -17198,7 +17168,7 @@
   {
     "slug": "rezavor_mevali_kompot",
     "name_uz_lat": "Rezavor mevali kompot",
-    "name_uz_kril": "Рэзавор мэвали компот",
+    "name_uz_kril": "Резавор мевали компот",
     "name_ru": "Ягодно-фруктовый компот",
     "name_en": "Berry fruit compote",
     "photo_url": "/photos/000618.jpeg",
@@ -17226,7 +17196,7 @@
   {
     "slug": "rezavor_mevali_muss",
     "name_uz_lat": "Rezavor mevali muss",
-    "name_uz_kril": "Рэзавор мэвали мусс",
+    "name_uz_kril": "Резавор мевали мусс",
     "name_ru": "Ягодно-фруктовый мусс",
     "name_en": "Berry fruit mousse",
     "photo_url": "/photos/000619.jpeg",
@@ -17254,7 +17224,7 @@
   {
     "slug": "rezavor_mevali_smuzi",
     "name_uz_lat": "Rezavor mevali smuzi",
-    "name_uz_kril": "Рэзавор мэвали смузи",
+    "name_uz_kril": "Резавор мевали смузи",
     "name_ru": "Ягодно-фруктовый смузи",
     "name_en": "Berry fruit smoothie",
     "photo_url": "/photos/000620.jpeg",
@@ -17282,7 +17252,7 @@
   {
     "slug": "rezavorli_sirop",
     "name_uz_lat": "Rezavorli sirop",
-    "name_uz_kril": "Рэзаворли сироп",
+    "name_uz_kril": "Резаворли сироп",
     "name_ru": "Ягодный сироп",
     "name_en": "Berry syrup",
     "photo_url": "/photos/000621.jpeg",
@@ -17309,7 +17279,7 @@
   {
     "slug": "rezavorli_yogurt",
     "name_uz_lat": "Rezavorli yogurt",
-    "name_uz_kril": "Рэзаворли ёгурт",
+    "name_uz_kril": "Резаворли ёгурт",
     "name_ru": "Йогурт с ягодами",
     "name_en": "Yogurt with berries",
     "photo_url": "/photos/000622.jpeg",
@@ -17391,7 +17361,7 @@
   {
     "slug": "romen_salati",
     "name_uz_lat": "Romen salati",
-    "name_uz_kril": "Ромэн салати",
+    "name_uz_kril": "Ромен салати",
     "name_ru": "Салат Ромен",
     "name_en": "Romaine salad",
     "photo_url": "/photos/000625.jpeg",
@@ -17521,7 +17491,7 @@
   {
     "slug": "ryajenka",
     "name_uz_lat": "Ryajenka",
-    "name_uz_kril": "Ряжэнка",
+    "name_uz_kril": "Ряженка",
     "name_ru": "Ряженка",
     "name_en": "Ryazhenka",
     "photo_url": "/photos/000630.jpeg",
@@ -17664,7 +17634,7 @@
   {
     "slug": "sabzavotli_tempura",
     "name_uz_lat": "Sabzavotli tempura",
-    "name_uz_kril": "Сабзавотли тэмпура",
+    "name_uz_kril": "Сабзавотли темпура",
     "name_ru": "Овощная темпура",
     "name_en": "Vegetable tempura",
     "photo_url": "/photos/000635.jpeg",
@@ -17862,7 +17832,7 @@
   {
     "slug": "sardelka",
     "name_uz_lat": "Sardelka",
-    "name_uz_kril": "Сардэлка",
+    "name_uz_kril": "Сарделка",
     "name_ru": "Сарделка",
     "name_en": "Sardelka",
     "photo_url": "/photos/000642.jpeg",
@@ -17983,7 +17953,7 @@
   {
     "slug": "sariyogli_kartoshka_pyuresi",
     "name_uz_lat": "Sariyog'li kartoshka pyuresi",
-    "name_uz_kril": "Сариёғли картошка пюрэси",
+    "name_uz_kril": "Сариёғли картошка пюреси",
     "name_ru": "Картофельное пюре со сливочным маслом",
     "name_en": "Mashed potatoes with butter",
     "photo_url": "/photos/000647.jpeg",
@@ -18013,7 +17983,7 @@
   {
     "slug": "sarum_oqsili_whey",
     "name_uz_lat": "Sarum oqsili (whey)",
-    "name_uz_kril": "Сарум оқсили (wҳэй)",
+    "name_uz_kril": "Сарум оқсили (wҳей)",
     "name_ru": "Сывороточный протеин",
     "name_en": "Whey protein",
     "photo_url": "/photos/000648.jpeg",
@@ -18171,7 +18141,7 @@
   {
     "slug": "seld",
     "name_uz_lat": "Seld",
-    "name_uz_kril": "Сэлд",
+    "name_uz_kril": "Селд",
     "name_ru": "Сельдь",
     "name_en": "Herring",
     "photo_url": "/photos/000653.jpeg",
@@ -18208,7 +18178,7 @@
   {
     "slug": "selderey_sharbati",
     "name_uz_lat": "Selderey sharbati",
-    "name_uz_kril": "Сэлдэрэй шарбати",
+    "name_uz_kril": "Селдерей шарбати",
     "name_ru": "Сок сельдерея",
     "name_en": "Celery juice",
     "photo_url": "/photos/000654.jpeg",
@@ -18237,7 +18207,7 @@
   {
     "slug": "seldereya_ildizi",
     "name_uz_lat": "Seldereya ildizi",
-    "name_uz_kril": "Сэлдэрэя илдизи",
+    "name_uz_kril": "Селдерея илдизи",
     "name_ru": "Корень сельдерея",
     "name_en": "Celery root",
     "photo_url": "/photos/000655.jpeg",
@@ -18266,7 +18236,7 @@
   {
     "slug": "seldereya_xom",
     "name_uz_lat": "Seldereya, xom",
-    "name_uz_kril": "Сэлдэрэя, хом",
+    "name_uz_kril": "Селдерея, хом",
     "name_ru": "Сельдерей, сырой",
     "name_en": "Celery, raw",
     "photo_url": "/photos/000656.jpeg",
@@ -18295,7 +18265,7 @@
   {
     "slug": "servelat",
     "name_uz_lat": "Servelat",
-    "name_uz_kril": "Сэрвэлат",
+    "name_uz_kril": "Сервелат",
     "name_ru": "Серветт",
     "name_en": "Servette",
     "photo_url": "/photos/000657.jpeg",
@@ -18560,7 +18530,7 @@
   {
     "slug": "shalfey",
     "name_uz_lat": "Shalfey",
-    "name_uz_kril": "Шалфэй",
+    "name_uz_kril": "Шалфей",
     "name_ru": "Мудрец",
     "name_en": "Sage",
     "photo_url": "/photos/000666.jpeg",
@@ -18874,7 +18844,7 @@
   {
     "slug": "shomboleho_kolbasasi",
     "name_uz_lat": "Shomboleho kolbasasi",
-    "name_uz_kril": "Шомболэҳо колбасаси",
+    "name_uz_kril": "Шомболеҳо колбасаси",
     "name_ru": "Колбаса Шомболехо",
     "name_en": "Shomboleho sausage",
     "photo_url": "/photos/000679.jpeg",
@@ -18902,7 +18872,7 @@
   {
     "slug": "shtrudel",
     "name_uz_lat": "Shtrudel",
-    "name_uz_kril": "Штрудэл",
+    "name_uz_kril": "Штрудел",
     "name_ru": "Штрудель",
     "name_en": "Strudel",
     "photo_url": "/photos/000680.jpeg",
@@ -19022,7 +18992,7 @@
   {
     "slug": "smalets_chochqa_yogi",
     "name_uz_lat": "Smalets (cho'chqa yog'i)",
-    "name_uz_kril": "Смалэтс (чўчқа ёғи)",
+    "name_uz_kril": "Смалетс (чўчқа ёғи)",
     "name_ru": "Смалец (свиной жир)",
     "name_en": "Smalets (pork fat)",
     "photo_url": "/photos/000686.jpeg",
@@ -19046,7 +19016,7 @@
   {
     "slug": "smetana_10",
     "name_uz_lat": "Smetana 10%",
-    "name_uz_kril": "Смэтана 10%",
+    "name_uz_kril": "Сметана 10%",
     "name_ru": "сметана 10%",
     "name_en": "sour cream 10%",
     "photo_url": "/photos/000687.jpeg",
@@ -19078,7 +19048,7 @@
   {
     "slug": "smetana_15",
     "name_uz_lat": "Smetana 15%",
-    "name_uz_kril": "Смэтана 15%",
+    "name_uz_kril": "Сметана 15%",
     "name_ru": "сметана 15%",
     "name_en": "sour cream 15%",
     "photo_url": "/photos/000688.jpeg",
@@ -19107,7 +19077,7 @@
   {
     "slug": "smetana_20",
     "name_uz_lat": "Smetana 20%",
-    "name_uz_kril": "Смэтана 20%",
+    "name_uz_kril": "Сметана 20%",
     "name_ru": "сметана 20%",
     "name_en": "sour cream 20%",
     "photo_url": "/photos/000689.jpeg",
@@ -19143,7 +19113,7 @@
   {
     "slug": "smetana_25",
     "name_uz_lat": "Smetana 25%",
-    "name_uz_kril": "Смэтана 25%",
+    "name_uz_kril": "Сметана 25%",
     "name_ru": "сметана 25%",
     "name_en": "sour cream 25%",
     "photo_url": "/photos/000690.jpeg",
@@ -19172,7 +19142,7 @@
   {
     "slug": "smetana_30",
     "name_uz_lat": "Smetana 30%",
-    "name_uz_kril": "Смэтана 30%",
+    "name_uz_kril": "Сметана 30%",
     "name_ru": "сметана 30%",
     "name_en": "sour cream 30%",
     "photo_url": "/photos/000691.jpeg",
@@ -19201,7 +19171,7 @@
   {
     "slug": "smetana_toliq_yogli",
     "name_uz_lat": "Smetana, to'liq yog'li",
-    "name_uz_kril": "Смэтана, тўлиқ ёғли",
+    "name_uz_kril": "Сметана, тўлиқ ёғли",
     "name_ru": "Сметана, жирная",
     "name_en": "Sour cream, full fat",
     "photo_url": "/photos/000692.jpeg",
@@ -19232,7 +19202,7 @@
   {
     "slug": "smetanali_kartoshka",
     "name_uz_lat": "Smetanali kartoshka",
-    "name_uz_kril": "Смэтанали картошка",
+    "name_uz_kril": "Сметанали картошка",
     "name_ru": "Картошка со сметаной",
     "name_en": "Potatoes with sour cream",
     "photo_url": "/photos/000693.jpeg",
@@ -19321,7 +19291,7 @@
   {
     "slug": "snejok_ichimlik_yogurt",
     "name_uz_lat": "Snejok (ichimlik yogurt)",
-    "name_uz_kril": "Снэжок (ичимлик ёгурт)",
+    "name_uz_kril": "Снежок (ичимлик ёгурт)",
     "name_ru": "Снежок (питьевой йогурт)",
     "name_en": "Snejok (drinking yogurt)",
     "photo_url": "/photos/000696.jpeg",
@@ -19416,7 +19386,7 @@
   {
     "slug": "sos_salsa_istemolga_tayyor",
     "name_uz_lat": "Sos, salsa, iste'molga tayyor",
-    "name_uz_kril": "Сос, салса, истэ'молга тайёр",
+    "name_uz_kril": "Сос, салса, исте'молга тайёр",
     "name_ru": "Соус, сальса, готовый к употреблению",
     "name_en": "Sauce, salsa, ready to eat",
     "photo_url": "/photos/000699.jpeg",
@@ -19536,7 +19506,7 @@
   {
     "slug": "spagetti_bolonez",
     "name_uz_lat": "Spagetti bolonez",
-    "name_uz_kril": "Спагэтти болонэз",
+    "name_uz_kril": "Спагетти болонез",
     "name_ru": "Спагетти Болоньезе",
     "name_en": "Spaghetti Bolognese",
     "photo_url": "/photos/000704.jpeg",
@@ -19564,7 +19534,7 @@
   {
     "slug": "spagetti_karbonara",
     "name_uz_lat": "Spagetti karbonara",
-    "name_uz_kril": "Спагэтти карбонара",
+    "name_uz_kril": "Спагетти карбонара",
     "name_ru": "Спагетти карбонара",
     "name_en": "Spaghetti carbonara",
     "photo_url": "/photos/000705.jpeg",
@@ -19668,7 +19638,7 @@
   {
     "slug": "steyk_200_g_porsiya",
     "name_uz_lat": "Steyk (200 g porsiya)",
-    "name_uz_kril": "Стэйк (200 г порсия)",
+    "name_uz_kril": "Стейк (200 г порсия)",
     "name_ru": "Стейк (порция 200 г)",
     "name_en": "Steak (200g portion)",
     "photo_url": "/photos/000708.jpeg",
@@ -19696,7 +19666,7 @@
   {
     "slug": "stol_xreni",
     "name_uz_lat": "Stol xreni",
-    "name_uz_kril": "Стол хрэни",
+    "name_uz_kril": "Стол хрени",
     "name_ru": "Столовый хрен",
     "name_en": "Table horseradish",
     "photo_url": "/photos/000709.jpeg",
@@ -20566,7 +20536,7 @@
   {
     "slug": "tekila",
     "name_uz_lat": "Tekila",
-    "name_uz_kril": "Тэкила",
+    "name_uz_kril": "Текила",
     "name_ru": "Текила",
     "name_en": "Tequila",
     "photo_url": "/photos/000739.jpeg",
@@ -20588,7 +20558,7 @@
   {
     "slug": "teriyaki_losos",
     "name_uz_lat": "Teriyaki losos",
-    "name_uz_kril": "Тэрияки лосос",
+    "name_uz_kril": "Терияки лосос",
     "name_ru": "лосось терияки",
     "name_en": "Teriyaki salmon",
     "photo_url": "/photos/000740.jpeg",
@@ -20616,7 +20586,7 @@
   {
     "slug": "teriyaki_sousi",
     "name_uz_lat": "Teriyaki sousi",
-    "name_uz_kril": "Тэрияки соуси",
+    "name_uz_kril": "Терияки соуси",
     "name_ru": "Соус Терияки",
     "name_en": "Teriyaki sauce",
     "photo_url": "/photos/000741.jpeg",
@@ -20678,7 +20648,7 @@
   {
     "slug": "timyan_chabretz",
     "name_uz_lat": "Timyan (chabretz)",
-    "name_uz_kril": "Тимян (чабрэтз)",
+    "name_uz_kril": "Тимян (чабретз)",
     "name_ru": "тимьян (шабрец)",
     "name_en": "thyme (chabretz)",
     "photo_url": "/photos/000743.jpeg",
@@ -20737,7 +20707,7 @@
   {
     "slug": "tkemali_olxori_sousi",
     "name_uz_lat": "Tkemali (olxo'ri sousi)",
-    "name_uz_kril": "Ткэмали (олхўри соуси)",
+    "name_uz_kril": "Ткемали (олхўри соуси)",
     "name_ru": "Ткемали (сливовый соус)",
     "name_en": "Tkemali (plum sauce)",
     "photo_url": "/photos/000745.jpeg",
@@ -20905,7 +20875,7 @@
   {
     "slug": "toshkent_ayroni",
     "name_uz_lat": "Toshkent ayroni",
-    "name_uz_kril": "Тошкэнт айрони",
+    "name_uz_kril": "Тошкент айрони",
     "name_ru": "Ташкентский айрон",
     "name_en": "Tashkent ayron",
     "photo_url": "/photos/000751.jpeg",
@@ -20932,7 +20902,7 @@
   {
     "slug": "uz_osh",
     "name_uz_lat": "Toshkent oshi",
-    "name_uz_kril": "Тошкэнт оши",
+    "name_uz_kril": "Тошкент оши",
     "name_ru": "Ташкентский суп",
     "name_en": "Tashkent soup",
     "photo_url": "/photos/000752.jpeg",
@@ -20984,7 +20954,7 @@
   {
     "slug": "tovuq_filesi_panirovkada",
     "name_uz_lat": "Tovuq filesi, panirovkada",
-    "name_uz_kril": "Товуқ филэси, панировкада",
+    "name_uz_kril": "Товуқ филеси, панировкада",
     "name_ru": "Куриное филе в панировке",
     "name_en": "Chicken fillet, breaded",
     "photo_url": "/photos/000754.jpeg",
@@ -21014,7 +20984,7 @@
   {
     "slug": "tovuq_filesi_qaynatilgan",
     "name_uz_lat": "Tovuq filesi, qaynatilgan",
-    "name_uz_kril": "Товуқ филэси, қайнатилган",
+    "name_uz_kril": "Товуқ филеси, қайнатилган",
     "name_ru": "Куриное филе, отварное",
     "name_en": "Chicken fillet, boiled",
     "photo_url": "/photos/000755.jpeg",
@@ -21359,7 +21329,7 @@
   {
     "slug": "tovuq_ruleti",
     "name_uz_lat": "Tovuq ruleti",
-    "name_uz_kril": "Товуқ рулэти",
+    "name_uz_kril": "Товуқ рулети",
     "name_ru": "Куриная рулетка",
     "name_en": "Chicken roulette",
     "photo_url": "/photos/000765.jpeg",
@@ -21419,7 +21389,7 @@
   {
     "slug": "tovuq_terisi",
     "name_uz_lat": "Tovuq terisi",
-    "name_uz_kril": "Товуқ тэриси",
+    "name_uz_kril": "Товуқ териси",
     "name_ru": "Куриная кожа",
     "name_en": "Chicken skin",
     "photo_url": "/photos/000767.jpeg",
@@ -21532,7 +21502,7 @@
   {
     "slug": "tovuq_broyler_yoki_fryer_oyoq_faqat_gosht_pishirilgan_dimlangan",
     "name_uz_lat": "Tovuq, broyler yoki fryer, oyoq, faqat go'sht, pishirilgan, dimlangan",
-    "name_uz_kril": "Товуқ, бройлэр ёки фрйэр, оёқ, фақат гўшт, пиширилган, димланган",
+    "name_uz_kril": "Товуқ, бройлер ёки фрйер, оёқ, фақат гўшт, пиширилган, димланган",
     "name_ru": "Курица, бройлер или фритюр, ножка, только мясо, запеченная, на пару",
     "name_en": "Chicken, broiler or fryer, leg, meat only, baked, steamed",
     "photo_url": "/photos/000772.jpeg",
@@ -21602,7 +21572,7 @@
   {
     "slug": "treska",
     "name_uz_lat": "Treska",
-    "name_uz_kril": "Трэска",
+    "name_uz_kril": "Треска",
     "name_ru": "Треска",
     "name_en": "Cod",
     "photo_url": "/photos/000781.jpeg",
@@ -21640,7 +21610,7 @@
   {
     "slug": "uz_tuna",
     "name_uz_lat": "Tuna (konserv)",
-    "name_uz_kril": "Туна (консэрв)",
+    "name_uz_kril": "Туна (консерв)",
     "name_ru": "Тунец (консервированный)",
     "name_en": "Tuna (canned)",
     "photo_url": "/photos/000783.jpeg",
@@ -21673,7 +21643,7 @@
   {
     "slug": "tunets",
     "name_uz_lat": "Tunets",
-    "name_uz_kril": "Тунэтс",
+    "name_uz_kril": "Тунетс",
     "name_ru": "Тунец",
     "name_en": "Tunets",
     "photo_url": "/photos/000784.jpeg",
@@ -21713,7 +21683,7 @@
   {
     "slug": "tunetsli_maki",
     "name_uz_lat": "Tunetsli maki",
-    "name_uz_kril": "Тунэтсли маки",
+    "name_uz_kril": "Тунетсли маки",
     "name_ru": "Маки с тунцом",
     "name_en": "Maki with tuna",
     "photo_url": "/photos/000786.jpeg",
@@ -21741,7 +21711,7 @@
   {
     "slug": "uz_omlet",
     "name_uz_lat": "Tuxum omlet",
-    "name_uz_kril": "Тухум омлэт",
+    "name_uz_kril": "Тухум омлет",
     "name_ru": "Яичный омлет",
     "name_en": "Egg omelette",
     "photo_url": "/photos/000788.jpeg",
@@ -21828,7 +21798,7 @@
   {
     "slug": "tuxum_oqi_xom_muzlatilgan_pasterizatsiyalangan",
     "name_uz_lat": "Tuxum oqi, xom, muzlatilgan, pasterizatsiyalangan",
-    "name_uz_kril": "Тухум оқи, хом, музлатилган, пастэризатсияланган",
+    "name_uz_kril": "Тухум оқи, хом, музлатилган, пастеризатсияланган",
     "name_ru": "Белки яичные, сырые, замороженные, пастеризованные",
     "name_en": "Egg whites, raw, frozen, pasteurized",
     "photo_url": "/photos/000791.jpeg",
@@ -21953,7 +21923,7 @@
   {
     "slug": "tuxum_sarigi_xom_muzlatilgan_pasterizatsiyalangan",
     "name_uz_lat": "Tuxum sarig'i, xom, muzlatilgan, pasterizatsiyalangan",
-    "name_uz_kril": "Тухум сариғи, хом, музлатилган, пастэризатсияланган",
+    "name_uz_kril": "Тухум сариғи, хом, музлатилган, пастеризатсияланган",
     "name_ru": "Яичные желтки, сырые, замороженные, пастеризованные",
     "name_en": "Egg yolks, raw, frozen, pasteurized",
     "photo_url": "/photos/000795.jpeg",
@@ -22013,7 +21983,7 @@
   {
     "slug": "uz_sendvich",
     "name_uz_lat": "Tuxumli sendvich",
-    "name_uz_kril": "Тухумли сэндвич",
+    "name_uz_kril": "Тухумли сендвич",
     "name_ru": "Сэндвич с яйцом",
     "name_en": "Egg sandwich",
     "photo_url": "/photos/000797.jpeg",
@@ -22190,7 +22160,7 @@
   {
     "slug": "tvorog_kottej_pishloq_toliq_yogli_yirik_yoki_mayda_donador",
     "name_uz_lat": "Tvorog (kottej pishloq), to'liq yog'li, yirik yoki mayda donador",
-    "name_uz_kril": "Творог (коттэж пишлоқ), тўлиқ ёғли, йирик ёки майда донадор",
+    "name_uz_kril": "Творог (коттеж пишлоқ), тўлиқ ёғли, йирик ёки майда донадор",
     "name_ru": "Творог (творог) жирный, крупнозернистый или мелкозернистый",
     "name_en": "Cottage cheese (cottage cheese), full-fat, coarse or fine-grained",
     "photo_url": "/photos/000802.jpeg",
@@ -22295,7 +22265,7 @@
   {
     "slug": "tvorog_pishloq_kottej_kam_yogli_2_yogli",
     "name_uz_lat": "Tvorog pishloq (kottej), kam yog'li, 2% yog'li",
-    "name_uz_kril": "Творог пишлоқ (коттэж), кам ёғли, 2% ёғли",
+    "name_uz_kril": "Творог пишлоқ (коттеж), кам ёғли, 2% ёғли",
     "name_ru": "Творог (творог) нежирный, 2% жирности",
     "name_en": "Cottage cheese (cottage), low-fat, 2% fat",
     "photo_url": "/photos/000805.jpeg",
@@ -22492,7 +22462,7 @@
   {
     "slug": "urbech",
     "name_uz_lat": "Urbech",
-    "name_uz_kril": "Урбэч",
+    "name_uz_kril": "Урбеч",
     "name_ru": "Урбеч",
     "name_en": "Urbech",
     "photo_url": "/photos/000811.jpeg",
@@ -22817,7 +22787,7 @@
   {
     "slug": "vakame",
     "name_uz_lat": "Vakame",
-    "name_uz_kril": "Вакамэ",
+    "name_uz_kril": "Вакаме",
     "name_ru": "Вакаме",
     "name_en": "Wakame",
     "photo_url": "/photos/000822.jpeg",
@@ -22934,7 +22904,7 @@
   {
     "slug": "varenets",
     "name_uz_lat": "Varenets",
-    "name_uz_kril": "Варэнэтс",
+    "name_uz_kril": "Варенетс",
     "name_ru": "Варенец",
     "name_en": "Varenets",
     "photo_url": "/photos/000826.jpeg",
@@ -22992,7 +22962,7 @@
   {
     "slug": "vena_sosiskasi",
     "name_uz_lat": "Vena sosiskasi",
-    "name_uz_kril": "Вэна сосискаси",
+    "name_uz_kril": "Вена сосискаси",
     "name_ru": "Венская колбаса",
     "name_en": "Vienna sausage",
     "photo_url": "/photos/000828.jpeg",
@@ -23022,7 +22992,7 @@
   {
     "slug": "vena_usulida_shnitsel",
     "name_uz_lat": "Vena usulida shnitsel",
-    "name_uz_kril": "Вэна усулида шнитсэл",
+    "name_uz_kril": "Вена усулида шнитсел",
     "name_ru": "Шницель по-венски",
     "name_en": "Schnitzel in Vienna style",
     "photo_url": "/photos/000829.jpeg",
@@ -23050,7 +23020,7 @@
   {
     "slug": "vetchina",
     "name_uz_lat": "Vetchina",
-    "name_uz_kril": "Вэтчина",
+    "name_uz_kril": "Ветчина",
     "name_ru": "ветчина",
     "name_en": "Ham",
     "photo_url": "/photos/000830.jpeg",
@@ -23083,7 +23053,7 @@
   {
     "slug": "vetchina_bolakli_oldindan_oralgan_deli_gosht_96_yogsiz_suv_qoshilgan",
     "name_uz_lat": "Vetchina, bo'lakli, oldindan o'ralgan, deli go'sht (96% yog'siz, suv qo'shilgan)",
-    "name_uz_kril": "Вэтчина, бўлакли, олдиндан ўралган, дэли гўшт (96% ёғсиз, сув қўшилган)",
+    "name_uz_kril": "Ветчина, бўлакли, олдиндан ўралган, дели гўшт (96% ёғсиз, сув қўшилган)",
     "name_ru": "Ветчина, нарезанная, расфасованная, мясные деликатесы (96 % постного мяса, с добавлением воды)",
     "name_en": "Ham, sliced, prepackaged, deli meat (96% lean, water added)",
     "photo_url": "/photos/000831.jpeg",
@@ -23112,7 +23082,7 @@
   {
     "slug": "vetchina_bolakli_restoran",
     "name_uz_lat": "Vetchina, bo'lakli, restoran",
-    "name_uz_kril": "Вэтчина, бўлакли, рэсторан",
+    "name_uz_kril": "Ветчина, бўлакли, ресторан",
     "name_ru": "Ветчина нарезанная ресторанная",
     "name_en": "Ham, sliced, restaurant",
     "photo_url": "/photos/000832.jpeg",
@@ -23142,7 +23112,7 @@
   {
     "slug": "vetchinali_eritma_pishloq",
     "name_uz_lat": "Vetchinali eritma pishloq",
-    "name_uz_kril": "Вэтчинали эритма пишлоқ",
+    "name_uz_kril": "Ветчинали эритма пишлоқ",
     "name_ru": "Плавленый сыр с ветчиной",
     "name_en": "Melted cheese with ham",
     "photo_url": "/photos/000833.jpeg",
@@ -23193,7 +23163,7 @@
   {
     "slug": "vusterskiy_sous",
     "name_uz_lat": "Vusterskiy sous",
-    "name_uz_kril": "Вустэрский соус",
+    "name_uz_kril": "Вустерский соус",
     "name_ru": "Вустерширский соус",
     "name_en": "Worcestershire sauce",
     "photo_url": "/photos/000835.jpeg",
@@ -23276,7 +23246,7 @@
   {
     "slug": "xek_baliq",
     "name_uz_lat": "Xek baliq",
-    "name_uz_kril": "Хэк балиқ",
+    "name_uz_kril": "Хек балиқ",
     "name_ru": "Хек рыба",
     "name_en": "Hake fish",
     "photo_url": "/photos/000838.jpeg",
@@ -23313,7 +23283,7 @@
   {
     "slug": "xlorella_kukun",
     "name_uz_lat": "Xlorella (kukun)",
-    "name_uz_kril": "Хлорэлла (кукун)",
+    "name_uz_kril": "Хлорелла (кукун)",
     "name_ru": "Хлорелла (порошок)",
     "name_en": "Chlorella (powder)",
     "photo_url": "/photos/000839.jpeg",
@@ -23344,7 +23314,7 @@
   {
     "slug": "xmeli_suneli",
     "name_uz_lat": "Xmeli-suneli",
-    "name_uz_kril": "Хмэли-сунэли",
+    "name_uz_kril": "Хмели-сунели",
     "name_ru": "Классики",
     "name_en": "Hopscotch",
     "photo_url": "/photos/000840.jpeg",
@@ -23372,7 +23342,7 @@
   {
     "slug": "xren_otquloq",
     "name_uz_lat": "Xren (otquloq)",
-    "name_uz_kril": "Хрэн (отқулоқ)",
+    "name_uz_kril": "Хрен (отқулоқ)",
     "name_ru": "хрен",
     "name_en": "horseradish",
     "photo_url": "/photos/000841.jpeg",
@@ -23402,7 +23372,7 @@
   {
     "slug": "xrenovina_pomidorxrensarimsoq",
     "name_uz_lat": "Xrenovina (pomidor+xren+sarimsoq)",
-    "name_uz_kril": "Хрэновина (помидор+хрэн+саримсоқ)",
+    "name_uz_kril": "Хреновина (помидор+хрен+саримсоқ)",
     "name_ru": "Хрен (помидор+хрен+чеснок)",
     "name_en": "Horseradish (tomato+horseradish+garlic)",
     "photo_url": "/photos/000842.jpeg",
@@ -23764,7 +23734,7 @@
   {
     "slug": "yengil_mayonez_30",
     "name_uz_lat": "Yengil mayonez 30%",
-    "name_uz_kril": "Йэнгил маёнэз 30%",
+    "name_uz_kril": "Йенгил маёнез 30%",
     "name_ru": "Майонез легкий 30%",
     "name_en": "Light mayonnaise 30%",
     "photo_url": "/photos/000854.jpeg",
@@ -23792,7 +23762,7 @@
   {
     "slug": "uz_arahis",
     "name_uz_lat": "Yeryong'oq",
-    "name_uz_kril": "Йэрёнғоқ",
+    "name_uz_kril": "Йерёнғоқ",
     "name_ru": "Арахис",
     "name_en": "Peanut",
     "photo_url": "/photos/000855.jpeg",
@@ -23831,7 +23801,7 @@
   {
     "slug": "yetilgan_ismaloq",
     "name_uz_lat": "Yetilgan ismaloq",
-    "name_uz_kril": "Йэтилган исмалоқ",
+    "name_uz_kril": "Йетилган исмалоқ",
     "name_ru": "Спелый шпинат",
     "name_en": "Ripe spinach",
     "photo_url": "/photos/000856.jpeg",
@@ -23903,7 +23873,7 @@
   {
     "slug": "yogsizlangan_kefir",
     "name_uz_lat": "Yog'sizlangan kefir",
-    "name_uz_kril": "Ёғсизланган кэфир",
+    "name_uz_kril": "Ёғсизланган кефир",
     "name_ru": "Обезжиренный кефир",
     "name_en": "Skimmed kefir",
     "photo_url": "/photos/000859.jpeg",
@@ -24032,7 +24002,7 @@
   {
     "slug": "yongoqli_grek_yogurti",
     "name_uz_lat": "Yong'oqli grek yogurti",
-    "name_uz_kril": "Ёнғоқли грэк ёгурти",
+    "name_uz_kril": "Ёнғоқли грек ёгурти",
     "name_ru": "Греческий йогурт с орехами",
     "name_en": "Greek yogurt with nuts",
     "photo_url": "/photos/000863.jpeg",
@@ -24544,7 +24514,7 @@
   {
     "slug": "zelts_xolodets",
     "name_uz_lat": "Zelts (xolodets)",
-    "name_uz_kril": "Зэлтс (холодэтс)",
+    "name_uz_kril": "Зелтс (холодетс)",
     "name_ru": "Зельцы (холодец)",
     "name_en": "Zelts (holodets)",
     "photo_url": "/photos/000880.jpeg",
@@ -24674,7 +24644,7 @@
   {
     "slug": "toshkent_to_y_oshi",
     "name_uz_lat": "Toshkent to'y oshi",
-    "name_uz_kril": "Тошкэнт тўй оши",
+    "name_uz_kril": "Тошкент тўй оши",
     "name_ru": "Ташкентский свадебный плов",
     "name_en": "Tashkent wedding pilaf",
     "photo_url": "/photos/000885.jpeg",
@@ -24936,7 +24906,7 @@
   {
     "slug": "behi_palov",
     "name_uz_lat": "Behi palov",
-    "name_uz_kril": "Бэҳи палов",
+    "name_uz_kril": "Беҳи палов",
     "name_ru": "Плов из айвы",
     "name_en": "Quince pilaf",
     "photo_url": "/photos/000893.jpeg",
@@ -27503,7 +27473,7 @@
   {
     "slug": "beshbarmoq",
     "name_uz_lat": "Beshbarmoq",
-    "name_uz_kril": "Бэшбармоқ",
+    "name_uz_kril": "Бешбармоқ",
     "name_ru": "Бэшбармак",
     "name_en": "Beshbarmak",
     "photo_url": "/photos/000993.jpeg",
@@ -27718,8 +27688,8 @@
     "slug": "jo_ja_tabaka",
     "name_uz_lat": "Jo'ja tabaka",
     "name_uz_kril": "Жўжа табака",
-    "name_ru": "Куриный несушка",
-    "name_en": "Chick layer",
+    "name_ru": "Курица табака",
+    "name_en": "Chicken Tabaka",
     "photo_url": "/photos/000999.jpeg",
     "emoji": null,
     "category": "Asosiy taomlar",
@@ -27765,59 +27735,9 @@
     }
   },
   {
-    "slug": "zirvak",
-    "name_uz_lat": "Zirvak",
-    "name_uz_kril": "Зирвак",
-    "name_ru": "Зирвак",
-    "name_en": "Zirvak",
-    "photo_url": "/photos/001000.jpeg",
-    "emoji": null,
-    "category": "Asosiy taomlar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 350,
-      "protein": 8,
-      "carbs": 10,
-      "fat": 30,
-      "type": "food",
-      "micros": {
-        "k": 280,
-        "ca": 25,
-        "p": 150,
-        "mg": 18,
-        "na": 85,
-        "fe": 2.5,
-        "zn": 4.5,
-        "cu": 0.08,
-        "mn": 0.15,
-        "se": 18,
-        "i": 0.4,
-        "vit_a": 4200,
-        "vit_c": 2,
-        "vit_e": 1.2,
-        "vit_k": 0.4,
-        "vit_b1": 0.08,
-        "vit_b2": 0.15,
-        "vit_b3": 3.5,
-        "vit_b5": 0.45,
-        "vit_b6": 0.35,
-        "vit_b9": 8,
-        "vit_b12": 1.5,
-        "cl": 100,
-        "s": 22,
-        "f": 0.05,
-        "mo": 0.25,
-        "co": 0.002,
-        "vit_b4": 75,
-        "vit_h": 0.05
-      }
-    }
-  },
-  {
     "slug": "bifshteks_o_zbekcha",
     "name_uz_lat": "Bifshteks o'zbekcha",
-    "name_uz_kril": "Бифштэкс ўзбэкча",
+    "name_uz_kril": "Бифштекс ўзбекча",
     "name_ru": "Бифштекс по-узбекски",
     "name_en": "Uzbek-style beef patty",
     "photo_url": "/photos/001001.jpeg",
@@ -27863,7 +27783,7 @@
   {
     "slug": "kotlet_o_zbekcha",
     "name_uz_lat": "Kotlet o'zbekcha",
-    "name_uz_kril": "Котлэт ўзбэкча",
+    "name_uz_kril": "Котлет ўзбекча",
     "name_ru": "Котлета по-узбекски",
     "name_en": "Cutlet in Uzbek",
     "photo_url": "/photos/001002.jpeg",
@@ -28175,7 +28095,7 @@
   {
     "slug": "toshkent_noni",
     "name_uz_lat": "Toshkent noni",
-    "name_uz_kril": "Тошкэнт нони",
+    "name_uz_kril": "Тошкент нони",
     "name_ru": "Ташкентский хлеб",
     "name_en": "Tashkent bread",
     "photo_url": "/photos/001011.jpeg",
@@ -28495,7 +28415,7 @@
   {
     "slug": "cheburek",
     "name_uz_lat": "Cheburek",
-    "name_uz_kril": "Чэбурэк",
+    "name_uz_kril": "Чебурек",
     "name_ru": "Чебурек",
     "name_en": "Cheburek",
     "photo_url": "/photos/001021.jpeg",
@@ -28535,7 +28455,7 @@
   {
     "slug": "belyash",
     "name_uz_lat": "Belyash",
-    "name_uz_kril": "Бэляш",
+    "name_uz_kril": "Беляш",
     "name_ru": "Беляш",
     "name_en": "Belyash",
     "photo_url": "/photos/001022.jpeg",
@@ -29327,7 +29247,7 @@
   {
     "slug": "behi_murabbo",
     "name_uz_lat": "Behi murabbo",
-    "name_uz_kril": "Бэҳи мураббо",
+    "name_uz_kril": "Беҳи мураббо",
     "name_ru": "Варенье из айвы",
     "name_en": "Quince jam",
     "photo_url": "/photos/001049.jpeg",
@@ -29621,7 +29541,7 @@
   {
     "slug": "greypfrut",
     "name_uz_lat": "Greypfrut",
-    "name_uz_kril": "Грэйпфрут",
+    "name_uz_kril": "Грейпфрут",
     "name_ru": "Грейпфрут",
     "name_en": "Grapefruit",
     "photo_url": "/photos/001058.jpeg",
@@ -29769,7 +29689,7 @@
   {
     "slug": "chernika",
     "name_uz_lat": "Chernika",
-    "name_uz_kril": "Чэрника",
+    "name_uz_kril": "Черника",
     "name_ru": "Черника",
     "name_en": "Blueberry",
     "photo_url": "/photos/001062.jpeg",
@@ -29867,7 +29787,7 @@
   {
     "slug": "behi_yangi",
     "name_uz_lat": "Behi yangi",
-    "name_uz_kril": "Бэҳи янги",
+    "name_uz_kril": "Беҳи янги",
     "name_ru": "Айва свежая",
     "name_en": "Quince is fresh",
     "photo_url": "/photos/001065.jpeg",
@@ -30086,7 +30006,7 @@
   {
     "slug": "kedr_yong_og_i",
     "name_uz_lat": "Kedr yong'og'i",
-    "name_uz_kril": "Кэдр ёнғоғи",
+    "name_uz_kril": "Кедр ёнғоғи",
     "name_ru": "Кедровый орех",
     "name_en": "Cedar nut",
     "photo_url": "/photos/001071.jpeg",
@@ -30126,7 +30046,7 @@
   {
     "slug": "pekan_yong_og_i",
     "name_uz_lat": "Pekan yong'og'i",
-    "name_uz_kril": "Пэкан ёнғоғи",
+    "name_uz_kril": "Пекан ёнғоғи",
     "name_ru": "пекан",
     "name_en": "Pecans",
     "photo_url": "/photos/001072.jpeg",
@@ -30435,7 +30355,7 @@
   {
     "slug": "konservalangan_makkajo_xori",
     "name_uz_lat": "Konservalangan makkajo'xori",
-    "name_uz_kril": "Консэрваланган маккажўхори",
+    "name_uz_kril": "Консерваланган маккажўхори",
     "name_ru": "Консервированная кукуруза",
     "name_en": "Canned corn",
     "photo_url": "/photos/001081.jpeg",
@@ -30463,7 +30383,7 @@
   {
     "slug": "konservalangan_ko_k_no_xat",
     "name_uz_lat": "Konservalangan ko'k no'xat",
-    "name_uz_kril": "Консэрваланган кўк нўхат",
+    "name_uz_kril": "Консерваланган кўк нўхат",
     "name_ru": "Консервированный зеленый горошек",
     "name_en": "Canned green peas",
     "photo_url": "/photos/001082.jpeg",
@@ -30580,7 +30500,7 @@
   {
     "slug": "jelatin",
     "name_uz_lat": "Jelatin",
-    "name_uz_kril": "Жэлатин",
+    "name_uz_kril": "Желатин",
     "name_ru": "Желатин",
     "name_en": "Gelatin",
     "photo_url": "/photos/001085.jpeg",
@@ -30807,7 +30727,7 @@
   {
     "slug": "karamel_konfeti",
     "name_uz_lat": "Karamel konfeti",
-    "name_uz_kril": "Карамэл конфэти",
+    "name_uz_kril": "Карамел конфети",
     "name_ru": "Карамельные конфеты",
     "name_en": "Caramel candy",
     "photo_url": "/photos/001092.jpeg",
@@ -30831,7 +30751,7 @@
   {
     "slug": "iris_konfeti",
     "name_uz_lat": "Iris konfeti",
-    "name_uz_kril": "Ирис конфэти",
+    "name_uz_kril": "Ирис конфети",
     "name_ru": "Ирис конфеты",
     "name_en": "Iris candy",
     "photo_url": "/photos/001093.jpeg",
@@ -31242,7 +31162,7 @@
   {
     "slug": "keshyu",
     "name_uz_lat": "Keshyu",
-    "name_uz_kril": "Кэшю",
+    "name_uz_kril": "Кешю",
     "name_ru": "Кешью",
     "name_en": "Cashew",
     "photo_url": "/photos/001104.jpeg",
@@ -31373,7 +31293,7 @@
   {
     "slug": "petrushka_yangi",
     "name_uz_lat": "Petrushka yangi",
-    "name_uz_kril": "Пэтрушка янги",
+    "name_uz_kril": "Петрушка янги",
     "name_ru": "Свежая петрушка",
     "name_en": "Fresh parsley",
     "photo_url": "/photos/001108.jpeg",
@@ -31637,7 +31557,7 @@
   {
     "slug": "zefir",
     "name_uz_lat": "Zefir",
-    "name_uz_kril": "Зэфир",
+    "name_uz_kril": "Зефир",
     "name_ru": "Зефир",
     "name_en": "Marshmallow",
     "photo_url": "/photos/001117.jpeg",
@@ -31664,7 +31584,7 @@
   {
     "slug": "marmelad_jelli",
     "name_uz_lat": "Marmelad jelli",
-    "name_uz_kril": "Мармэлад жэлли",
+    "name_uz_kril": "Мармелад желли",
     "name_ru": "Мармелад желе",
     "name_en": "Marmalade jelly",
     "photo_url": "/photos/001118.jpeg",
@@ -33072,7 +32992,7 @@
   {
     "slug": "evos_sub",
     "name_uz_lat": "Sab (sendvich)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Саб (сендвич)",
     "name_ru": "Саб (сэндвич)",
     "name_en": "Sub sandwich",
     "photo_url": null,
@@ -33100,7 +33020,7 @@
   {
     "slug": "evos_trindwich",
     "name_uz_lat": "Trindvich",
-    "name_uz_kril": "",
+    "name_uz_kril": "Триндвич",
     "name_ru": "Триндвич",
     "name_en": "Trindwich wrap",
     "photo_url": null,
@@ -33128,7 +33048,7 @@
   {
     "slug": "evos_sezar_roll",
     "name_uz_lat": "Sezar roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Сезар ролл",
     "name_ru": "Цезарь ролл",
     "name_en": "Caesar roll wrap",
     "photo_url": null,
@@ -33156,7 +33076,7 @@
   {
     "slug": "evos_donar_roll",
     "name_uz_lat": "Donar roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Донар ролл",
     "name_ru": "Донар ролл",
     "name_en": "Doner roll wrap",
     "photo_url": null,
@@ -33184,7 +33104,7 @@
   {
     "slug": "evos_gosht_roll",
     "name_uz_lat": "Go'sht roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Гўшт ролл",
     "name_ru": "Мясной ролл",
     "name_en": "Meat roll wrap",
     "photo_url": null,
@@ -33212,7 +33132,7 @@
   {
     "slug": "evos_lavashello",
     "name_uz_lat": "Lavashello",
-    "name_uz_kril": "",
+    "name_uz_kril": "Лавашелло",
     "name_ru": "Лавашелло",
     "name_en": "Lavashello",
     "photo_url": null,
@@ -33240,7 +33160,7 @@
   {
     "slug": "evos_fitter",
     "name_uz_lat": "Fitter lavash",
-    "name_uz_kril": "",
+    "name_uz_kril": "Фиттер лаваш",
     "name_ru": "Фиттер (лаваш)",
     "name_en": "Fitter lavash",
     "photo_url": null,
@@ -33268,7 +33188,7 @@
   {
     "slug": "evos_donar",
     "name_uz_lat": "Donar (laganda)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Донар (лаганда)",
     "name_ru": "Донар (на тарелке)",
     "name_en": "Doner plate",
     "photo_url": null,
@@ -33296,7 +33216,7 @@
   {
     "slug": "evos_naggets",
     "name_uz_lat": "Naggetslar",
-    "name_uz_kril": "",
+    "name_uz_kril": "Наггетслар",
     "name_ru": "Наггетсы",
     "name_en": "Chicken nuggets",
     "photo_url": null,
@@ -33324,7 +33244,7 @@
   {
     "slug": "evos_strips",
     "name_uz_lat": "Strips (tovuq)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Стрипс (товуқ)",
     "name_ru": "Стрипсы куриные",
     "name_en": "Chicken strips",
     "photo_url": null,
@@ -33352,7 +33272,7 @@
   {
     "slug": "evos_chizburger",
     "name_uz_lat": "Chizburger",
-    "name_uz_kril": "",
+    "name_uz_kril": "Чизбургер",
     "name_ru": "Чизбургер",
     "name_en": "Cheeseburger",
     "photo_url": null,
@@ -33380,7 +33300,7 @@
   {
     "slug": "evos_dablburger",
     "name_uz_lat": "Dablburger",
-    "name_uz_kril": "",
+    "name_uz_kril": "Даблбургер",
     "name_ru": "Дабл-бургер",
     "name_en": "Double burger",
     "photo_url": null,
@@ -33408,7 +33328,7 @@
   {
     "slug": "evos_macho_lavash",
     "name_uz_lat": "Macho lavash",
-    "name_uz_kril": "",
+    "name_uz_kril": "Мачо лаваш",
     "name_ru": "Мачо лаваш",
     "name_en": "Macho lavash",
     "photo_url": null,
@@ -33436,7 +33356,7 @@
   {
     "slug": "evos_jaydari_kartoshka",
     "name_uz_lat": "Jaydari kartoshka",
-    "name_uz_kril": "",
+    "name_uz_kril": "Жайдари картошка",
     "name_ru": "Картошка по-деревенски",
     "name_en": "Country-style potatoes",
     "photo_url": null,
@@ -33464,7 +33384,7 @@
   {
     "slug": "evos_grek_salat",
     "name_uz_lat": "Grek salati",
-    "name_uz_kril": "",
+    "name_uz_kril": "Грек салати",
     "name_ru": "Греческий салат",
     "name_en": "Greek salad",
     "photo_url": null,
@@ -33492,7 +33412,7 @@
   {
     "slug": "evos_chizkeyk",
     "name_uz_lat": "Chizkeyk",
-    "name_uz_kril": "",
+    "name_uz_kril": "Чизкейк",
     "name_ru": "Чизкейк",
     "name_en": "Cheesecake",
     "photo_url": null,
@@ -33519,7 +33439,7 @@
   {
     "slug": "evos_medovik",
     "name_uz_lat": "Medovik torti",
-    "name_uz_kril": "",
+    "name_uz_kril": "Медовик торти",
     "name_ru": "Медовик",
     "name_en": "Medovik honey cake",
     "photo_url": null,
@@ -33546,7 +33466,7 @@
   {
     "slug": "evos_choko",
     "name_uz_lat": "Choko deserti",
-    "name_uz_kril": "",
+    "name_uz_kril": "Чоко десерти",
     "name_ru": "Чоко (десерт)",
     "name_en": "Choco dessert",
     "photo_url": null,
@@ -33573,7 +33493,7 @@
   {
     "slug": "ym_filadelfiya",
     "name_uz_lat": "Filadelfiya roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Филаделфия ролл",
     "name_ru": "Ролл Филадельфия",
     "name_en": "Philadelphia roll",
     "photo_url": null,
@@ -33601,7 +33521,7 @@
   {
     "slug": "ym_kaliforniya",
     "name_uz_lat": "Kaliforniya roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Калифорния ролл",
     "name_ru": "Ролл Калифорния",
     "name_en": "California roll",
     "photo_url": null,
@@ -33629,7 +33549,7 @@
   {
     "slug": "ym_maki_losos",
     "name_uz_lat": "Maki (losos)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Маки (лосос)",
     "name_ru": "Маки с лососем",
     "name_en": "Salmon maki",
     "photo_url": null,
@@ -33657,7 +33577,7 @@
   {
     "slug": "ym_mozaika",
     "name_uz_lat": "Mozaika roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Мозаика ролл",
     "name_ru": "Ролл Мозаика",
     "name_en": "Mosaic roll",
     "photo_url": null,
@@ -33685,7 +33605,7 @@
   {
     "slug": "ym_sakura",
     "name_uz_lat": "Sakura roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Сакура ролл",
     "name_ru": "Ролл Сакура",
     "name_en": "Sakura roll",
     "photo_url": null,
@@ -33713,7 +33633,7 @@
   {
     "slug": "ym_vavilon",
     "name_uz_lat": "Vavilon roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Вавилон ролл",
     "name_ru": "Ролл Вавилон",
     "name_en": "Babylon roll",
     "photo_url": null,
@@ -33741,7 +33661,7 @@
   {
     "slug": "ym_president",
     "name_uz_lat": "President roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Пресидент ролл",
     "name_ru": "Ролл President",
     "name_en": "President roll",
     "photo_url": null,
@@ -33769,7 +33689,7 @@
   {
     "slug": "ym_spaysi_syake",
     "name_uz_lat": "Spaysi syake roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Спайси сяке ролл",
     "name_ru": "Спайси сяке ролл",
     "name_en": "Spicy salmon roll",
     "photo_url": null,
@@ -33797,7 +33717,7 @@
   {
     "slug": "ym_syake_tempura",
     "name_uz_lat": "Syake tempura roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Сяке темпура ролл",
     "name_ru": "Сяке темпура (жареный ролл)",
     "name_en": "Salmon tempura roll",
     "photo_url": null,
@@ -33825,7 +33745,7 @@
   {
     "slug": "ym_slivochniy_losos",
     "name_uz_lat": "Kremli losos roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Кремли лосос ролл",
     "name_ru": "Сливочный лосось ролл",
     "name_en": "Creamy salmon roll",
     "photo_url": null,
@@ -33853,7 +33773,7 @@
   {
     "slug": "ym_akibuto",
     "name_uz_lat": "Akibuto roll",
-    "name_uz_kril": "",
+    "name_uz_kril": "Акибуто ролл",
     "name_ru": "Ролл Акибуто",
     "name_en": "Akibuto roll",
     "photo_url": null,
@@ -33881,7 +33801,7 @@
   {
     "slug": "ym_udon_tovuq",
     "name_uz_lat": "Udon (tovuqli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Удон (товуқли)",
     "name_ru": "Удон с курицей",
     "name_en": "Udon with chicken",
     "photo_url": null,
@@ -33909,7 +33829,7 @@
   {
     "slug": "ym_udon_mol",
     "name_uz_lat": "Udon (mol go'shtli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Удон (мол гўштли)",
     "name_ru": "Удон с говядиной",
     "name_en": "Udon with beef",
     "photo_url": null,
@@ -33937,7 +33857,7 @@
   {
     "slug": "ym_udon_dengiz",
     "name_uz_lat": "Udon (dengiz mahsulotli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Удон (денгиз маҳсулотли)",
     "name_ru": "Удон с морепродуктами",
     "name_en": "Udon with seafood",
     "photo_url": null,
@@ -33965,7 +33885,7 @@
   {
     "slug": "ym_ramen_mol",
     "name_uz_lat": "Koreys rameni (mol go'shtli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Корейс рамени (мол гўштли)",
     "name_ru": "Корейский рамен с говядиной",
     "name_en": "Korean ramen with beef",
     "photo_url": null,
@@ -33993,7 +33913,7 @@
   {
     "slug": "ym_ramen_tovuq",
     "name_uz_lat": "Koreys rameni (tovuqli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Корейс рамени (товуқли)",
     "name_ru": "Корейский рамен с курицей",
     "name_en": "Korean ramen with chicken",
     "photo_url": null,
@@ -34021,7 +33941,7 @@
   {
     "slug": "ym_ris_tovuq",
     "name_uz_lat": "Qovurma guruch (tovuqli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Қовурма гуруч (товуқли)",
     "name_ru": "Жареный рис с курицей",
     "name_en": "Fried rice with chicken",
     "photo_url": null,
@@ -34049,7 +33969,7 @@
   {
     "slug": "ym_ris_dengiz",
     "name_uz_lat": "Qovurma guruch (dengiz mahsulotli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Қовурма гуруч (денгиз маҳсулотли)",
     "name_ru": "Жареный рис с морепродуктами",
     "name_en": "Fried rice with seafood",
     "photo_url": null,
@@ -34077,7 +33997,7 @@
   {
     "slug": "ym_tom_yam",
     "name_uz_lat": "Tom Yam sho'rvasi",
-    "name_uz_kril": "",
+    "name_uz_kril": "Том Ям шўрваси",
     "name_ru": "Суп Том Ям",
     "name_en": "Tom Yam soup",
     "photo_url": null,
@@ -34105,7 +34025,7 @@
   {
     "slug": "ym_ramen_sup",
     "name_uz_lat": "Ramen sho'rvasi (mol go'shtli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Рамен шўрваси (мол гўштли)",
     "name_ru": "Рамэн с говядиной",
     "name_en": "Ramen soup with beef",
     "photo_url": null,
@@ -34133,7 +34053,7 @@
   {
     "slug": "ym_miso_losos",
     "name_uz_lat": "Miso sho'rvasi (losos bilan)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Мисо шўрваси (лосос билан)",
     "name_ru": "Мисо с лососем",
     "name_en": "Miso soup with salmon",
     "photo_url": null,
@@ -34161,7 +34081,7 @@
   {
     "slug": "ym_kimchi_sup",
     "name_uz_lat": "Kimchi sho'rvasi (tovuqli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Кимчи шўрваси (товуқли)",
     "name_ru": "Кимчи суп с курицей",
     "name_en": "Kimchi soup with chicken",
     "photo_url": null,
@@ -34189,7 +34109,7 @@
   {
     "slug": "ym_slivochniy_sup",
     "name_uz_lat": "Kremli sho'rva (tovuqli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Кремли шўрва (товуқли)",
     "name_ru": "Сливочный суп с курицей",
     "name_en": "Creamy chicken soup",
     "photo_url": null,
@@ -34217,7 +34137,7 @@
   {
     "slug": "ym_fila_sarada",
     "name_uz_lat": "Fila sarada",
-    "name_uz_kril": "",
+    "name_uz_kril": "Фила сарада",
     "name_ru": "Фила сарада",
     "name_en": "Fila salad (beef teriyaki)",
     "photo_url": null,
@@ -34245,7 +34165,7 @@
   {
     "slug": "ym_chuka_sarada",
     "name_uz_lat": "Chuka sarada",
-    "name_uz_kril": "",
+    "name_uz_kril": "Чука сарада",
     "name_ru": "Чука сарада",
     "name_en": "Chuka seaweed salad",
     "photo_url": null,
@@ -34273,7 +34193,7 @@
   {
     "slug": "ym_kani_sarada",
     "name_uz_lat": "Kani sarada",
-    "name_uz_kril": "",
+    "name_uz_kril": "Кани сарада",
     "name_ru": "Кани сарада",
     "name_en": "Kani crab salad",
     "photo_url": null,
@@ -34301,7 +34221,7 @@
   {
     "slug": "ym_tropik_miks",
     "name_uz_lat": "Tropik miks salat",
-    "name_uz_kril": "",
+    "name_uz_kril": "Тропик микс салат",
     "name_ru": "Тропик микс салат",
     "name_en": "Tropic mix salad",
     "photo_url": null,
@@ -34329,7 +34249,7 @@
   {
     "slug": "ym_kimchi_govyadina",
     "name_uz_lat": "Kimchi (mol go'shtli, seul uslubida)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Кимчи (мол гўштли, сеул услубида)",
     "name_ru": "Кимчи с говядиной по-сеульски",
     "name_en": "Seoul-style beef kimchi salad",
     "photo_url": null,
@@ -34357,7 +34277,7 @@
   {
     "slug": "ym_gyoza",
     "name_uz_lat": "Gyoza (baliqli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Гёза (балиқли)",
     "name_ru": "Гёдза классик",
     "name_en": "Gyoza dumplings",
     "photo_url": null,
@@ -34385,7 +34305,7 @@
   {
     "slug": "ym_samosa_shpinat",
     "name_uz_lat": "Samosa (ismaloqli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Самоса (исмалоқли)",
     "name_ru": "Самоса со шпинатом",
     "name_en": "Spinach samosa",
     "photo_url": null,
@@ -34413,7 +34333,7 @@
   {
     "slug": "ym_samosa_kartoshka",
     "name_uz_lat": "Samosa (kartoshkali, karri)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Самоса (картошкали, карри)",
     "name_ru": "Самоса из картофеля карри",
     "name_en": "Curry potato samosa",
     "photo_url": null,
@@ -34441,7 +34361,7 @@
   {
     "slug": "ym_katlama",
     "name_uz_lat": "Katlama (tartar sousli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Катлама (тартар соусли)",
     "name_ru": "Катлама с соусом тартар",
     "name_en": "Katlama with tartar",
     "photo_url": null,
@@ -34469,7 +34389,7 @@
   {
     "slug": "ym_tori_don",
     "name_uz_lat": "Tori don",
-    "name_uz_kril": "",
+    "name_uz_kril": "Тори дон",
     "name_ru": "Тори дон",
     "name_en": "Tori don chicken rice bowl",
     "photo_url": null,
@@ -34497,7 +34417,7 @@
   {
     "slug": "ym_kurica_po_tayski",
     "name_uz_lat": "Tay uslubidagi tovuq",
-    "name_uz_kril": "",
+    "name_uz_kril": "Тай услубидаги товуқ",
     "name_ru": "Курица по-тайски",
     "name_en": "Thai-style chicken",
     "photo_url": null,
@@ -34525,7 +34445,7 @@
   {
     "slug": "ym_chiken_katsu",
     "name_uz_lat": "Chiken katsu (soba bilan)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Чикен катсу (соба билан)",
     "name_ru": "Чикен кацу с лапшой соба",
     "name_en": "Chicken katsu with soba",
     "photo_url": null,
@@ -34553,7 +34473,7 @@
   {
     "slug": "ym_myondon_kurochka",
     "name_uz_lat": "Myondon tovug'i",
-    "name_uz_kril": "",
+    "name_uz_kril": "Мёндон товуғи",
     "name_ru": "Мёндонская курочка",
     "name_en": "Myeongdong fried chicken",
     "photo_url": null,
@@ -34580,9 +34500,9 @@
   },
   {
     "slug": "ym_asia_beef",
-    "name_uz_lat": "Asia Beef",
-    "name_uz_kril": "",
-    "name_ru": "Asia Beef",
+    "name_uz_lat": "Osiyocha mol go'shti",
+    "name_uz_kril": "Осиёча мол гўшти",
+    "name_ru": "Говядина по-азиатски",
     "name_en": "Asia Beef",
     "photo_url": null,
     "emoji": null,
@@ -34609,7 +34529,7 @@
   {
     "slug": "ym_zharovnya_govyadina",
     "name_uz_lat": "Mol go'shtli jarkop",
-    "name_uz_kril": "",
+    "name_uz_kril": "Мол гўштли жаркоп",
     "name_ru": "Жаровня с говядиной",
     "name_en": "Beef roast pan",
     "photo_url": null,
@@ -34637,7 +34557,7 @@
   {
     "slug": "ym_forel_katsu",
     "name_uz_lat": "Forel katsu (guruch bilan)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Форел катсу (гуруч билан)",
     "name_ru": "Форель кацу с рисом",
     "name_en": "Trout katsu with rice",
     "photo_url": null,
@@ -34665,7 +34585,7 @@
   {
     "slug": "ym_steyk_foreli",
     "name_uz_lat": "Forel steyki",
-    "name_uz_kril": "",
+    "name_uz_kril": "Форел стейки",
     "name_ru": "Стейк из форели",
     "name_en": "Trout steak",
     "photo_url": null,
@@ -34693,7 +34613,7 @@
   {
     "slug": "ym_gohan_toniku",
     "name_uz_lat": "Gohan toniku",
-    "name_uz_kril": "",
+    "name_uz_kril": "Гоҳан тонику",
     "name_ru": "Гохан тонику",
     "name_en": "Gohan toniku (beef & rice)",
     "photo_url": null,
@@ -34721,7 +34641,7 @@
   {
     "slug": "ym_okroshka",
     "name_uz_lat": "Okroshka",
-    "name_uz_kril": "",
+    "name_uz_kril": "Окрошка",
     "name_ru": "Окрошка",
     "name_en": "Okroshka cold soup",
     "photo_url": null,
@@ -34749,7 +34669,7 @@
   {
     "slug": "fb_iskander_mol",
     "name_uz_lat": "Iskander (mol go'shti)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Искандер (мол гўшти)",
     "name_ru": "Искандер (говядина)",
     "name_en": "Iskender (beef)",
     "photo_url": null,
@@ -34777,7 +34697,7 @@
   {
     "slug": "fb_iskander_tovuq",
     "name_uz_lat": "Iskander (tovuq)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Искандер (товуқ)",
     "name_ru": "Искандер (курица)",
     "name_en": "Iskender (chicken)",
     "photo_url": null,
@@ -34805,7 +34725,7 @@
   {
     "slug": "fb_lahmajun",
     "name_uz_lat": "Lahmajun",
-    "name_uz_kril": "",
+    "name_uz_kril": "Лаҳмажун",
     "name_ru": "Лахмаджун",
     "name_en": "Lahmajun",
     "photo_url": null,
@@ -34833,7 +34753,7 @@
   {
     "slug": "fb_pide_assorti",
     "name_uz_lat": "Pide (assorti)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Пиде (ассорти)",
     "name_ru": "Пиде ассорти",
     "name_en": "Pide assorti",
     "photo_url": null,
@@ -34861,7 +34781,7 @@
   {
     "slug": "fb_pide_gosht",
     "name_uz_lat": "Pide (go'shtli)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Пиде (гўштли)",
     "name_ru": "Пиде с мясом",
     "name_en": "Meat pide",
     "photo_url": null,
@@ -34889,7 +34809,7 @@
   {
     "slug": "fb_doner_laganda",
     "name_uz_lat": "Donar (laganda)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Донар (лаганда)",
     "name_ru": "Донар на тарелке",
     "name_en": "Doner on plate",
     "photo_url": null,
@@ -34917,7 +34837,7 @@
   {
     "slug": "fb_durum",
     "name_uz_lat": "Durum (lavash)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Дурум (лаваш)",
     "name_ru": "Дурум (лаваш)",
     "name_en": "Durum wrap",
     "photo_url": null,
@@ -34945,7 +34865,7 @@
   {
     "slug": "fb_sarma_beyti",
     "name_uz_lat": "Sarma Beyti",
-    "name_uz_kril": "",
+    "name_uz_kril": "Сарма Бейти",
     "name_ru": "Сарма Бейти",
     "name_en": "Sarma Beyti",
     "photo_url": null,
@@ -34973,7 +34893,7 @@
   {
     "slug": "fb_adana",
     "name_uz_lat": "Adana kabob",
-    "name_uz_kril": "",
+    "name_uz_kril": "Адана кабоб",
     "name_ru": "Адана кебаб",
     "name_en": "Adana kebab",
     "photo_url": null,
@@ -35001,7 +34921,7 @@
   {
     "slug": "fb_chop_shish",
     "name_uz_lat": "Chop-shish",
-    "name_uz_kril": "",
+    "name_uz_kril": "Чоп-шиш",
     "name_ru": "Чоп-шиш",
     "name_en": "Chop shish kebab",
     "photo_url": null,
@@ -35029,7 +34949,7 @@
   {
     "slug": "fb_kofte",
     "name_uz_lat": "Izgara kofte",
-    "name_uz_kril": "",
+    "name_uz_kril": "Изгара кофте",
     "name_ru": "Гриль кофте",
     "name_en": "Grilled kofte",
     "photo_url": null,
@@ -35057,7 +34977,7 @@
   {
     "slug": "fb_perzola",
     "name_uz_lat": "Tovuq pirzola",
-    "name_uz_kril": "",
+    "name_uz_kril": "Товуқ пирзола",
     "name_ru": "Куриная перзола",
     "name_en": "Chicken pirzola",
     "photo_url": null,
@@ -35085,7 +35005,7 @@
   {
     "slug": "fb_ezo_gelin",
     "name_uz_lat": "Ezogelin sho'rvasi",
-    "name_uz_kril": "",
+    "name_uz_kril": "Эзогелин шўрваси",
     "name_ru": "Суп Эзогелин",
     "name_en": "Ezogelin soup",
     "photo_url": null,
@@ -35113,7 +35033,7 @@
   {
     "slug": "fb_club_sandwich",
     "name_uz_lat": "Klab-sendvich (tovuq)",
-    "name_uz_kril": "",
+    "name_uz_kril": "Клаб-сендвич (товуқ)",
     "name_ru": "Клаб-сэндвич с курицей",
     "name_en": "Club sandwich (chicken)",
     "photo_url": null,
@@ -35141,7 +35061,7 @@
   {
     "slug": "fb_fish_sandwich",
     "name_uz_lat": "Baliqli sendvich",
-    "name_uz_kril": "",
+    "name_uz_kril": "Балиқли сендвич",
     "name_ru": "Рыбный сэндвич",
     "name_en": "Fish sandwich",
     "photo_url": null,
@@ -35169,7 +35089,7 @@
   {
     "slug": "fb_fish_plate",
     "name_uz_lat": "Baliq laganda",
-    "name_uz_kril": "",
+    "name_uz_kril": "Балиқ лаганда",
     "name_ru": "Рыба на тарелке",
     "name_en": "Fish on plate",
     "photo_url": null,
@@ -35197,7 +35117,7 @@
   {
     "slug": "fb_mushroom_pizza",
     "name_uz_lat": "Qo'ziqorinli pitsa",
-    "name_uz_kril": "",
+    "name_uz_kril": "Қўзиқоринли питса",
     "name_ru": "Пицца с грибами",
     "name_en": "Mushroom pizza",
     "photo_url": null,
@@ -35225,7 +35145,7 @@
   {
     "slug": "fb_afghan_bread",
     "name_uz_lat": "Afg'on noni",
-    "name_uz_kril": "",
+    "name_uz_kril": "Афғон нони",
     "name_ru": "Хлеб «Афган»",
     "name_en": "Afghan bread",
     "photo_url": null,
@@ -35253,7 +35173,7 @@
   {
     "slug": "fb_ekmek",
     "name_uz_lat": "Ekmek noni",
-    "name_uz_kril": "",
+    "name_uz_kril": "Экмек нони",
     "name_ru": "Хлеб Экмек",
     "name_en": "Ekmek bread",
     "photo_url": null,
@@ -35281,7 +35201,7 @@
   {
     "slug": "fb_napoleon",
     "name_uz_lat": "Napoleon torti",
-    "name_uz_kril": "",
+    "name_uz_kril": "Наполеон торти",
     "name_ru": "Торт Наполеон",
     "name_en": "Napoleon cake",
     "photo_url": null,
@@ -35308,7 +35228,7 @@
   {
     "slug": "fb_pirog_vishnya",
     "name_uz_lat": "Vishnali pirog",
-    "name_uz_kril": "",
+    "name_uz_kril": "Вишнали пирог",
     "name_ru": "Пирог вишнёвый",
     "name_en": "Cherry pie",
     "photo_url": null,
@@ -35335,7 +35255,7 @@
   {
     "slug": "fb_pirog_tvorog",
     "name_uz_lat": "Tvorogli pirog",
-    "name_uz_kril": "",
+    "name_uz_kril": "Творогли пирог",
     "name_ru": "Пирог творожный",
     "name_en": "Cottage cheese pie",
     "photo_url": null,
@@ -35362,7 +35282,7 @@
   {
     "slug": "fb_pirog_olma",
     "name_uz_lat": "Olmali pirog",
-    "name_uz_kril": "",
+    "name_uz_kril": "Олмали пирог",
     "name_ru": "Пирог яблочный",
     "name_en": "Apple pie",
     "photo_url": null,
