@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_language.dart';
@@ -33,37 +34,28 @@ class DatePill extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: topInset + 24, bottom: 18),
       child: Center(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        // Дата-пилюля оформлена как единая стеклянная кнопка приложения (EcoBtn):
+        // объёмное стекло + press-эффект, как у пилюли периода на экране ИИ.
+        child: EcoBtn(
+          t: t,
+          height: 48,
+          fontSize: 16,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 13),
-            decoration: BoxDecoration(
-              color: t.band,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Только дата, без дня недели и времени.
-                Text(
-                  '${l.dayMonth(d)} ${d.year}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: t.ink,
-                  ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Только дата, без дня недели и времени.
+              Text('${l.dayMonth(d)} ${d.year}'),
+              if (onTap != null) ...[
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.edit_calendar_outlined,
+                  size: 18,
+                  color: t.ink,
                 ),
-                if (onTap != null) ...[
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.edit_calendar_outlined,
-                    size: 18,
-                    color: t.ink,
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
         ),
       ),
@@ -175,7 +167,8 @@ class _WaterScreenState extends State<WaterScreen> {
     // меняется вода (сегодня или выбранный день) либо её норма, а не на каждый
     // тик шагомера.
     context.select<AppStore, int>(
-      (s) => Object.hash(s.water, s.waterGoal, s.waterForOffset(_offset)),
+      (s) => Object.hash(
+          s.water, s.waterGoal, s.waterForOffset(_offset), s.waterPortion),
     );
     final s = context.read<AppStore>();
     final l = context.l10n;
@@ -183,18 +176,32 @@ class _WaterScreenState extends State<WaterScreen> {
     final isToday = _offset == 0;
     final selDate = DateTime.now().subtract(Duration(days: _offset));
     final selWater = s.waterForOffset(_offset);
-    final pct = s.waterGoal > 0 ? selWater / s.waterGoal : 0.0;
+    // «Переполнение»: каждый полностью выпитый объём нормы уходит вверх отдельным
+    // маленьким полным стаканом, а большой стакан показывает прогресс к следующей
+    // норме. При selWater ≤ норме маленьких стаканов нет, большой — как обычно.
+    final goal = s.waterGoal;
+    final overflowGlasses =
+        (goal > 0 && selWater > goal) ? (selWater - 1) ~/ goal : 0;
+    // По бокам большого стакана помещается до 2 маленьких с каждой стороны
+    // (макет 277:2597) — максимум 4. Левой стороне достаётся «лишний» при
+    // нечётном числе.
+    final shownGlasses = overflowGlasses > 4 ? 4 : overflowGlasses;
+    final leftGlasses = (shownGlasses + 1) ~/ 2;
+    final rightGlasses = shownGlasses ~/ 2;
+    final bigFill = goal > 0
+        ? ((selWater - overflowGlasses * goal) / goal).clamp(0.0, 1.0)
+        : 0.0;
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('home.water'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('home.water'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           // ── График воды за 30 дней: горизонтальная прокрутка, подложка за
           // выбранным днём (как на экране «Шаги») ──
           Padding(
@@ -207,6 +214,7 @@ class _WaterScreenState extends State<WaterScreen> {
               minTop: (s.waterGoal * 1.3).round(),
               barColor: EcoColors.water,
               goalColor: EcoColors.waterDeep,
+              unit: l.unit('ml'),
               offset: _offset,
               onSelect: (o) => setState(() => _offset = o),
             ),
@@ -228,14 +236,41 @@ class _WaterScreenState extends State<WaterScreen> {
             t: t,
             child: Column(
               children: [
-                // Тот же стакан, что и на карточке воды главного экрана
-                // (WaterGlass), просто крупнее. pct здесь — доля (0..1),
-                // а WaterGlass ждёт проценты (0..100).
-                WaterGlass(
-                  pct: (pct * 100).clamp(0, 100).toDouble(),
-                  t: t,
-                  width: 116,
-                  height: 152,
+                // «Переполнение»: большой стакан по центру, а по бокам —
+                // маленькие полные стаканы за каждую выпитую норму сверх цели
+                // (до 2 слева/справа, макет 277:2597). Прижаты к большому и
+                // выровнены по его низу; при нечёте лишний — слева.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          for (var i = 0; i < leftGlasses; i++) ...[
+                            WaterGlass(fill: 1.0, t: t, width: 36, height: 50),
+                            const SizedBox(width: 8),
+                          ],
+                        ],
+                      ),
+                    ),
+                    // Тот же стакан, что на главной («Вода»): контур + волнистая
+                    // анимированная вода + растение, крупнее.
+                    WaterGlass(fill: bigFill, t: t, width: 107, height: 150),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          for (var i = 0; i < rightGlasses; i++) ...[
+                            const SizedBox(width: 8),
+                            WaterGlass(fill: 1.0, t: t, width: 36, height: 50),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 18),
                 Text(
@@ -253,34 +288,39 @@ class _WaterScreenState extends State<WaterScreen> {
                     color: t.sub,
                   ),
                 ),
-                // ± меняют воду ВЫБРАННОГО дня (в т.ч. прошлого).
+                // ± меняют воду ВЫБРАННОГО дня на выбранную порцию; центральная
+                // кнопка (текущая порция) по тапу открывает лист-колесо выбора
+                // размера. Все три — объёмное стекло (EcoGlassButton).
                 const SizedBox(height: 22),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    GestureDetector(
+                    EcoGlassButton(
+                      height: 52,
+                      width: 52,
+                      padding: EdgeInsets.zero,
                       onTap: () => context
                           .read<AppStore>()
-                          .stepWaterForOffset(_offset, -100),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: t.bandSoft,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.remove, size: 24, color: t.ink),
-                      ),
+                          .stepWaterForOffset(_offset, -s.waterPortion),
+                      child: Icon(Icons.remove, size: 24, color: t.ink),
                     ),
                     const SizedBox(width: 12),
                     EcoBtn(
                       t: t,
                       height: 52,
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      onTap: () => _pickPortion(t, l),
+                      child: Text('${s.waterPortion} ${l.unit('ml')}'),
+                    ),
+                    const SizedBox(width: 12),
+                    EcoGlassButton(
+                      height: 52,
+                      width: 52,
+                      padding: EdgeInsets.zero,
                       onTap: () => context
                           .read<AppStore>()
-                          .stepWaterForOffset(_offset, 100),
-                      child: Text('+ 100 ${l.unit('ml')}'),
+                          .stepWaterForOffset(_offset, s.waterPortion),
+                      child: Icon(Icons.add, size: 24, color: t.ink),
                     ),
                   ],
                 ),
@@ -290,6 +330,42 @@ class _WaterScreenState extends State<WaterScreen> {
         ],
       ),
     );
+  }
+
+  // Лист выбора размера порции (мл) — колесо в стиле «Размер порции».
+  void _pickPortion(EcoTheme t, AppStrings l) {
+    final store = context.read<AppStore>();
+    const options = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500];
+    var idx = options.indexOf(store.waterPortion);
+    if (idx < 0) idx = 1;
+    final ctrl = FixedExtentScrollController(initialItem: idx);
+    showEcoSheet(
+      context: context,
+      t: t,
+      title: l.t('food.portionSize'),
+      onDone: () => store.setWaterPortion(options[idx]),
+      body: SizedBox(
+        height: 150,
+        child: CupertinoPicker(
+          scrollController: ctrl,
+          itemExtent: 44,
+          selectionOverlay: EcoPickerSelectionOverlay(t: t),
+          onSelectedItemChanged: (i) => idx = i,
+          children: [
+            for (final v in options)
+              Center(
+                child: Text(
+                  '$v ${l.unit('ml')}',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    ).whenComplete(() => ctrl.dispose());
   }
 }
 
@@ -370,12 +446,20 @@ class _BodyScreenState extends State<BodyScreen> {
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('health.bodyComposition'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       footer: Positioned(
         left: 16,
         right: 16,
         bottom: 18 + MediaQuery.of(context).padding.bottom,
         child: EcoBtn(
           t: t,
+          // Плавающая кнопка над прокруткой — восстанавливаем искажение фона
+          // (backdrop-blur), чтобы контент «плыл» под стеклом.
+          frosted: true,
           onTap: () => Navigator.of(context).pushNamed('/bodyEntry'),
           child: Text(l.t('health.enterData')),
         ),
@@ -383,11 +467,6 @@ class _BodyScreenState extends State<BodyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('health.bodyComposition'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           Padding(
             // Снизу плавающая кнопка «Ввести данные» (footer, высота 56 + нижний
             // отступ 18 + системная зона жестов) — даём контенту достаточный
@@ -563,23 +642,21 @@ class _BodyScreenState extends State<BodyScreen> {
                 if (entries.isNotEmpty) ...[
                   const SizedBox(height: 18),
                   Center(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
+                    // Кнопка удаления — стандартная стеклянная кнопка приложения
+                    // (press-эффект + стеклянная подложка), круглая 52×52.
+                    child: EcoGlassButton(
+                      width: 52,
+                      height: 52,
+                      radius: 999,
+                      padding: EdgeInsets.zero,
                       onTap: () => _confirmDeleteEntry(selected.date),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: t.card,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: t.glassBorder),
-                        ),
-                        child: Icon(
-                          Icons.delete_outline_rounded,
-                          size: 26,
-                          color: t.ink,
-                        ),
+                      // Иконка-корзинка из Figma (117:406) — бак с листом;
+                      // тонируется в t.ink, чтобы читаться в обеих темах.
+                      child: SvgPicture.asset(
+                        'assets/icons/trash.svg',
+                        width: 26,
+                        height: 26,
+                        colorFilter: ColorFilter.mode(t.ink, BlendMode.srcIn),
                       ),
                     ),
                   ),
@@ -597,8 +674,20 @@ class _BodyScreenState extends State<BodyScreen> {
           Container(
             width: 40,
             height: 40,
+            alignment: Alignment.center,
             decoration: BoxDecoration(color: c, shape: BoxShape.circle),
-            child: Icon(ecoIcon(icon), size: 30, color: t.onDark),
+            // Иконки статов из Figma: scale 117:356, gauge 209:1519, flame 117:475.
+            // Тонируем в t.onDark (белый) поверх цветного круга. Спидометр (gauge)
+            // визуально «тяжёлый» снизу — приподнимаем его чуть выше центра.
+            child: Transform.translate(
+              offset: Offset(0, icon == 'gauge' ? -2.5 : 0),
+              child: SvgPicture.asset(
+                'assets/icons/stat_$icon.svg',
+                width: 22,
+                height: 22,
+                colorFilter: ColorFilter.mode(t.onDark, BlendMode.srcIn),
+              ),
+            ),
           ),
           const SizedBox(height: 10),
           Text.rich(
@@ -844,6 +933,9 @@ class _RangeRow extends StatelessWidget {
               child: Stack(
                 children: [
                   Container(color: t.bandSoft),
+                  // Inset-жёлоб (утоплённость) — как у ProgressScale/макро-баров:
+                  // рисуется ПОД заливкой, поэтому виден на незалитом остатке.
+                  const Positioned.fill(child: EcoInsetShadow()),
                   FractionallySizedBox(
                     widthFactor: p,
                     child: Container(
@@ -852,21 +944,6 @@ class _RangeRow extends StatelessWidget {
                         // Сплошной цвет без градиента: вес — тёмный, остальные —
                         // свой акцент.
                         color: accent ?? t.dark,
-                      ),
-                    ),
-                  ),
-                  // Inset (recessed) shadow — adds depth, like the macro bars.
-                  const Positioned.fill(
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [Color(0x40000000), Color(0x00000000)],
-                            stops: [0.0, 0.5],
-                          ),
-                        ),
                       ),
                     ),
                   ),

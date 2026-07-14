@@ -133,6 +133,9 @@ class AppStore extends ChangeNotifier {
   // Home dashboard metrics
   int water = 0; // мл
   int waterGoal = 2000;
+  // Размер порции (мл), добавляемой/убираемой кнопками ± на экране «Вода».
+  // Персистится, чтобы выбор в колесе сохранялся между визитами.
+  int waterPortion = 100;
   // История воды по дням (ymd -> мл) для графика на экране «Вода».
   // Сегодняшний день всегда берётся из живого [water]; прошлые — отсюда.
   Map<String, int> waterHistory = {};
@@ -175,6 +178,17 @@ class AppStore extends ChangeNotifier {
   /// приложение показывает экран согласия и не планирует уведомления —
   /// см. [ConsentScreen] и гейт в main.dart / NotificationService.
   bool consentAccepted = false;
+
+  /// Разрешение на ИИ-обработку данных: обезличенные данные о питании и профиле
+  /// отправляются в Firebase/DeepSeek для советов. Выключено — данные НЕ уходят,
+  /// ИИ-советы недоступны (карточка на главной скрыта, запрос совета блокируется).
+  /// Тумблер на экране согласия. По умолчанию включено.
+  bool aiConsent = true;
+
+  /// Учёт шагов/активности (датчик ACTIVITY_RECOGNITION). Выключено — шаги не
+  /// считаются: syncSteps и живой шагомер не запускаются. Тумблер на экране
+  /// согласия. По умолчанию включено.
+  bool stepsEnabled = true;
 
   /// Активная тема приложения (светлая/тёмная) — для всех экранов и элементов.
   EcoTheme get theme => darkMode ? EcoTheme.night : EcoTheme.meadow;
@@ -303,6 +317,7 @@ class AppStore extends ChangeNotifier {
     }
     _box.put('waterDate', ymd());
     waterGoal = _box.get('waterGoal', defaultValue: 2000) as int;
+    waterPortion = _box.get('waterPortion', defaultValue: 100) as int;
     final rawWaterHistory = _box.get('waterHistory');
     if (rawWaterHistory is Map) {
       waterHistory = rawWaterHistory
@@ -350,6 +365,8 @@ class AppStore extends ChangeNotifier {
     notifWeight = _box.get('notifWeight', defaultValue: true) as bool;
     notifPermAsked = _box.get('notifPermAsked', defaultValue: false) as bool;
     consentAccepted = _box.get('consentAccepted', defaultValue: false) as bool;
+    aiConsent = _box.get('aiConsent', defaultValue: true) as bool;
+    stepsEnabled = _box.get('stepsEnabled', defaultValue: true) as bool;
     goalKcal = _box.get('goalKcal', defaultValue: 2045) as int;
     carbGoal = _box.get('carbGoal', defaultValue: 230) as int;
     fatGoal = _box.get('fatGoal', defaultValue: 60) as int;
@@ -575,6 +592,28 @@ class AppStore extends ChangeNotifier {
     if (consentAccepted == value) return;
     consentAccepted = value;
     _box.put('consentAccepted', value);
+    notifyListeners();
+  }
+
+  /// Тумблер «ИИ-советы» (экран согласия / настройки). Выключение мгновенно
+  /// прекращает отправку данных в ИИ и прячет карточку совета на главной.
+  void setAiConsent(bool value) {
+    if (aiConsent == value) return;
+    aiConsent = value;
+    _box.put('aiConsent', value);
+    notifyListeners();
+  }
+
+  /// Тумблер «Шаги и активность». Выключение гасит живой шагомер; включение
+  /// требует enableSteps() (запрос разрешения) у вызывающего.
+  void setStepsEnabled(bool value) {
+    if (stepsEnabled == value) return;
+    stepsEnabled = value;
+    _box.put('stepsEnabled', value);
+    if (!value) {
+      _liveSteps?.cancel();
+      _liveSteps = null;
+    }
     notifyListeners();
   }
 
@@ -810,6 +849,8 @@ class AppStore extends ChangeNotifier {
 
   /// Silent sync at startup/resume; no permission prompt.
   Future<void> syncSteps() async {
+    // Шаги выключены тумблером согласия — не считаем и не запускаем шагомер.
+    if (!stepsEnabled) return;
     stepsPermission = await StepsService.instance.checkPermission();
     if (!stepsPermission) {
       notifyListeners();
@@ -853,7 +894,9 @@ class AppStore extends ChangeNotifier {
   }
 
   void addWater(int ml) {
-    water = (water + ml).clamp(0, 100000);
+    // Потолок 6000 мл (6 л) — тот же, что у stepWater на экране «Вода», чтобы
+    // значение воды не расходилось между главной и экраном воды.
+    water = (water + ml).clamp(0, 6000);
     // Пишем ТОЛЬКО изменившийся ключ, а не весь дневник (раньше каждый «+250 мл»
     // заново сериализовал все 30 дней дневника в main-потоке).
     _box.put('water', water);
@@ -883,6 +926,14 @@ class AppStore extends ChangeNotifier {
     final cur = waterHistory[key] ?? 0;
     waterHistory[key] = (cur + delta).clamp(0, 6000);
     _box.put('waterHistory', waterHistory);
+    notifyListeners();
+  }
+
+  /// Сохраняет выбранный размер порции воды (мл) — чтобы кнопки ± и подпись
+  /// центральной кнопки на экране «Вода» помнили выбор между визитами.
+  void setWaterPortion(int ml) {
+    waterPortion = ml;
+    _box.put('waterPortion', waterPortion);
     notifyListeners();
   }
 

@@ -1,0 +1,49 @@
+/* Fonts from neonbladeui.neuronrush.com — drop these files next to this CSS.
+   Rajdhani = body / sidebar menu font.  Orbitron = headings. */
+
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("Rajdhani/web-woff2-from-site/Rajdhani-Light-300.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("Rajdhani/web-woff2-from-site/Rajdhani-Regular-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("Rajdhani/web-woff2-from-site/Rajdhani-Medium-500.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("Rajdhani/web-woff2-from-site/Rajdhani-SemiBold-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Rajdhani";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("Rajdhani/web-woff2-from-site/Rajdhani-Bold-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Orbitron";
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url("Orbitron/web-woff2-from-site/Orbitron-Variable.woff2") format("woff2");
+}
+
+/* Usage */
+body            { font-family: "Rajdhani", sans-serif; }  /* the menu words */
+h1, h2, h3      { font-family: "Orbitron", sans-serif; }

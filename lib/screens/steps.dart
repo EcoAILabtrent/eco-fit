@@ -46,14 +46,14 @@ class _StepsScreenState extends State<StepsScreen> {
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('home.steps'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('home.steps'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           Padding(
             padding: EdgeInsets.only(
               bottom: 40 + MediaQuery.of(context).padding.bottom,

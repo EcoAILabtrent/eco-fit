@@ -387,6 +387,7 @@ class AppStrings {
       'ai.savedCount': 'Saved',
       'ai.tabNew': 'New advice',
       'ai.tabSaved': 'Saved',
+      'ai.rangeTitle': 'Period',
       'ai.save': 'Save',
       'ai.saved': 'Saved',
       'ai.emptySaved': 'No saved advice yet',
@@ -488,36 +489,6 @@ class AppStrings {
       'onboarding.goalGain': 'Gain mass',
       'onboarding.dailyNorm': 'Your daily target',
       'onboarding.dailyNormSub': 'Calculated with the Mifflin-St Jeor formula',
-      'consent.title': 'Agreement & permissions',
-      'consent.intro':
-          'Before you start, please review what data the app processes and which permissions it needs.',
-      'consent.aiTitle': 'AI nutrition advice',
-      'consent.aiBody':
-          'To generate advice, the app sends a de-identified snapshot of your nutrition and profile (age, sex, height, weight, goal, logged foods) over a secure connection to Firebase (Google) and the DeepSeek AI service. Advice is for reference only and does not replace a doctor.',
-      'consent.notifTitle': 'Notifications',
-      'consent.notifBody':
-          'Reminders for meals, water, the day summary and weigh-ins. Everything is computed on your device.',
-      'consent.stepsTitle': 'Steps & activity',
-      'consent.stepsBody':
-          'Access to the step sensor to count your activity and calories burned. This data stays on your device.',
-      'consent.note':
-          'Permissions are optional and can be changed anytime in your phone settings. AI features require an internet connection.',
-      'consent.agree':
-          'By tapping “Accept and continue”, you agree to the Privacy Policy and the processing of your data.',
-      'consent.readPolicy': 'Read the Privacy Policy',
-      'consent.accept': 'Accept and continue',
-      'consent.processing': 'Setting up…',
-      'consent.policyTitle': 'Privacy Policy',
-      'consent.policyUpdated': 'Last updated: 6 July 2026',
-      'consent.policyBody':
-          'Eco health helps you track nutrition, activity and health. This policy explains what data the app handles and how.\n\n'
-              '1. Data we process. Your profile (name, sex, date of birth, height, weight, activity level, goal) and your logs of food, water, steps and body measurements. This data is stored locally on your device.\n\n'
-              '2. AI advice. When you request AI advice, a de-identified set of nutrition and profile data is sent over a secure (HTTPS) connection to Firebase (Google LLC) and processed by the DeepSeek AI service to produce a recommendation. We do not send your name, contacts or precise location. The data is used only to generate the advice and is not used for advertising.\n\n'
-              '3. Permissions. Notifications are used for reminders; activity recognition (steps) is used to count steps and estimated calories. The app works without these permissions, and you can revoke them in your device settings.\n\n'
-              '4. Storage and deletion. Data is kept on your device. You can erase everything in Profile → Reset data. Removing the app deletes all local data.\n\n'
-              '5. Children. The app is not intended for children below the age required in your country without parental consent.\n\n'
-              '6. Medical disclaimer. The app is for informational purposes only and is not a medical device. AI advice and calculations do not replace professional medical care.\n\n'
-              '7. Contact. Operator: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Developer: AI laboratoriya. Questions about data processing: cproarxangel@gmail.com.',
       'health.enterData': 'Enter data',
       'health.entryDate': 'Entry date',
       'health.bodyComposition': 'Body composition',
@@ -579,6 +550,36 @@ class AppStrings {
       'notif.steps.nudge.body.one': '{n} step to your daily goal',
       'notif.steps.nudge.body.few': '{n} steps to your daily goal',
       'notif.steps.nudge.body.many': '{n} steps to your daily goal',
+      'consent.title': 'Agreement & permissions',
+      'consent.intro':
+          'Before you start, please review what data the app processes and which permissions it needs.',
+      'consent.aiTitle': 'AI nutrition advice',
+      'consent.aiBody':
+          'To generate advice, the app sends a de-identified snapshot of your nutrition and profile (age, sex, height, weight, goal, logged foods) over a secure connection to Firebase (Google) and the DeepSeek AI service. Advice is for reference only and does not replace a doctor.',
+      'consent.notifTitle': 'Notifications',
+      'consent.notifBody':
+          'Reminders for meals, water, the day summary and weigh-ins. Everything is computed on your device.',
+      'consent.stepsTitle': 'Steps & activity',
+      'consent.stepsBody':
+          'Access to the step sensor to count your activity and calories burned. This data stays on your device.',
+      'consent.note':
+          'Permissions are optional and can be changed anytime in your phone settings. AI features require an internet connection.',
+      'consent.agree':
+          'By tapping “Accept and continue”, you agree to the Privacy Policy and the processing of your data.',
+      'consent.readPolicy': 'Read the Privacy Policy',
+      'consent.accept': 'Accept and continue',
+      'consent.processing': 'Setting up…',
+      'consent.policyTitle': 'Privacy Policy',
+      'consent.policyUpdated': 'Last updated: 6 July 2026',
+      'consent.policyBody':
+          'Eco health helps you track nutrition, activity and health. This policy explains what data the app handles and how.\n\n'
+              '1. Data we process. Your profile (name, sex, date of birth, height, weight, activity level, goal) and your logs of food, water, steps and body measurements. This data is stored locally on your device.\n\n'
+              '2. AI advice. When you request AI advice, a de-identified set of nutrition and profile data is sent over a secure (HTTPS) connection to Firebase (Google LLC) and processed by the DeepSeek AI service to produce a recommendation. We do not send your name, contacts or precise location. The data is used only to generate the advice and is not used for advertising.\n\n'
+              '3. Permissions. Notifications are used for reminders; activity recognition (steps) is used to count steps and estimated calories. The app works without these permissions, and you can revoke them in your device settings.\n\n'
+              '4. Storage and deletion. Data is kept on your device. You can erase everything in Profile → Reset data. Removing the app deletes all local data.\n\n'
+              '5. Children. The app is not intended for children below the age required in your country without parental consent.\n\n'
+              '6. Medical disclaimer. The app is for informational purposes only and is not a medical device. AI advice and calculations do not replace professional medical care.\n\n'
+              '7. Contact. Operator: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Developer: AI laboratoriya. Questions about data processing: cproarxangel@gmail.com.',
     },
     AppLanguage.ru: {
       'common.cancel': 'Отмена',
@@ -739,6 +740,7 @@ class AppStrings {
       'ai.savedCount': 'Сохранённых',
       'ai.tabNew': 'Новый совет',
       'ai.tabSaved': 'Сохранённые',
+      'ai.rangeTitle': 'Период',
       'ai.save': 'Сохранить',
       'ai.saved': 'Сохранено',
       'ai.emptySaved': 'Пока нет сохранённых советов',
@@ -841,36 +843,6 @@ class AppStrings {
       'onboarding.goalGain': 'Набрать массу',
       'onboarding.dailyNorm': 'Ваша дневная норма',
       'onboarding.dailyNormSub': 'Рассчитана по формуле Миффлина–Сан Жеора',
-      'consent.title': 'Соглашение и разрешения',
-      'consent.intro':
-          'Перед началом ознакомьтесь, какие данные обрабатывает приложение и какие разрешения ему нужны.',
-      'consent.aiTitle': 'ИИ-советы по питанию',
-      'consent.aiBody':
-          'Чтобы сформировать совет, приложение по защищённому соединению отправляет обезличенные данные о питании и профиле (возраст, пол, рост, вес, цель, съеденные продукты) в Firebase (Google) и сервис искусственного интеллекта DeepSeek. Советы носят справочный характер и не заменяют врача.',
-      'consent.notifTitle': 'Уведомления',
-      'consent.notifBody':
-          'Напоминания о приёмах пищи, воде, итоге дня и взвешивании. Всё рассчитывается на вашем устройстве.',
-      'consent.stepsTitle': 'Шаги и активность',
-      'consent.stepsBody':
-          'Доступ к датчику шагов, чтобы считать активность и сожжённые калории. Эти данные остаются на устройстве.',
-      'consent.note':
-          'Разрешения необязательны, их можно изменить в любой момент в настройках телефона. ИИ-функции работают только при подключении к интернету.',
-      'consent.agree':
-          'Нажимая «Принять и продолжить», вы соглашаетесь с Политикой конфиденциальности и обработкой данных.',
-      'consent.readPolicy': 'Читать Политику конфиденциальности',
-      'consent.accept': 'Принять и продолжить',
-      'consent.processing': 'Настраиваем…',
-      'consent.policyTitle': 'Политика конфиденциальности',
-      'consent.policyUpdated': 'Обновлено: 6 июля 2026',
-      'consent.policyBody':
-          'Приложение «Eco health» помогает отслеживать питание, активность и здоровье. Эта политика объясняет, какие данные обрабатывает приложение и как.\n\n'
-              '1. Какие данные мы обрабатываем. Профиль (имя, пол, дата рождения, рост, вес, уровень активности, цель) и ваши записи о питании, воде, шагах и измерениях тела. Эти данные хранятся локально на вашем устройстве.\n\n'
-              '2. ИИ-советы. Когда вы запрашиваете совет ИИ, обезличенный набор данных о питании и профиле по защищённому соединению (HTTPS) передаётся в Firebase (Google LLC) и обрабатывается сервисом DeepSeek для формирования рекомендации. Мы не передаём ваше имя, контакты или точное местоположение. Данные используются только для генерации совета и не применяются для рекламы.\n\n'
-              '3. Разрешения. Уведомления — для напоминаний; распознавание активности (шаги) — для подсчёта шагов и калорий. Приложение работает и без этих разрешений, их можно отозвать в настройках устройства.\n\n'
-              '4. Хранение и удаление. Данные хранятся на устройстве. Вы можете удалить всё в разделе «Профиль» → «Сброс данных». После удаления приложения все локальные данные стираются.\n\n'
-              '5. Дети. Приложение не предназначено для детей младше возраста, требуемого в вашей стране, без согласия родителей.\n\n'
-              '6. Медицинская оговорка. Приложение носит информационно-справочный характер и не является медицинским изделием. Советы ИИ и расчёты не заменяют консультацию врача.\n\n'
-              '7. Контакты. Оператор: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Разработчик: AI laboratoriya. Вопросы по обработке данных: cproarxangel@gmail.com.',
       'health.enterData': 'Ввести данные',
       'health.entryDate': 'Дата записи',
       'health.bodyComposition': 'Состав тела',
@@ -932,6 +904,36 @@ class AppStrings {
       'notif.steps.nudge.body.one': 'До дневной цели остался {n} шаг',
       'notif.steps.nudge.body.few': 'До дневной цели осталось {n} шага',
       'notif.steps.nudge.body.many': 'До дневной цели осталось {n} шагов',
+      'consent.title': 'Соглашение и разрешения',
+      'consent.intro':
+          'Перед началом ознакомьтесь, какие данные обрабатывает приложение и какие разрешения ему нужны.',
+      'consent.aiTitle': 'ИИ-советы по питанию',
+      'consent.aiBody':
+          'Чтобы сформировать совет, приложение по защищённому соединению отправляет обезличенные данные о питании и профиле (возраст, пол, рост, вес, цель, съеденные продукты) в Firebase (Google) и сервис искусственного интеллекта DeepSeek. Советы носят справочный характер и не заменяют врача.',
+      'consent.notifTitle': 'Уведомления',
+      'consent.notifBody':
+          'Напоминания о приёмах пищи, воде, итоге дня и взвешивании. Всё рассчитывается на вашем устройстве.',
+      'consent.stepsTitle': 'Шаги и активность',
+      'consent.stepsBody':
+          'Доступ к датчику шагов, чтобы считать активность и сожжённые калории. Эти данные остаются на устройстве.',
+      'consent.note':
+          'Разрешения необязательны, их можно изменить в любой момент в настройках телефона. ИИ-функции работают только при подключении к интернету.',
+      'consent.agree':
+          'Нажимая «Принять и продолжить», вы соглашаетесь с Политикой конфиденциальности и обработкой данных.',
+      'consent.readPolicy': 'Читать Политику конфиденциальности',
+      'consent.accept': 'Принять и продолжить',
+      'consent.processing': 'Настраиваем…',
+      'consent.policyTitle': 'Политика конфиденциальности',
+      'consent.policyUpdated': 'Обновлено: 6 июля 2026',
+      'consent.policyBody':
+          'Приложение «Eco health» помогает отслеживать питание, активность и здоровье. Эта политика объясняет, какие данные обрабатывает приложение и как.\n\n'
+              '1. Какие данные мы обрабатываем. Профиль (имя, пол, дата рождения, рост, вес, уровень активности, цель) и ваши записи о питании, воде, шагах и измерениях тела. Эти данные хранятся локально на вашем устройстве.\n\n'
+              '2. ИИ-советы. Когда вы запрашиваете совет ИИ, обезличенный набор данных о питании и профиле по защищённому соединению (HTTPS) передаётся в Firebase (Google LLC) и обрабатывается сервисом DeepSeek для формирования рекомендации. Мы не передаём ваше имя, контакты или точное местоположение. Данные используются только для генерации совета и не применяются для рекламы.\n\n'
+              '3. Разрешения. Уведомления — для напоминаний; распознавание активности (шаги) — для подсчёта шагов и калорий. Приложение работает и без этих разрешений, их можно отозвать в настройках устройства.\n\n'
+              '4. Хранение и удаление. Данные хранятся на устройстве. Вы можете удалить всё в разделе «Профиль» → «Сброс данных». После удаления приложения все локальные данные стираются.\n\n'
+              '5. Дети. Приложение не предназначено для детей младше возраста, требуемого в вашей стране, без согласия родителей.\n\n'
+              '6. Медицинская оговорка. Приложение носит информационно-справочный характер и не является медицинским изделием. Советы ИИ и расчёты не заменяют консультацию врача.\n\n'
+              '7. Контакты. Оператор: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Разработчик: AI laboratoriya. Вопросы по обработке данных: cproarxangel@gmail.com.',
     },
     AppLanguage.uzLatn: {
       'common.cancel': 'Bekor qilish',
@@ -1097,6 +1099,7 @@ class AppStrings {
       'ai.savedCount': 'Saqlangan',
       'ai.tabNew': 'Yangi tavsiya',
       'ai.tabSaved': 'Saqlangan',
+      'ai.rangeTitle': 'Davr',
       'ai.save': 'Saqlash',
       'ai.saved': 'Saqlandi',
       'ai.emptySaved': 'Hozircha saqlangan tavsiya yoʻq',
@@ -1201,36 +1204,6 @@ class AppStrings {
       'onboarding.dailyNorm': 'Kundalik normangiz',
       'onboarding.dailyNormSub':
           'Mifflin-St Jeor formulasi boʻyicha hisoblandi',
-      'consent.title': 'Kelishuv va ruxsatlar',
-      'consent.intro':
-          'Boshlashdan oldin ilova qanday maʼlumotlarni qayta ishlashini va qanday ruxsatlar kerakligini koʻrib chiqing.',
-      'consent.aiTitle': 'AI ovqatlanish tavsiyalari',
-      'consent.aiBody':
-          'Tavsiya berish uchun ilova ovqatlanish va profil haqidagi shaxssizlantirilgan maʼlumotlarni (yosh, jins, boʻy, vazn, maqsad, yeyilgan taomlar) himoyalangan ulanish orqali Firebase (Google) va DeepSeek sunʼiy intellekt xizmatiga yuboradi. Tavsiyalar maʼlumot uchun boʻlib, shifokor oʻrnini bosmaydi.',
-      'consent.notifTitle': 'Bildirishnomalar',
-      'consent.notifBody':
-          'Ovqat, suv, kun yakuni va tortilish boʻyicha eslatmalar. Hammasi qurilmangizda hisoblanadi.',
-      'consent.stepsTitle': 'Qadamlar va faollik',
-      'consent.stepsBody':
-          'Faollik va sarflangan kaloriyani hisoblash uchun qadam sensoriga ruxsat. Bu maʼlumot qurilmada qoladi.',
-      'consent.note':
-          'Ruxsatlar majburiy emas, ularni istalgan vaqtda telefon sozlamalarida oʻzgartirish mumkin. AI funksiyalari internetga ulanishni talab qiladi.',
-      'consent.agree':
-          '«Qabul qilish va davom etish» tugmasini bosish orqali siz Maxfiylik siyosati va maʼlumotlarni qayta ishlashga rozilik bildirasiz.',
-      'consent.readPolicy': 'Maxfiylik siyosatini oʻqish',
-      'consent.accept': 'Qabul qilish va davom etish',
-      'consent.processing': 'Sozlanmoqda…',
-      'consent.policyTitle': 'Maxfiylik siyosati',
-      'consent.policyUpdated': 'Yangilangan: 2026-yil 6-iyul',
-      'consent.policyBody':
-          '«Eco health» ilovasi ovqatlanish, faollik va salomatlikni kuzatishga yordam beradi. Ushbu siyosat ilova qanday maʼlumotlarni va qanday qayta ishlashini tushuntiradi.\n\n'
-              '1. Qanday maʼlumotlarni qayta ishlaymiz. Profil (ism, jins, tugʻilgan sana, boʻy, vazn, faollik darajasi, maqsad) hamda ovqat, suv, qadam va tana oʻlchovlari yozuvlari. Bu maʼlumotlar qurilmangizda mahalliy saqlanadi.\n\n'
-              '2. AI tavsiyalari. Siz AI tavsiyasini soʻraganingizda, ovqatlanish va profil boʻyicha shaxssizlantirilgan maʼlumotlar himoyalangan (HTTPS) ulanish orqali Firebase (Google LLC) ga yuboriladi va tavsiya shakllantirish uchun DeepSeek xizmati tomonidan qayta ishlanadi. Biz ismingiz, kontaktlaringiz yoki aniq joylashuvingizni yubormaymiz. Maʼlumotlar faqat tavsiya yaratish uchun ishlatiladi va reklama uchun qoʻllanilmaydi.\n\n'
-              '3. Ruxsatlar. Bildirishnomalar — eslatmalar uchun; faollikni aniqlash (qadamlar) — qadam va kaloriyani hisoblash uchun. Ilova bu ruxsatlarsiz ham ishlaydi, ularni qurilma sozlamalarida bekor qilish mumkin.\n\n'
-              '4. Saqlash va oʻchirish. Maʼlumotlar qurilmada saqlanadi. Hammasini «Profil» → «Maʼlumotlarni tozalash» boʻlimida oʻchirishingiz mumkin. Ilovani oʻchirsangiz, barcha mahalliy maʼlumotlar oʻchadi.\n\n'
-              '5. Bolalar. Ilova ota-onaning roziligisiz mamlakatingizda talab qilinadigan yoshdan kichik bolalar uchun moʻljallanmagan.\n\n'
-              '6. Tibbiy eslatma. Ilova faqat maʼlumot xarakteriga ega va tibbiy vosita emas. AI tavsiyalari va hisob-kitoblar shifokor maslahatini almashtirmaydi.\n\n'
-              '7. Aloqa. Operator: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Ishlab chiquvchi: AI laboratoriya. Maʼlumotlarni qayta ishlash boʻyicha savollar: cproarxangel@gmail.com.',
       'health.enterData': 'Maʼlumot kiritish',
       'health.entryDate': 'Yozuv sanasi',
       'health.bodyComposition': 'Tana tarkibi',
@@ -1292,6 +1265,36 @@ class AppStrings {
       'notif.steps.nudge.body.one': 'Kunlik maqsadgacha {n} qadam qoldi',
       'notif.steps.nudge.body.few': 'Kunlik maqsadgacha {n} qadam qoldi',
       'notif.steps.nudge.body.many': 'Kunlik maqsadgacha {n} qadam qoldi',
+      'consent.title': 'Kelishuv va ruxsatlar',
+      'consent.intro':
+          'Boshlashdan oldin ilova qanday maʼlumotlarni qayta ishlashini va qanday ruxsatlar kerakligini koʻrib chiqing.',
+      'consent.aiTitle': 'AI ovqatlanish tavsiyalari',
+      'consent.aiBody':
+          'Tavsiya berish uchun ilova ovqatlanish va profil haqidagi shaxssizlantirilgan maʼlumotlarni (yosh, jins, boʻy, vazn, maqsad, yeyilgan taomlar) himoyalangan ulanish orqali Firebase (Google) va DeepSeek sunʼiy intellekt xizmatiga yuboradi. Tavsiyalar maʼlumot uchun boʻlib, shifokor oʻrnini bosmaydi.',
+      'consent.notifTitle': 'Bildirishnomalar',
+      'consent.notifBody':
+          'Ovqat, suv, kun yakuni va tortilish boʻyicha eslatmalar. Hammasi qurilmangizda hisoblanadi.',
+      'consent.stepsTitle': 'Qadamlar va faollik',
+      'consent.stepsBody':
+          'Faollik va sarflangan kaloriyani hisoblash uchun qadam sensoriga ruxsat. Bu maʼlumot qurilmada qoladi.',
+      'consent.note':
+          'Ruxsatlar majburiy emas, ularni istalgan vaqtda telefon sozlamalarida oʻzgartirish mumkin. AI funksiyalari internetga ulanishni talab qiladi.',
+      'consent.agree':
+          '«Qabul qilish va davom etish» tugmasini bosish orqali siz Maxfiylik siyosati va maʼlumotlarni qayta ishlashga rozilik bildirasiz.',
+      'consent.readPolicy': 'Maxfiylik siyosatini oʻqish',
+      'consent.accept': 'Qabul qilish va davom etish',
+      'consent.processing': 'Sozlanmoqda…',
+      'consent.policyTitle': 'Maxfiylik siyosati',
+      'consent.policyUpdated': 'Yangilangan: 2026-yil 6-iyul',
+      'consent.policyBody':
+          '«Eco health» ilovasi ovqatlanish, faollik va salomatlikni kuzatishga yordam beradi. Ushbu siyosat ilova qanday maʼlumotlarni va qanday qayta ishlashini tushuntiradi.\n\n'
+              '1. Qanday maʼlumotlarni qayta ishlaymiz. Profil (ism, jins, tugʻilgan sana, boʻy, vazn, faollik darajasi, maqsad) hamda ovqat, suv, qadam va tana oʻlchovlari yozuvlari. Bu maʼlumotlar qurilmangizda mahalliy saqlanadi.\n\n'
+              '2. AI tavsiyalari. Siz AI tavsiyasini soʻraganingizda, ovqatlanish va profil boʻyicha shaxssizlantirilgan maʼlumotlar himoyalangan (HTTPS) ulanish orqali Firebase (Google LLC) ga yuboriladi va tavsiya shakllantirish uchun DeepSeek xizmati tomonidan qayta ishlanadi. Biz ismingiz, kontaktlaringiz yoki aniq joylashuvingizni yubormaymiz. Maʼlumotlar faqat tavsiya yaratish uchun ishlatiladi va reklama uchun qoʻllanilmaydi.\n\n'
+              '3. Ruxsatlar. Bildirishnomalar — eslatmalar uchun; faollikni aniqlash (qadamlar) — qadam va kaloriyani hisoblash uchun. Ilova bu ruxsatlarsiz ham ishlaydi, ularni qurilma sozlamalarida bekor qilish mumkin.\n\n'
+              '4. Saqlash va oʻchirish. Maʼlumotlar qurilmada saqlanadi. Hammasini «Profil» → «Maʼlumotlarni tozalash» boʻlimida oʻchirishingiz mumkin. Ilovani oʻchirsangiz, barcha mahalliy maʼlumotlar oʻchadi.\n\n'
+              '5. Bolalar. Ilova ota-onaning roziligisiz mamlakatingizda talab qilinadigan yoshdan kichik bolalar uchun moʻljallanmagan.\n\n'
+              '6. Tibbiy eslatma. Ilova faqat maʼlumot xarakteriga ega va tibbiy vosita emas. AI tavsiyalari va hisob-kitoblar shifokor maslahatini almashtirmaydi.\n\n'
+              '7. Aloqa. Operator: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Ishlab chiquvchi: AI laboratoriya. Maʼlumotlarni qayta ishlash boʻyicha savollar: cproarxangel@gmail.com.',
     },
     AppLanguage.uzCyrl: {
       'common.cancel': 'Бекор қилиш',
@@ -1455,6 +1458,7 @@ class AppStrings {
       'ai.savedCount': 'Сақланган',
       'ai.tabNew': 'Янги тавсия',
       'ai.tabSaved': 'Сақланган',
+      'ai.rangeTitle': 'Давр',
       'ai.save': 'Сақлаш',
       'ai.saved': 'Сақланди',
       'ai.emptySaved': 'Ҳозирча сақланган тавсия йўқ',
@@ -1558,36 +1562,6 @@ class AppStrings {
       'onboarding.goalGain': 'Масса йиғиш',
       'onboarding.dailyNorm': 'Кундалик нормангиз',
       'onboarding.dailyNormSub': 'Миффлин-Сан Жеор формуласи бўйича ҳисобланди',
-      'consent.title': 'Келишув ва рухсатлар',
-      'consent.intro':
-          'Бошлашдан олдин илова қандай маълумотларни қайта ишлашини ва қандай рухсатлар кераклигини кўриб чиқинг.',
-      'consent.aiTitle': 'AI овқатланиш тавсиялари',
-      'consent.aiBody':
-          'Тавсия бериш учун илова овқатланиш ва профиль ҳақидаги шахссизлантирилган маълумотларни (ёш, жинс, бўй, вазн, мақсад, ейилган таомлар) ҳимояланган уланиш орқали Firebase (Google) ва DeepSeek сунъий интеллект хизматига юборади. Тавсиялар маълумот учун бўлиб, шифокор ўрнини босмайди.',
-      'consent.notifTitle': 'Билдиришномалар',
-      'consent.notifBody':
-          'Овқат, сув, кун якуни ва тортилиш бўйича эслатмалар. Ҳаммаси қурилмангизда ҳисобланади.',
-      'consent.stepsTitle': 'Қадамлар ва фаоллик',
-      'consent.stepsBody':
-          'Фаоллик ва сарфланган калорияни ҳисоблаш учун қадам сенсорига рухсат. Бу маълумот қурилмада қолади.',
-      'consent.note':
-          'Рухсатлар мажбурий эмас, уларни исталган вақтда телефон созламаларида ўзгартириш мумкин. AI функциялари интернетга уланишни талаб қилади.',
-      'consent.agree':
-          '«Қабул қилиш ва давом этиш» тугмасини босиш орқали сиз Махфийлик сиёсати ва маълумотларни қайта ишлашга розилик билдирасиз.',
-      'consent.readPolicy': 'Махфийлик сиёсатини ўқиш',
-      'consent.accept': 'Қабул қилиш ва давом этиш',
-      'consent.processing': 'Созланмоқда…',
-      'consent.policyTitle': 'Махфийлик сиёсати',
-      'consent.policyUpdated': 'Янгиланган: 2026-йил 6-июль',
-      'consent.policyBody':
-          '«Eco health» иловаси овқатланиш, фаоллик ва саломатликни кузатишга ёрдам беради. Ушбу сиёсат илова қандай маълумотларни ва қандай қайта ишлашини тушунтиради.\n\n'
-              '1. Қандай маълумотларни қайта ишлаймиз. Профиль (исм, жинс, туғилган сана, бўй, вазн, фаоллик даражаси, мақсад) ҳамда овқат, сув, қадам ва тана ўлчовлари ёзувлари. Бу маълумотлар қурилмангизда маҳаллий сақланади.\n\n'
-              '2. AI тавсиялари. Сиз AI тавсиясини сўраганингизда, овқатланиш ва профиль бўйича шахссизлантирилган маълумотлар ҳимояланган (HTTPS) уланиш орқали Firebase (Google LLC) га юборилади ва тавсия шакллантириш учун DeepSeek хизмати томонидан қайта ишланади. Биз исмингиз, контактларингиз ёки аниқ жойлашувингизни юбормаймиз. Маълумотлар фақат тавсия яратиш учун ишлатилади ва реклама учун қўлланилмайди.\n\n'
-              '3. Рухсатлар. Билдиришномалар — эслатмалар учун; фаолликни аниқлаш (қадамлар) — қадам ва калорияни ҳисоблаш учун. Илова бу рухсатларсиз ҳам ишлайди, уларни қурилма созламаларида бекор қилиш мумкин.\n\n'
-              '4. Сақлаш ва ўчириш. Маълумотлар қурилмада сақланади. Ҳаммасини «Профиль» → «Маълумотларни тозалаш» бўлимида ўчиришингиз мумкин. Иловани ўчирсангиз, барча маҳаллий маълумотлар ўчади.\n\n'
-              '5. Болалар. Илова ота-онанинг розилигисиз мамлакатингизда талаб қилинадиган ёшдан кичик болалар учун мўлжалланмаган.\n\n'
-              '6. Тиббий эслатма. Илова фақат маълумот хусусиятига эга ва тиббий восита эмас. AI тавсиялари ва ҳисоб-китоблар шифокор маслаҳатини алмаштирмайди.\n\n'
-              '7. Алоқа. Оператор: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Ишлаб чиқувчи: AI laboratoriya. Маълумотларни қайта ишлаш бўйича саволлар: cproarxangel@gmail.com.',
       'health.enterData': 'Маълумот киритиш',
       'health.entryDate': 'Ёзув санаси',
       'health.bodyComposition': 'Тана таркиби',
@@ -1649,6 +1623,36 @@ class AppStrings {
       'notif.steps.nudge.body.one': 'Кунлик мақсадгача {n} қадам қолди',
       'notif.steps.nudge.body.few': 'Кунлик мақсадгача {n} қадам қолди',
       'notif.steps.nudge.body.many': 'Кунлик мақсадгача {n} қадам қолди',
+      'consent.title': 'Келишув ва рухсатлар',
+      'consent.intro':
+          'Бошлашдан олдин илова қандай маълумотларни қайта ишлашини ва қандай рухсатлар кераклигини кўриб чиқинг.',
+      'consent.aiTitle': 'AI овқатланиш тавсиялари',
+      'consent.aiBody':
+          'Тавсия бериш учун илова овқатланиш ва профиль ҳақидаги шахссизлантирилган маълумотларни (ёш, жинс, бўй, вазн, мақсад, ейилган таомлар) ҳимояланган уланиш орқали Firebase (Google) ва DeepSeek сунъий интеллект хизматига юборади. Тавсиялар маълумот учун бўлиб, шифокор ўрнини босмайди.',
+      'consent.notifTitle': 'Билдиришномалар',
+      'consent.notifBody':
+          'Овқат, сув, кун якуни ва тортилиш бўйича эслатмалар. Ҳаммаси қурилмангизда ҳисобланади.',
+      'consent.stepsTitle': 'Қадамлар ва фаоллик',
+      'consent.stepsBody':
+          'Фаоллик ва сарфланган калорияни ҳисоблаш учун қадам сенсорига рухсат. Бу маълумот қурилмада қолади.',
+      'consent.note':
+          'Рухсатлар мажбурий эмас, уларни исталган вақтда телефон созламаларида ўзгартириш мумкин. AI функциялари интернетга уланишни талаб қилади.',
+      'consent.agree':
+          '«Қабул қилиш ва давом этиш» тугмасини босиш орқали сиз Махфийлик сиёсати ва маълумотларни қайта ишлашга розилик билдирасиз.',
+      'consent.readPolicy': 'Махфийлик сиёсатини ўқиш',
+      'consent.accept': 'Қабул қилиш ва давом этиш',
+      'consent.processing': 'Созланмоқда…',
+      'consent.policyTitle': 'Махфийлик сиёсати',
+      'consent.policyUpdated': 'Янгиланган: 2026-йил 6-июль',
+      'consent.policyBody':
+          '«Eco health» иловаси овқатланиш, фаоллик ва саломатликни кузатишга ёрдам беради. Ушбу сиёсат илова қандай маълумотларни ва қандай қайта ишлашини тушунтиради.\n\n'
+              '1. Қандай маълумотларни қайта ишлаймиз. Профиль (исм, жинс, туғилган сана, бўй, вазн, фаоллик даражаси, мақсад) ҳамда овқат, сув, қадам ва тана ўлчовлари ёзувлари. Бу маълумотлар қурилмангизда маҳаллий сақланади.\n\n'
+              '2. AI тавсиялари. Сиз AI тавсиясини сўраганингизда, овқатланиш ва профиль бўйича шахссизлантирилган маълумотлар ҳимояланган (HTTPS) уланиш орқали Firebase (Google LLC) га юборилади ва тавсия шакллантириш учун DeepSeek хизмати томонидан қайта ишланади. Биз исмингиз, контактларингиз ёки аниқ жойлашувингизни юбормаймиз. Маълумотлар фақат тавсия яратиш учун ишлатилади ва реклама учун қўлланилмайди.\n\n'
+              '3. Рухсатлар. Билдиришномалар — эслатмалар учун; фаолликни аниқлаш (қадамлар) — қадам ва калорияни ҳисоблаш учун. Илова бу рухсатларсиз ҳам ишлайди, уларни қурилма созламаларида бекор қилиш мумкин.\n\n'
+              '4. Сақлаш ва ўчириш. Маълумотлар қурилмада сақланади. Ҳаммасини «Профиль» → «Маълумотларни тозалаш» бўлимида ўчиришингиз мумкин. Иловани ўчирсангиз, барча маҳаллий маълумотлар ўчади.\n\n'
+              '5. Болалар. Илова ота-онанинг розилигисиз мамлакатингизда талаб қилинадиган ёшдан кичик болалар учун мўлжалланмаган.\n\n'
+              '6. Тиббий эслатма. Илова фақат маълумот хусусиятига эга ва тиббий восита эмас. AI тавсиялари ва ҳисоб-китоблар шифокор маслаҳатини алмаштирмайди.\n\n'
+              '7. Алоқа. Оператор: Ekologiya va iqlim oʻzgarishi milliy qoʻmitasi. Ишлаб чиқувчи: AI laboratoriya. Маълумотларни қайта ишлаш бўйича саволлар: cproarxangel@gmail.com.',
     },
   };
 }

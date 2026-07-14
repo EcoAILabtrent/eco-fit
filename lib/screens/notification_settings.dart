@@ -34,133 +34,138 @@ class NotificationSettingsScreen extends StatelessWidget {
               onBack: () => Navigator.of(context).pop(),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.only(bottom: 24),
-                child: Column(
-                  children: [
-                    // Мастер-тумблер
-                    EcoCard(
-                      t: t,
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  l.t('notif.settings.master'),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
+              // Верх области прокрутки скруглён (радиус карточки): контент
+              // уезжает под закреплённую шапку и обрезается СО СКРУГЛЕНИЕМ.
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(t.r)),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Column(
+                    children: [
+                      // Мастер-тумблер
+                      EcoCard(
+                        t: t,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l.t('notif.settings.master'),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              _Toggle(
-                                on: enabled,
-                                onChanged: (v) async {
-                                  final store = context.read<AppStore>();
-                                  store.setNotifPrefs(enabled: v);
-                                  if (!v) return;
-                                  // Явное включение — уместный момент для
-                                  // системного диалога разрешения (13+). Ждём
-                                  // результат: при отказе возвращаем тумблер в
-                                  // «выкл» и подсказываем разрешить уведомления —
-                                  // иначе он остался бы «вкл», а уведомления
-                                  // всё равно не приходили бы.
-                                  final granted = await NotificationService
-                                      .instance
-                                      .requestPermission();
-                                  if (granted || !context.mounted) return;
-                                  store.setNotifPrefs(enabled: false);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content:
-                                          Text(l.t('notif.settings.master')),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            l.t('notif.settings.masterDesc'),
-                            style: TextStyle(
-                              fontSize: 13,
-                              height: 1.35,
-                              fontWeight: FontWeight.w500,
-                              color: t.sub,
+                                _Toggle(
+                                  on: enabled,
+                                  onChanged: (v) async {
+                                    final store = context.read<AppStore>();
+                                    store.setNotifPrefs(enabled: v);
+                                    if (!v) return;
+                                    // Явное включение — уместный момент для
+                                    // системного диалога разрешения (13+). Ждём
+                                    // результат: при отказе возвращаем тумблер в
+                                    // «выкл» и подсказываем разрешить уведомления —
+                                    // иначе он остался бы «вкл», а уведомления
+                                    // всё равно не приходили бы.
+                                    final granted = await NotificationService
+                                        .instance
+                                        .requestPermission();
+                                    if (granted || !context.mounted) return;
+                                    store.setNotifPrefs(enabled: false);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text(l.t('notif.settings.master')),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 6),
+                            Text(
+                              l.t('notif.settings.masterDesc'),
+                              style: TextStyle(
+                                fontSize: 13,
+                                height: 1.35,
+                                fontWeight: FontWeight.w500,
+                                color: t.sub,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    // Категории — гаснут при выключенном мастере.
-                    IgnorePointer(
-                      ignoring: !enabled,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 150),
-                        opacity: enabled ? 1 : 0.45,
-                        child: EcoCard(
-                          t: t,
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _categoryRow(
-                                t,
-                                label: l.t('notif.settings.meals'),
-                                desc: l.t('notif.settings.mealsDesc'),
-                                on: s.notifMeals,
-                                onChanged: (v) => context
-                                    .read<AppStore>()
-                                    .setNotifPrefs(meals: v),
-                              ),
-                              _categoryRow(
-                                t,
-                                label: l.t('notif.settings.water'),
-                                desc: l.t('notif.settings.waterDesc'),
-                                on: s.notifWater,
-                                onChanged: (v) => context
-                                    .read<AppStore>()
-                                    .setNotifPrefs(water: v),
-                              ),
-                              _categoryRow(
-                                t,
-                                label: l.t('notif.settings.summary'),
-                                desc: l.t('notif.settings.summaryDesc'),
-                                on: s.notifSummary,
-                                onChanged: (v) => context
-                                    .read<AppStore>()
-                                    .setNotifPrefs(summary: v),
-                              ),
-                              _categoryRow(
-                                t,
-                                label: l.t('notif.settings.steps'),
-                                desc: l.t('notif.settings.stepsDesc'),
-                                on: s.notifSteps,
-                                onChanged: (v) => context
-                                    .read<AppStore>()
-                                    .setNotifPrefs(steps: v),
-                              ),
-                              _categoryRow(
-                                t,
-                                label: l.t('notif.settings.weight'),
-                                desc: l.t('notif.settings.weightDesc'),
-                                on: s.notifWeight,
-                                onChanged: (v) => context
-                                    .read<AppStore>()
-                                    .setNotifPrefs(weight: v),
-                                last: true,
-                              ),
-                            ],
+                      // Категории — гаснут при выключенном мастере.
+                      IgnorePointer(
+                        ignoring: !enabled,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 150),
+                          opacity: enabled ? 1 : 0.45,
+                          child: EcoCard(
+                            t: t,
+                            margin: const EdgeInsets.only(bottom: 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _categoryRow(
+                                  t,
+                                  label: l.t('notif.settings.meals'),
+                                  desc: l.t('notif.settings.mealsDesc'),
+                                  on: s.notifMeals,
+                                  onChanged: (v) => context
+                                      .read<AppStore>()
+                                      .setNotifPrefs(meals: v),
+                                ),
+                                _categoryRow(
+                                  t,
+                                  label: l.t('notif.settings.water'),
+                                  desc: l.t('notif.settings.waterDesc'),
+                                  on: s.notifWater,
+                                  onChanged: (v) => context
+                                      .read<AppStore>()
+                                      .setNotifPrefs(water: v),
+                                ),
+                                _categoryRow(
+                                  t,
+                                  label: l.t('notif.settings.summary'),
+                                  desc: l.t('notif.settings.summaryDesc'),
+                                  on: s.notifSummary,
+                                  onChanged: (v) => context
+                                      .read<AppStore>()
+                                      .setNotifPrefs(summary: v),
+                                ),
+                                _categoryRow(
+                                  t,
+                                  label: l.t('notif.settings.steps'),
+                                  desc: l.t('notif.settings.stepsDesc'),
+                                  on: s.notifSteps,
+                                  onChanged: (v) => context
+                                      .read<AppStore>()
+                                      .setNotifPrefs(steps: v),
+                                ),
+                                _categoryRow(
+                                  t,
+                                  label: l.t('notif.settings.weight'),
+                                  desc: l.t('notif.settings.weightDesc'),
+                                  on: s.notifWeight,
+                                  onChanged: (v) => context
+                                      .read<AppStore>()
+                                      .setNotifPrefs(weight: v),
+                                  last: true,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

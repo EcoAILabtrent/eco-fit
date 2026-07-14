@@ -29,6 +29,11 @@ class StatsScreen extends StatelessWidget {
     final from = now.subtract(const Duration(days: 6));
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('home.sleep'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       footer: Positioned(
         left: 16,
         right: 16,
@@ -44,11 +49,6 @@ class StatsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('home.sleep'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           // Бейдж «раздел в разработке» — прямо сообщаем, что данные ниже
           // демонстрационные.
           Container(

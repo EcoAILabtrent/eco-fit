@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../data/products.dart';
@@ -40,8 +41,17 @@ class _LanguageSelectorState extends State<LanguageSelector> {
     // select только по языку: раньше здесь был watch<AppStore>(), из-за чего
     // кнопка перестраивалась на любой notify стора (тики шагомера/воды и т.п.).
     final language = context.select<AppStore, AppLanguage>((s) => s.language);
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
+    // onTap на самом чипе → стандартный press-эффект (EcoGlassChip.onTap).
+    return EcoGlassChip(
+      key: _anchorKey,
+      width: width,
+      height: height,
+      padding: (width != null || height != null)
+          ? null
+          : EdgeInsets.symmetric(
+              horizontal: compact ? 10 : 12,
+              vertical: compact ? 7 : 8,
+            ),
       onTap: () async {
         final store = context.read<AppStore>();
         final selected = await showEcoChoicePopup<AppLanguage>(
@@ -67,36 +77,22 @@ class _LanguageSelectorState extends State<LanguageSelector> {
           await context.read<AppStore>().setLanguage(selected);
         }
       },
-      child: Container(
-        key: _anchorKey,
-        width: width,
-        height: height,
-        alignment: (width != null || height != null) ? Alignment.center : null,
-        padding: (width != null || height != null)
-            ? null
-            : EdgeInsets.symmetric(
-                horizontal: compact ? 10 : 12,
-                vertical: compact ? 7 : 8,
-              ),
-        decoration: BoxDecoration(
-          color: t.bandSoft,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.language, size: compact ? 16 : 18, color: t.ink),
-            SizedBox(width: compact ? 6 : 8),
-            Text(
-              language.shortName,
-              style: TextStyle(
-                fontSize: compact ? 12 : 13,
-                fontWeight: FontWeight.w800,
-                color: t.ink,
-              ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SvgPicture.asset('assets/icons/globe.svg',
+              height: compact ? 16 : 18,
+              colorFilter: ColorFilter.mode(t.iconOlive, BlendMode.srcIn)),
+          SizedBox(width: compact ? 6 : 8),
+          Text(
+            language.shortName,
+            style: TextStyle(
+              fontSize: compact ? 12 : 13,
+              fontWeight: FontWeight.w800,
+              color: t.ink,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

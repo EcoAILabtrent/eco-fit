@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../l10n/app_strings.dart';
+import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 
@@ -15,6 +17,9 @@ class AiAdviceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    // ИИ отключён тумблером согласия — карточку-вход не показываем вовсе.
+    final aiConsent = context.select<AppStore, bool>((s) => s.aiConsent);
+    if (!aiConsent) return const SizedBox.shrink();
 
     return EcoCard(
       t: t,
@@ -32,7 +37,7 @@ class AiAdviceCard extends StatelessWidget {
                   l.t('ai.pageTitle'),
                   style: TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w600,
                     color: t.ink,
                   ),
                 ),

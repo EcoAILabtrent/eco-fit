@@ -1,6 +1,8 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../ai/ai_advice_card.dart';
@@ -41,16 +43,53 @@ class HomeScreen extends StatelessWidget {
         s.stepsGoal,
         s.water,
         s.waterGoal,
+        s.waterPortion,
       ),
     );
     final l = context.l10n;
-    final waterPct =
-        (s.waterGoal > 0 ? s.water / s.waterGoal * 100 : 0).round();
-    final stepsPct =
-        (s.stepsGoal > 0 ? s.steps / s.stepsGoal * 100 : 0).round();
 
     return EcoScreen(
       t: t,
+      // Лого-шапка ЗАКРЕПЛЕНА сверху (как заголовок на остальных экранах):
+      // карточки уезжают под неё и обрезаются со скруглением.
+      header: Padding(
+        padding: const EdgeInsets.only(left: 2, top: 18, bottom: 12),
+        child: Row(
+          children: [
+            Image.asset(
+              'assets/branding/eco_logo.png',
+              height: 34,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 10),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Eco',
+                    style: TextStyle(
+                      color: t.ink,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  TextSpan(
+                    text: ' health',
+                    style: TextStyle(
+                      color: t.olive,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              style: const TextStyle(
+                fontSize: 24,
+                letterSpacing: -0.5,
+                height: 1,
+              ),
+            ),
+          ],
+        ),
+      ),
       footer: MealPickerHost(
         t: t,
         active: 'home',
@@ -58,56 +97,14 @@ class HomeScreen extends StatelessWidget {
         onProfile: () => Navigator.of(context).pushNamed('/profile'),
       ),
       child: Padding(
-        // SafeArea handles the status bar. Bottom clears the fixed nav band
-        // (91 + 16 float + system inset) so the last card scrolls fully out.
+        // SafeArea + закреплённая лого-шапка сверху. Bottom clears the fixed nav
+        // band (91 + 16 float + system inset) so the last card scrolls fully out.
         padding: EdgeInsets.only(
-          top: 24,
           bottom: 132 + MediaQuery.of(context).padding.bottom,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 2, bottom: 18, top: 4),
-              child: Row(
-                children: [
-                  Image.asset(
-                    'assets/branding/eco_logo.png',
-                    height: 34,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(width: 10),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: 'Eco',
-                          style: TextStyle(
-                            color: t.ink,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' health',
-                          style: TextStyle(
-                            color: t.olive,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    style: const TextStyle(
-                      fontSize: 24,
-                      letterSpacing: -0.5,
-                      height: 1,
-                    ),
-                  ),
-                  // Колокольчик уведомлений убран из шапки — настройки
-                  // уведомлений доступны в профиле (Профиль → «/notifications»).
-                ],
-              ),
-            ),
-
             AiAdviceCard(t: t),
 
             // Еда
@@ -118,11 +115,33 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  EcoCardHead(
-                    t: t,
-                    icon: 'food',
-                    title: l.t('home.food'),
-                    mb: 8,
+                  // Шапка: брендовая эко-иконка «приборы» (SVG, олива, без белого
+                  // бейджа) — консистентно с Body/Steps/Water. Макет FoodCard 55:22.
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: Center(
+                            child: SvgPicture.asset('assets/icons/cutlery.svg',
+                                height: 36,
+                                colorFilter: ColorFilter.mode(
+                                    t.iconOlive, BlendMode.srcIn)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          l.t('home.food'),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(
                     // Выше прежних 174: в легенде теперь две строки на макрос
@@ -206,12 +225,17 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  CalorieTrack(t: t, value: s.consumed, goal: s.goalKcal),
+                  CalorieTrack(
+                      t: t,
+                      value: s.consumed,
+                      goal: s.goalKcal,
+                      solidFill: true),
                 ],
               ),
             ),
 
-            // Параметры тела — «минимал»: вес, статус и BMI, без шкалы.
+            // Параметры тела: вес в шапке + шкала статуса low/norm/high
+            // (макет Figma 55:132). BMI-строка убрана по новому дизайну.
             _BodyCard(
               t: t,
               title: l.t('home.bodyParams'),
@@ -219,7 +243,6 @@ class HomeScreen extends StatelessWidget {
               weightText:
                   '${s.weight > 0 ? l.num1(s.weight) : '—'} ${l.unit('kg')}',
               status: _BodyStatus.fromStore(s, l),
-              bmi: _BodyStatus.bmiFor(s),
               onTap: () => Navigator.of(context).pushNamed('/body'),
             ),
 
@@ -231,7 +254,6 @@ class HomeScreen extends StatelessWidget {
               title: l.t('home.steps'),
               steps: s.steps,
               goal: s.stepsGoal,
-              pct: stepsPct,
               onTap: () => Navigator.of(context).pushNamed('/steps'),
             ),
 
@@ -242,9 +264,9 @@ class HomeScreen extends StatelessWidget {
               water: s.water,
               goal: s.waterGoal,
               unitMl: l.unit('ml'),
-              pct: waterPct.toDouble(),
+              portion: s.waterPortion,
               onTap: () => Navigator.of(context).pushNamed('/water'),
-              onAdd: () => context.read<AppStore>().addWater(100),
+              onAdd: () => context.read<AppStore>().addWater(s.waterPortion),
             ),
           ],
         ),
@@ -387,23 +409,22 @@ class _MealPickerHostState extends State<MealPickerHost>
                           opacity: opacity,
                           child: SizedBox(
                             width: 310,
-                            // RepaintBoundary: три размытых painter'а панели
-                            // (тень/хром σ16-18 + сложный ClipPath) растеризуются
-                            // один раз и далее лишь композитятся при выезде, а не
-                            // перерисовываются на каждом кадре анимации.
-                            child: RepaintBoundary(
-                              // Панель фиксированной высоты (432) с компактными
-                              // строками (46) и бейджами (37×37): при системном
-                              // textScale 1.3+ они переполняются. Ограничиваем
-                              // масштаб текста внутри панели до 1.2.
-                              child: MediaQuery.withClampedTextScaling(
-                                maxScaleFactor: 1.2,
-                                child: _MealPickerSheet(
-                                  onOpenMeal: (mealKey) =>
-                                      _pushAfterClose('/meallog', mealKey),
-                                  onAddFood: (mealKey) =>
-                                      _pushAfterClose('/addfood', mealKey),
-                                ),
+                            // RepaintBoundary СНЯТ намеренно: панель теперь стеклянная
+                            // (BackdropFilter внутри), а RepaintBoundary изолировал бы
+                            // слой и backdrop семплил бы пустоту вместо контента Home.
+                            // Перф-цена: размытые painter'ы панели перерисовываются во
+                            // время выезда (короткая анимация, на Impeller приемлемо).
+                            // Панель фиксированной высоты (432) с компактными
+                            // строками (46) и бейджами (37×37): при системном
+                            // textScale 1.3+ они переполняются. Ограничиваем
+                            // масштаб текста внутри панели до 1.2.
+                            child: MediaQuery.withClampedTextScaling(
+                              maxScaleFactor: 1.2,
+                              child: _MealPickerSheet(
+                                onOpenMeal: (mealKey) =>
+                                    _pushAfterClose('/meallog', mealKey),
+                                onAddFood: (mealKey) =>
+                                    _pushAfterClose('/addfood', mealKey),
                               ),
                             ),
                           ),
@@ -484,40 +505,46 @@ class _MealPickerSheet extends StatelessWidget {
           Positioned.fill(
             child: ClipPath(
               clipper: _MealPickerPanelClipper(),
-              // Без BackdropFilter: панель почти непрозрачная, размытие там не
-              // видно, а полноэкранный backdrop-сэмпл гасил фон экрана под пикером
-              // (контент переставал отрисовываться).
-              child: ColoredBox(
-                // Фон панели по теме: светлый матовый / тёмный матовый.
-                color: t.isDark
-                    ? const Color(0xF21E2126)
-                    : const Color(0xEEF6F8F5),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 18, 18, 38),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l.t('home.mealPicker'),
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: t.ink,
-                          height: 1.05,
+              // Искажение фона (backdrop-blur σ8) сквозь панель — как у стеклянных
+              // кнопок/навигации; поверх полупрозрачный тон (α~0.74/0.8), чтобы
+              // строки оставались читаемыми. Backdrop корректно семплит контент
+              // Home, т.к. панель живёт в footer-слое дерева экрана (не отдельный
+              // маршрут) и RepaintBoundary над ней снят (иначе слой изолировал бы
+              // backdrop). Прежняя проблема «чернел фон» была у showGeneralDialog.
+              child: BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: ColoredBox(
+                  // Фон панели по теме: светлый матовый / тёмный матовый.
+                  color: t.isDark
+                      ? const Color(0xCC1E2126)
+                      : const Color(0xBCF6F8F5),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 18, 18, 38),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          l.t('home.mealPicker'),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: t.ink,
+                            height: 1.05,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 17),
-                      for (final (i, meal) in meals.indexed) ...[
-                        _MealPickerRow(
-                          t: t,
-                          meal: meal,
-                          kcal: store.mealKcal(meal.key),
-                          onOpenMeal: onOpenMeal,
-                          onAddFood: onAddFood,
-                        ),
-                        if (i < meals.length - 1) _MealPickerDivider(t: t),
+                        const SizedBox(height: 17),
+                        for (final (i, meal) in meals.indexed) ...[
+                          _MealPickerRow(
+                            t: t,
+                            meal: meal,
+                            kcal: store.mealKcal(meal.key),
+                            onOpenMeal: onOpenMeal,
+                            onAddFood: onAddFood,
+                          ),
+                          if (i < meals.length - 1) _MealPickerDivider(t: t),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -848,7 +875,6 @@ class _BodyCard extends StatelessWidget {
   final String title;
   final String weightText;
   final _BodyStatus status;
-  final double? bmi;
   final VoidCallback onTap;
 
   const _BodyCard({
@@ -856,13 +882,13 @@ class _BodyCard extends StatelessWidget {
     required this.title,
     required this.weightText,
     required this.status,
-    required this.bmi,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
+    // Раскладка синхронизирована из Figma (_BodyCard 53:52 / инстанс 55:132):
+    // шапка одной строкой [фигура · заголовок · вес], ниже — шкала статуса.
     return EcoCard(
       t: t,
       bg: t.cardBody,
@@ -871,46 +897,165 @@ class _BodyCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoCardHead(t: t, icon: 'body', title: title, mb: 12),
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  weightText,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: t.ink,
-                    height: 1,
+              // Кастомная фигура из макета (SVG-ассет, олива #555F3B) — без
+              // белого кружка-бейджа. Бокс 40×40, фигура по центру.
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: Center(
+                  child: SvgPicture.asset(
+                    'assets/icons/body_figure.svg',
+                    height: 40,
+                    colorFilter:
+                        ColorFilter.mode(t.iconOlive, BlendMode.srcIn),
                   ),
                 ),
               ),
-              EcoPill(
-                t: t,
-                bg: t.pill,
-                color: status.level.color,
-                text: status.label,
-                fontSize: 12,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: t.ink,
+                  ),
+                ),
+              ),
+              Text(
+                weightText,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w400,
+                  color: t.ink,
+                  height: 1,
+                ),
               ),
             ],
           ),
-          if (bmi != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              // Значение по локали (num1: «24,5» / «24.5»). Метка «BMI»
-              // сохранена: ключа ИМТ в T4 не заведено (см. new_keys.md).
-              'BMI ${l.num1(bmi!)}',
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: t.sub,
-              ),
-            ),
-          ],
+          // Зазор header→бар (Figma gap 30) уже заложен внутри _BodyScale:
+          // его бокс = 30px сверху (там плавает пилюля) + бар 24. Отдельный
+          // SizedBox тут не нужен — иначе отступ удваивается.
+          _BodyScale(t: t, status: status),
         ],
       ),
+    );
+  }
+}
+
+/// Шкала статуса тела: 3 зоны (low/norm/high) с непрерывной заливкой по
+/// [_BodyStatus.progress] и плавающей пилюлей у «головы» заливки. Макет 53:58.
+class _BodyScale extends StatelessWidget {
+  final EcoTheme t;
+  final _BodyStatus status;
+
+  const _BodyScale({required this.t, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    const gap = 5.0;
+    const zoneH = 16.0; // шкала 16px по макету (компактная карточка 116)
+    const third = 1 / 3;
+    final p = status.progress.clamp(0.0, 1.0);
+
+    // Доля залитой части зоны i (0=low, 1=norm, 2=high).
+    double frac(int i) => ((p - i * third) / third).clamp(0.0, 1.0);
+    Color zoneColor(int i) => _BodyStatusLevel.values[i].color;
+
+    return LayoutBuilder(
+      builder: (context, c) {
+        final w = c.maxWidth;
+        final zoneW = (w - 2 * gap) / 3;
+        // Активная зона и X «головы» заливки — для позиции пилюли.
+        final active = p >= 2 * third ? 2 : (p >= third ? 1 : 0);
+        final headX = active * (zoneW + gap) + zoneW * frac(active);
+
+        Widget zone(int i) => Expanded(
+              child: SizedBox(
+                height: zoneH,
+                child: Stack(
+                  children: [
+                    // Трек зоны — тинт 30%.
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: zoneColor(i).withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                    ),
+                    // Inset-тень (утопленный жёлоб) на треке — глубина по макету
+                    // 55:132 (inset 0 4 4 rgba(0,0,0,.25)). ПОД заливкой → видна
+                    // только на незалитом остатке зоны. Тот же настоящий
+                    // inner-shadow, что у полос и грувов колец.
+                    const Positioned.fill(child: EcoInsetShadow()),
+                    // Сплошная заливка слева до текущего значения зоны.
+                    if (frac(i) > 0)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: zoneW * frac(i),
+                          height: zoneH,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: zoneColor(i),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+
+        return SizedBox(
+          // 36 = ~20px сверху под плавающую пилюлю + бар 16. Итог карточки:
+          // pad20 + header40 + 36 + pad20 = 116 (как в макете 55:132).
+          height: 36,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: zoneH,
+                child: Row(
+                  children: [
+                    zone(0),
+                    const SizedBox(width: gap),
+                    zone(1),
+                    const SizedBox(width: gap),
+                    zone(2),
+                  ],
+                ),
+              ),
+              // Пилюля статуса — по центру «головы» заливки, над баром.
+              // На краях (очень низкий/высокий статус) прижимаем внутрь, чтобы
+              // пилюля не вылезала за карточку.
+              Positioned(
+                top: 0,
+                left: w >= 60 ? headX.clamp(30.0, w - 30.0).toDouble() : w / 2,
+                child: FractionalTranslation(
+                  translation: const Offset(-0.5, 0),
+                  child: EcoPill(
+                    t: t,
+                    bg: status.level.color,
+                    color: t.ink,
+                    text: status.label,
+                    fontSize: 10,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -921,7 +1066,6 @@ class _StepsCard extends StatelessWidget {
   final String title;
   final int steps;
   final int goal;
-  final int pct;
   final VoidCallback onTap;
 
   const _StepsCard({
@@ -929,14 +1073,13 @@ class _StepsCard extends StatelessWidget {
     required this.title,
     required this.steps,
     required this.goal,
-    required this.pct,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Превышение цели — тёмно-зелёная пилюля, как в старой шкале шагов.
-    final over = pct > 100;
+    // Раскладка из Figma (55:145): шапка [иконка · «Шаги» · число «6432/10000»
+    // справа], ниже — дорожка следов. Пилюля «%» и отдельная строка убраны.
     return EcoCard(
       t: t,
       bg: t.cardSteps,
@@ -945,42 +1088,54 @@ class _StepsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoCardHead(
-            t: t,
-            icon: 'steps',
-            title: title,
-            mb: 12,
-            right: EcoPill(
-              t: t,
-              bg: over ? EcoColors.stepAccentDeep : t.pill,
-              color: over
-                  ? t.onDark
-                  : (t.isDark ? const Color(0xFF9ED1B4) : EcoColors.stepAccent),
-              text: '$pct%',
-            ),
-          ),
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: '$steps',
+          Row(
+            children: [
+              // Брендовая эко-иконка «шаги» (SVG, олива), без белого бейджа.
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: Center(
+                  child: SvgPicture.asset('assets/icons/steps.svg',
+                      height: 40,
+                      colorFilter:
+                          ColorFilter.mode(t.iconOlive, BlendMode.srcIn)),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
                   style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
                     color: t.ink,
                   ),
                 ),
+              ),
+              Text.rich(
                 TextSpan(
-                  text: ' / $goal',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: t.sub,
-                  ),
+                  children: [
+                    TextSpan(
+                      text: '$steps',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w400,
+                        color: t.ink,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' / $goal',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: t.sub,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            style: const TextStyle(height: 1),
+                style: const TextStyle(height: 1),
+              ),
+            ],
           ),
           const SizedBox(height: 10),
           _FootTrail(steps: steps, goal: goal, t: t),
@@ -997,7 +1152,8 @@ class _WaterCard extends StatelessWidget {
   final int water;
   final int goal;
   final String unitMl;
-  final double pct;
+  // Текущая порция (мл) с экрана «Вода» — кнопка «+» на карточке подтягивает её.
+  final int portion;
   final VoidCallback onTap;
   final VoidCallback onAdd;
 
@@ -1007,73 +1163,164 @@ class _WaterCard extends StatelessWidget {
     required this.water,
     required this.goal,
     required this.unitMl,
-    required this.pct,
+    required this.portion,
     required this.onTap,
     required this.onAdd,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Та же логика «переполнения», что на экране воды: каждая полностью выпитая
+    // норма — отдельный маленький полный стакан рядом с большим; большой стакан
+    // показывает прогресс к следующей норме.
+    final over = (goal > 0 && water > goal) ? (water - 1) ~/ goal : 0;
+    final shown = over > 3 ? 3 : over;
+    final bigFill =
+        goal > 0 ? ((water - over * goal) / goal).clamp(0.0, 1.0) : 0.0;
+    // Счётчик «1200 / 2000 мл»: фиксированный размер (число 22 Bold, единицы 14
+    // sub), одна строка, число и единицы по общей базовой линии; без
+    // масштабирования системным шрифтом — размер и высота постоянны.
+    final counter = Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: '$water',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: t.ink,
+            ),
+          ),
+          TextSpan(
+            text: ' / $goal $unitMl',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: t.sub,
+            ),
+          ),
+        ],
+      ),
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.clip,
+      textScaler: TextScaler.noScaling,
+      style: const TextStyle(height: 1),
+    );
     return EcoCard(
       t: t,
       bg: t.cardWater,
       margin: const EdgeInsets.only(bottom: 12),
+      // Паддинг карточки из макета Figma (_WaterCard 140:547): px-16 / py-20.
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // Раскладка из Figma «_WaterCard» (140:547): ряд по центру из двух колонок
+      // ФИКСИРОВАННОЙ высоты (шапка 40 + gap 16 + нижний ряд 36 = 92) и большого
+      // стакана справа. За счёт фиксированных высот рядов переполнение не меняет
+      // высоту карточки и не сдвигает счётчик — ничего не «дёргается».
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          EcoCardHead(t: t, icon: 'water', title: title, mb: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // ── Левая колонка (макет w133): шапка [капля + «Вода»] и кнопка.
+          SizedBox(
+            width: 133,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Шапка (h40, gap 12, по центру): эко-капля + заголовок.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '$water',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                              color: t.ink,
-                            ),
-                          ),
-                          TextSpan(
-                            text: ' / $goal $unitMl',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: t.sub,
-                            ),
-                          ),
-                        ],
+                    SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Center(
+                        child: SvgPicture.asset('assets/icons/water_drop.svg',
+                            height: 40,
+                            colorFilter: ColorFilter.mode(
+                                t.iconOlive, BlendMode.srcIn)),
                       ),
-                      style: const TextStyle(height: 1),
                     ),
-                    const SizedBox(height: 14),
-                    // Row(min) даёт кнопке неограниченную ширину по контенту —
-                    // иначе EcoBtn растягивается на всю колонку.
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        EcoBtn(
-                          t: t,
-                          height: 44,
-                          fontSize: 16,
-                          onTap: onAdd,
-                          child: Text('+ 100 $unitMl'),
-                        ),
-                      ],
+                    const SizedBox(width: 12),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 14),
-              WaterGlass(pct: pct, t: t),
-            ],
+                const SizedBox(height: 16),
+                // Нижний ряд: кнопка добавления порции (h36).
+                EcoGlassButton(
+                  height: 36,
+                  onTap: onAdd,
+                  child: Text(
+                    '+ $portion $unitMl',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: t.ink,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+          // ── Средняя колонка (макет w133; здесь Expanded для адаптивности).
+          // ЕСТЬ переполнение — счётчик вверху (ряд h40) + маленькие стаканы в
+          // нижнем ряду h36 (макет 140:547). НЕТ стаканов — счётчик по вертикали
+          // ПО ЦЕНТРУ карточки (макет-вариант 298:1951). Высота карточки одна и
+          // та же (её держит большой стакан), поэтому переключение аккуратное.
+          Expanded(
+            child: shown > 0
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Счётчик вверху, влево, вертикальный центр в ряду h40.
+                      SizedBox(
+                        height: 40,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: counter,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Нижний ряд (h36): маленькие полные стаканы за каждую
+                      // выпитую норму — по правому краю и по низу, шаг 7 (макет).
+                      SizedBox(
+                        height: 36,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            for (var i = 0; i < shown; i++)
+                              Padding(
+                                padding: EdgeInsets.only(left: i > 0 ? 7 : 0),
+                                child: WaterGlass(
+                                    fill: 1.0, t: t, width: 26, height: 36),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                // Без стаканов — счётчик по центру по вертикали (влево по
+                // горизонтали), как во втором варианте макета.
+                : Align(
+                    alignment: Alignment.centerLeft,
+                    child: counter,
+                  ),
+          ),
+          const SizedBox(width: 4),
+          // ── Большой стакан справа. Бокс = реальной ширине рисунка при высоте
+          // 92 (пропорция ассета ≈0.71, т.е. 65×92): так стакан не резервирует
+          // лишнюю ширину и счётчик «6000 / 2400 мл» помещается без обрезки.
+          WaterGlass(fill: bigFill, t: t, width: 65, height: 92),
         ],
       ),
     );
@@ -1085,10 +1332,12 @@ enum _BodyStatusLevel {
   average,
   high;
 
+  // Палитра шкалы «Параметры тела» из макета (55:132): low=жёлтый,
+  // norm=prot-зелёный, high=fat-красный. Общая для зон и для пилюли статуса.
   Color get color => switch (this) {
-        _BodyStatusLevel.low => const Color(0xFFE1BE45),
-        _BodyStatusLevel.average => EcoColors.statusGood,
-        _BodyStatusLevel.high => const Color(0xFFD98445),
+        _BodyStatusLevel.low => const Color(0xFFFFCC00),
+        _BodyStatusLevel.average => EcoColors.prot,
+        _BodyStatusLevel.high => EcoColors.fat,
       };
 
   String get labelKey => switch (this) {
@@ -1102,13 +1351,23 @@ class _BodyStatus {
   final _BodyStatusLevel level;
   final String label;
 
-  const _BodyStatus({required this.level, required this.label});
+  /// Непрерывная позиция [0..1] на шкале low/norm/high (среднее BMI и % жира).
+  final double progress;
+
+  const _BodyStatus({
+    required this.level,
+    required this.label,
+    required this.progress,
+  });
 
   /// BMI по весу/росту из стора; null, если данных нет.
   static double? bmiFor(AppStore store) {
     final weightKg = store.weight > 0 ? store.weight : store.weightKg;
     final heightCm = store.heightCm;
-    if (weightKg == null || weightKg <= 0 || heightCm == null || heightCm <= 0) {
+    if (weightKg == null ||
+        weightKg <= 0 ||
+        heightCm == null ||
+        heightCm <= 0) {
       return null;
     }
     return weightKg / math.pow(heightCm / 100, 2);
@@ -1122,7 +1381,11 @@ class _BodyStatus {
     );
     final level = _levelForProgress(progress);
 
-    return _BodyStatus(level: level, label: strings.t(level.labelKey));
+    return _BodyStatus(
+      level: level,
+      label: strings.t(level.labelKey),
+      progress: progress,
+    );
   }
 
   static double _combineProgress(
@@ -1307,183 +1570,213 @@ class _FootTrailPainter extends CustomPainter {
       old.steps != steps || old.goal != goal || old.outline != outline;
 }
 
-/// Стакан воды (классика) — используется и на карточке главного экрана, и на
-/// экране «Вода». Размер настраивается; [pct] — заполнение в процентах (0..100).
-class WaterGlass extends StatelessWidget {
-  final double pct;
+/// Стакан воды с растущим внутри растением (Figma «Water Fill Icon» 141:72).
+///
+/// Три слоя в системе координат макета (viewBox 70.9×100):
+///   1. `glass_plant.svg` — растение, плавно увеличивается в размере по мере
+///      наполнения (Transform.scale с якорем у основания стебля); растёт чуть
+///      быстрее воды, чтобы верхушка выглядывала над поверхностью.
+///   2. [_WaterPainter] — параметрическая полупрозрачная вода: волнистая
+///      анимированная поверхность, слой глубины, пузыри (цвета из макета).
+///      Растение просвечивает сквозь воду.
+///   3. `glass_cup.svg` — оливковый контур-стакан, сверху, статичный.
+///
+/// Уровень поднимается плавно ([TweenAnimationBuilder]) при изменении доли
+/// (напр. «+250 мл»); поверхность непрерывно колышется ([_wave]).
+class WaterGlass extends StatefulWidget {
+  final double fill; // 0..1 — доля выпитого от цели
   final EcoTheme t;
+
+  /// Размер стакана. По умолчанию 71×100 (карточка «Вода» на главной);
+  /// экран воды передаёт крупнее с той же пропорцией.
   final double width;
   final double height;
 
   const WaterGlass({
     super.key,
-    required this.pct,
+    required this.fill,
     required this.t,
-    this.width = 64,
-    this.height = 84,
+    this.width = 71,
+    this.height = 100,
   });
 
   @override
+  State<WaterGlass> createState() => _WaterGlassState();
+}
+
+class _WaterGlassState extends State<WaterGlass>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _wave;
+
+  @override
+  void initState() {
+    super.initState();
+    _wave = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _wave.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final target = widget.fill.clamp(0.0, 1.0);
     return SizedBox(
-      width: width,
-      height: height,
-      // Плавный подъём уровня при «+250 мл».
+      // Пропорции viewBox макета 70.9×100.
+      width: widget.width,
+      height: widget.height,
       child: TweenAnimationBuilder<double>(
-        tween: Tween(end: (pct / 100).clamp(0.0, 1.0)),
-        duration: const Duration(milliseconds: 260),
+        tween: Tween(end: target),
+        duration: const Duration(milliseconds: 700),
         curve: Curves.easeOutCubic,
-        builder: (_, v, __) =>
-            CustomPaint(painter: _GlassPainter(v, t.isDark)),
+        builder: (_, level, __) {
+          // Растение растёт в РАЗМЕРЕ вместе с уровнем (не просто раскрывается):
+          // масштаб от маленького ростка к полному, якорь — у основания стебля,
+          // поэтому стебель тянется вверх со дна. Растёт чуть быстрее воды
+          // (pow<1), чтобы верхушка выглядывала над поверхностью.
+          final plant = math.pow(level, 0.7).toDouble();
+          return Stack(
+            children: [
+              // Растение — позади воды, плавно увеличивается со дна.
+              Positioned.fill(
+                child: Transform.scale(
+                  scale: _lerp(0.34, 1.0, plant),
+                  alignment: const Alignment(-0.05, 0.92),
+                  child: SvgPicture.asset('assets/icons/glass_plant.svg',
+                      fit: BoxFit.contain),
+                ),
+              ),
+              // Вода поверх растения; репейнт волны — через repaint:_wave,
+              // поддерево SVG при этом не пересобирается.
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: _WaterPainter(level: level, wave: _wave),
+                ),
+              ),
+              // Контур-стакан сверху.
+              Positioned.fill(
+                child: SvgPicture.asset('assets/icons/glass_cup.svg',
+                    fit: BoxFit.contain),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-/// Стакан «классика»: двойная стенка у кромки, волна с светлой поверхностью,
-/// более тёмный слой воды у дна, пузырьки и блики на стекле.
-class _GlassPainter extends CustomPainter {
-  final double fill; // 0..1
-  final bool isDark;
+double _lerp(double a, double b, double t) => a + (b - a) * t;
 
-  _GlassPainter(this.fill, this.isDark);
+/// Вода в стакане: клип по интерьеру-трапеции, заливка снизу до уровня,
+/// волнистая анимированная поверхность, слой глубины у дна, пузыри.
+/// Цвета — из макета (Group 1): тело #6BD2FB, глубина #55B7EC, кромка #B5E7FD,
+/// пузыри #CDEFFE. Вся группа полупрозрачна (в макете opacity 0.5) — сквозь
+/// воду виден стебель.
+class _WaterPainter extends CustomPainter {
+  final double level; // 0..1
+  final Animation<double> wave;
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width, h = size.height;
-    final topY = h * 0.075, bottomY = h * 0.9;
+  _WaterPainter({required this.level, required this.wave})
+      : super(repaint: wave);
 
-    // Трапеция со скруглённым дном.
-    final cup = Path()
-      ..moveTo(w * 0.1667, topY)
-      ..lineTo(w * 0.8333, topY)
-      ..lineTo(w * 0.775, h * 0.775)
-      ..cubicTo(w * 0.77, h * 0.85, w * 0.70, bottomY, w * 0.6083, bottomY)
-      ..lineTo(w * 0.3917, bottomY)
-      ..cubicTo(w * 0.30, bottomY, w * 0.23, h * 0.85, w * 0.225, h * 0.775)
-      ..close();
+  static const _water = Color(0xFF6BD2FB);
+  static const _depth = Color(0xFF55B7EC);
+  static const _foam = Color(0xFFB5E7FD);
+  static const _bubble = Color(0xFFCDEFFE);
 
-    canvas.save();
-    canvas.clipPath(cup);
+  // Интерьер стакана (доли w/h), слегка внутри оливкового контура — вода
+  // прячется под 3px обводкой. Профиль снят из Figma-геометрии воды.
+  Path _interior(double w, double h) => Path()
+    ..moveTo(w * 0.045, h * 0.085)
+    ..lineTo(w * 0.955, h * 0.085)
+    ..lineTo(w * 0.885, h * 0.895)
+    ..quadraticBezierTo(w * 0.875, h * 0.985, w * 0.78, h * 0.985)
+    ..lineTo(w * 0.235, h * 0.985)
+    ..quadraticBezierTo(w * 0.125, h * 0.985, w * 0.115, h * 0.895)
+    ..close();
 
-    // Тело стакана.
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, w, h),
-      Paint()
-        ..color = isDark
-            ? const Color(0x1AFFFFFF)
-            : const Color(0x8CFFFFFF),
-    );
-
-    if (fill > 0) {
-      final yw = bottomY - (bottomY - topY) * fill;
-      const amp = 0.028; // амплитуда волны в долях высоты
-      final a = h * amp;
-      final segW = w / 4;
-
-      // Волнистая поверхность + вода до дна.
-      final water = Path()..moveTo(-segW / 2, yw);
-      var up = true;
-      for (var x = -segW / 2; x < w; x += segW) {
-        water.quadraticBezierTo(
-          x + segW / 2,
-          yw + (up ? -a : a),
-          x + segW,
-          yw,
-        );
-        up = !up;
-      }
-      water
-        ..lineTo(w, h)
-        ..lineTo(-segW / 2, h)
-        ..close();
-      canvas.drawPath(water, Paint()..color = EcoColors.water);
-
-      // Более тёмный слой у дна — глубина.
-      canvas.drawRect(
-        Rect.fromLTRB(0, yw + (bottomY - yw) * 0.52, w, h),
-        Paint()..color = const Color(0xFF55B7EC).withValues(alpha: 0.85),
-      );
-
-      // Светлая кромка поверхности.
-      final surface = Path()..moveTo(-segW / 2, yw);
-      up = true;
-      for (var x = -segW / 2; x < w; x += segW) {
-        surface.quadraticBezierTo(
-          x + segW / 2,
-          yw + (up ? -a : a),
-          x + segW,
-          yw,
-        );
-        up = !up;
-      }
-      canvas.drawPath(
-        surface,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2
-          ..color = const Color(0xFFB5E7FD),
-      );
-
-      // Пузырьки — только когда воды достаточно, чтобы им было где плавать.
-      if (fill > 0.12) {
-        final bubble = Paint()..color = const Color(0xFFCDEFFE);
-        final depth = bottomY - yw;
-        canvas.drawCircle(
-            Offset(w * 0.40, yw + depth * 0.28), w * 0.030, bubble);
-        canvas.drawCircle(
-            Offset(w * 0.52, yw + depth * 0.44), w * 0.022, bubble);
-        bubble.color = const Color(0xFFCDEFFE).withValues(alpha: 0.8);
-        canvas.drawCircle(
-            Offset(w * 0.45, yw + depth * 0.64), w * 0.017, bubble);
-        canvas.drawCircle(
-            Offset(w * 0.58, yw + depth * 0.20), w * 0.017, bubble);
-      }
+  // Волнистая линия поверхности на высоте [y]: сумма двух синусоид со сдвигом.
+  Path _surface(double w, double y, double amp, double ph) {
+    final p = Path()..moveTo(0, y);
+    const steps = 24;
+    for (var i = 0; i <= steps; i++) {
+      final x = w * i / steps;
+      final f = x / w * 2 * math.pi;
+      final dy = math.sin(ph + f * 1.6) * amp +
+          math.sin(ph * 1.7 + f * 3.1) * amp * 0.35;
+      p.lineTo(x, y + dy);
     }
-    canvas.restore();
-
-    // Внутренняя кромка — эффект двойной стенки.
-    canvas.drawLine(
-      Offset(w * 0.223, h * 0.131),
-      Offset(w * 0.777, h * 0.131),
-      Paint()
-        ..strokeWidth = 1.5
-        ..color =
-            isDark ? const Color(0x3DFFFFFF) : const Color(0xFFC3D9F2),
-    );
-
-    // Блики на стекле.
-    final gloss = Paint()
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round
-      ..color = Colors.white.withValues(alpha: isDark ? 0.35 : 0.75);
-    canvas.drawLine(
-      Offset(w * 0.2917, h * 0.1625),
-      Offset(w * 0.3333, h * 0.55),
-      gloss,
-    );
-    gloss
-      ..strokeWidth = 2
-      ..color = Colors.white.withValues(alpha: isDark ? 0.22 : 0.45);
-    canvas.drawLine(
-      Offset(w * 0.40, h * 0.1875),
-      Offset(w * 0.425, h * 0.375),
-      gloss,
-    );
-
-    // Контур стакана.
-    canvas.drawPath(
-      cup,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3
-        ..strokeJoin = StrokeJoin.round
-        ..color =
-            isDark ? const Color(0xFF82ABE0) : const Color(0xFF6F9FD8),
-    );
+    return p;
   }
 
   @override
-  bool shouldRepaint(_GlassPainter old) =>
-      old.fill != fill || old.isDark != isDark;
+  void paint(Canvas canvas, Size size) {
+    if (level <= 0.001) return;
+    final w = size.width, h = size.height;
+
+    canvas.save();
+    canvas.clipPath(_interior(w, h));
+
+    // Уровень: 0 → тонкая лужица у дна, 1 → y≈0.12h (почти полный стакан,
+    // небольшой запас под ободком для гребня волны).
+    final surfaceY = _lerp(0.93, 0.12, level) * h;
+    final amp = h * 0.02;
+    final ph = wave.value * 2 * math.pi;
+
+    // Полупрозрачная группа воды — стебель просвечивает.
+    canvas.saveLayer(
+      Rect.fromLTWH(0, 0, w, h),
+      Paint()..color = Colors.white.withValues(alpha: 0.62),
+    );
+
+    // Тело воды: волна сверху, вниз до дна.
+    final body = _surface(w, surfaceY, amp, ph)
+      ..lineTo(w, h)
+      ..lineTo(0, h)
+      ..close();
+    canvas.drawPath(body, Paint()..color = _water);
+
+    // Слой глубины у дна.
+    final depthTop = surfaceY + (h - surfaceY) * 0.5;
+    canvas.drawRect(
+      Rect.fromLTRB(0, depthTop, w, h),
+      Paint()..color = _depth.withValues(alpha: 0.85),
+    );
+
+    // Пузыри (лёгкое покачивание по фазе), когда воды достаточно.
+    final depth = h - surfaceY;
+    if (depth > h * 0.10) {
+      void bubble(double bx, double by, double r, double a) {
+        final yy = surfaceY + depth * by - math.sin(ph + bx * 6) * 1.2;
+        canvas.drawCircle(Offset(w * bx, yy), r,
+            Paint()..color = _bubble.withValues(alpha: a));
+      }
+
+      bubble(0.42, 0.30, w * 0.030, 1);
+      bubble(0.62, 0.46, w * 0.022, 1);
+      bubble(0.50, 0.66, w * 0.016, 0.8);
+      bubble(0.68, 0.24, w * 0.016, 0.8);
+    }
+
+    // Светлая кромка поверхности.
+    canvas.drawPath(
+      _surface(w, surfaceY, amp, ph),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = _foam,
+    );
+
+    canvas.restore(); // saveLayer
+    canvas.restore(); // clip
+  }
+
+  @override
+  bool shouldRepaint(_WaterPainter old) => old.level != level;
 }

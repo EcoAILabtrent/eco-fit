@@ -1,7 +1,9 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../data/products.dart';
@@ -75,7 +77,20 @@ class _DishScreenState extends State<DishScreen> {
   // Штучный режим: размер (индекс 0/1/2 → масса одной штуки) и число штук
   // выбираются НЕЗАВИСИМО. grams = штуки × масса_размера — канон хранения.
   static const _pieceSteps = <double>[
-    0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5, 6, 7, 8, 9, 10,
+    0.5,
+    1,
+    1.5,
+    2,
+    2.5,
+    3,
+    3.5,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
   ];
   late List<int> _pieceSizes; // [маленький, средний, большой], г
   int _sizeIdx = 1; // выбранный размер (по умолчанию — средний)
@@ -236,6 +251,11 @@ class _DishScreenState extends State<DishScreen> {
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('food.dishes'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       footer: Positioned(
         left: 16,
         right: 16,
@@ -245,6 +265,7 @@ class _DishScreenState extends State<DishScreen> {
             Expanded(
               child: EcoBtn(
                 t: t,
+                frosted: true,
                 bg: t.dark,
                 fg: t.onDark,
                 onTap: _cancelOrResetPortion,
@@ -258,6 +279,7 @@ class _DishScreenState extends State<DishScreen> {
             Expanded(
               child: EcoBtn(
                 t: t,
+                frosted: true,
                 onTap: _savePortion,
                 child: Text(
                   l.t('common.save'),
@@ -271,11 +293,6 @@ class _DishScreenState extends State<DishScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('food.dishes'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           Padding(
             padding: const EdgeInsets.only(bottom: 106),
             // Подложка блюда — СТАНДАРТНАЯ карточка: фон t.card, радиус t.r и
@@ -304,46 +321,39 @@ class _DishScreenState extends State<DishScreen> {
                         Center(
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 288),
-                            child: GestureDetector(
+                            // Сводка ккал/порции — стандартная стеклянная кнопка
+                            // (press-эффект), открывает выбор порции.
+                            child: EcoGlassButton(
+                              width: double.infinity,
+                              height: 46,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 18),
                               onTap: _pickPortion,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 13,
-                                  horizontal: 18,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: t.bandSoft,
-                                  borderRadius: BorderRadius.circular(999),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.44),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '$kcal ${l.unit('kcal')}',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: t.ink,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        '$kcal ${l.unit('kcal')}',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w800,
-                                          color: t.ink,
-                                        ),
+                                  Expanded(
+                                    child: Text(
+                                      portionText,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w800,
+                                        color: t.ink,
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Text(
-                                        portionText,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w800,
-                                          color: t.ink,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -630,7 +640,8 @@ class _DishScreenState extends State<DishScreen> {
     var syncing = false;
     var applied = false;
 
-    int gramsFor(int pIdx, int sIdx) => (_pieceSteps[pIdx] * sizes[sIdx]).round();
+    int gramsFor(int pIdx, int sIdx) =>
+        (_pieceSteps[pIdx] * sizes[sIdx]).round();
 
     // Живой предпросмотр: экран блюда (плашка, ккал, «Масса») обновляется сразу
     // при смене размера/штук, а не только по «Готово».
@@ -776,7 +787,7 @@ class _DishScreenState extends State<DishScreen> {
       ];
 }
 
-class _PortionStandardTabs extends StatelessWidget {
+class _PortionStandardTabs extends StatefulWidget {
   final EcoTheme t;
   final List<String> labels;
   final int? value;
@@ -790,104 +801,132 @@ class _PortionStandardTabs extends StatelessWidget {
   });
 
   @override
+  State<_PortionStandardTabs> createState() => _PortionStandardTabsState();
+}
+
+class _PortionStandardTabsState extends State<_PortionStandardTabs> {
+  // Последний выбранный индекс: при исчезновении (value == null) таблетка гаснет
+  // НА ЭТОМ месте, а не уезжает к нулевой позиции.
+  int _lastIndex = 0;
+  // Слайд включаем ТОЛЬКО при переключении между вкладками (оба значения != null).
+  // Появление (null→index) и исчезновение (index→null) — без слайда: позиция
+  // меняется мгновенно (пока таблетка невидима), видно только фейд.
+  bool _slide = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.value != null) _lastIndex = widget.value!;
+  }
+
+  @override
+  void didUpdateWidget(_PortionStandardTabs old) {
+    super.didUpdateWidget(old);
+    _slide = old.value != null &&
+        widget.value != null &&
+        old.value != widget.value;
+    if (widget.value != null) _lastIndex = widget.value!;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
+    final t = widget.t;
+    final labels = widget.labels;
+    final value = widget.value;
+    final activeIndex = value ?? _lastIndex;
+    return SizedBox(
       height: 50,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.42)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 7),
-          ),
-        ],
-      ),
       child: Stack(
         children: [
+          // Подложка = «нажатая» стеклянная кнопка (glass sunken, макет
+          // EcoSegmented 66:7 с эффектом BACKGROUND_BLUR): тень снаружи контура +
+          // backdrop-blur искажение фона + inset-тёмная тень + белая кайма —
+          // ровно как pressed EcoGlassButton (Variant2), а не плоское frosted-
+          // стекло (у него drop-тень просвечивала сквозь заливку и подложка
+          // серела — не читалась «вдавленной»).
+          const Positioned.fill(child: EcoGlassSunken(radius: 999)),
           Positioned.fill(
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 80),
-              curve: Curves.easeOutCubic,
-              opacity: value == null ? 0 : 1,
-              child: AnimatedAlign(
-                duration: const Duration(milliseconds: 115),
-                curve: Curves.easeOutCubic,
-                alignment: _alignmentFor(value ?? 0),
-                child: FractionallySizedBox(
-                  widthFactor: 1 / labels.length,
-                  heightFactor: 1,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: t.dark.withValues(alpha: 0.92),
-                      borderRadius: BorderRadius.circular(999),
-                      // Liquid-glass: яркий кант (как у выделения пикера).
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.55),
-                        width: 1.1,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.16),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: FractionallySizedBox(
-                        widthFactor: 0.92,
-                        heightFactor: 0.5,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(999),
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withValues(alpha: 0.30),
-                                Colors.white.withValues(alpha: 0),
-                              ],
-                            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: Stack(
+                children: [
+                  // Переключение между вкладками — плавный СЛАЙД (AnimatedAlign).
+                  // Появление/исчезновение — ФЕЙД (AnimatedOpacity): при value==null
+                  // таблетка гаснет на своём месте (alignment = _lastIndex, без съезда
+                  // влево), при возврате позиция ставится мгновенно (_slide=false →
+                  // duration 0) и таблетка проявляется — «въезда» сбоку не видно.
+                  Positioned.fill(
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 120),
+                      curve: Curves.easeOutCubic,
+                      opacity: value == null ? 0 : 1,
+                      child: AnimatedAlign(
+                        duration: _slide
+                            ? const Duration(milliseconds: 160)
+                            : Duration.zero,
+                        curve: Curves.easeOutCubic,
+                        alignment: _alignmentFor(activeIndex),
+                        child: FractionallySizedBox(
+                          widthFactor: 1 / labels.length,
+                          heightFactor: 1,
+                          child: Stack(
+                            children: [
+                              // Ползунок — петроль #045157 + drop-тень 2/2/2 α25.
+                              Positioned.fill(
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF045157),
+                                    borderRadius: BorderRadius.circular(999),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Color(0x40000000),
+                                        offset: Offset(2, 2),
+                                        blurRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Inset-белый хайлайт (glass-объём).
+                              const Positioned.fill(
+                                child: EcoGlassHighlight(radius: 999),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                  Row(
+                    children: [
+                      for (var i = 0; i < labels.length; i++)
+                        Expanded(
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => widget.onChanged(i),
+                            child: Center(
+                              child: AnimatedDefaultTextStyle(
+                                duration: const Duration(milliseconds: 85),
+                                curve: Curves.easeOutCubic,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: i == value ? t.onDark : t.ink,
+                                ),
+                                child: Text(
+                                  labels[i],
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ),
-          Row(
-            children: [
-              for (var i = 0; i < labels.length; i++)
-                Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => onChanged(i),
-                    child: Center(
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 85),
-                        curve: Curves.easeOutCubic,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w800,
-                          color: i == value ? t.onDark : t.ink,
-                        ),
-                        child: Text(
-                          labels[i],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
           ),
         ],
       ),
@@ -895,8 +934,8 @@ class _PortionStandardTabs extends StatelessWidget {
   }
 
   Alignment _alignmentFor(int index) {
-    if (labels.length <= 1) return Alignment.center;
-    final x = -1 + 2 * (index / (labels.length - 1));
+    if (widget.labels.length <= 1) return Alignment.center;
+    final x = -1 + 2 * (index / (widget.labels.length - 1));
     return Alignment(x, 0);
   }
 }
@@ -1174,29 +1213,32 @@ class _HeroGlassSurface extends StatelessWidget {
           ),
         ],
       ),
-      // Раньше здесь был BackdropFilter(blur 8): экран блюда скроллится внутри
-      // SingleChildScrollView, поэтому размытие пересэмплировало кадр-буфер на
-      // КАЖДОМ кадре прокрутки. Над фото-героем матовый эффект практически не
-      // отличим от статичной полупрозрачной заливки + градиент + кайма, поэтому
-      // убираем дорогой backdrop-проход (тот же приём уже применён к нав-бару).
+      // Искажение (backdrop-blur σ8) под пилюлей-названием и кнопкой избранного:
+      // фото-герой преломляется сквозь стекло — «жидкое стекло», как у кнопок/
+      // навбара. Экран блюда в SingleChildScrollView, поэтому размытие семплирует
+      // кадр-буфер на каждой прокрутке; здесь эффект важнее этой цены (две мелкие
+      // области). Ниже — полупрозрачная заливка + градиент + белая кайма поверх.
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: fillColor ?? Colors.white.withValues(alpha: 0.16),
-            borderRadius: borderRadius,
-            border: Border.all(color: Colors.white.withValues(alpha: 0.50)),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: gradientColors ??
-                  [
-                    Colors.white.withValues(alpha: 0.18),
-                    Colors.white.withValues(alpha: 0.02),
-                  ],
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: fillColor ?? Colors.white.withValues(alpha: 0.16),
+              borderRadius: borderRadius,
+              border: Border.all(color: Colors.white.withValues(alpha: 0.50)),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: gradientColors ??
+                    [
+                      Colors.white.withValues(alpha: 0.18),
+                      Colors.white.withValues(alpha: 0.02),
+                    ],
+              ),
             ),
+            child: child,
           ),
-          child: child,
         ),
       ),
     );
@@ -1233,17 +1275,22 @@ class _FavoriteButton extends StatelessWidget {
           child: SizedBox(
             width: _heroPillHeight,
             height: _heroPillHeight,
-            child: Icon(
-              selected ? Icons.star_rounded : Icons.star_border_rounded,
-              size: 22,
-              color: selected ? EcoColors.ink : Colors.white,
-              shadows: [
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.34),
-                  blurRadius: 7,
-                  offset: const Offset(0, 1),
-                ),
-              ],
+            // Иконки из Figma: 117:604 (контур-звезда с листом) — не в избранном,
+            // 299:2337 (залитая звезда с листом-вырезом) — добавлено. Невыбранная
+            // тонируется в БЕЛЫЙ (лежит на матовом стекле поверх фото); выбранная —
+            // в родном цвете макета (#555F3B), т.к. кнопка при выборе почти белая.
+            child: Center(
+              child: SvgPicture.asset(
+                selected
+                    ? 'assets/icons/fav_star_added.svg'
+                    : 'assets/icons/fav_star.svg',
+                width: 24,
+                height: 24,
+                fit: BoxFit.contain,
+                colorFilter: selected
+                    ? null
+                    : const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              ),
             ),
           ),
         ),

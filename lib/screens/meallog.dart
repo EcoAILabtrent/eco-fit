@@ -83,6 +83,11 @@ class _MealLogScreenState extends State<MealLogScreen> {
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('food.diary'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       footer: Positioned(
         left: 16,
         right: 16,
@@ -92,6 +97,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
             Expanded(
               child: EcoBtn(
                 t: t,
+                frosted: true,
                 onTap: () => Navigator.of(context).push(
                   EcoPageRoute(
                     builder: (_) => AddFoodScreen(
@@ -110,6 +116,7 @@ class _MealLogScreenState extends State<MealLogScreen> {
             Expanded(
               child: EcoBtn(
                 t: t,
+                frosted: true,
                 onTap: () => Navigator.of(context).popUntil((r) => r.isFirst),
                 child: Text(l.t('common.done')),
               ),
@@ -120,11 +127,6 @@ class _MealLogScreenState extends State<MealLogScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('food.diary'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           Padding(
             padding: const EdgeInsets.only(bottom: 110),
             child: Column(
@@ -159,16 +161,17 @@ class _MealLogScreenState extends State<MealLogScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      GestureDetector(
+                      // Ввод времени — стандартная стеклянная кнопка (press-эффект).
+                      EcoGlassButton(
+                        height: 44,
+                        padding: const EdgeInsets.symmetric(horizontal: 26),
                         onTap: () => _pickTime(context, time),
-                        child: EcoPill(
-                          t: t,
-                          bg: t.band,
-                          text: time,
-                          fontSize: 16,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 26,
-                            vertical: 12,
+                        child: Text(
+                          time,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: t.ink,
                           ),
                         ),
                       ),
@@ -269,17 +272,18 @@ class _MealLogScreenState extends State<MealLogScreen> {
                                         ),
                                       ),
                                     ),
-                                    GestureDetector(
+                                    // Удаление блюда — круглая стеклянная кнопка
+                                    // (как edit-круг в профиле): светлое стекло с
+                                    // press-эффектом + искажением, а не плоский
+                                    // залитый кружок.
+                                    EcoGlassButton(
+                                      width: 36,
+                                      height: 36,
+                                      padding: EdgeInsets.zero,
                                       onTap: () => context
                                           .read<AppStore>()
                                           .removeFood(mealKey, i, date: date),
-                                      child: Container(
-                                        width: 36,
-                                        height: 36,
-                                        decoration: BoxDecoration(
-                                          color: t.band,
-                                          shape: BoxShape.circle,
-                                        ),
+                                      child: Center(
                                         child: Icon(
                                           Icons.remove,
                                           size: 20,

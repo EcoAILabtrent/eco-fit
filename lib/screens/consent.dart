@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_strings.dart';
@@ -41,30 +42,60 @@ class ConsentScreen extends StatefulWidget {
 class _ConsentScreenState extends State<ConsentScreen> {
   bool _processing = false;
 
+  // Состояние тумблеров карточек. По умолчанию всё включено; пользователь может
+  // отключить любую функцию перед входом. Значения применяются к стору в _accept.
+  bool _aiOn = true;
+  bool _notifOn = true;
+  bool _stepsOn = true;
+
+  @override
+  void initState() {
+    super.initState();
+    final s = context.read<AppStore>();
+    _aiOn = s.aiConsent;
+    _notifOn = s.notifEnabled;
+    _stepsOn = s.stepsEnabled;
+  }
+
   Future<void> _accept() async {
     if (_processing) return;
     setState(() => _processing = true);
     final store = context.read<AppStore>();
     final navigator = Navigator.of(context);
 
-    // Системные диалоги показываем по очереди (await между ними) — два
-    // одновременных промпта Android схлопнул бы. Отказ в любом из них не мешает
-    // войти: разрешения опциональны, гейтом служит только согласие ИИ/политики.
-    try {
-      await NotificationService.instance.requestPermission();
-    } catch (_) {
-      // На платформах без плагина/на вебе запрос недоступен — не критично.
+    // Сохраняем выбор тумблеров: ИИ-обработка, уведомления, учёт шагов.
+    store.setAiConsent(_aiOn);
+    store.setNotifPrefs(enabled: _notifOn);
+    store.setStepsEnabled(_stepsOn);
+
+    // Системные разрешения запрашиваем ТОЛЬКО для включённых функций и по очереди
+    // (await между ними) — два одновременных промпта Android схлопнул бы. Отказ в
+    // любом из них не мешает войти: гейтом служит только согласие ИИ/политики.
+    if (_notifOn) {
+      try {
+        await NotificationService.instance.requestPermission();
+      } catch (_) {
+        // На платформах без плагина/на вебе запрос недоступен — не критично.
+      }
     }
     if (!mounted) return;
-    try {
-      await store.enableSteps();
-    } catch (_) {
-      // Нет нативного шагомера (desktop/web) — тоже не критично.
+    if (_stepsOn) {
+      try {
+        await store.enableSteps();
+      } catch (_) {
+        // Нет нативного шагомера (desktop/web) — тоже не критично.
+      }
     }
 
     store.setConsentAccepted(true);
     if (!mounted) return;
-    navigator.pushReplacementNamed('/');
+    // Стартовый гейт (в стеке только согласие) → уходим на главную; открыт из
+    // профиля (есть предыдущий экран) → просто возвращаемся назад.
+    if (navigator.canPop()) {
+      navigator.pop();
+    } else {
+      navigator.pushReplacementNamed('/');
+    }
   }
 
   void _showPolicy(EcoTheme t, AppStrings l) =>
@@ -90,85 +121,104 @@ class _ConsentScreenState extends State<ConsentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      EcoTopBar(t: t, title: l.t('consent.title')),
+                      // Заголовок ЗАКРЕПЛЁН сверху (не скроллится): контент уезжает
+                      // под него и обрезается по верхней кромке области прокрутки.
+                      // Кнопка «назад» показывается, только когда экран открыт из
+                      // настроек профиля (есть куда возвращаться); на стартовом
+                      // гейте согласия — нет.
+                      EcoTopBar(
+                        t: t,
+                        title: l.t('consent.title'),
+                        onBack: Navigator.of(context).canPop()
+                            ? () => Navigator.of(context).pop()
+                            : null,
+                      ),
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l.t('consent.intro'),
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  height: 1.45,
-                                  color: t.sub,
+                        // Верх области прокрутки скруглён (радиус карточки):
+                        // контент уезжает под шапку и обрезается СО СКРУГЛЕНИЕМ.
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(t.r)),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _InfoCard(
+                                  t: t,
+                                  iconAsset: 'assets/icons/consent_ai.svg',
+                                  title: l.t('consent.aiTitle'),
+                                  body: l.t('consent.aiBody'),
+                                  on: _aiOn,
+                                  onChanged: (v) => setState(() => _aiOn = v),
                                 ),
-                              ),
-                              const SizedBox(height: 18),
-                              _InfoCard(
-                                t: t,
-                                icon: 'ai',
-                                title: l.t('consent.aiTitle'),
-                                body: l.t('consent.aiBody'),
-                              ),
-                              const SizedBox(height: 12),
-                              _InfoCard(
-                                t: t,
-                                iconData: Icons.notifications_none_rounded,
-                                title: l.t('consent.notifTitle'),
-                                body: l.t('consent.notifBody'),
-                              ),
-                              const SizedBox(height: 12),
-                              _InfoCard(
-                                t: t,
-                                icon: 'walk',
-                                title: l.t('consent.stepsTitle'),
-                                body: l.t('consent.stepsBody'),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                l.t('consent.note'),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  height: 1.45,
-                                  color: t.sub,
+                                const SizedBox(height: 14),
+                                _InfoCard(
+                                  t: t,
+                                  iconAsset: 'assets/icons/consent_notify.svg',
+                                  title: l.t('consent.notifTitle'),
+                                  body: l.t('consent.notifBody'),
+                                  on: _notifOn,
+                                  onChanged: (v) =>
+                                      setState(() => _notifOn = v),
                                 ),
-                              ),
-                              const SizedBox(height: 8),
-                              GestureDetector(
-                                behavior: HitTestBehavior.opaque,
-                                onTap: () => _showPolicy(t, l),
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.description_outlined,
-                                        size: 18,
-                                        color: t.olive,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          l.t('consent.readPolicy'),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                            color: t.olive,
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationColor: t.olive,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                const SizedBox(height: 14),
+                                _InfoCard(
+                                  t: t,
+                                  iconAsset: 'assets/icons/consent_steps.svg',
+                                  title: l.t('consent.stepsTitle'),
+                                  body: l.t('consent.stepsBody'),
+                                  on: _stepsOn,
+                                  onChanged: (v) =>
+                                      setState(() => _stepsOn = v),
+                                ),
+                                const SizedBox(height: 14),
+                                Text(
+                                  l.t('consent.note'),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    height: 1.45,
+                                    color: t.sub,
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                            ],
+                                const SizedBox(height: 14),
+                                GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: () => _showPolicy(t, l),
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          width: 22,
+                                          height: 22,
+                                          child: SvgPicture.asset(
+                                            'assets/icons/consent_policy.svg',
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          child: Text(
+                                            l.t('consent.readPolicy'),
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w700,
+                                              color: t.olive,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: t.olive,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -180,12 +230,18 @@ class _ConsentScreenState extends State<ConsentScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              l.t('consent.agree'),
-                              style: TextStyle(
-                                fontSize: 12,
-                                height: 1.4,
-                                color: t.sub,
+                            // Строка согласия (макет 272:1628) уже кнопки: в кадре
+                            // 412px её ширина 340px → доп. 20px по бокам к базовым 16.
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Text(
+                                l.t('consent.agree'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  height: 1.4,
+                                  color: t.sub,
+                                ),
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -217,49 +273,62 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }
 }
 
-/// Карточка одной темы согласия: круглый бейдж с иконкой + заголовок + текст.
+/// Карточка одной темы согласия (макет 253:1649): в верхней строке — векторная
+/// иконка из Figma (assets/icons/consent_*.svg), заголовок и тумблер вкл/выкл;
+/// ниже на всю ширину карточки — поясняющий текст.
 class _InfoCard extends StatelessWidget {
   final EcoTheme t;
-  final String? icon;
-  final IconData? iconData;
+  final String iconAsset;
   final String title;
   final String body;
+  final bool on;
+  final ValueChanged<bool> onChanged;
 
   const _InfoCard({
     required this.t,
-    this.icon,
-    this.iconData,
+    required this.iconAsset,
     required this.title,
     required this.body,
+    required this.on,
+    required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return EcoCard(
       t: t,
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoIconBadge(t: t, name: icon, iconData: iconData),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            children: [
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: SvgPicture.asset(iconAsset, fit: BoxFit.contain),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: 0,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  body,
-                  style: TextStyle(fontSize: 13, height: 1.4, color: t.sub),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(width: 8),
+              EcoSettingToggle(
+                on: on,
+                onChanged: onChanged,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            body,
+            style: TextStyle(fontSize: 13, height: 1.4, color: t.sub),
           ),
         ],
       ),

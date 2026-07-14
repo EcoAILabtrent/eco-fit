@@ -115,6 +115,11 @@ class _DayViewScreenState extends State<DayViewScreen> {
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('home.food'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       footer: MealPickerHost(
         t: t,
         active: 'home',
@@ -128,11 +133,6 @@ class _DayViewScreenState extends State<DayViewScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('home.food'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           Padding(
             padding: EdgeInsets.only(
               bottom: 150 + MediaQuery.of(context).padding.bottom,
@@ -198,7 +198,8 @@ class _DayViewScreenState extends State<DayViewScreen> {
                               // из нуля: иначе 4 анимации 260мс конкурируют с
                               // слайдом перехода и утяжеляют первый кадр Dayview.
                               animateFromZero: false,
-                              label: b.head ? l.t('common.totalAmount') : b.label,
+                              label:
+                                  b.head ? l.t('common.totalAmount') : b.label,
                             ),
                           ),
                       ],
@@ -335,14 +336,14 @@ class NutritionDetailScreen extends StatelessWidget {
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('food.nutritionSummary'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('food.nutritionSummary'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           if (parsedDate != null)
             Center(
               child: Padding(
@@ -568,7 +569,6 @@ class NutritionDetailScreen extends StatelessWidget {
       null => l.unit(microUnitCode(key)),
     };
   }
-
 }
 
 class _FallbackMicroTarget {
@@ -692,8 +692,7 @@ class _NutritionDetailBar extends StatelessWidget {
     final light = Color.lerp(color, Colors.white, 0.62)!;
     final darker = Color.lerp(color, Colors.black, 0.28)!;
     final realText = '${l.num1(value)} $unit';
-    final targetText =
-        safeTarget == null ? '' : '${l.num1(safeTarget)} $unit';
+    final targetText = safeTarget == null ? '' : '${l.num1(safeTarget)} $unit';
 
     Widget valueLabel(String text, Color labelColor) => Text(
           text,
@@ -732,6 +731,9 @@ class _NutritionDetailBar extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Inset-жёлоб (утоплённость) — как у ProgressScale: виден на
+                  // незалитом остатке, заливка «приподнята».
+                  const Positioned.fill(child: EcoInsetShadow()),
                   Positioned(
                     left: 0,
                     top: 0,
@@ -832,7 +834,10 @@ class _DayStrip extends StatefulWidget {
 
 class _DayStripState extends State<_DayStrip> {
   static const _dayCount = 30;
-  static const _itemExtent = 56.0;
+  // 52 (не 56): 7 ячеек влезают в видимую ширину (вьюпорт EcoScreen обрезает
+  // full-bleed-ленту на 16px по краям), поэтому крайние кольца — сб слева и
+  // сегодня справа — помещаются целиком, а не подрезаются.
+  static const _itemExtent = 52.0;
   static const _itemHeight = 120.0;
 
   final ScrollController _controller = ScrollController();
@@ -886,8 +891,9 @@ class _DayStripState extends State<_DayStrip> {
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: ClampingScrollPhysics(),
                 ),
-                // Standard right inset so the last day isn't jammed to the edge.
-                padding: const EdgeInsets.only(right: 16),
+                // Правый отступ, чтобы сегодняшний день не упирался в край: 24 =
+                // 16 (срез вьюпортом EcoScreen) + 8 видимого зазора.
+                padding: const EdgeInsets.only(right: 24),
                 child: SizedBox(
                   width: _dayCount * _itemExtent,
                   height: _itemHeight,
@@ -971,7 +977,7 @@ class _DayStripState extends State<_DayStrip> {
             RepaintBoundary(
               child: MacroRings(
                 t: t,
-                size: 48,
+                size: 44,
                 data: [
                   MacroRingData(
                     value: m.carbs,

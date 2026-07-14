@@ -128,7 +128,6 @@ class NotificationService {
   String _signature(AppStore s) {
     final buf = StringBuffer()
       ..write(s.onboarded)
-      ..write(s.consentAccepted)
       ..write('|')
       ..write(s.notifEnabled)
       ..write(s.notifMeals)
@@ -200,11 +199,7 @@ class NotificationService {
 
   Future<void> _replanOnce(AppStore store) async {
     final l = AppStrings(store.language);
-    // До принятия согласия (экран ConsentScreen) не планируем и не запрашиваем
-    // системное разрешение на уведомления — иначе диалог выскочит поверх экрана
-    // согласия и продублирует явный запрос с его кнопки «Принять».
-    final active =
-        store.onboarded && store.consentAccepted && store.notifEnabled;
+    final active = store.onboarded && store.notifEnabled;
     // Нативный шаговый воркер всегда получает свежие флаги/тексты — включая
     // «выключено», иначе он продолжит уведомлять по старым настройкам.
     await _configureNativeSteps(store, l, active: active && store.notifSteps);

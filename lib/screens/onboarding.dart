@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../data/products.dart';
@@ -10,9 +11,14 @@ import '../state/store.dart';
 import '../theme/tokens.dart';
 import '../ui/ui.dart';
 
+/// Тёмный петроль активных карточек-опций (макет Selection Item State=Active
+/// 234:90) — тот же, что у залитой кнопки воды на Home.
+const Color _petrol = Color(0xFF045157);
+
 /// Onboarding — Eco design profile.jsx::Onboarding port.
-/// welcome+язык (одна страница) → имя → пол → возраст → рост → вес →
-/// активность → цель → норма.
+/// welcome+язык (одна страница) → имя → дата рождения → рост → вес →
+/// цель → активность → пол → норма (порядок по макетам 04 Screens, ряд
+/// «Onboarding 0..8»).
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -83,9 +89,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           goal: goal,
           targetKcal: norm,
         );
-    // После ввода всех данных — экран согласия и разрешений (обработка данных
-    // ИИ, уведомления, шаги). Только после «Принять» пользователь попадёт на
-    // главный экран (см. ConsentScreen). Гейт по флагу consentAccepted.
+    // После онбординга — экран согласия и разрешений (уведомления/шаги/
+    // конфиденциальность), затем главный экран (см. гейт в main.dart).
     Navigator.of(context).pushReplacementNamed('/consent');
   }
 
@@ -141,11 +146,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 constraints: BoxConstraints(
                                   minHeight: box.maxHeight,
                                 ),
+                                // Шаги-вопросы (не welcome) якорятся к ВЕРХУ с
+                                // одинаковым отступом → заголовок каждого шага на
+                                // одном уровне, не «прыгает» при переходе (макеты
+                                // онбординга: контент начинается на фикс. высоте).
+                                // Welcome (лого+языки) — своя раскладка, центр.
                                 child: Align(
-                                  alignment: Alignment.center,
+                                  alignment: step == 0
+                                      ? Alignment.center
+                                      : Alignment.topCenter,
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 18,
+                                    padding: EdgeInsets.only(
+                                      top: step == 0 ? 18 : 200,
+                                      bottom: 18,
                                     ),
                                     child: _buildStep(t, l, lang),
                                   ),
@@ -162,8 +175,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         child: SizedBox(
                           width: double.infinity,
-                          child: EcoBtn(
-                            t: t,
+                          // Светлая стеклянная кнопка с press-состоянием
+                          // (Default↔Variant2), макет компонента 227:6287.
+                          child: EcoGlassButton(
                             onTap: _next,
                             child: Text(
                               step == 0
@@ -171,6 +185,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   : step == total
                                       ? l.t('onboarding.enterApp')
                                       : l.t('onboarding.next'),
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: t.ink,
+                              ),
                             ),
                           ),
                         ),
@@ -205,7 +224,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 height: 180,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
               Text.rich(
                 TextSpan(
                   children: [
@@ -231,7 +250,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   height: 1,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               // Подзаголовок занимает разное число строк в зависимости от языка
               // (англ. — 2, рус./узб. — 3), из-за чего «прыгало» лого. Резервируем
               // высоту под 3 строки и центрируем текст — раскладка одинаковая на
@@ -239,7 +258,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               // увеличенном системном шрифте.
               SizedBox(
                 width: 280,
-                height: MediaQuery.textScalerOf(context).scale(16 * 1.5 * 3),
+                height: MediaQuery.textScalerOf(context).scale(16 * 1.25 * 3),
                 child: Center(
                   child: Text(
                     l.t('onboarding.intro'),
@@ -247,12 +266,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     style: TextStyle(
                       fontSize: 16,
                       color: t.sub,
-                      height: 1.5,
+                      height: 1.25,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 40),
               SizedBox(
                 width: 280,
                 child: _LangSegmented(
@@ -266,23 +285,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         );
       case 1:
+        // Поле имени (макет 222:21): glass-карточка r20 px16 py20, текст и
+        // плейсхолдер Bold 16 (плейсхолдер приглушён faint).
         return _Step(
           title: l.t('onboarding.nameTitle'),
           sub: l.t('onboarding.nameSub'),
           children: [
-            EcoCard(
+            EcoGlassSurface(
               t: t,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: TextField(
                 controller: _nameCtrl,
                 textInputAction: TextInputAction.next,
                 onChanged: (v) => profileName = v,
                 decoration: InputDecoration(
                   hintText: l.t('profile.myProfile'),
+                  hintStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: t.faint,
+                  ),
                   border: InputBorder.none,
                   isDense: true,
+                  contentPadding: EdgeInsets.zero,
                 ),
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: t.ink,
                 ),
@@ -290,33 +318,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ],
         );
-      case 2:
+      case 7:
+        // Брендовые иконки пола (Icons Name=male 117:470 / Name=female 117:464);
+        // на активной тёмной карточке глиф перекрашивается в белый.
         return _Step(
           title: l.t('onboarding.genderTitle'),
           children: [
             _OptionCard(
-              icon: 'male',
+              svg: 'assets/icons/gender_male.svg',
               title: l.t('profile.male'),
               active: sex == 'm',
               onTap: () => setState(() => sex = 'm'),
             ),
             _OptionCard(
-              icon: 'female',
+              svg: 'assets/icons/gender_female.svg',
               title: l.t('profile.female'),
               active: sex == 'f',
               onTap: () => setState(() => sex = 'f'),
             ),
           ],
         );
-      case 3:
+      case 2:
+        // Карточка даты (макет BirthDatePicker 233:576): py12, барабан h216,
+        // пилюли-оверлеи по колонкам — внутри EcoDatePicker.
         return _Step(
           title: l.t('onboarding.ageTitle'),
           children: [
-            EcoCard(
+            EcoGlassSurface(
               t: t,
               blur: 60,
+              // py20 + барабан 216 = высота карточки как у роста/веса (256),
+              // чтобы три пикер-карточки совпадали по высоте и ширине.
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: SizedBox(
-                height: 200,
+                height: 216,
                 child: EcoDatePicker(
                   t: t,
                   initialDate: birthDate,
@@ -332,13 +367,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ],
         );
-      case 4:
+      case 3:
         return _Step(
           title: l.t('onboarding.heightTitle'),
           children: [
-            EcoCard(
+            // Карточка колеса (макет HeightPicker 233:595): только вертикальный
+            // паддинг — пилюля-оверлей шириной почти во всю карточку (348/380).
+            EcoGlassSurface(
               t: t,
               blur: 60,
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: _WheelValuePicker(
                 // Ключ обязателен: без него элемент колеса переиспользуется
                 // между шагами рост→вес, а Flutter при подмене контроллера
@@ -354,13 +392,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ],
         );
-      case 5:
+      case 4:
         return _Step(
           title: l.t('onboarding.weightTitle'),
           children: [
-            EcoCard(
+            EcoGlassSurface(
               t: t,
               blur: 60,
+              padding: const EdgeInsets.symmetric(vertical: 20),
               child: _WheelValuePicker(
                 key: const ValueKey('onboarding.weight'),
                 value: weight,
@@ -373,25 +412,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         );
       case 6:
+        // Иконки активности — те же брендовые SVG, что в панелях профиля
+        // (act_person/act_walk/act_dumbbell), плоские 40px без круга-бейджа.
         return _Step(
           title: l.t('onboarding.activityTitle'),
           children: [
             _OptionCard(
-              icon: 'seat',
+              svg: 'assets/icons/act_person.svg',
               title: l.t('onboarding.activityLow'),
               sub: l.t('onboarding.activityLowSub'),
               active: activity == 'low',
               onTap: () => setState(() => activity = 'low'),
             ),
             _OptionCard(
-              icon: 'walk',
+              svg: 'assets/icons/act_walk.svg',
               title: l.t('onboarding.activityMid'),
               sub: l.t('onboarding.activityMidSub'),
               active: activity == 'mid',
               onTap: () => setState(() => activity = 'mid'),
             ),
             _OptionCard(
-              icon: 'fitness',
+              svg: 'assets/icons/act_dumbbell.svg',
               title: l.t('onboarding.activityHigh'),
               sub: l.t('onboarding.activityHighSub'),
               active: activity == 'high',
@@ -399,24 +440,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ],
         );
-      case 7:
+      case 5:
         return _Step(
           title: l.t('onboarding.goalTitle'),
           children: [
             _OptionCard(
-              icon: 'trendDown',
+              svg: 'assets/icons/goal_trend.svg',
+              flipY: true, // «Снизить вес» = тот же тренд, отражённый вниз
               title: l.t('onboarding.goalLose'),
               active: goal == 'lose',
               onTap: () => setState(() => goal = 'lose'),
             ),
             _OptionCard(
-              icon: 'balance',
+              svg: 'assets/icons/goal_balance.svg',
               title: l.t('onboarding.goalKeep'),
               active: goal == 'keep',
               onTap: () => setState(() => goal = 'keep'),
             ),
             _OptionCard(
-              icon: 'trendUp',
+              svg: 'assets/icons/goal_trend.svg',
               title: l.t('onboarding.goalGain'),
               active: goal == 'gain',
               onTap: () => setState(() => goal = 'gain'),
@@ -424,104 +466,106 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         );
       default:
+        // Итоговый экран (макет DailyNormSummary 233:611): слева кольца 168
+        // с числом нормы ПОД ними, справа — легенда как на Home (граммы и ккал
+        // двумя строками 12px).
         final norm = _norm;
         final carbs = (norm * 0.45 / 4).round();
         final protein = (norm * 0.3 / 4).round();
         final fat = (norm * 0.25 / 9).round();
         return _Step(
+          // Подпись «Рассчитана по формуле…» — НЕ между заголовком и карточкой,
+          // а ПОД карточкой (второй ребёнок), чтобы карточка поднималась вплотную
+          // к заголовку.
           title: l.t('onboarding.dailyNorm'),
-          sub: l.t('onboarding.dailyNormSub'),
           children: [
             EcoCard(
               t: t,
-              pad: 18,
-              child: SizedBox(
-                height: 234,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 145,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          MacroRings(
-                            t: t,
-                            size: 138,
-                            data: [
-                              MacroRingData(
-                                value: 1,
-                                goal: 1,
-                                color: EcoColors.carb,
-                                soft: EcoColors.carbSoft,
-                              ),
-                              MacroRingData(
-                                value: 0.74,
-                                goal: 1,
-                                color: EcoColors.fat,
-                                soft: EcoColors.fatSoft,
-                              ),
-                              MacroRingData(
-                                value: 0.48,
-                                goal: 1,
-                                color: EcoColors.prot,
-                                soft: EcoColors.protSoft,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            '$norm',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 0,
-                              height: 1,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 168,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MacroRings(
+                          t: t,
+                          size: 168,
+                          data: [
+                            MacroRingData(
+                              value: 1,
+                              goal: 1,
+                              color: EcoColors.carb,
+                              soft: EcoColors.carbSoft,
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            l.unit('kcalPerDay'),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: t.sub,
-                              fontWeight: FontWeight.w700,
-                              height: 1.05,
+                            MacroRingData(
+                              value: 0.74,
+                              goal: 1,
+                              color: EcoColors.fat,
+                              soft: EcoColors.fatSoft,
                             ),
+                            MacroRingData(
+                              value: 0.48,
+                              goal: 1,
+                              color: EcoColors.prot,
+                              soft: EcoColors.protSoft,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          '$norm',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0,
+                            height: 1,
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          l.unit('kcalPerDay'),
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: t.sub,
+                            fontWeight: FontWeight.w400,
+                            height: 1.2,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _macroLine(
-                            t,
-                            l.nutrient('carbs'),
-                            '$carbs ${l.unit('g')}',
-                            EcoColors.carb,
-                          ),
-                          const SizedBox(height: 20),
-                          _macroLine(
-                            t,
-                            l.nutrient('fat'),
-                            '$fat ${l.unit('g')}',
-                            EcoColors.fat,
-                          ),
-                          const SizedBox(height: 20),
-                          _macroLine(
-                            t,
-                            l.nutrient('protein'),
-                            '$protein ${l.unit('g')}',
-                            EcoColors.prot,
-                          ),
-                        ],
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _macroLine(t, l, l.nutrient('carbs'), carbs, carbs * 4,
+                            EcoColors.carb),
+                        _macroLine(t, l, l.nutrient('fat'), fat, fat * 9,
+                            EcoColors.fat),
+                        _macroLine(t, l, l.nutrient('protein'), protein,
+                            protein * 4, EcoColors.prot),
+                      ],
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ),
+            // Подпись-пояснение под карточкой, по центру.
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                l.t('onboarding.dailyNormSub'),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: t.sub,
+                  height: 1.3,
                 ),
               ),
             ),
@@ -530,45 +574,71 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  Widget _macroLine(EcoTheme t, String label, String value, Color color) {
-    return Row(
-      children: [
-        Container(
-          width: 16,
-          height: 16,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  /// Строка легенды нормы: точка-цвет + название + «граммы» и «ккал» двумя
+  /// строками (жирное число + приглушённая единица), как в MacroLegend Home.
+  /// [l] передаётся параметром (не через context): _macroLine вызывается из
+  /// _buildStep в фазе layout LayoutBuilder, где context.select/watch запрещены.
+  Widget _macroLine(
+      EcoTheme t, AppStrings l, String label, int grams, int kcal, Color color) {
+    Widget value(String v, String unit) => Text.rich(
+          TextSpan(
             children: [
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  height: 1.05,
+              TextSpan(
+                text: v,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  height: 1.1,
+                  color: t.ink,
                 ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              TextSpan(
+                text: ' $unit',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  height: 1.1,
                   color: t.sub,
-                  fontWeight: FontWeight.w700,
-                  height: 1.05,
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    height: 1.15,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                value('$grams', l.unit('g')),
+                const SizedBox(height: 2),
+                value('$kcal', l.unit('kcal')),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -588,50 +658,56 @@ class _ProgressHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: onBack,
-          child: Icon(
-            Icons.chevron_left,
-            size: 26,
-            color: step > 0 ? t.ink : t.faint,
+    // Стеклянный топбар (макет _OnboardingTopBar 227:5907): glass-карточка r20
+    // pad16; строка [шеврон 24 · «N/9» Bold 12 sub], ниже 9 сегментов h4 r2
+    // gap4 — пройденные и текущий = olive, остальные = track.
+    return EcoCard(
+      t: t,
+      pad: 16,
+      child: Column(
+        children: [
+          Row(
+            children: [
+              GestureDetector(
+                onTap: onBack,
+                child: Icon(
+                  Icons.chevron_left,
+                  size: 24,
+                  color: step > 0 ? t.ink : t.faint,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '${step + 1}/${total + 1}',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  height: 1,
+                  color: t.sub,
+                ),
+              ),
+            ],
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(999),
-            child: SizedBox(
-              height: 6,
-              child: Stack(
-                children: [
-                  Container(color: t.card),
-                  AnimatedFractionallySizedBox(
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              for (var i = 0; i <= total; i++) ...[
+                if (i > 0) const SizedBox(width: 4),
+                Expanded(
+                  child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
-                    widthFactor: (step + 1) / (total + 1),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: t.dark,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: i <= step ? t.olive : t.track,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              ],
+            ],
           ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          '${step + 1}/${total + 1}',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            color: t.sub,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -664,22 +740,22 @@ class _Step extends StatelessWidget {
             ),
           ),
           if (sub != null) ...[
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Center(
               child: Text(
                 sub!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: t.sub,
-                  height: 1.4,
+                  height: 1.3,
                 ),
               ),
             ),
           ],
-          SizedBox(height: sub != null ? 22 : 20),
+          const SizedBox(height: 16),
           for (final (i, c) in children.indexed) ...[
-            if (i > 0) const SizedBox(height: 12),
+            if (i > 0) const SizedBox(height: 16),
             c,
           ],
         ],
@@ -688,16 +764,22 @@ class _Step extends StatelessWidget {
   }
 }
 
-/// Selectable option row: icon badge + title/sub + radio check.
+/// Selectable option row (макет Selection Item 234:92, h72 r20): плоская
+/// брендовая SVG-иконка 40px (без круга-бейджа) + title/sub + радио-чек.
+/// Активная — тёмный петроль #045157 с glass-объёмом (drop-тень + inset-блик,
+/// через [EcoGlassChip]), глиф и радио белые. Неактивная — стекло EcoCard
+/// (заливка ползунка прозрачности + кайма glassBorder + белый хайлайт).
 class _OptionCard extends StatelessWidget {
-  final String icon;
+  final String svg;
+  final bool flipY;
   final String title;
   final String? sub;
   final bool active;
   final VoidCallback onTap;
 
   const _OptionCard({
-    required this.icon,
+    required this.svg,
+    this.flipY = false,
     required this.title,
     this.sub,
     required this.active,
@@ -707,71 +789,84 @@ class _OptionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.select<AppStore, EcoTheme>((s) => s.theme);
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 75),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: active ? t.dark : t.card,
-          borderRadius: BorderRadius.circular(t.r),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: active ? t.olive : t.pill,
-                shape: BoxShape.circle,
+    Widget icon = SvgPicture.asset(
+      svg,
+      width: 40,
+      height: 40,
+      fit: BoxFit.contain,
+      colorFilter: active
+          ? const ColorFilter.mode(Colors.white, BlendMode.srcIn)
+          : ColorFilter.mode(t.iconOlive, BlendMode.srcIn),
+    );
+    if (flipY) icon = Transform.flip(flipY: true, child: icon);
+    final row = Row(
+      children: [
+        SizedBox(width: 40, height: 40, child: icon),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: active ? t.onDark : t.ink,
+                ),
               ),
-              child: Icon(
-                ecoIcon(icon),
-                size: 30,
-                color: active ? t.onDark : t.ink,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
+              if (sub != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    sub!,
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: active ? t.onDark : t.ink,
+                      fontSize: 12,
+                      color: active ? t.onDark.withValues(alpha: 0.65) : t.sub,
                     ),
                   ),
-                  if (sub != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        sub!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: active
-                              ? t.onDark.withValues(alpha: 0.65)
-                              : t.sub,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                color: active ? t.onDark : Colors.transparent,
-                shape: BoxShape.circle,
-                border: active ? null : Border.all(color: t.bandSoft, width: 2),
-              ),
-              child: active ? Icon(Icons.check, size: 15, color: t.dark) : null,
-            ),
-          ],
+                ),
+            ],
+          ),
         ),
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: active ? Colors.white : Colors.transparent,
+            shape: BoxShape.circle,
+            border: active ? null : Border.all(color: t.bandSoft, width: 2),
+          ),
+          child: active
+              ? const Icon(Icons.check, size: 15, color: _petrol)
+              : null,
+        ),
+      ],
+    );
+    if (active) {
+      return GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: EcoGlassChip(
+          radius: 20,
+          color: _petrol,
+          width: double.infinity,
+          height: 72,
+          padding: const EdgeInsets.only(left: 16, right: 22),
+          child: row,
+        ),
+      );
+    }
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: EcoGlassSurface(
+        t: t,
+        width: double.infinity,
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Center(child: row),
       ),
     );
   }
@@ -838,10 +933,13 @@ class _WheelValuePickerState extends State<_WheelValuePicker> {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Пилюля выбранного значения (макет HeightPicker 233:599): r999,
+          // white α34 + кайма 1.1 α55, почти во всю ширину карточки (348/380).
           EcoPickerSelectionOverlay(
             t: t,
-            margin: const EdgeInsets.symmetric(horizontal: 28, vertical: 79),
-            radius: 22,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 79),
+            radius: 999,
+            fill: Colors.white.withValues(alpha: 0.34),
           ),
           CupertinoPicker.builder(
             scrollController: _controller,
@@ -956,8 +1054,9 @@ class _BigStepper extends StatelessWidget {
   }
 }
 
-/// Language picker: one shared backing holding every option, with a sliding
-/// liquid-glass highlight on the active row (vertical take on [EcoSegmented]).
+/// Language picker: glass-карточка со списком языков и скользящей СВЕТЛОЙ
+/// пилюлей на активной строке (макет Welcome 224:58/224:60: карточка r20 py12,
+/// строки Bold 16 ink, пилюля white α34 + кайма 1.1 α55 — как оверлей колёс).
 class _LangSegmented extends StatelessWidget {
   final EcoTheme t;
   final List<AppLanguage> languages;
@@ -971,21 +1070,16 @@ class _LangSegmented extends StatelessWidget {
     required this.onChanged,
   });
 
-  static const _rowHeight = 52.0;
+  static const _rowHeight = 36.0;
 
   @override
   Widget build(BuildContext context) {
     final index = languages.indexOf(value).clamp(0, languages.length - 1);
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: t.cardAlt,
-        borderRadius: BorderRadius.circular(26),
-      ),
+    return EcoGlassSurface(
+      t: t,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Stack(
         children: [
-          // Скользящее выделение — liquid-glass: тёмная заливка, яркий кант,
-          // мягкая тень и верхний блик (как у выделения в пикере/сегменте).
           Positioned.fill(
             child: AnimatedAlign(
               duration: const Duration(milliseconds: 160),
@@ -996,38 +1090,11 @@ class _LangSegmented extends StatelessWidget {
                 heightFactor: 1 / languages.length,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: t.dark,
-                    borderRadius: BorderRadius.circular(22),
+                    color: Colors.white.withValues(alpha: 0.34),
+                    borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: Colors.white.withValues(alpha: 0.55),
                       width: 1.1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.14),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: FractionallySizedBox(
-                      widthFactor: 0.96,
-                      heightFactor: 0.5,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22),
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.white.withValues(alpha: 0.30),
-                              Colors.white.withValues(alpha: 0),
-                            ],
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ),
@@ -1043,15 +1110,13 @@ class _LangSegmented extends StatelessWidget {
                   child: SizedBox(
                     height: _rowHeight,
                     child: Center(
-                      child: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 85),
-                        curve: Curves.easeOutCubic,
+                      child: Text(
+                        language.nativeName,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: language == value ? t.onDark : t.ink,
+                          color: t.ink,
                         ),
-                        child: Text(language.nativeName),
                       ),
                     ),
                   ),

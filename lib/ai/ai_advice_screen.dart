@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 import '../data/products.dart';
@@ -36,7 +37,9 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   bool _checking = false;
   bool _loading = false;
   bool? _online;
-  AiAdvicePeriod _period = AiAdvicePeriod.day;
+  // Интервал совета: пресет (день/неделя/месяц) или произвольный диапазон из
+  // календаря (preset == null — сегмент периода без выделения).
+  AiAdviceRange _range = AiAdviceRange.preset(AiAdvicePeriod.day);
   String? _advice;
   bool _saved = false;
   // Порядок и разметка блоков результата (КБЖУ + критичные нутриенты) для
@@ -80,37 +83,54 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
 
     return EcoScreen(
       t: t,
+      header: EcoTopBar(
+        t: t,
+        title: l.t('ai.pageTitle'),
+        onBack: () => Navigator.of(context).pop(),
+      ),
       controller: _scroll,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EcoTopBar(
-            t: t,
-            title: l.t('ai.pageTitle'),
-            onBack: () => Navigator.of(context).pop(),
-          ),
           Center(child: _AiRobot(t: t)),
           const SizedBox(height: 16),
-          EcoSegmented(
-            t: t,
-            options: [l.t('ai.tabNew'), l.t('ai.tabSaved')],
-            value: _tab,
-            onChanged: (index) => setState(() => _tab = index),
+          Padding(
+            // Небольшой боковой отступ: клип контента EcoScreen (по ширине карточек
+            // 380) срезает drop-тень стеклянного трека/пилюли по бокам. Отступ даёт
+            // тени поместиться — как у селектора порции, что лежит в листе с полями.
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: EcoSegmented(
+              t: t,
+              options: [l.t('ai.tabNew'), l.t('ai.tabSaved')],
+              value: _tab,
+              onChanged: (index) => setState(() => _tab = index),
+            ),
           ),
           const SizedBox(height: 16),
           // Период (день/неделя/месяц) держим постоянно на вкладке «Новый совет»,
           // над контентом: раньше он жил внутри стартовой карточки и пропадал
-          // после генерации. Во время загрузки смену периода блокируем.
+          // после генерации. Под сегментом — пилюля с датами интервала (макет
+          // 307:2066): тап открывает календарь произвольного периода. Во время
+          // загрузки смену периода блокируем.
           if (_tab == 0) ...[
             IgnorePointer(
               ignoring: _loading,
               child: Opacity(
                 opacity: _loading ? 0.5 : 1,
-                child: EcoSegmented(
-                  t: t,
-                  options: _periodOptions(l),
-                  value: _period.index,
-                  onChanged: _setPeriod,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      child: EcoSegmented(
+                        t: t,
+                        options: _periodOptions(l),
+                        value: _range.preset?.index ?? -1,
+                        onChanged: _setPreset,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(child: _rangePill(t)),
+                  ],
                 ),
               ),
             ),
@@ -152,7 +172,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     AppStrings l,
     EcoTheme t,
   ) {
-    final foodCount = _foodCount(store, _period);
+    final foodCount = _foodCount(store);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -205,8 +225,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
       valueListenable: _revealed,
       builder: (context, revealed, _) {
         final n = revealed.length;
-        final scriptLen = _script.length;
-        final typingDone = scriptLen == 0 || n >= scriptLen;
+        final macroDone = macro == null || n >= macro.end;
         final children = <Widget>[
           // КБЖУ — первая карточка, печатается по буквам.
           EcoCard(
@@ -219,57 +238,17 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
           ),
         ];
 
-        final visibleCrits = [
-          for (final seg in crits)
-            if (n >= seg.start) seg,
-        ];
-        if (visibleCrits.isNotEmpty) {
-          children
-            ..add(const SizedBox(height: 16))
-            ..add(_RevealIn(
-              key: const ValueKey('crit-header'),
-              child: _sectionHeader(l, t),
-            ));
-          for (final seg in visibleCrits) {
-            children
-              ..add(const SizedBox(height: 10))
-              ..add(_RevealIn(
-                key: ValueKey('crit-${seg.critKey}'),
-                child: _criticalCard(seg, store, l, t, n),
-              ));
-          }
-        }
-
-        if (typingDone) {
+        // После КБЖУ — ЕДИНАЯ карточка микронутриентов: сверху критичные
+        // (дефицит/избыток), ниже — остальные в норме. Без дублей: критичные
+        // исключены из общего списка, отдельной секции критичных нет (макет 308:28).
+        // Дисклеймер и кнопки «Сохранить»/«Готово» лежат ВНУТРИ этой карточки, в
+        // самом низу (макет 313:12), а не отдельным блоком под ней.
+        if (macroDone) {
           children
             ..add(const SizedBox(height: 12))
             ..add(_RevealIn(
               key: const ValueKey('micros'),
-              child: _microsCard(store, l, t),
-            ))
-            ..add(const SizedBox(height: 12))
-            ..add(_RevealIn(
-              key: const ValueKey('tail'),
-              delay: const Duration(milliseconds: 220),
-              child: EcoCard(
-                t: t,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l.t('ai.disclaimer'),
-                      style: TextStyle(
-                        fontSize: 12,
-                        height: 1.35,
-                        color: t.sub,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _actions(store, l, t, _foodCount(store, _period)),
-                  ],
-                ),
-              ),
+              child: _microsCard(store, l, t, crits),
             ));
         }
 
@@ -281,25 +260,32 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     );
   }
 
-  /// Карточка одного критичного нутриента: заголовок (без дублирования имени в
-  /// шкале), анимированная шкала [ProgressScale] и печатаемый текст-последствие.
-  /// [n] — сколько символов общего сценария уже «напечатано».
-  Widget _criticalCard(
-      _Seg seg, AppStore store, AppStrings l, EcoTheme t, int n) {
+  /// Строка критичного нутриента ВНУТРИ карточки микронутриентов (без обёртки
+  /// EcoCard): имя + чип дефицита/избытка, шкала [ProgressScale] и текст-
+  /// последствие (целиком, без «печати»).
+  Widget _criticalRow(_Seg seg, AppStrings l, EcoTheme t) {
     final key = seg.critKey!;
     final crit = seg.crit!;
     final color = micronutrientColor(key);
-    final typing = n >= seg.start && n < seg.end;
-    return EcoCard(
-      t: t,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Имя + чип + значение нормы — ОДНОЙ строкой (leading шкалы). Текущее
+        // значение шкала рисует под баром как обычно.
+        ProgressScale(
+          t: t,
+          value: crit.perDay,
+          target: crit.target,
+          color: color,
+          unit: l.unit(microUnitCode(key)),
+          animateFromZero: true,
+          leading: Row(
             children: [
-              Expanded(
+              Flexible(
                 child: Text(
                   l.nutrient(key),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
@@ -307,37 +293,17 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
               _critChip(crit.excess, l),
             ],
           ),
-          const SizedBox(height: 12),
-          ProgressScale(
-            t: t,
-            value: crit.perDay,
-            target: crit.target,
-            color: color,
-            unit: l.unit(microUnitCode(key)),
-            animateFromZero: true,
-          ),
-          const SizedBox(height: 12),
-          Text.rich(
-            TextSpan(
-              style: TextStyle(fontSize: 13, height: 1.45, color: t.sub),
-              children: [
-                TextSpan(text: _visible(seg, n)),
-                if (typing)
-                  const TextSpan(
-                    text: '|',
-                    style: TextStyle(
-                      color: EcoColors.statusGood,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          seg.text,
+          style: TextStyle(fontSize: 13, height: 1.45, color: t.sub),
+        ),
+      ],
     );
   }
 
@@ -435,13 +401,10 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     final macroText = macroLines.join('\n');
     segs.add(_Seg(start: cursor, text: macroText));
     cursor += macroText.length;
-    // Каждый критичный нутриент из [_criticalMicros] получает карточку, даже
-    // если для его топика нет текста-последствия: пустой текст просто печатается
-    // как ничего, но шкала и чип «Избыток/Дефицит» показываются. Так блок
-    // критичных всегда совпадает с детекцией и ни один показатель не «теряется».
     for (final c in criticals) {
       final tp = _microTopic(c.key);
       final text = (tp != null ? parsed[tp] : null) ?? '';
+      if (text.isEmpty) continue;
       segs.add(_Seg(start: cursor, text: text, critKey: c.key, crit: c));
       cursor += text.length;
     }
@@ -512,7 +475,27 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     return out;
   }
 
-  AiAdviceTopic? _microTopic(String key) => AiAdviceTopic.forMicroKey(key);
+  AiAdviceTopic? _microTopic(String key) => switch (key) {
+        'fe' => AiAdviceTopic.iron,
+        'mg' => AiAdviceTopic.magnesium,
+        'ca' => AiAdviceTopic.calcium,
+        'p' => AiAdviceTopic.phosphorus,
+        'k' => AiAdviceTopic.potassium,
+        'na' => AiAdviceTopic.sodium,
+        'zn' => AiAdviceTopic.zinc,
+        'vit_a' => AiAdviceTopic.vitaminA,
+        'vit_c' => AiAdviceTopic.vitaminC,
+        'vit_d' => AiAdviceTopic.vitaminD,
+        'vit_e' => AiAdviceTopic.vitaminE,
+        'vit_k' => AiAdviceTopic.vitaminK,
+        'vit_b1' => AiAdviceTopic.vitaminB1,
+        'vit_b2' => AiAdviceTopic.vitaminB2,
+        'vit_b3' => AiAdviceTopic.vitaminB3,
+        'vit_b6' => AiAdviceTopic.vitaminB6,
+        'vit_b9' => AiAdviceTopic.vitaminB9,
+        'vit_b12' => AiAdviceTopic.vitaminB12,
+        _ => null,
+      };
 
   Widget _resultArea(
     AppStore store,
@@ -546,32 +529,6 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   Widget _actions(AppStore store, AppStrings l, EcoTheme t, int foodCount) {
     final canGenerate =
         AiConfig.hasBackend && _online != false && foodCount > 0;
-
-    if (_advice != null) {
-      return Row(
-        children: [
-          Expanded(
-            child: EcoBtn(
-              t: t,
-              height: 38,
-              fontSize: 12,
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              disabled: _saved,
-              onTap: _saved ? null : () => _saveCurrentAdvice(store),
-              child: Text(_saved ? l.t('ai.saved') : l.t('ai.save')),
-            ),
-          ),
-          const SizedBox(width: 8),
-          _IconChip(
-            t: t,
-            icon: Icons.refresh,
-            onTap: canGenerate ? () => _loadAdvice(store) : null,
-          ),
-          const SizedBox(width: 8),
-          _IconChip(t: t, icon: Icons.close, onTap: _clearAdvice),
-        ],
-      );
-    }
 
     if (!AiConfig.hasBackend) return const SizedBox.shrink();
 
@@ -616,21 +573,113 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
 
   // ─────────────────────── Микронутриенты за период ───────────────────────
 
-  Widget _microsCard(AppStore store, AppStrings l, EcoTheme t) =>
-      _MicrosPeriodCard(t: t, l: l, rows: _microRows(store, l, t));
+  /// Единая карточка микронутриентов за период: заголовок, сверху — критичные
+  /// (дефицит/избыток) с чипами и текстом-последствием, ниже — «Среднее по
+  /// норме» и остальные шкалы. Критичные исключены из общего списка, поэтому
+  /// один нутриент не выводится дважды (макет 308:28).
+  Widget _microsCard(
+      AppStore store, AppStrings l, EcoTheme t, List<_Seg> crits) {
+    final critKeys = {
+      for (final s in crits)
+        if (s.critKey != null) s.critKey!,
+    };
+    final normRows = _microRows(store, l, t, exclude: critKeys);
+    final hasCrit = crits.isNotEmpty;
+    return EcoCard(
+      t: t,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.t('ai.microsTitle'),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: t.ink,
+            ),
+          ),
+          if (hasCrit) ...[
+            const SizedBox(height: 16),
+            _sectionHeader(l, t),
+            for (final seg in crits) ...[
+              const SizedBox(height: 12),
+              _criticalRow(seg, l, t),
+            ],
+          ],
+          if (normRows.isNotEmpty) ...[
+            SizedBox(height: hasCrit ? 20 : 6),
+            Text(
+              l.t('ai.microsAvgNote'),
+              style: TextStyle(fontSize: 12, height: 1.35, color: t.sub),
+            ),
+            const SizedBox(height: 16),
+            for (var i = 0; i < normRows.length; i++) ...[
+              if (i > 0) const SizedBox(height: 18),
+              normRows[i],
+            ],
+          ],
+          if (!hasCrit && normRows.isEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              l.t('ai.microsEmpty'),
+              style: TextStyle(fontSize: 13, height: 1.4, color: t.sub),
+            ),
+          ],
+          // Дисклеймер + кнопки «Сохранить»/«Готово» — в самом низу карточки
+          // (макет 313:12), а не отдельным блоком под ней.
+          const SizedBox(height: 20),
+          Text(
+            l.t('ai.disclaimer'),
+            style: TextStyle(
+              fontSize: 12,
+              height: 1.35,
+              color: t.sub,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _resultActions(store, l, t),
+        ],
+      ),
+    );
+  }
 
-  /// Ключи нутриентов, уже показанных отдельными карточками в блоке критичных.
-  /// Их исключаем из «Микронутриенты за период», чтобы не дублировать: критичный
-  /// показатель живёт наверху (шкала + чип + совет), в списке ниже — остальные.
-  Set<String> _criticalKeys() => {
-        for (final seg in _segs)
-          if (seg.crit != null) seg.crit!.key,
-      };
+  /// Кнопки под готовым советом ВНУТРИ карточки микронутриентов (макет 313:12):
+  /// «Сохранить» (после сохранения → «Сохранено», неактивна) и «Готово»
+  /// (сворачивает совет обратно к экрану выбора периода).
+  Widget _resultActions(AppStore store, AppStrings l, EcoTheme t) {
+    return Row(
+      children: [
+        Expanded(
+          child: EcoBtn(
+            t: t,
+            height: 44,
+            fontSize: 15,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            disabled: _saved,
+            onTap: _saved ? null : () => _saveCurrentAdvice(store),
+            child: Text(_saved ? l.t('ai.saved') : l.t('ai.save')),
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: EcoBtn(
+            t: t,
+            height: 44,
+            fontSize: 15,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            onTap: _clearAdvice,
+            child: Text(l.t('common.done')),
+          ),
+        ),
+      ],
+    );
+  }
 
-  List<Widget> _microRows(AppStore store, AppStrings l, EcoTheme t) {
+  List<Widget> _microRows(AppStore store, AppStrings l, EcoTheme t,
+      {Set<String> exclude = const {}}) {
     final period = _periodMicros(store);
     if (period.totals.isEmpty) return const [];
-    final critKeys = _criticalKeys();
     // Норма (target) — СУТОЧНАЯ. Поэтому потребление приводим к среднему за день:
     // сумму за период делим на число дней с записями. Иначе за неделю/месяц
     // сравнивалась бы 7-/30-дневная сумма с 1-дневной нормой (полоса всегда
@@ -647,7 +696,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
 
     final rows = <Widget>[];
     for (final key in orderedKeys) {
-      if (critKeys.contains(key)) continue;
+      if (exclude.contains(key)) continue;
       final perDay = (period.totals[key] ?? 0) / days;
       if (perDay <= 0) continue;
       final target =
@@ -669,8 +718,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
   ({Map<String, double> totals, int loggedDays}) _periodMicros(AppStore store) {
     final totals = <String, double>{};
     var loggedDays = 0;
-    for (var i = 0; i < _period.days; i++) {
-      final date = AppStore.ymd(DateTime.now().subtract(Duration(days: i)));
+    for (final date in _range.dateKeys) {
       final hasFood =
           kMealsByTime.any((m) => store.itemsFor(m.key, date: date).isNotEmpty);
       if (hasFood) loggedDays++;
@@ -710,16 +758,21 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     if (advices.isEmpty) {
       return EcoCard(
         t: t,
-        child: Column(
-          children: [
-            Icon(Icons.bookmark_border, size: 36, color: t.faint),
-            const SizedBox(height: 12),
-            Text(
-              l.t('ai.emptySaved'),
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, height: 1.4, color: t.sub),
-            ),
-          ],
+        // Растягиваем на всю ширину контента (как остальные карточки), иначе
+        // Column обжимается по тексту и карточка выходит уже сегмента/карточек.
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            children: [
+              Icon(Icons.bookmark_border, size: 36, color: t.faint),
+              const SizedBox(height: 12),
+              Text(
+                l.t('ai.emptySaved'),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, height: 1.4, color: t.sub),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -732,7 +785,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
             t: t,
             l: l,
             advice: advice,
-            periodLabel: _periodOptions(l)[advice.period.index],
+            periodLabel: _savedPeriodLabel(advice, l),
             onDelete: () => store.deleteAiAdvice(advice.id),
           ),
       ],
@@ -741,10 +794,9 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
 
   // ─────────────────────────── Логика ───────────────────────────
 
-  int _foodCount(AppStore store, AiAdvicePeriod period) {
+  int _foodCount(AppStore store) {
     var count = 0;
-    for (var i = 0; i < period.days; i++) {
-      final date = AppStore.ymd(DateTime.now().subtract(Duration(days: i)));
+    for (final date in _range.dateKeys) {
       for (final meal in kMealsByTime) {
         count += store.itemsFor(meal.key, date: date).length;
       }
@@ -779,7 +831,7 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
       final advice = await _service.fetchDailyAdvice(
         store: store,
         language: store.language,
-        period: _period,
+        range: _range,
       );
       final elapsed = DateTime.now().difference(startedAt);
       const minimumLoaderDuration = Duration(milliseconds: 2400);
@@ -836,7 +888,9 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
       SavedAiAdvice(
         id: now.millisecondsSinceEpoch.toString(),
         text: advice,
-        period: _period,
+        period: _range.preset,
+        startDate: AppStore.ymd(_range.start),
+        endDate: AppStore.ymd(_range.end),
         createdAt: now,
         languageCode: store.language.code,
         criticals: criticals,
@@ -854,7 +908,6 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     final days = math.max(1, period.loggedDays);
     final targets = _microTargets(store);
     final female = store.gender == 'f';
-    final critKeys = _criticalKeys();
     final orderedKeys = [
       ...kMicronutrientDisplayOrder.where(period.totals.containsKey),
       for (final key in period.totals.keys)
@@ -862,7 +915,6 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     ];
     final out = <SavedNutrient>[];
     for (final key in orderedKeys) {
-      if (critKeys.contains(key)) continue;
       final perDay = (period.totals[key] ?? 0) / days;
       if (perDay <= 0) continue;
       final target =
@@ -876,20 +928,98 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
     return out;
   }
 
-  void _setPeriod(int index) {
-    final next = AiAdvicePeriod.values[index];
-    if (next == _period) return;
+  void _setPreset(int index) {
+    final next = AiAdviceRange.preset(AiAdvicePeriod.values[index]);
+    if (next.sameAs(_range)) return;
+    _applyRange(next);
+  }
+
+  /// Диапазон из календаря. Если он совпадает с пресетом (сегодня / последние
+  /// 7 или 30 дней) — считаем пресетом, чтобы сегмент периода подсветился.
+  void _setCustomRange(DateTime start, DateTime end) {
+    var next = AiAdviceRange.custom(start, end);
+    for (final p in AiAdvicePeriod.values) {
+      final preset = AiAdviceRange.preset(p);
+      if (preset.start == next.start && preset.end == next.end) {
+        next = preset;
+        break;
+      }
+    }
+    if (next.sameAs(_range)) return;
+    _applyRange(next);
+  }
+
+  /// Смена интервала сбрасывает текущий совет (как прежняя смена периода).
+  void _applyRange(AiAdviceRange next) {
     _stopTyping();
     _revealed.value = '';
     _segs = const [];
     _script = '';
     setState(() {
-      _period = next;
+      _range = next;
       _advice = null;
       _error = null;
       _saved = false;
     });
   }
+
+  /// Пилюля с датами интервала (макет 307:2066: EcoBtn h36, «12.07 - 14.07» +
+  /// иконка календаря). Тап открывает шторку с календарём диапазона.
+  Widget _rangePill(EcoTheme t) {
+    return EcoBtn(
+      t: t,
+      height: 36,
+      fontSize: 16,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      onTap: () => _pickRange(t),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(_rangeLabel()),
+          const SizedBox(width: 4),
+          SvgPicture.asset('assets/icons/cal.svg',
+              width: 24,
+              height: 24,
+              colorFilter: ColorFilter.mode(t.iconOlive, BlendMode.srcIn)),
+        ],
+      ),
+    );
+  }
+
+  void _pickRange(EcoTheme t) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    var start = _range.start;
+    var end = _range.end;
+    showEcoSheet(
+      context: context,
+      t: t,
+      title: context.l10nRead.t('ai.rangeTitle'),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 6),
+        child: EcoRangeCalendar(
+          t: t,
+          initialStart: _range.start,
+          initialEnd: _range.end,
+          // Будущее недоступно (еды там нет), назад — до года от сегодня.
+          minDate: today.subtract(const Duration(days: 365)),
+          maxDate: today,
+          onChanged: (s, e) {
+            start = s;
+            end = e;
+          },
+        ),
+      ),
+      onDone: () => _setCustomRange(start, end),
+    );
+  }
+
+  static String _fmtDm(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}';
+
+  String _rangeLabel() => _range.isSingleDay
+      ? _fmtDm(_range.end)
+      : '${_fmtDm(_range.start)} - ${_fmtDm(_range.end)}';
 
   void _clearAdvice() {
     _stopTyping();
@@ -963,67 +1093,112 @@ class _AiAdviceScreenState extends State<AiAdviceScreen> {
         AppLanguage.uzCyrl => const ['Кун', 'Ҳафта', 'Ой'],
       };
 
-  String _readyText(AppStrings l) => switch (l.language) {
-        AppLanguage.en => switch (_period) {
-            AiAdvicePeriod.day =>
-              "AI can review today's meals in a short note.",
-            AiAdvicePeriod.week => 'AI can review your last 7 days of meals.',
-            AiAdvicePeriod.month => 'AI can review your last 30 days of meals.',
-          },
-        AppLanguage.ru => switch (_period) {
-            AiAdvicePeriod.day => 'ИИ коротко разберёт сегодняшний рацион.',
-            AiAdvicePeriod.week => 'ИИ разберёт питание за последние 7 дней.',
-            AiAdvicePeriod.month => 'ИИ разберёт питание за последние 30 дней.',
-          },
-        AppLanguage.uzLatn => switch (_period) {
-            AiAdvicePeriod.day => 'AI bugungi ratsionni qisqa tahlil qiladi.',
-            AiAdvicePeriod.week =>
-              'AI oxirgi 7 kunlik ratsionni tahlil qiladi.',
-            AiAdvicePeriod.month =>
-              'AI oxirgi 30 kunlik ratsionni tahlil qiladi.',
-          },
-        AppLanguage.uzCyrl => switch (_period) {
-            AiAdvicePeriod.day => 'ИИ бугунги рационни қисқа таҳлил қилади.',
-            AiAdvicePeriod.week => 'ИИ охирги 7 кунлик рационни таҳлил қилади.',
-            AiAdvicePeriod.month =>
-              'ИИ охирги 30 кунлик рационни таҳлил қилади.',
-          },
-      };
+  /// Чип периода в «Сохранённых»: пресет — прежний лейбл, кастомный интервал —
+  /// его даты («12.07 - 14.07»).
+  String _savedPeriodLabel(SavedAiAdvice advice, AppStrings l) {
+    final preset = advice.period;
+    if (preset != null) return _periodOptions(l)[preset.index];
+    final start = _parseYmd(advice.startDate);
+    final end = _parseYmd(advice.endDate);
+    if (start == null || end == null) return _periodOptions(l).first;
+    return start == end ? _fmtDm(start) : '${_fmtDm(start)} - ${_fmtDm(end)}';
+  }
 
-  String _noFoodText(AppStrings l) => switch (l.language) {
-        AppLanguage.en => switch (_period) {
-            AiAdvicePeriod.day =>
-              'Add foods for today, then AI will analyze them.',
-            AiAdvicePeriod.week =>
-              'Add foods in the last 7 days to get weekly advice.',
-            AiAdvicePeriod.month =>
-              'Add foods in the last 30 days to get monthly advice.',
-          },
-        AppLanguage.ru => switch (_period) {
-            AiAdvicePeriod.day =>
-              'Добавьте еду за сегодня, и ИИ её проанализирует.',
-            AiAdvicePeriod.week =>
-              'Добавьте еду за 7 дней, чтобы получить совет за неделю.',
-            AiAdvicePeriod.month =>
-              'Добавьте еду за 30 дней, чтобы получить совет за месяц.',
-          },
-        AppLanguage.uzLatn => switch (_period) {
-            AiAdvicePeriod.day =>
-              "Bugungi ovqatlarni qo'shing, keyin AI tahlil qiladi.",
-            AiAdvicePeriod.week =>
-              "Haftalik tavsiya uchun oxirgi 7 kunga ovqat qo'shing.",
-            AiAdvicePeriod.month =>
-              "Oylik tavsiya uchun oxirgi 30 kunga ovqat qo'shing.",
-          },
-        AppLanguage.uzCyrl => switch (_period) {
-            AiAdvicePeriod.day =>
-              'Бугунги овқатларни қўшинг, кейин ИИ таҳлил қилади.',
-            AiAdvicePeriod.week =>
-              'Ҳафталик тавсия учун охирги 7 кунга овқат қўшинг.',
-            AiAdvicePeriod.month =>
-              'Ойлик тавсия учун охирги 30 кунга овқат қўшинг.',
-          },
+  static DateTime? _parseYmd(String? value) {
+    if (value == null) return null;
+    final parts = value.split('-').map(int.tryParse).toList();
+    if (parts.length != 3 || parts.any((part) => part == null)) return null;
+    return DateTime(parts[0]!, parts[1]!, parts[2]!);
+  }
+
+  String _readyText(AppStrings l) {
+    final preset = _range.preset;
+    if (preset == null) {
+      final range = _rangeLabel();
+      return switch (l.language) {
+        AppLanguage.en => 'AI can review your meals for $range.',
+        AppLanguage.ru => 'ИИ разберёт питание за $range.',
+        AppLanguage.uzLatn =>
+          'AI $range davri uchun ratsionni tahlil qiladi.',
+        AppLanguage.uzCyrl => 'ИИ $range даври учун рационни таҳлил қилади.',
       };
+    }
+    return switch (l.language) {
+      AppLanguage.en => switch (preset) {
+          AiAdvicePeriod.day => "AI can review today's meals in a short note.",
+          AiAdvicePeriod.week => 'AI can review your last 7 days of meals.',
+          AiAdvicePeriod.month => 'AI can review your last 30 days of meals.',
+        },
+      AppLanguage.ru => switch (preset) {
+          AiAdvicePeriod.day => 'ИИ коротко разберёт сегодняшний рацион.',
+          AiAdvicePeriod.week => 'ИИ разберёт питание за последние 7 дней.',
+          AiAdvicePeriod.month => 'ИИ разберёт питание за последние 30 дней.',
+        },
+      AppLanguage.uzLatn => switch (preset) {
+          AiAdvicePeriod.day => 'AI bugungi ratsionni qisqa tahlil qiladi.',
+          AiAdvicePeriod.week => 'AI oxirgi 7 kunlik ratsionni tahlil qiladi.',
+          AiAdvicePeriod.month =>
+            'AI oxirgi 30 kunlik ratsionni tahlil qiladi.',
+        },
+      AppLanguage.uzCyrl => switch (preset) {
+          AiAdvicePeriod.day => 'ИИ бугунги рационни қисқа таҳлил қилади.',
+          AiAdvicePeriod.week => 'ИИ охирги 7 кунлик рационни таҳлил қилади.',
+          AiAdvicePeriod.month =>
+            'ИИ охирги 30 кунлик рационни таҳлил қилади.',
+        },
+    };
+  }
+
+  String _noFoodText(AppStrings l) {
+    final preset = _range.preset;
+    if (preset == null) {
+      final range = _rangeLabel();
+      return switch (l.language) {
+        AppLanguage.en =>
+          'Add foods for $range to get advice for this period.',
+        AppLanguage.ru =>
+          'Добавьте еду за $range, чтобы получить совет за этот период.',
+        AppLanguage.uzLatn =>
+          "Bu davr uchun tavsiya olish uchun $range kunlariga ovqat qo'shing.",
+        AppLanguage.uzCyrl =>
+          'Бу давр учун тавсия олиш учун $range кунларига овқат қўшинг.',
+      };
+    }
+    return switch (l.language) {
+      AppLanguage.en => switch (preset) {
+          AiAdvicePeriod.day =>
+            'Add foods for today, then AI will analyze them.',
+          AiAdvicePeriod.week =>
+            'Add foods in the last 7 days to get weekly advice.',
+          AiAdvicePeriod.month =>
+            'Add foods in the last 30 days to get monthly advice.',
+        },
+      AppLanguage.ru => switch (preset) {
+          AiAdvicePeriod.day =>
+            'Добавьте еду за сегодня, и ИИ её проанализирует.',
+          AiAdvicePeriod.week =>
+            'Добавьте еду за 7 дней, чтобы получить совет за неделю.',
+          AiAdvicePeriod.month =>
+            'Добавьте еду за 30 дней, чтобы получить совет за месяц.',
+        },
+      AppLanguage.uzLatn => switch (preset) {
+          AiAdvicePeriod.day =>
+            "Bugungi ovqatlarni qo'shing, keyin AI tahlil qiladi.",
+          AiAdvicePeriod.week =>
+            "Haftalik tavsiya uchun oxirgi 7 kunga ovqat qo'shing.",
+          AiAdvicePeriod.month =>
+            "Oylik tavsiya uchun oxirgi 30 kunga ovqat qo'shing.",
+        },
+      AppLanguage.uzCyrl => switch (preset) {
+          AiAdvicePeriod.day =>
+            'Бугунги овқатларни қўшинг, кейин ИИ таҳлил қилади.',
+          AiAdvicePeriod.week =>
+            'Ҳафталик тавсия учун охирги 7 кунга овқат қўшинг.',
+          AiAdvicePeriod.month =>
+            'Ойлик тавсия учун охирги 30 кунга овқат қўшинг.',
+        },
+    };
+  }
 }
 
 /// Крупный «живой» робот-ассистент вверху страницы: плавно покачивается, «говорит»
@@ -1307,7 +1482,12 @@ class _SavedAdviceCardState extends State<_SavedAdviceCard> {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: widget.onDelete,
-                child: Icon(Icons.delete_outline, size: 20, color: t.faint),
+                child: SvgPicture.asset(
+                  'assets/icons/trash.svg',
+                  width: 20,
+                  height: 20,
+                  colorFilter: ColorFilter.mode(t.faint, BlendMode.srcIn),
+                ),
               ),
             ],
           ),
@@ -1327,8 +1507,10 @@ class _SavedAdviceCardState extends State<_SavedAdviceCard> {
   }
 
   /// Разворачивает сохранённый совет в ту же раскладку, что и свежий: КБЖУ →
-  /// критичные нутриенты (заголовок + шкала + текст) → бары за период. Старые
-  /// советы (без сохранённых значений) показываются прежним плоским списком.
+  /// «Микронутриенты за период» (критичные плоскими строками + бары), БЕЗ
+  /// вложенных карточек — всё внутри одной карточки совета, как при генерации
+  /// (макет 313:12). Старые советы (без сохранённых значений) показываются
+  /// прежним плоским списком.
   Widget _buildSavedBody(EcoTheme t, AppStrings l, SavedAiAdvice a) {
     if (a.criticals.isEmpty && a.micros.isEmpty) {
       return AdviceBulletList(t: t, text: a.text);
@@ -1349,26 +1531,103 @@ class _SavedAdviceCardState extends State<_SavedAdviceCard> {
         if (parsed[tp] != null)
           '${AiAdviceContract.title(tp, lang)}: ${parsed[tp]}',
     ].join('\n');
+    // Обычные шкалы — все микро, кроме критичных (те показаны выше со шкалой и
+    // текстом), чтобы нутриент не дублировался, как в свежем `_microsCard`.
+    final critKeys = {for (final c in a.criticals) c.key};
+    final normalBars = _barsFromMicros(
+      [for (final m in a.micros) if (!critKeys.contains(m.key)) m],
+      l,
+      t,
+    );
+    final hasCrit = a.criticals.isNotEmpty;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (macroText.isNotEmpty) AdviceBulletList(t: t, text: macroText),
-        if (a.criticals.isNotEmpty) ...[
+        const SizedBox(height: 16),
+        Text(
+          l.t('ai.microsTitle'),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: t.ink,
+          ),
+        ),
+        if (hasCrit) ...[
           const SizedBox(height: 16),
           _savedSectionHeader(lang, t),
           for (final c in a.criticals) ...[
-            const SizedBox(height: 10),
-            _SavedCriticalCard(
-              t: t,
-              l: l,
-              crit: c,
-              text: parsed[_savedMicroTopic(c.key)] ?? '',
-            ),
+            const SizedBox(height: 12),
+            _savedCriticalRow(t, l, c, parsed[_savedMicroTopic(c.key)] ?? ''),
           ],
         ],
-        if (a.micros.isNotEmpty) ...[
+        if (normalBars.isNotEmpty) ...[
+          SizedBox(height: hasCrit ? 20 : 6),
+          Text(
+            l.t('ai.microsAvgNote'),
+            style: TextStyle(fontSize: 12, height: 1.35, color: t.sub),
+          ),
+          const SizedBox(height: 16),
+          for (var i = 0; i < normalBars.length; i++) ...[
+            if (i > 0) const SizedBox(height: 18),
+            normalBars[i],
+          ],
+        ],
+        // Дисклеймер — в самом низу развёрнутого совета, как в свежем результате.
+        const SizedBox(height: 20),
+        Text(
+          l.t('ai.disclaimer'),
+          style: TextStyle(
+            fontSize: 12,
+            height: 1.35,
+            color: t.sub,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Плоская строка критичного нутриента для сохранённого совета — БЕЗ обёртки
+  /// EcoCard (копия свежего `_criticalRow`): имя + чип дефицита/избытка в leading
+  /// шкалы, ниже — текст-последствие.
+  Widget _savedCriticalRow(
+      EcoTheme t, AppStrings l, SavedNutrient crit, String text) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ProgressScale(
+          t: t,
+          value: crit.value,
+          target: crit.target > 0 ? crit.target : crit.value,
+          color: micronutrientColor(crit.key),
+          unit: l.unit(microUnitCode(crit.key)),
+          animateFromZero: true,
+          leading: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  l.nutrient(crit.key),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: t.ink,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _savedCritChip(crit.excess, l.language),
+            ],
+          ),
+        ),
+        if (text.isNotEmpty) ...[
           const SizedBox(height: 12),
-          _MicrosPeriodCard(t: t, l: l, rows: _barsFromMicros(a.micros, l, t)),
+          Text(
+            text,
+            style: TextStyle(fontSize: 13, height: 1.45, color: t.sub),
+          ),
         ],
       ],
     );
@@ -1405,141 +1664,6 @@ class _PeriodChip extends StatelessWidget {
           fontWeight: FontWeight.w800,
           color: t.ink,
         ),
-      ),
-    );
-  }
-}
-
-class _IconChip extends StatelessWidget {
-  final EcoTheme t;
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  const _IconChip({required this.t, required this.icon, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: onTap == null ? t.cardAlt : t.bandSoft,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          icon,
-          size: 17,
-          color: onTap == null ? t.faint : t.ink,
-        ),
-      ),
-    );
-  }
-}
-
-/// Карточка «Микронутриенты за период» — заголовок, подпись и шкалы (без
-/// сворачивания). Используется и в свежем совете, и в «Сохранённых».
-class _MicrosPeriodCard extends StatelessWidget {
-  final EcoTheme t;
-  final AppStrings l;
-  final List<Widget> rows;
-
-  const _MicrosPeriodCard(
-      {required this.t, required this.l, required this.rows});
-
-  @override
-  Widget build(BuildContext context) {
-    return EcoCard(
-      t: t,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            l.t('ai.microsTitle'),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: t.ink,
-            ),
-          ),
-          if (rows.isEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              l.t('ai.microsEmpty'),
-              style: TextStyle(fontSize: 13, height: 1.4, color: t.sub),
-            ),
-          ] else ...[
-            const SizedBox(height: 6),
-            Text(
-              l.t('ai.microsAvgNote'),
-              style: TextStyle(fontSize: 12, height: 1.35, color: t.sub),
-            ),
-            const SizedBox(height: 16),
-            for (var i = 0; i < rows.length; i++) ...[
-              if (i > 0) const SizedBox(height: 18),
-              rows[i],
-            ],
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Статичная (без «печати») карточка критичного нутриента для «Сохранённых».
-class _SavedCriticalCard extends StatelessWidget {
-  final EcoTheme t;
-  final AppStrings l;
-  final SavedNutrient crit;
-  final String text;
-
-  const _SavedCriticalCard({
-    required this.t,
-    required this.l,
-    required this.crit,
-    required this.text,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return EcoCard(
-      t: t,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l.nutrient(crit.key),
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: t.ink,
-                  ),
-                ),
-              ),
-              _savedCritChip(crit.excess, l.language),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ProgressScale(
-            t: t,
-            value: crit.value,
-            target: crit.target > 0 ? crit.target : crit.value,
-            color: micronutrientColor(crit.key),
-            unit: l.unit(microUnitCode(crit.key)),
-            animateFromZero: true,
-          ),
-          if (text.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              text,
-              style: TextStyle(fontSize: 13, height: 1.45, color: t.sub),
-            ),
-          ],
-        ],
       ),
     );
   }
@@ -1667,14 +1791,11 @@ Widget _savedCritChip(bool excess, AppLanguage lang) {
 
 /// Обёртка «появления» карточки: при первом монтировании плавно проявляет
 /// содержимое (лёгкий подъём + fade). Каждая новая карточка результата выводится
-/// через неё, чтобы блоки возникали по одному, как в чате ИИ. [delay] сдвигает
-/// старт анимации (используется для дисклеймера — чтобы он появлялся чуть позже
-/// карточки микронутриентов).
+/// через неё, чтобы блоки возникали по одному, как в чате ИИ.
 class _RevealIn extends StatefulWidget {
   final Widget child;
-  final Duration delay;
 
-  const _RevealIn({super.key, required this.child, this.delay = Duration.zero});
+  const _RevealIn({super.key, required this.child});
 
   @override
   State<_RevealIn> createState() => _RevealInState();
@@ -1692,23 +1813,15 @@ class _RevealInState extends State<_RevealIn>
     begin: const Offset(0, 0.06),
     end: Offset.zero,
   ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
-  Timer? _delayTimer;
 
   @override
   void initState() {
     super.initState();
-    if (widget.delay == Duration.zero) {
-      _c.forward();
-    } else {
-      _delayTimer = Timer(widget.delay, () {
-        if (mounted) _c.forward();
-      });
-    }
+    _c.forward();
   }
 
   @override
   void dispose() {
-    _delayTimer?.cancel();
     _c.dispose();
     super.dispose();
   }

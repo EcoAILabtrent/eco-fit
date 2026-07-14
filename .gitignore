@@ -59,3 +59,12 @@ android/app/google-services.json
 # Local key backups and Claude Code session config. Never push these.
 _keys_backup/
 .claude/
+
+# Root scratch output (emulator screenshots, video verification frames).
+/out/
+
+# Presentation (Remotion promo): keep source/code/docs/small assets in git, but
+# not the heavy raw media — screen recordings + voiceovers stay on disk only.
+presentation/**/*.mp4
+presentation/**/*.mp3
+presentation/**/*.wav

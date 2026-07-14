@@ -41,8 +41,14 @@ class SavedAiAdvice {
   /// Raw advice text (newline-separated bullet points).
   final String text;
 
-  /// Period the advice was generated for (day / week / month).
-  final AiAdvicePeriod period;
+  /// Period the advice was generated for (day / week / month);
+  /// null = произвольный интервал из календаря (см. [startDate]/[endDate]).
+  final AiAdvicePeriod? period;
+
+  /// Границы интервала (yyyy-mm-dd, включительно). Заполняются для новых
+  /// советов; у старых записей могут отсутствовать.
+  final String? startDate;
+  final String? endDate;
 
   /// When the advice was generated/saved.
   final DateTime createdAt;
@@ -62,6 +68,8 @@ class SavedAiAdvice {
     required this.period,
     required this.createdAt,
     required this.languageCode,
+    this.startDate,
+    this.endDate,
     this.criticals = const [],
     this.micros = const [],
   });
@@ -69,7 +77,9 @@ class SavedAiAdvice {
   Map<String, dynamic> toMap() => {
         'id': id,
         'text': text,
-        'period': period.name,
+        'period': period?.name ?? 'custom',
+        if (startDate != null) 'startDate': startDate,
+        if (endDate != null) 'endDate': endDate,
         'createdAt': createdAt.toIso8601String(),
         'languageCode': languageCode,
         if (criticals.isNotEmpty)
@@ -85,13 +95,20 @@ class SavedAiAdvice {
             .map(SavedNutrient.fromMap)
             .toList()
         : const <SavedNutrient>[];
+    final rawPeriod = m['period'];
     return SavedAiAdvice(
       id: (m['id'] as String?) ?? rawCreated ?? '',
       text: (m['text'] as String?) ?? '',
-      period: AiAdvicePeriod.values.firstWhere(
-        (p) => p.name == m['period'],
-        orElse: () => AiAdvicePeriod.day,
-      ),
+      // 'custom' (и любое неизвестное значение при наличии дат) → null-пресет;
+      // старые записи без дат остаются днём по умолчанию.
+      period: rawPeriod == 'custom'
+          ? null
+          : AiAdvicePeriod.values.firstWhere(
+              (p) => p.name == rawPeriod,
+              orElse: () => AiAdvicePeriod.day,
+            ),
+      startDate: m['startDate'] as String?,
+      endDate: m['endDate'] as String?,
       createdAt: rawCreated == null
           ? DateTime.now()
           : DateTime.tryParse(rawCreated) ?? DateTime.now(),

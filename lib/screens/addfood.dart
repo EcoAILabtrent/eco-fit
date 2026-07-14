@@ -653,35 +653,8 @@ class _AddFoodTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 12, 0, 16),
-      child: Row(
-        children: [
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onBack,
-            child: SizedBox(
-              width: 28,
-              height: 28,
-              child: Icon(Icons.chevron_left, size: 28, color: t.ink),
-            ),
-          ),
-          const SizedBox(width: 2),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: t.ink,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    // Единый заголовок экрана — EcoTopBar (как на всех остальных экранах).
+    return EcoTopBar(t: t, title: title, onBack: onBack);
   }
 }
 
