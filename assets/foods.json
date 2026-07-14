@@ -13774,32 +13774,6 @@
     }
   },
   {
-    "slug": "plastik_marmelad",
-    "name_uz_lat": "Plastik marmelad",
-    "name_uz_kril": "Пластик мармелад",
-    "name_ru": "Пластиковый мармелад",
-    "name_en": "Plastic marmalade",
-    "photo_url": "/photos/000501.jpeg",
-    "emoji": null,
-    "category": "Shirinliklar",
-    "default_unit": "g",
-    "grams_per_unit": 100,
-    "per_100g": {
-      "kcal": 330,
-      "protein": 0.5,
-      "carbs": 82,
-      "fat": 0.1,
-      "type": "food",
-      "micros": {
-        "k": 50,
-        "ca": 25,
-        "p": 12,
-        "na": 30,
-        "fe": 1
-      }
-    }
-  },
-  {
     "slug": "plombir_muzqaymoq",
     "name_uz_lat": "Plombir muzqaymoq",
     "name_uz_kril": "Пломбир музқаймоқ",
@@ -19231,8 +19205,8 @@
     "slug": "snapper_baliq_muzlatilgan_tabiiy_tutilgan",
     "name_uz_lat": "Olabug`a baliq, muzlatilgan, tabiiy tutilgan",
     "name_uz_kril": "Олабуға балиқ, музлатилган, табиий тутилган",
-    "name_ru": "Рыба окунь мороженая, выловленная в дикой природе",
-    "name_en": "Snapper fish, frozen, wild caught",
+    "name_ru": "Окунь, мороженый, дикий вылов",
+    "name_en": "Perch, frozen, wild caught",
     "photo_url": "/photos/000695.jpeg",
     "emoji": null,
     "category": "Baliq va dengiz mahsulotlari",
@@ -30572,7 +30546,7 @@
     "name_uz_lat": "Sushka / Baranka",
     "name_uz_kril": "Сушка / Баранка",
     "name_ru": "Сушка / Баранка",
-    "name_en": "Sushka / Baranka",
+    "name_en": "Dried bread rings (sushki/baranki)",
     "photo_url": "/photos/001091.jpeg",
     "emoji": null,
     "category": "Non mahsulotlari",
